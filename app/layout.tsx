@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LayoutSection from "@/components/layout/LayoutSection";
 
 export const metadata: Metadata = {
   title: "Tea - Mall",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="font-[GmarketSansMedium]">
+        <LayoutSection>{children}</LayoutSection>
+      </body>
     </html>
   );
 }
