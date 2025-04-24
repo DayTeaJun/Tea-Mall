@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "@/styles/globals.css";
 import LayoutSection from "@/components/layout/LayoutSection";
-import ReactQueryClientProvider from "@/config/ReactQueryProvider";
+import ReactQueryClientProvider from "@/lib/config/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: "Tea - Mall",
