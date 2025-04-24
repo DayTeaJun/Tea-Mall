@@ -17,14 +17,13 @@ export async function signUpUser(formData: {
     password,
   });
 
-  console.log(data, error);
-
   if (error) throw new Error(error.message);
 
   if (data.user) {
-    const { error: insertError } = await supabase.from("userTable").insert({
+    const { error: insertError } = await supabase.from("user_table").insert({
       id: data.user.id,
       user_name: username,
+      email: email,
     });
 
     if (insertError) throw new Error(insertError.message);

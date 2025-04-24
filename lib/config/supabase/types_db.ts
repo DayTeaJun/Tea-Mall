@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      userTable: {
+      user_table: {
         Row: {
           created_at: string
           email: string | null
@@ -19,7 +19,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email?: string | null
-          id?: string
+          id: string
           user_name?: string | null
         }
         Update: {
