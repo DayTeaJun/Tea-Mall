@@ -31,3 +31,22 @@ export async function signUpUser(formData: {
 
   return data.user;
 }
+
+// 로그인
+export async function signInUser(formData: {
+  email: string;
+  password: string;
+}) {
+  const supabase = await createServerSupabaseClient();
+
+  const { email, password } = formData;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw new Error(error.message);
+
+  return data.user;
+}
