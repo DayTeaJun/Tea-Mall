@@ -88,7 +88,10 @@ export default function SignUpPage() {
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
-        <button className="cursor-pointer" type="submit">
+        <button
+          className="bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-all duration-200 ease-in-out font-bold cursor-pointer"
+          type="submit"
+        >
           회원가입
         </button>
       </form>
