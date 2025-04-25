@@ -2,6 +2,7 @@
 
 import { signUpUser } from "@/app/actions/auth";
 import { Lock, LockKeyhole, Mail, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignUpPage() {
@@ -9,6 +10,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +22,7 @@ export default function SignUpPage() {
     try {
       await signUpUser({ email, password, username });
       alert("회원가입 성공!");
+      router.push("/");
     } catch (err) {
       alert("오류: " + err.message);
     }
