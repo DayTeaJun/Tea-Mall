@@ -46,7 +46,7 @@ export async function signInUser(formData: {
     password,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw error;
 
   return data.user;
 }

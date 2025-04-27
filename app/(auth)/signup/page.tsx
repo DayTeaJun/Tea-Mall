@@ -24,7 +24,11 @@ export default function SignUpPage() {
       alert("회원가입 성공!");
       router.push("/");
     } catch (err) {
-      alert("오류: " + err.message);
+      if (err instanceof Error) {
+        alert("회원가입 실패: " + err.message);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다. 관리자에게 문의해주세요.");
+      }
     }
   };
 

@@ -1,24 +1,17 @@
 "use client";
-import { signInUser } from "@/app/actions/auth";
+import { useLoginMutation } from "@/app/queries/auth";
 import { Lock, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const { mutate } = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      await signInUser({ email, password });
-      alert("로그인 성공!");
-      router.push("/");
-    } catch (err) {
-      alert("오류: " + err.message);
-    }
+    mutate({ email, password });
   };
 
   return (
