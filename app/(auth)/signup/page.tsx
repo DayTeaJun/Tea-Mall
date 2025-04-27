@@ -1,16 +1,16 @@
 "use client";
 
-import { signUpUser } from "@/app/actions/auth";
 import { Lock, LockKeyhole, Mail, User } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSignUpMutation } from "../queries";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
-  const router = useRouter();
+
+  const { mutate } = useSignUpMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,18 +18,7 @@ export default function SignUpPage() {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-
-    try {
-      await signUpUser({ email, password, username });
-      alert("회원가입 성공!");
-      router.push("/");
-    } catch (err) {
-      if (err instanceof Error) {
-        alert("회원가입 실패: " + err.message);
-      } else {
-        alert("알 수 없는 오류가 발생했습니다. 관리자에게 문의해주세요.");
-      }
-    }
+    mutate({ email, password, username });
   };
 
   return (

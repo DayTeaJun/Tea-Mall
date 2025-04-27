@@ -1,12 +1,12 @@
 "use client";
-import { useLoginMutation } from "@/app/queries/auth";
 import { Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
+import { useSignInMutation } from "../queries";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { mutate } = useLoginMutation();
+  const { mutate } = useSignInMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
