@@ -1,6 +1,9 @@
 "use server";
 
-import { createServerSupabaseClient } from "@/lib/config/supabase/server";
+import {
+  createServerSupabaseAdminClient,
+  createServerSupabaseClient,
+} from "@/lib/config/supabase/server";
 
 // 회원가입
 export async function signUpUser(formData: {
@@ -49,4 +52,22 @@ export async function signInUser(formData: {
   if (error) throw error;
 
   return data.user;
+}
+
+// 이메일 체크 (rls 정책으로 인해 admin client 사용)
+export async function serverCheckEmailExists(email: string) {
+  const supabaseAdmin = await createServerSupabaseAdminClient();
+
+  const { data, error } = await supabaseAdmin
+    .from("user_table")
+    .select("email")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase 에러", error);
+    throw new Error("이메일 중복 확인 실패");
+  }
+
+  return data !== null;
 }
