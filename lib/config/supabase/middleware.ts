@@ -32,8 +32,21 @@ export async function updateSession(req: NextRequest) {
     },
   );
 
-  // 🔄 세션 확인 + 갱신
-  await supabase.auth.getSession();
+  // 세션 가져오기 (access-token 만료시 refresh 시도)
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
 
-  return res;
+  if (sessionError || !sessionData.session) {
+    // (Secure, SameSite, HttpOnly 문제 등) getSession 실패 시 getUser 시도 -> 로컬 환경에서 에러 나중에 배포 환경에서 테스트
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    // 최종 로그인 유무 확인
+    if (userError || !userData.user) {
+      return { response: res, isLoggedIn: false };
+    } else {
+      return { response: res, isLoggedIn: true };
+    }
+  }
+
+  return { response: res, isLoggedIn: true };
 }
