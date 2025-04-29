@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { signInUser, signUpUser } from "./actions";
+import { useState } from "react";
 
 interface SignInFormData {
   email: string;
@@ -18,6 +19,7 @@ interface SignUpFormData {
 // 로그인
 export const useSignInMutation = () => {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignInFormData) => signInUser(formData),
@@ -26,24 +28,21 @@ export const useSignInMutation = () => {
       router.push("/");
     },
     onError: (error) => {
-      if (error && typeof error === "object" && "status" in error) {
-        const status = (error as { status: number }).status;
-        const message = (error as { message: string }).message;
-
-        if (status === 400) {
-          alert("잘못된 로그인 정보입니다.");
-        } else if (status === 500) {
-          alert("서버 에러입니다.");
+      if (error instanceof Error) {
+        if (error.message === "INVALID_CREDENTIALS") {
+          setErrorMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
         } else {
-          alert(`알 수 없는 오류: ${message}`);
+          setErrorMessage("오류가 발생했습니다. 관리자에게 문의해주세요.");
         }
       } else {
-        alert("예상치 못한 오류가 발생했습니다.");
+        setErrorMessage(
+          "예기치 못한 오류가 발생했습니다. 관리자에게 문의해주세요.",
+        );
       }
     },
   });
 
-  return { data, isError, mutate, isSuccess, isPending };
+  return { data, isError, mutate, isSuccess, isPending, errorMessage };
 };
 
 // 회원가입

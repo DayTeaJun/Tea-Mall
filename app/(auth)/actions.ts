@@ -49,7 +49,9 @@ export async function signInUser(formData: {
     password,
   });
 
-  if (error) throw error;
+  if (error) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
 
   return data.user;
 }
