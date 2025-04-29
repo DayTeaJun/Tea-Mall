@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { logGetSession, logGetUser } from "@/lib/utils/supabaseLogger";
 
 // 쿠키 만료시 세션 갱신을 위한 미들웨어
 export async function updateSession(req: NextRequest) {
@@ -32,11 +33,15 @@ export async function updateSession(req: NextRequest) {
     },
   );
 
+  logGetSession("middleware.ts");
+
   // 세션 가져오기 (access-token 만료시 refresh 시도)
   const { data: sessionData, error: sessionError } =
     await supabase.auth.getSession();
 
   if (sessionError || !sessionData.session) {
+    logGetUser("middleware.ts");
+
     // (Secure, SameSite, HttpOnly 문제 등) getSession 실패 시 getUser 시도 -> 로컬 환경에서 에러 나중에 배포 환경에서 테스트
     const { data: userData, error: userError } = await supabase.auth.getUser();
 

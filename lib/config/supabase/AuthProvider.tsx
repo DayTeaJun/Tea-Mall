@@ -3,18 +3,28 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { createBrowserSupabaseClient } from "./client";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 interface Props {
-  accessToken: string | undefined;
+  user: {
+    id: string;
+    email: string;
+  } | null;
+
+  accessToken: string | null;
   children: React.ReactNode;
 }
 
 // 유저 인증 상태 변경, 이름 변경, 로그인 상태, 토큰 만료 등 이벤트 구독
-export default function AuthProvider({ accessToken, children }: Props) {
+export default function AuthProvider({ user, accessToken, children }: Props) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
 
+  const { setUser } = useAuthStore();
+
   useEffect(() => {
+    setUser(user);
+
     const {
       data: { subscription: authListner },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -30,7 +40,7 @@ export default function AuthProvider({ accessToken, children }: Props) {
       // 화면이 닫힐 때 구독 해제
       authListner.unsubscribe();
     };
-  }, [accessToken, supabase, router]);
+  }, [accessToken, supabase, router, setUser, user]);
 
   return children;
 }
