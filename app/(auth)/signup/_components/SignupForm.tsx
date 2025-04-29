@@ -25,9 +25,14 @@ function SignupForm() {
     mutate({ email, password, username });
   };
 
+  const isFormValid =
+    emailValid === "사용 가능한 이메일입니다." &&
+    passwordCheck === "비밀번호가 일치합니다." &&
+    usernameValid === "사용 가능한 사용자명입니다.";
+
   return (
     <form
-      className="flex flex-col gap-6 p-5 max-w-[500px] w-full"
+      className="flex flex-col p-5 max-w-[500px] w-full"
       onSubmit={handleSubmit}
     >
       <ValidEmail
@@ -36,13 +41,15 @@ function SignupForm() {
         setEmailValid={setEmailValid}
       />
       <p
-        className={`-my-5 h-5 text-[12px] ${
+        className={`h-5 text-[12px] min-h-[20px] my-2 ${
           emailValid === "사용 가능한 이메일입니다."
             ? "text-green-500"
-            : "text-red-500"
+            : emailValid
+            ? "text-red-500"
+            : "text-transparent"
         }`}
       >
-        {emailValid && emailValid}
+        {emailValid || "\u00A0"}
       </p>
 
       <ValidPassword
@@ -54,13 +61,15 @@ function SignupForm() {
       />
 
       <p
-        className={`-my-5 h-5 text-[12px] ${
-          passwordCheck !== "비밀번호가 일치합니다."
+        className={`h-5 text-[12px] min-h-[20px] my-2 ${
+          passwordCheck === "비밀번호가 일치합니다."
+            ? "text-green-500"
+            : passwordCheck
             ? "text-red-500"
-            : "text-green-500"
+            : "text-transparent"
         }`}
       >
-        {passwordCheck && passwordCheck}
+        {passwordCheck || "\u00A0"}
       </p>
 
       <ValidUsername
@@ -70,18 +79,25 @@ function SignupForm() {
       />
 
       <p
-        className={`-my-5 h-5 text-[12px] ${
+        className={`h-5 text-[12px] min-h-[20px] my-2 ${
           usernameValid === "사용 가능한 사용자명입니다."
             ? "text-green-500"
-            : "text-red-500"
+            : usernameValid
+            ? "text-red-500"
+            : "text-transparent"
         }`}
       >
-        {usernameValid && usernameValid}
+        {usernameValid || "\u00A0"}
       </p>
 
       <button
-        className="bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-all duration-200 ease-in-out font-bold cursor-pointer"
+        className={`p-3 rounded-md font-bold transition-all duration-200 ease-in-out ${
+          isFormValid
+            ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+            : "bg-gray-300 text-white cursor-default"
+        }`}
         type="submit"
+        disabled={!isFormValid}
       >
         회원가입
       </button>

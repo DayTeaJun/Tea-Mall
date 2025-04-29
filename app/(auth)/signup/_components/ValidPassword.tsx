@@ -56,7 +56,7 @@ function ValidPassword({
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <div className="flex gap-2 items-center border border-gray-100">
+      <div className="flex gap-2 items-center border border-gray-100 mt-7">
         <label htmlFor="password" className="bg-gray-50 p-3">
           <LockKeyhole size={20} className="text-gray-400" />
         </label>
