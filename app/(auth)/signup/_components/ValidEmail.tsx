@@ -28,7 +28,7 @@ function ValidEmail({ email, setEmail, setEmailValid }: ValidEmailProps) {
       }
 
       try {
-        const exists = await serverCheckEmailExists(debounceEmail); // 서버 액션 호출
+        const exists = await serverCheckEmailExists(debounceEmail);
 
         if (exists) {
           setEmailValid("중복된 이메일입니다.");
@@ -37,7 +37,9 @@ function ValidEmail({ email, setEmail, setEmailValid }: ValidEmailProps) {
         }
       } catch (error) {
         console.error("이메일 확인 중 오류:", error);
-        setEmailValid("이메일 확인 중 문제가 발생했습니다.");
+        setEmailValid(
+          "이메일 확인 중 문제가 발생했습니다. 관리자에게 문의해주세요.",
+        );
       }
     };
 
