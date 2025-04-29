@@ -3,6 +3,7 @@
 import { Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { useSignInMutation } from "../../queries";
+import { EMAIL_REGEX } from "../../constants";
 
 function SigninForm() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,8 @@ function SigninForm() {
 
     mutate({ email, password });
   };
+
+  const isFormValid = EMAIL_REGEX.test(email) && password.length >= 6;
 
   return (
     <form
@@ -33,7 +36,7 @@ function SigninForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-      <div className="flex gap-2 items-center border border-gray-100 mt-7">
+      <div className="flex gap-2 items-center border border-gray-100 mt-9">
         <label htmlFor="password" className="bg-gray-50 p-3">
           <Lock size={20} className="text-gray-400" />
         </label>
@@ -47,17 +50,18 @@ function SigninForm() {
         />
       </div>
 
-      <p
-        className={`h-5 text-[12px] min-h-[20px] my-2 ${
-          errorMessage && "text-red-500"
-        }`}
-      >
+      <p className={`h-5 text-[12px] my-2 ${errorMessage && "text-red-500"}`}>
         {errorMessage || "\u00A0"}
       </p>
 
       <button
         type="submit"
-        className="bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-all duration-200 ease-in-out font-bold cursor-pointer"
+        className={`p-3 rounded-md font-bold transition-all duration-200 ease-in-out ${
+          isFormValid
+            ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+            : "bg-gray-300 text-white cursor-default"
+        }`}
+        disabled={!isFormValid}
       >
         로그인
       </button>

@@ -41,7 +41,7 @@ function SignupForm() {
         setEmailValid={setEmailValid}
       />
       <p
-        className={`h-5 text-[12px] min-h-[20px] my-2 ${
+        className={`h-5 text-[12px] my-2 ${
           emailValid === "사용 가능한 이메일입니다."
             ? "text-green-500"
             : emailValid
@@ -61,7 +61,7 @@ function SignupForm() {
       />
 
       <p
-        className={`h-5 text-[12px] min-h-[20px] my-2 ${
+        className={`h-5 text-[12px] my-2 ${
           passwordCheck === "비밀번호가 일치합니다."
             ? "text-green-500"
             : passwordCheck
@@ -79,7 +79,7 @@ function SignupForm() {
       />
 
       <p
-        className={`h-5 text-[12px] min-h-[20px] my-2 ${
+        className={`h-5 text-[12px] my-2 ${
           usernameValid === "사용 가능한 사용자명입니다."
             ? "text-green-500"
             : usernameValid
