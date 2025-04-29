@@ -1,13 +1,46 @@
 "use client";
 
 import { Lock, LockKeyhole } from "lucide-react";
+import { useEffect } from "react";
+import { PASSWORD_REGEX } from "../../constants";
+
+interface Props {
+  password: string;
+  confirmPassword: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  setConfirmPassword: React.Dispatch<React.SetStateAction<string>>;
+  setPasswordCheck: React.Dispatch<React.SetStateAction<string>>;
+}
 
 function ValidPassword({
   password,
   setPassword,
   confirmPassword,
   setConfirmPassword,
-}) {
+  setPasswordCheck,
+}: Props) {
+  useEffect(() => {
+    if (password === "" || confirmPassword === "") {
+      setPasswordCheck("");
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+      setPasswordCheck("비밀번호를 최소 6자 입력해주세요.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordCheck("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (password === confirmPassword) {
+      setPasswordCheck("비밀번호가 일치합니다.");
+      return;
+    }
+  }, [confirmPassword, password, setPasswordCheck]);
+
   return (
     <>
       <div className="flex gap-2 items-center border border-gray-100">

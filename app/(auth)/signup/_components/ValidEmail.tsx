@@ -4,11 +4,12 @@ import useDebounce from "@/lib/hooks/useDebounce";
 import { Mail } from "lucide-react";
 import React, { useEffect } from "react";
 import { serverCheckEmailExists } from "../../actions";
+import { EMAIL_REGEX } from "../../constants";
 
 type ValidEmailProps = {
   email: string;
-  setEmail: (email: string) => void;
-  setEmailValid: (valid: string) => void;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  setEmailValid: React.Dispatch<React.SetStateAction<string>>;
 };
 
 function ValidEmail({ email, setEmail, setEmailValid }: ValidEmailProps) {
@@ -21,8 +22,7 @@ function ValidEmail({ email, setEmail, setEmailValid }: ValidEmailProps) {
         return;
       }
 
-      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      if (!emailRegex.test(debounceEmail)) {
+      if (!EMAIL_REGEX.test(debounceEmail)) {
         setEmailValid("잘못된 이메일 형식입니다.");
         return;
       }

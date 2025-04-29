@@ -1,9 +1,10 @@
 "use client";
 
-import { Lock, LockKeyhole, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useState } from "react";
 import { useSignUpMutation } from "../../queries";
 import ValidEmail from "./ValidEmail";
+import ValidPassword from "./ValidPassword";
 
 function SignupForm() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,8 @@ function SignupForm() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [passwordCheck, setPasswordCheck] = useState("");
 
   const [username, setUsername] = useState("");
 
@@ -24,7 +27,7 @@ function SignupForm() {
 
   return (
     <form
-      className="flex flex-col gap-5 p-5 max-w-[500px] w-full"
+      className="flex flex-col gap-6 p-5 max-w-[500px] w-full"
       onSubmit={handleSubmit}
     >
       <ValidEmail
@@ -32,35 +35,31 @@ function SignupForm() {
         setEmail={setEmail}
         setEmailValid={setEmailValid}
       />
-      <p>{emailValid && emailValid}</p>
+      <p
+        className={`-my-5 h-5 text-[12px] ${
+          emailValid === "사용 가능한 이메일입니다."
+            ? "text-green-500"
+            : "text-red-500"
+        }`}
+      >
+        {emailValid && emailValid}
+      </p>
 
-      <div className="flex gap-2 items-center border border-gray-100">
-        <label htmlFor="password" className="bg-gray-50 p-3">
-          <Lock size={20} className="text-gray-400" />
-        </label>
-        <input
-          id="password"
-          placeholder="비밀번호"
-          className="border-none outline-0 px-2 w-full"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
+      <ValidPassword
+        password={password}
+        setPassword={setPassword}
+        confirmPassword={confirmPassword}
+        setConfirmPassword={setConfirmPassword}
+        setPasswordCheck={setPasswordCheck}
+      />
 
-      <div className="flex gap-2 items-center border border-gray-100">
-        <label htmlFor="password" className="bg-gray-50 p-3">
-          <LockKeyhole size={20} className="text-gray-400" />
-        </label>
-        <input
-          id="password"
-          placeholder="비밀번호 확인"
-          className="border-none outline-0 px-2 w-full"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
+      <p
+        className={`-my-5 h-5 text-[12px] ${
+          passwordCheck !== "비밀번호가 일치합니다." && "text-red-500"
+        }`}
+      >
+        {passwordCheck && passwordCheck}
+      </p>
 
       <div className="flex gap-2 items-center border border-gray-100">
         <label htmlFor="username" className="bg-gray-50 p-3">
