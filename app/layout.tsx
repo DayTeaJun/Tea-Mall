@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="">
+      <body className="font-[SUIT-Regular] min-h-screen flex flex-col">
         <ReactQueryClientProvider>
           <LayoutSection>{children}</LayoutSection>
         </ReactQueryClientProvider>
