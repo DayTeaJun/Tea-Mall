@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { logGetSession, logGetUser } from "@/lib/utils/supabaseLogger";
 
 export async function getServerSession() {
   const cookieStore = await cookies();
@@ -14,12 +13,12 @@ export async function getServerSession() {
       },
     },
   );
-  logGetSession("layout.tsx");
-  logGetUser("layout.tsx");
 
+  const { data: sessionData } = await supabase.auth.getSession();
   const { data: userData } = await supabase.auth.getUser();
 
   return {
+    accessToken: sessionData?.session?.access_token ?? null,
     user: userData?.user
       ? {
           id: userData.user.id,
