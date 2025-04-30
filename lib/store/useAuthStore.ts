@@ -4,6 +4,7 @@ import { create } from "zustand";
 type User = {
   id: string;
   email: string;
+  user_name: string;
 };
 
 interface AuthState {

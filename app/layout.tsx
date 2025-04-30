@@ -15,13 +15,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, accessToken } = await getServerSession();
+  const { user } = await getServerSession();
 
   return (
     <html lang="en">
       <body className="font-[SUIT-Regular] min-h-screen flex flex-col">
         <ReactQueryClientProvider>
-          <AuthProvider user={user} accessToken={accessToken}>
+          <AuthProvider user={user}>
             <LayoutSection>{children}</LayoutSection>
           </AuthProvider>
         </ReactQueryClientProvider>

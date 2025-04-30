@@ -14,19 +14,17 @@ export async function getServerSession() {
       },
     },
   );
-
   logGetSession("layout.tsx");
   logGetUser("layout.tsx");
 
-  const { data: sessionData } = await supabase.auth.getSession();
   const { data: userData } = await supabase.auth.getUser();
 
   return {
-    accessToken: sessionData?.session?.access_token ?? null,
     user: userData?.user
       ? {
           id: userData.user.id,
           email: userData.user.email ?? "",
+          user_name: userData.user.user_metadata.user_name ?? "",
           ...userData.user.user_metadata,
         }
       : null,
