@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import LayoutSection from "@/components/layout/LayoutSection";
-import ReactQueryClientProvider from "@/lib/config/ReactQueryProvider";
-import AuthProvider from "@/lib/config/supabase/AuthProvider";
-import { getServerSession } from "@/lib/config/supabase/getServerSession";
+import ReactQueryClientProvider from "@/components/providers/ReactQueryProvider";
+import AuthProvider from "@/components/providers/AuthProvider";
+import { getServerSession } from "@/lib/config/supabase/server/getServerSession";
 
 export const metadata: Metadata = {
   title: "Tea - Mall",

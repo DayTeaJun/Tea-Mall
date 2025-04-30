@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "./lib/config/supabase/middleware";
+import { updateSession } from "./lib/config/supabase/server/middleware";
 
 const protectedRoutes = ["/profile"];
 const publicRoutes = ["/signin", "/signup"];

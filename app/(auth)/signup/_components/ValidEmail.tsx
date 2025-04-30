@@ -1,6 +1,6 @@
 "use client";
 
-import useDebounce from "@/lib/hooks/useDebounce";
+import useDebounce from "@/hooks/useDebounce";
 import { Mail } from "lucide-react";
 import React, { useEffect } from "react";
 import { serverCheckEmailExists } from "../../actions";

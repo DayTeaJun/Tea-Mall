@@ -1,6 +1,6 @@
 "use client";
 
-import useDebounce from "@/lib/hooks/useDebounce";
+import useDebounce from "@/hooks/useDebounce";
 import { User } from "lucide-react";
 import React, { useEffect } from "react";
 import { USERNAME_REGEX } from "../../constants";

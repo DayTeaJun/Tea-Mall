@@ -1,6 +1,6 @@
 "use server";
 
-import { Database } from "./types_db";
+import { Database } from "../types_db";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";

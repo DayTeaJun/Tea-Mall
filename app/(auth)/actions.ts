@@ -3,7 +3,7 @@
 import {
   createServerSupabaseAdminClient,
   createServerSupabaseClient,
-} from "@/lib/config/supabase/server";
+} from "@/lib/config/supabase/server/server";
 
 // 회원가입
 export async function signUpUser(formData: {

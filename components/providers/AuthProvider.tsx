@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { createBrowserSupabaseClient } from "./client";
+import { createBrowserSupabaseClient } from "../../lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 interface Props {

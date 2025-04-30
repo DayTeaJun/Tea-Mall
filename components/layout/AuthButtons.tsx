@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LogIn, SquareUserRound } from "lucide-react";
 import Link from "next/link";
-import SignOutBtn from "../buttons/SignOutBtn";
+import SignOutBtn from "../common/buttons/SignOutBtn";
 
 export default function AuthButtons() {
   const { user } = useAuthStore();
