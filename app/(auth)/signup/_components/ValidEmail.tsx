@@ -3,7 +3,7 @@
 import useDebounce from "@/hooks/useDebounce";
 import { Mail } from "lucide-react";
 import React, { useEffect } from "react";
-import { serverCheckEmailExists } from "../../actions";
+import { serverCheckEmailExists } from "../../../../lib/actions/auth/actions";
 import { EMAIL_REGEX } from "../../constants";
 
 type ValidEmailProps = {

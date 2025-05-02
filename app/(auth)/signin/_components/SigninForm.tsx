@@ -2,8 +2,8 @@
 
 import { Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
-import { useSignInMutation } from "../../queries";
 import { EMAIL_REGEX } from "../../constants";
+import { useSignInMutation } from "@/lib/queries/auth/queries";
 
 function SigninForm() {
   const [email, setEmail] = useState("");

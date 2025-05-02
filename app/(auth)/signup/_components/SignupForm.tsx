@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useSignUpMutation } from "../../queries";
 import ValidEmail from "./ValidEmail";
 import ValidPassword from "./ValidPassword";
 import ValidUsername from "./ValidUsername";
+import { useSignUpMutation } from "@/lib/queries/auth/queries";
 
 function SignupForm() {
   const [email, setEmail] = useState("");
