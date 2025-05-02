@@ -4,7 +4,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { User } from "lucide-react";
 import React, { useEffect } from "react";
 import { USERNAME_REGEX } from "../../constants";
-import { serverCheckUsernameExists } from "../../../../lib/actions/auth/actions";
+import { serverCheckUsernameExists } from "../../../../lib/actions/auth";
 
 interface Props {
   username: string;

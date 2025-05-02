@@ -4,7 +4,7 @@ import { useState } from "react";
 import ValidEmail from "./ValidEmail";
 import ValidPassword from "./ValidPassword";
 import ValidUsername from "./ValidUsername";
-import { useSignUpMutation } from "@/lib/queries/auth/queries";
+import { useSignUpMutation } from "@/lib/queries/auth";
 
 function SignupForm() {
   const [email, setEmail] = useState("");

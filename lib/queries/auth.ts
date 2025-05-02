@@ -1,6 +1,6 @@
 "use client";
 
-import { signInUser, signUpUser } from "@/lib/actions/auth/actions";
+import { signInUser } from "@/lib/actions/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,12 +8,6 @@ import { useState } from "react";
 interface SignInFormData {
   email: string;
   password: string;
-}
-
-interface SignUpFormData {
-  email: string;
-  password: string;
-  username: string;
 }
 
 // 로그인
@@ -50,7 +44,6 @@ export const useSignUpMutation = () => {
   const router = useRouter();
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
-    mutationFn: (formData: SignUpFormData) => signUpUser(formData),
     onSuccess: () => {
       alert("회원가입에 성공하였습니다.");
       router.push("/");
