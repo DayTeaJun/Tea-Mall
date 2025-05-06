@@ -1,28 +1,31 @@
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 
-// 이미지 업로드
-export async function uploadImageToStorage(file: File): Promise<string | null> {
+export async function uploadImageToStorage(file: File): Promise<string> {
   const supabase = createBrowserSupabaseClient();
+  const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
+  const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const fileName = `${uuidv4()}-${file.name}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("product-images")
+  console.log(bucket, projectUrl);
+
+  if (!bucket || !projectUrl) {
+    throw new Error("환경변수(SUPABASE 설정)가 올바르게 구성되지 않았습니다.");
+  }
+
+  const { data, error: uploadError } = await supabase.storage
+    .from(bucket)
     .upload(fileName, file, {
       cacheControl: "3600",
       upsert: false,
       contentType: file.type,
     });
 
-  if (uploadError) {
-    console.error("Upload Error:", uploadError.message);
-    return null;
+  if (uploadError || !data?.path) {
+    console.error("이미지 업로드 실패:", uploadError?.message);
+    throw new Error("이미지 업로드에 실패했습니다.");
   }
 
-  // ✅ 여기서 public URL 가져오기
-  const { data } = supabase.storage
-    .from("product-images")
-    .getPublicUrl(fileName);
-
-  return data?.publicUrl ?? null;
+  const publicUrl = `${projectUrl}/storage/v1/object/public/${bucket}/${data.path}`;
+  return publicUrl;
 }

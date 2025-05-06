@@ -17,29 +17,30 @@ export default function AddProductPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      alert("상품 이미지를 선택해주세요.");
+      alert("이미지를 선택해 주세요.");
       return;
     }
-    setUploading(true);
 
-    const imageUrl = await uploadImageToStorage(file);
+    try {
+      setUploading(true);
+      const imageUrl = await uploadImageToStorage(file);
 
-    if (imageUrl) {
-      const upload = await createProduct({
+      console.log(imageUrl);
+
+      await createProduct({
         name,
         description,
         price: Number(price),
         imageUrl,
       });
 
-      if (!upload) {
-        alert("상품 등록에 실패했습니다.");
-        setUploading(false);
-        return;
-      }
+      alert("상품이 성공적으로 등록되었습니다.");
+    } catch (err: any) {
+      console.error("상품 등록 실패:", err.message);
+      alert("등록 중 오류: " + err.message);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    alert("상품 등록 성공");
   };
 
   return (

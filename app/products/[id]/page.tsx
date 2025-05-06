@@ -11,10 +11,13 @@ export default async function ProductDetailPage({
 }) {
   const supabase = await createServerSupabaseClient();
 
+  // nextjs 15 params가 비동기적으로 작동하도록 권장
+  const { id } = await params;
+
   const { data: product, error } = await supabase
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!product || error) return notFound();
@@ -30,15 +33,17 @@ export default async function ProductDetailPage({
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-6">
           <div className="relative w-full md:w-1/2 aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="object-cover"
-              />
-            ) : (
-              <ImageOff className="text-gray-400 w-12 h-12" />
-            )}
+            <div className="relative w-full md:w-1/2 aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <ImageOff className="text-gray-400 w-12 h-12" />
+              )}
+            </div>
           </div>
 
           <div className="flex-1 space-y-4">
