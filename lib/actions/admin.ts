@@ -22,6 +22,9 @@ export async function createProduct({
       image_url: imageUrl,
     },
   ]);
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("상품 등록 실패:", error.message);
+    throw new Error(error.message);
+  }
   return data;
 }

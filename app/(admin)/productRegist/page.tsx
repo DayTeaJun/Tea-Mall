@@ -31,11 +31,15 @@ export default function AddProductPage() {
         price: Number(price),
         imageUrl,
       });
-      // 성공 시 이동 또는 알림
 
-      console.log("상품 등록 성공:", upload);
+      if (!upload) {
+        alert("상품 등록에 실패했습니다.");
+        setUploading(false);
+        return;
+      }
     }
     setUploading(false);
+    alert("상품 등록 성공");
   };
 
   return (
