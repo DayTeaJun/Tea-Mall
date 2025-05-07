@@ -8,7 +8,6 @@ import {
   uploadImageToStorage,
   useCreateProductMutation,
 } from "@/lib/queries/admin";
-import { createProduct } from "@/lib/actions/admin";
 import { Label } from "@radix-ui/react-label";
 
 export default function AddProductPage() {
@@ -36,11 +35,14 @@ export default function AddProductPage() {
         price: Number(price),
         imageUrl,
       });
-    } catch (err: any) {
-      console.error("상품 등록 실패:", err.message);
-      alert("등록 중 오류: " + err.message);
-    } finally {
-      setUploading(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("상품 등록 실패:", err.message);
+        alert("등록 중 오류: " + err.message);
+      } else {
+        console.error("상품 등록 실패:", err);
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
     }
   };
 
