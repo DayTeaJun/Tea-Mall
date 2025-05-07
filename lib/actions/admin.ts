@@ -1,5 +1,6 @@
 "use server";
 
+import { ProductAllType } from "@/app/(admin)/productRegist/type";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 
 export async function createProduct({
@@ -7,12 +8,7 @@ export async function createProduct({
   description,
   price,
   imageUrl,
-}: {
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-}) {
+}: ProductAllType) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.from("products").insert([
     {

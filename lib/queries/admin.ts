@@ -1,7 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import { useMutation } from "@tanstack/react-query";
+import { createProduct } from "../actions/admin";
+import { ProductAllType } from "@/app/(admin)/productRegist/type";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export async function uploadImageToStorage(file: File): Promise<string> {
+// 상품 이미지 업로드
+export const uploadImageToStorage = async (file: File): Promise<string> => {
   const supabase = createBrowserSupabaseClient();
   const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,4 +33,30 @@ export async function uploadImageToStorage(file: File): Promise<string> {
 
   const publicUrl = `${projectUrl}/storage/v1/object/public/${bucket}/${data.path}`;
   return publicUrl;
-}
+};
+
+// 상품 등록 mutation
+export const useCreateProductMutation = () => {
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: async (productForm: ProductAllType) =>
+      createProduct(productForm),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      console.log(data);
+      alert("상품 등록이 완료되었습니다.");
+      router.push("/");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("알 수 없는 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending, errorMessage };
+};

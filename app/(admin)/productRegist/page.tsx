@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadImageToStorage } from "@/lib/queries/admin";
+import {
+  uploadImageToStorage,
+  useCreateProductMutation,
+} from "@/lib/queries/admin";
 import { createProduct } from "@/lib/actions/admin";
 import { Label } from "@radix-ui/react-label";
 
@@ -14,6 +17,8 @@ export default function AddProductPage() {
   const [price, setPrice] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const { mutate } = useCreateProductMutation();
 
   const handleSubmit = async () => {
     if (!file) {
@@ -25,14 +30,12 @@ export default function AddProductPage() {
       setUploading(true);
       const imageUrl = await uploadImageToStorage(file);
 
-      await createProduct({
+      mutate({
         name,
         description,
         price: Number(price),
         imageUrl,
       });
-
-      alert("상품이 성공적으로 등록되었습니다.");
     } catch (err: any) {
       console.error("상품 등록 실패:", err.message);
       alert("등록 중 오류: " + err.message);
