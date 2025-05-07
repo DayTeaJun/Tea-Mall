@@ -7,10 +7,8 @@ export async function uploadImageToStorage(file: File): Promise<string> {
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const fileName = `${uuidv4()}-${file.name}`;
 
-  console.log(bucket, projectUrl);
-
   if (!bucket || !projectUrl) {
-    throw new Error("환경변수(SUPABASE 설정)가 올바르게 구성되지 않았습니다.");
+    throw new Error("env 설정 안했음");
   }
 
   const { data, error: uploadError } = await supabase.storage

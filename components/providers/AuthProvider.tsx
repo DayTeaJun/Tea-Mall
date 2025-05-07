@@ -29,7 +29,6 @@ export default function AuthProvider({ user, children }: Props) {
       data: { subscription: authListner },
     } = supabase.auth.onAuthStateChange((event) => {
       // 기존 구독상태가 달라지면 최신화
-      console.log(event);
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         // 현재 url 유지한 상태로 서버 사이드 데이터를 다시 불러오게 함
         // 데이터만 새로 리패치함

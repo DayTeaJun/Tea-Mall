@@ -25,8 +25,6 @@ export default function AddProductPage() {
       setUploading(true);
       const imageUrl = await uploadImageToStorage(file);
 
-      console.log(imageUrl);
-
       await createProduct({
         name,
         description,
