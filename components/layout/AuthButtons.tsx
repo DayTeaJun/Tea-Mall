@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { LogIn, SquareUserRound } from "lucide-react";
+import { LogIn, ShoppingBag, SquareUserRound } from "lucide-react";
 import Link from "next/link";
 import SignOutBtn from "../common/buttons/SignOutBtn";
 
@@ -9,7 +9,19 @@ export default function AuthButtons() {
   const { user } = useAuthStore();
 
   return user ? (
-    <SignOutBtn />
+    <>
+      <SignOutBtn />
+
+      {user.level >= 2 && (
+        <Link
+          href="/productRegist"
+          className="text-black flex gap-1 items-center"
+        >
+          <p className="text-[14px]">상품등록</p>
+          <ShoppingBag size={16} />
+        </Link>
+      )}
+    </>
   ) : (
     <>
       <Link href="/signin" className="text-black flex gap-1 items-center">

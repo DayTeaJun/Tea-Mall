@@ -3,9 +3,11 @@ import { updateSession } from "./lib/config/supabase/server/middleware";
 
 const protectedRoutes = ["/profile"];
 const publicRoutes = ["/signin", "/signup"];
+const adminRoutes = ["/admin"];
+const sellerRoutes = ["/productRegist"];
 
 export async function middleware(request: NextRequest) {
-  const { response, isLoggedIn } = await updateSession(request);
+  const { response, isLoggedIn, level } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
 
@@ -20,6 +22,20 @@ export async function middleware(request: NextRequest) {
   if (isLoggedIn && publicRoutes.includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (level < 2 && sellerRoutes.includes(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    // url.searchParams.set("notice", "seller_only");
+    return NextResponse.redirect(url);
+  }
+
+  if (level !== 3 && adminRoutes.includes(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    // url.searchParams.set("notice", "admin_only");
     return NextResponse.redirect(url);
   }
 

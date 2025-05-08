@@ -17,6 +17,18 @@ export async function getServerSession() {
   const { data: sessionData } = await supabase.auth.getSession();
   const { data: userData } = await supabase.auth.getUser();
 
+  let profile = null;
+
+  if (userData?.user?.id) {
+    const { data: levelData } = await supabase
+      .from("user_table")
+      .select("level")
+      .eq("id", userData.user.id)
+      .single();
+
+    profile = levelData;
+  }
+
   return {
     accessToken: sessionData?.session?.access_token ?? null,
     user: userData?.user
@@ -24,6 +36,7 @@ export async function getServerSession() {
           id: userData.user.id,
           email: userData.user.email ?? "",
           user_name: userData.user.user_metadata.user_name ?? "",
+          level: profile?.level ?? 1,
           ...userData.user.user_metadata,
         }
       : null,

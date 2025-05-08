@@ -10,6 +10,7 @@ interface Props {
     id: string;
     email: string;
     user_name: string;
+    level: number;
   } | null;
 
   children: React.ReactNode;
@@ -26,19 +27,15 @@ export default function AuthProvider({ user, children }: Props) {
     setUser(user ?? null);
 
     const {
-      data: { subscription: authListner },
+      data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((event) => {
-      // 기존 구독상태가 달라지면 최신화
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        // 현재 url 유지한 상태로 서버 사이드 데이터를 다시 불러오게 함
-        // 데이터만 새로 리패치함
         router.refresh();
       }
     });
 
     return () => {
-      // 화면이 닫힐 때 구독 해제
-      authListner.unsubscribe();
+      authListener.unsubscribe();
     };
   }, [supabase, router, setUser, user]);
 

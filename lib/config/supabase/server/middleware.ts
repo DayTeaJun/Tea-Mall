@@ -44,9 +44,18 @@ export async function updateSession(req: NextRequest) {
     if (userError || !userData.user) {
       return { response: res, isLoggedIn: false };
     } else {
-      return { response: res, isLoggedIn: true };
+      const { data: profile, error: profileError } = await supabase
+        .from("user_table")
+        .select("level")
+        .eq("id", userData.user.id)
+        .single();
+      return {
+        response: res,
+        isLoggedIn: true,
+        level: !profileError && profile?.level,
+      };
     }
   }
 
-  return { response: res, isLoggedIn: true };
+  return { response: res, isLoggedIn: false };
 }

@@ -5,6 +5,7 @@ type User = {
   id: string;
   email: string;
   user_name: string;
+  level: number;
 };
 
 interface AuthState {
