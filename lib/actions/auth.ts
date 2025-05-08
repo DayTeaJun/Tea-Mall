@@ -1,16 +1,13 @@
 "use server";
 
+import { SignUpFormData } from "@/app/(auth)/type";
 import {
   createServerSupabaseAdminClient,
   createServerSupabaseClient,
 } from "@/lib/config/supabase/server/server";
 
 // 회원가입
-export async function signUpUser(formData: {
-  email: string;
-  password: string;
-  username: string;
-}) {
+export async function signUpUser(formData: SignUpFormData) {
   const supabase = await createServerSupabaseClient();
 
   const { email, password, username } = formData;
@@ -27,7 +24,9 @@ export async function signUpUser(formData: {
       id: data.user.id,
       user_name: username,
       email: email,
+      level: 1,
     });
+    console.log(data, error);
 
     if (insertError) throw insertError;
   }

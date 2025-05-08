@@ -43,6 +43,8 @@ export default function AddProductPage() {
         console.error("상품 등록 실패:", err);
         alert("알 수 없는 오류가 발생했습니다.");
       }
+    } finally {
+      setUploading(false);
     }
   };
 
