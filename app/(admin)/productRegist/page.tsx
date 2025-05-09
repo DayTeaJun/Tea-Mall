@@ -9,6 +9,7 @@ import {
   useCreateProductMutation,
 } from "@/lib/queries/admin";
 import { Label } from "@radix-ui/react-label";
+import { toast } from "sonner";
 
 export default function AddProductPage() {
   const [name, setName] = useState("");
@@ -21,7 +22,7 @@ export default function AddProductPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      alert("이미지를 선택해 주세요.");
+      toast("이미지를 선택해 주세요.");
       return;
     }
 
@@ -33,15 +34,15 @@ export default function AddProductPage() {
         name,
         description,
         price: Number(price),
-        imageUrl,
+        image_url: imageUrl,
       });
     } catch (err) {
       if (err instanceof Error) {
         console.error("상품 등록 실패:", err.message);
-        alert("등록 중 오류: " + err.message);
+        toast.error("등록 중 오류: " + err.message);
       } else {
         console.error("상품 등록 실패:", err);
-        alert("알 수 없는 오류가 발생했습니다.");
+        toast.error("알 수 없는 오류가 발생했습니다.");
       }
     } finally {
       setUploading(false);

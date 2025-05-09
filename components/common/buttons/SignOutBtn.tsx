@@ -4,6 +4,7 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const protectedRoutes = ["/productRegist", "/admin"];
 
@@ -16,7 +17,7 @@ function SignOutBtn() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    alert("로그아웃 되었습니다.");
+    toast.success("로그아웃 되었습니다.");
     if (protectedRoutes.includes(pathname)) {
       router.push("/");
     } else {

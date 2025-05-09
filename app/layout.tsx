@@ -4,6 +4,7 @@ import LayoutSection from "@/components/layout/LayoutSection";
 import ReactQueryClientProvider from "@/components/providers/ReactQueryProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { getServerSession } from "@/lib/config/supabase/server/getServerSession";
+import Toaster from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Tea - Mall",
@@ -22,6 +23,7 @@ export default async function RootLayout({
       <body className="font-[SUIT-Regular] min-h-screen flex flex-col">
         <ReactQueryClientProvider>
           <AuthProvider user={user}>
+            <Toaster />
             <LayoutSection user={user}>{children}</LayoutSection>
           </AuthProvider>
         </ReactQueryClientProvider>

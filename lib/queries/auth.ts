@@ -5,6 +5,7 @@ import { SignInFormData, SignUpFormData } from "@/types/user";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -14,7 +15,7 @@ export const useSignInMutation = () => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignInFormData) => signInUser(formData),
     onSuccess: () => {
-      alert("로그인에 성공하였습니다.");
+      toast("로그인에 성공하였습니다.");
       router.push("/");
     },
     onError: (error) => {
@@ -43,7 +44,7 @@ export const useSignUpMutation = () => {
     mutationFn: (formData: SignUpFormData) => signUpUser(formData),
 
     onSuccess: () => {
-      alert("회원가입에 성공하였습니다.");
+      toast.success("회원가입에 성공하였습니다.");
       router.push("/");
     },
     onError: (error) => {
@@ -52,14 +53,14 @@ export const useSignUpMutation = () => {
         const message = (error as { message: string }).message;
 
         if (status === 400) {
-          alert("잘못된 로그인 정보입니다.");
+          toast.error("잘못된 로그인 정보입니다.");
         } else if (status === 500) {
-          alert("서버 에러입니다.");
+          toast.error("서버 에러입니다.");
         } else {
-          alert(`알 수 없는 오류: ${message}`);
+          toast.error(`알 수 없는 오류: ${message}`);
         }
       } else {
-        alert("예상치 못한 오류가 발생했습니다.");
+        toast.error("예상치 못한 오류가 발생했습니다.");
       }
     },
   });

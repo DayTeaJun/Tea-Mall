@@ -2,10 +2,11 @@ import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useMutation } from "@tanstack/react-query";
 import { createProduct } from "../actions/admin";
-import { ProductAllType } from "@/app/(admin)/productRegist/type";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import { ProductType } from "@/types/product";
 
 // 상품 이미지 업로드
 export const uploadImageToStorage = async (file: File): Promise<string> => {
@@ -41,12 +42,10 @@ export const useCreateProductMutation = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
-    mutationFn: async (productForm: ProductAllType) =>
-      createProduct(productForm),
+    mutationFn: async (productForm: ProductType) => createProduct(productForm),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["products"] });
-      console.log(data);
-      alert("상품 등록이 완료되었습니다.");
+      toast.success("상품 등록이 완료되었습니다.");
       router.push("/");
     },
     onError: (error) => {

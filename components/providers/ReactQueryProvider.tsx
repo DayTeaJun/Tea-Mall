@@ -21,7 +21,7 @@ export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (_, query) => {
       if (query.meta && query.meta.errorMessage) {
-        alert(query.meta.errorMessage as string);
+        console.log(query.meta.errorMessage as string);
       }
     },
   }),
