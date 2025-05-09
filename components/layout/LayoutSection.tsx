@@ -2,10 +2,21 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
 
-function LayoutSection({ children }: { children: React.ReactNode }) {
+interface Props {
+  user: {
+    id: string;
+    email: string;
+    user_name: string;
+    level: number;
+  } | null;
+
+  children: React.ReactNode;
+}
+
+function LayoutSection({ children, user }: Props) {
   return (
     <>
-      <Header />
+      <Header user={user} />
       <Main>{children}</Main>
       <Footer />
     </>

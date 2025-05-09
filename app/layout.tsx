@@ -22,7 +22,7 @@ export default async function RootLayout({
       <body className="font-[SUIT-Regular] min-h-screen flex flex-col">
         <ReactQueryClientProvider>
           <AuthProvider user={user}>
-            <LayoutSection>{children}</LayoutSection>
+            <LayoutSection user={user}>{children}</LayoutSection>
           </AuthProvider>
         </ReactQueryClientProvider>
       </body>
