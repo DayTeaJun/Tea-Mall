@@ -19,7 +19,7 @@ export default function Toaster({ ...props }: ToasterProps) {
       // theme={theme as ToasterProps["theme"]}
       theme="light"
       className="toaster group"
-      duration={99999}
+      duration={2000}
       toastOptions={{
         classNames: {
           toast:

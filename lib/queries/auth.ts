@@ -15,7 +15,7 @@ export const useSignInMutation = () => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignInFormData) => signInUser(formData),
     onSuccess: () => {
-      toast("로그인에 성공하였습니다.");
+      toast.success("로그인에 성공하였습니다.");
       router.push("/");
     },
     onError: (error) => {
