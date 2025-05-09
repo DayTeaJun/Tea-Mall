@@ -1,22 +1,10 @@
 "use client";
 
+import { ProductType } from "@/types/product";
 import { ImageOff } from "lucide-react";
 import React, { useState } from "react";
 
-interface ProductType {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  created_at: string;
-}
-
-interface Props {
-  products: ProductType;
-}
-
-function ProductCard({ products }: Props) {
+function ProductCard({ products }: { products: ProductType }) {
   const [imageError, setImageError] = useState(false);
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
-import { SignInFormData, SignUpFormData } from "@/app/(auth)/type";
 import { signInUser, signUpUser } from "@/lib/actions/auth";
+import { SignInFormData, SignUpFormData } from "@/types/user";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

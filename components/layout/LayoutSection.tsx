@@ -1,14 +1,10 @@
 import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
+import { UserType } from "@/types/user";
 
 interface Props {
-  user: {
-    id: string;
-    email: string;
-    user_name: string;
-    level: number;
-  } | null;
+  user: UserType | null;
 
   children: React.ReactNode;
 }

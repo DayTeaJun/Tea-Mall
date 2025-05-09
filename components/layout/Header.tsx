@@ -8,17 +8,9 @@ import {
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
+import { UserType } from "@/types/user";
 
-interface Props {
-  user: {
-    id: string;
-    email: string;
-    user_name: string;
-    level: number;
-  } | null;
-}
-
-async function Header({ user }: Props) {
+async function Header({ user }: { user: UserType | null }) {
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 z-50">
       <div className="w-full flex flex-col">

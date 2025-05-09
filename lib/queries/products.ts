@@ -1,20 +1,13 @@
 "use client";
 
+import { ProductType } from "@/types/product";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  created_at: string;
-}
 const supabase = createBrowserSupabaseClient();
 
 // 상품 전체 조회 (메인 페이지용)
-export async function getProductAllToMain(): Promise<Product[]> {
+export async function getProductAllToMain(): Promise<ProductType[]> {
   const { data, error } = await supabase.from("products").select("*");
   if (error) throw error;
   return data ?? [];

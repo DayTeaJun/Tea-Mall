@@ -4,14 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { createBrowserSupabaseClient } from "../../lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { UserType } from "../../types/user";
 
 interface Props {
-  user: {
-    id: string;
-    email: string;
-    user_name: string;
-    level: number;
-  } | null;
+  user: UserType | null;
 
   children: React.ReactNode;
 }
