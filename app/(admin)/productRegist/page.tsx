@@ -11,25 +11,26 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { toast } from "sonner";
 import ImagePreviews from "./_components/ImagePreview";
+import { ImgPreview } from "@/hooks/useImagePrevew";
 
 export default function AddProductPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
   const { mutate } = useCreateProductMutation();
 
   const handleSubmit = async () => {
-    if (!file) {
-      toast("이미지를 선택해 주세요.");
+    if (!imgUrl) {
+      toast.info("이미지를 선택해 주세요.");
       return;
     }
 
     try {
       setUploading(true);
-      const imageUrl = await uploadImageToStorage(file);
+      const imageUrl = await uploadImageToStorage(imgUrl);
 
       mutate({
         name,
@@ -84,7 +85,7 @@ export default function AddProductPage() {
         />
       </div>
 
-      <ImagePreviews />
+      <ImagePreviews imageSrc={imageSrc} onUpload={onUpload} />
       <Button onClick={handleSubmit} disabled={uploading}>
         {uploading ? "업로드 중..." : "상품 등록"}
       </Button>

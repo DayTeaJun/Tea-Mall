@@ -1,13 +1,16 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { ImgPreview } from "@/hooks/useImagePrevew";
 import { Label } from "@radix-ui/react-label";
 import { ImagePlus } from "lucide-react";
 import { useRef } from "react";
 
-function ImagePreviews() {
-  const { imageSrc, imgUrl, onUpload } = ImgPreview();
+interface Props {
+  imageSrc: string | null;
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+function ImagePreviews({ imageSrc, onUpload }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleBoxClick = () => {
