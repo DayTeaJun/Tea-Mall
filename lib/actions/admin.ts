@@ -34,3 +34,24 @@ export async function createProduct({
   }
   return data;
 }
+
+export async function deleteProduct(productId: string, imagePath: string) {
+  const supabase = await createServerSupabaseClient();
+
+  const { error: imageDeleteError } = await supabase.storage
+    .from("product-images")
+    .remove([imagePath]);
+
+  if (imageDeleteError) {
+    throw new Error("이미지 삭제 실패: " + imageDeleteError.message);
+  }
+
+  const { error: productDeleteError } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", productId);
+
+  if (productDeleteError) {
+    throw new Error("상품 삭제 실패: " + productDeleteError.message);
+  }
+}

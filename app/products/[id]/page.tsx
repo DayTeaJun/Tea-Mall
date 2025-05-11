@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImageOff } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
+import ProductDeleteButton from "./_components/ProductDelBtn";
+import ProductDelBtn from "./_components/ProductDelBtn";
 
 export default async function ProductDetailPage({
   params,
@@ -23,7 +25,7 @@ export default async function ProductDetailPage({
   if (!product || error) return notFound();
 
   return (
-    <main className="max-w-3xl mx-auto py-12 px-4">
+    <main className="max-w-3xl mx-auto py-12 px-4 relative">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">{product.name}</CardTitle>
@@ -56,6 +58,10 @@ export default async function ProductDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {product.image_url && (
+        <ProductDelBtn productId={product.id} imageUrl={product.image_url} />
+      )}
     </main>
   );
 }
