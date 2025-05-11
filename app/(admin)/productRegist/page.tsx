@@ -10,6 +10,7 @@ import {
 } from "@/lib/queries/admin";
 import { Label } from "@radix-ui/react-label";
 import { toast } from "sonner";
+import ImagePreviews from "./_components/ImagePreview";
 
 export default function AddProductPage() {
   const [name, setName] = useState("");
@@ -83,14 +84,7 @@ export default function AddProductPage() {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="file">상품 이미지</Label>
-        <Input
-          id="file"
-          type="file"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-      </div>
+      <ImagePreviews />
       <Button onClick={handleSubmit} disabled={uploading}>
         {uploading ? "업로드 중..." : "상품 등록"}
       </Button>
