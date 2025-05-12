@@ -35,7 +35,13 @@ export async function createProduct({
   return data;
 }
 
-export async function deleteProduct(productId: string, imagePath: string) {
+export async function deleteProduct({
+  productId,
+  imagePath,
+}: {
+  productId: string;
+  imagePath: string;
+}) {
   const supabase = await createServerSupabaseClient();
 
   const { error: imageDeleteError } = await supabase.storage
@@ -48,7 +54,10 @@ export async function deleteProduct(productId: string, imagePath: string) {
 
   const { error: productDeleteError } = await supabase
     .from("products")
-    .delete()
+    .update({
+      deleted: true,
+      deleted_at: new Date().toISOString(), // 삭제 시간 기록
+    })
     .eq("id", productId);
 
   if (productDeleteError) {

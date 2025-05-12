@@ -12,6 +12,7 @@ export type Database = {
       products: {
         Row: {
           created_at: string | null
+          deleted: boolean
           description: string | null
           id: string
           image_url: string | null
@@ -21,6 +22,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          deleted?: boolean
           description?: string | null
           id?: string
           image_url?: string | null
@@ -30,6 +32,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          deleted?: boolean
           description?: string | null
           id?: string
           image_url?: string | null
@@ -41,21 +44,21 @@ export type Database = {
       }
       user_table: {
         Row: {
-          created_at: string
+          created_at: string | null
           email: string | null
           id: string
           level: number | null
           user_name: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           id: string
           level?: number | null
           user_name?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           id?: string
           level?: number | null

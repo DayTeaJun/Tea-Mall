@@ -1,9 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { deleteProduct } from "@/lib/actions/admin";
+import { useDeleteProductMutation } from "@/lib/queries/admin";
 
 export default function ProductDelBtn({
   productId,
@@ -12,16 +11,14 @@ export default function ProductDelBtn({
   productId: string;
   imageUrl: string;
 }) {
-  const router = useRouter();
+  const { mutate } = useDeleteProductMutation(productId);
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?");
     if (!confirmDelete) return;
 
     try {
-      await deleteProduct(productId, imageUrl);
-      toast.success("상품이 삭제되었습니다.");
-      router.push("/"); // 목록 페이지 등으로 리다이렉트
+      mutate(imageUrl);
     } catch (err) {
       console.error(err);
       toast.error(

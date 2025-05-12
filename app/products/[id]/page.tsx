@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImageOff } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
-import ProductDeleteButton from "./_components/ProductDelBtn";
 import ProductDelBtn from "./_components/ProductDelBtn";
 
 export default async function ProductDetailPage({
@@ -20,6 +19,7 @@ export default async function ProductDetailPage({
     .from("products")
     .select("*")
     .eq("id", id)
+    .eq("deleted", false)
     .single();
 
   if (!product || error) return notFound();

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useMutation } from "@tanstack/react-query";
-import { createProduct } from "../actions/admin";
+import { createProduct, deleteProduct } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -46,6 +46,34 @@ export const useCreateProductMutation = () => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("상품 등록이 완료되었습니다.");
+      router.push("/");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("알 수 없는 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending, errorMessage };
+};
+
+// 상품 삭제
+export const useDeleteProductMutation = (productId: string) => {
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: async (imagePath: string) =>
+      deleteProduct({ productId, imagePath }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products", productId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("상품 삭제가 완료되었습니다.");
       router.push("/");
     },
     onError: (error) => {
