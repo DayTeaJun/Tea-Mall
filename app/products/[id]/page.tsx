@@ -24,9 +24,15 @@ export default async function ProductDetailPage({
 
   if (!product || error) return notFound();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isOwner = user?.id === product.user_id;
+
   return (
-    <main className="max-w-3xl mx-auto py-12 px-4 relative">
-      <Card>
+    <main className="max-w-3xl mx-auto py-12 px-4 ">
+      <Card className="relative">
         <CardHeader>
           <CardTitle className="text-2xl">{product.name}</CardTitle>
           <Badge variant="secondary" className="mt-2 text-sm">
@@ -57,11 +63,15 @@ export default async function ProductDetailPage({
             </p>
           </div>
         </CardContent>
-      </Card>
 
-      {product.image_url && (
-        <ProductDelBtn productId={product.id} imageUrl={product.image_url} />
-      )}
+        {product.image_url && (
+          <ProductDelBtn
+            productUserId={product.user_id}
+            productId={product.id}
+            imageUrl={product.image_url}
+          />
+        )}
+      </Card>
     </main>
   );
 }
