@@ -63,7 +63,6 @@ export const useCreateProductMutation = () => {
 // 상품 삭제
 export const useDeleteProductMutation = (productId: string) => {
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: async (imagePath: string) =>
@@ -78,12 +77,12 @@ export const useDeleteProductMutation = (productId: string) => {
     },
     onError: (error) => {
       if (error instanceof Error) {
-        setErrorMessage(error.message);
+        toast.error(error.message);
       } else {
-        setErrorMessage("알 수 없는 오류가 발생했습니다.");
+        toast.error("알 수 없는 오류가 발생했습니다.");
       }
     },
   });
 
-  return { data, isError, mutate, isSuccess, isPending, errorMessage };
+  return { data, isError, mutate, isSuccess, isPending };
 };

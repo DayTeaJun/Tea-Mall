@@ -64,7 +64,7 @@ export default async function ProductDetailPage({
           </div>
         </CardContent>
 
-        {product.image_url && (
+        {product.image_url && isOwner && (
           <ProductDelBtn
             productUserId={product.user_id}
             productId={product.id}

@@ -18,10 +18,10 @@ export default function ProductDelBtn({
   const { user } = useAuthStore();
 
   const handleDelete = async () => {
-    // if (!user || user.id !== productUserId) {
-    //   toast.error("해당 상품을 등록한 사용자만 삭제할 수 있습니다.");
-    //   return;
-    // }
+    if (!user || user.id !== productUserId) {
+      toast.error("해당 상품을 등록한 사용자만 삭제할 수 있습니다.");
+      return;
+    }
 
     const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?");
     if (!confirmDelete) return;
