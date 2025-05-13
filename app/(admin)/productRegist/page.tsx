@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   uploadImageToStorage,
   useCreateProductMutation,
 } from "@/lib/queries/admin";
-import { Label } from "@radix-ui/react-label";
 import { toast } from "sonner";
 import ImagePreviews from "./_components/ImagePreview";
 import { ImgPreview } from "@/hooks/useImagePrevew";
@@ -54,41 +50,65 @@ export default function AddProductPage() {
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 space-y-5 bg-white rounded-xl">
       <h2 className="text-center text-3xl font-bold">상품 등록</h2>
+
       <div className="space-y-2">
-        <Label htmlFor="name">상품 이름</Label>
-        <Input
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700"
+        >
+          상품 이름
+        </label>
+        <input
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
           placeholder="상품 이름"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">상품 설명</Label>
-        <Textarea
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-700"
+        >
+          상품 설명
+        </label>
+        <textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          className="w-full h-40 border border-gray-300 rounded-none mt-2 p-2"
           placeholder="상품 설명"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">가격</Label>
-        <Input
+        <label
+          htmlFor="price"
+          className="block text-sm font-medium text-gray-700"
+        >
+          가격
+        </label>
+        <input
           id="price"
           type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
           placeholder="가격"
         />
       </div>
 
       <ImagePreviews imageSrc={imageSrc} onUpload={onUpload} />
-      <Button onClick={handleSubmit} disabled={uploading}>
+
+      <button
+        onClick={handleSubmit}
+        disabled={uploading}
+        className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
+      >
         {uploading ? "업로드 중..." : "상품 등록"}
-      </Button>
+      </button>
     </div>
   );
 }

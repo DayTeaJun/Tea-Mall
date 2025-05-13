@@ -1,30 +1,63 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@radix-ui/react-label";
 import { ImagePlus } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface Props {
   imageSrc: string | null;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpload: (file: File) => Promise<void>;
 }
 
 function ImagePreviews({ imageSrc, onUpload }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleBoxClick = () => {
     fileInputRef.current?.click();
   };
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+
+    if (!file) {
+      toast.error("파일이 없습니다.");
+      return;
+    }
+
+    onUpload(file); // ✅ 여기서는 절대 undefined 아님
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">상품 이미지</Label>
+      <label className="block text-sm font-medium text-gray-700">
+        상품 이미지
+      </label>
 
-      {/* ✅ 클릭 가능한 div로 대체 */}
       <div
         onClick={handleBoxClick}
-        className="w-full h-80 cursor-pointer flex gap-5 border overflow-hidden p-4 py-3"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        className={`w-full h-80 cursor-pointer flex gap-5 border p-4 py-3 mt-2 overflow-hidden transition-all duration-200 ${
+          isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
+        }`}
       >
         <p className="mb-auto font-bold text-[14px]">
           대표 이미지
@@ -46,13 +79,16 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
         )}
       </div>
 
-      {/* ✅ 숨겨진 input은 ref로 클릭 */}
-      <Input
+      <input
         id="file"
         type="file"
+        accept="image/*"
         className="hidden"
         ref={fileInputRef}
-        onChange={onUpload}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onUpload(file); // ✅ 여기서 File만 전달
+        }}
       />
     </div>
   );

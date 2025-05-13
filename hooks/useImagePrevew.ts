@@ -1,12 +1,11 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export function ImgPreview() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imgUrl, setImgUrl] = useState<File | null>(null);
 
-  const onUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const file = e.target.files?.[0];
+  const onUpload = async (file: File): Promise<void> => {
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp"];
     const fileExt = file?.name.split(".").pop()?.toLowerCase();
 
