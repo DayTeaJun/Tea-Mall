@@ -37,10 +37,7 @@ export default function ProductDelBtn({
   };
 
   return (
-    <Button
-      onClick={handleDelete}
-      className="absolute right-4 top-4 cursor-pointer"
-    >
+    <Button onClick={handleDelete} className="cursor-pointer">
       상품 삭제
     </Button>
   );

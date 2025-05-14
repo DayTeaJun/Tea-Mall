@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useMutation } from "@tanstack/react-query";
-import { createProduct, deleteProduct } from "../actions/admin";
+import { createProduct, deleteProduct, updateProduct } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -85,4 +85,32 @@ export const useDeleteProductMutation = (productId: string) => {
   });
 
   return { data, isError, mutate, isSuccess, isPending };
+};
+
+// 상품 수정
+export const useUpdateProductMutation = (productId: string) => {
+  const router = useRouter();
+
+  const { data, isError, isPending, isSuccess, mutate } = useMutation({
+    mutationFn: async (product: ProductType) => updateProduct(product),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["products", productId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("상품이 성공적으로 수정되었습니다.");
+      router.push(`/products/${productId}`);
+    },
+
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("알 수 없는 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isPending, isSuccess };
 };

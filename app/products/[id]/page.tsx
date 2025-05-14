@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { ImageOff } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import ProductDelBtn from "./_components/ProductDelBtn";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function ProductDetailPage({
   params,
@@ -64,13 +66,23 @@ export default async function ProductDetailPage({
           </div>
         </CardContent>
 
-        {product.image_url && isOwner && (
-          <ProductDelBtn
-            productUserId={product.user_id}
-            productId={product.id}
-            imageUrl={product.image_url}
-          />
-        )}
+        <div className="absolute right-4 top-4 flex gap-2">
+          {isOwner && (
+            <Button>
+              <Link href={`/products/${product.id}/edit`} className="text">
+                수정하기
+              </Link>
+            </Button>
+          )}
+
+          {product.image_url && isOwner && (
+            <ProductDelBtn
+              productUserId={product.user_id}
+              productId={product.id}
+              imageUrl={product.image_url}
+            />
+          )}
+        </div>
       </Card>
     </main>
   );

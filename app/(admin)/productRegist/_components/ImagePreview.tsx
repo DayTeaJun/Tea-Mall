@@ -1,17 +1,19 @@
 "use client";
 
-import { ImagePlus } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { ImagePlus } from "lucide-react";
 
 interface Props {
-  imageSrc: string | null;
-  onUpload: (file: File) => Promise<void>;
+  editImage?: string;
+  imageSrc: string;
+  onUpload: (file: File) => void;
 }
 
-function ImagePreviews({ imageSrc, onUpload }: Props) {
+function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isEdited, setIsEdited] = useState(false); // ✅ 사용자가 이미지를 업로드했는지 여부
 
   const handleBoxClick = () => {
     fileInputRef.current?.click();
@@ -28,19 +30,15 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
       return;
     }
 
-    onUpload(file); // ✅ 여기서는 절대 undefined 아님
+    onUpload(file);
+    setIsEdited(true);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const handleDragEnter = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    onUpload(file);
+    setIsEdited(true);
   };
 
   return (
@@ -52,9 +50,9 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
       <div
         onClick={handleBoxClick}
         onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
+        onDragOver={(e) => e.preventDefault()}
+        onDragEnter={() => setIsDragging(true)}
+        onDragLeave={() => setIsDragging(false)}
         className={`w-full h-80 cursor-pointer flex gap-5 border p-4 py-3 mt-2 overflow-hidden transition-all duration-200 ${
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
@@ -63,11 +61,12 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
           대표 이미지
           <span className="text-red-500 pl-2">*</span>
         </p>
-        {typeof imageSrc === "string" ? (
+
+        {imageSrc || (!isEdited && editImage) ? (
           <img
             className="w-60 h-60 object-cover m-auto"
-            src={imageSrc}
-            alt="프로필 이미지 등록"
+            src={isEdited ? imageSrc! : editImage!}
+            alt="상품 이미지"
           />
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 w-60 h-60 object-cover m-auto border-2 border-dashed">
@@ -85,10 +84,7 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
         accept="image/*"
         className="hidden"
         ref={fileInputRef}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onUpload(file); // ✅ 여기서 File만 전달
-        }}
+        onChange={handleFileChange}
       />
     </div>
   );
