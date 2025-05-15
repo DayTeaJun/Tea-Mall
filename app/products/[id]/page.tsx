@@ -43,17 +43,15 @@ export default async function ProductDetailPage({
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-6">
           <div className="relative w-full md:w-1/2 aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-            <div className="relative w-full md:w-1/2 aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-              {product.image_url ? (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <ImageOff className="text-gray-400 w-12 h-12" />
-              )}
-            </div>
+            {product.image_url ? (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <ImageOff className="text-gray-400 w-12 h-12" />
+            )}
           </div>
 
           <div className="flex-1 space-y-4">

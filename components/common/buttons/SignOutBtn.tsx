@@ -19,7 +19,7 @@ function SignOutBtn() {
     setUser(null);
     toast.success("로그아웃 되었습니다.");
     if (protectedRoutes.includes(pathname)) {
-      router.push("/");
+      window.location.href = "/";
     } else {
       router.refresh();
     }
