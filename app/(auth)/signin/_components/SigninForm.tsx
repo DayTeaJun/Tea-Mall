@@ -4,6 +4,7 @@ import { Lock, Mail } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { EMAIL_REGEX } from "../../constants";
 import { useSignInMutation } from "@/lib/queries/auth";
+import Link from "next/link";
 
 function SigninForm() {
   const [email, setEmail] = useState("");
@@ -83,17 +84,26 @@ function SigninForm() {
         로그인
       </button>
 
-      <div className="flex items-center mt-4 gap-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          id="rememberEmail"
-          checked={rememberEmail}
-          onChange={(e) => setRememberEmail(e.target.checked)}
-          className="cursor-pointer"
-        />
-        <label htmlFor="rememberEmail" className="cursor-pointer select-none">
-          아이디 기억하기
-        </label>
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            id="rememberEmail"
+            checked={rememberEmail}
+            onChange={(e) => setRememberEmail(e.target.checked)}
+            className="cursor-pointer"
+          />
+          <label htmlFor="rememberEmail" className="cursor-pointer select-none">
+            아이디 저장
+          </label>
+        </div>
+
+        <Link
+          className="text-[14px] text-gray-500 hover:text-black"
+          href={"/find-password"}
+        >
+          비밀번호 찾기
+        </Link>
       </div>
     </form>
   );
