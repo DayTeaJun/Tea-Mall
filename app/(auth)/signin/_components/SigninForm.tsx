@@ -1,7 +1,7 @@
 "use client";
 
 import { Lock, Mail } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { EMAIL_REGEX } from "../../constants";
 import { useSignInMutation } from "@/lib/queries/auth";
 
@@ -10,8 +10,24 @@ function SigninForm() {
   const [password, setPassword] = useState("");
   const { mutate, errorMessage } = useSignInMutation();
 
+  const [rememberEmail, setRememberEmail] = useState(false);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberEmail(true);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (rememberEmail) {
+      localStorage.setItem("rememberedEmail", email);
+    } else {
+      localStorage.removeItem("rememberedEmail");
+    }
 
     mutate({ email, password });
   };
@@ -36,6 +52,7 @@ function SigninForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
+
       <div className="flex gap-2 items-center border border-gray-100 mt-9">
         <label htmlFor="password" className="bg-gray-50 p-3">
           <Lock size={20} className="text-gray-400" />
@@ -65,6 +82,19 @@ function SigninForm() {
       >
         로그인
       </button>
+
+      <div className="flex items-center mt-4 gap-2 text-sm text-gray-700">
+        <input
+          type="checkbox"
+          id="rememberEmail"
+          checked={rememberEmail}
+          onChange={(e) => setRememberEmail(e.target.checked)}
+          className="cursor-pointer"
+        />
+        <label htmlFor="rememberEmail" className="cursor-pointer select-none">
+          아이디 기억하기
+        </label>
+      </div>
     </form>
   );
 }
