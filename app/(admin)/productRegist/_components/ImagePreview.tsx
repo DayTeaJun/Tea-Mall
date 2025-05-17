@@ -21,7 +21,6 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
     <div className="space-y-2">
       <Label className="text-sm font-medium">상품 이미지</Label>
 
-      {/* ✅ 클릭 가능한 div로 대체 */}
       <div
         onClick={handleBoxClick}
         className="w-full h-80 cursor-pointer flex gap-5 border overflow-hidden p-4 py-3"
@@ -46,7 +45,6 @@ function ImagePreviews({ imageSrc, onUpload }: Props) {
         )}
       </div>
 
-      {/* ✅ 숨겨진 input은 ref로 클릭 */}
       <Input
         id="file"
         type="file"
