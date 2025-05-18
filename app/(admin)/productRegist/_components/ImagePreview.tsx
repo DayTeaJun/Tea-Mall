@@ -78,11 +78,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
         )}
       </div>
 
-<<<<<<< HEAD
       <input
-=======
-      <Input
->>>>>>> 3f6ccb50b2e1847ab0f555e80ec7b2b6d1252fa6
         id="file"
         type="file"
         accept="image/*"

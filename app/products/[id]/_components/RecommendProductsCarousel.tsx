@@ -21,7 +21,6 @@ export default function RecommendProductsCarousel() {
     });
   };
 
-  // ✨ 제품 목록을 강제로 늘림 (3배 반복)
   const extendedProducts =
     !isLoading && products
       ? Array.from({ length: 10 }).flatMap(() =>
