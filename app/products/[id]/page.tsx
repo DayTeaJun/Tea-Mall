@@ -4,6 +4,7 @@ import { ImageOff } from "lucide-react";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 
 export default async function ProductDetailPage({
   params,
@@ -90,6 +91,11 @@ export default async function ProductDetailPage({
           />
         </div>
       )}
+
+      <div className="mt-10">
+        <h2 className="text-2xl font-bold mb-4">추천 상품</h2>
+        <RecommendProductsCarousel />
+      </div>
     </main>
   );
 }
