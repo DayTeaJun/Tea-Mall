@@ -26,7 +26,6 @@ export async function signUpUser(formData: SignUpFormData) {
       email: email,
       level: 1,
     });
-    console.log(data, error);
 
     if (insertError) throw insertError;
   }
