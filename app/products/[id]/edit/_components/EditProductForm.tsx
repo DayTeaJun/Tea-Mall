@@ -8,6 +8,7 @@ import {
   uploadImageToStorage,
   useUpdateProductMutation,
 } from "@/lib/queries/admin";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 type ProductType = {
   id: string;
@@ -26,14 +27,21 @@ export default function EditProductForm({ product }: { product: ProductType }) {
   const [price, setPrice] = useState(String(product.price));
   const [uploading, setUploading] = useState(false);
 
+  const { user } = useAuthStore();
+
   const { imageSrc, imgUrl, onUpload } = ImgPreview();
   const { mutate } = useUpdateProductMutation(product.id);
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.info("로그인 후 사용해 주세요.");
+      return;
+    }
+
     try {
       setUploading(true);
       const imageUrl = imgUrl
-        ? await uploadImageToStorage(imgUrl)
+        ? await uploadImageToStorage(user?.id, imgUrl)
         : product.image_url;
 
       mutate({

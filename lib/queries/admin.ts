@@ -9,11 +9,14 @@ import { toast } from "sonner";
 import { ProductType } from "@/types/product";
 
 // 상품 이미지 업로드
-export const uploadImageToStorage = async (file: File): Promise<string> => {
+export const uploadImageToStorage = async (
+  userId: string,
+  file: File,
+): Promise<string> => {
   const supabase = createBrowserSupabaseClient();
   const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const fileName = `${uuidv4()}-${file.name}`;
+  const fileName = `${userId}/${uuidv4()}-${file.name}`;
 
   if (!bucket || !projectUrl) {
     throw new Error("env 설정 안했음");

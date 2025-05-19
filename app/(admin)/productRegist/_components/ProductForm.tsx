@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner";
 import { ImgPreview } from "@/hooks/useImagePrevew";
 import ImagePreviews from "./ImagePreview";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 function ProductForm() {
   const [name, setName] = useState("");
@@ -15,6 +16,8 @@ function ProductForm() {
   const [price, setPrice] = useState("");
   const [uploading, setUploading] = useState(false);
   const { imageSrc, imgUrl, onUpload } = ImgPreview();
+
+  const { user } = useAuthStore();
 
   const { mutate } = useCreateProductMutation();
 
@@ -24,9 +27,14 @@ function ProductForm() {
       return;
     }
 
+    if (!user) {
+      toast.info("로그인 후 사용해 주세요.");
+      return;
+    }
+
     try {
       setUploading(true);
-      const imageUrl = await uploadImageToStorage(imgUrl);
+      const imageUrl = await uploadImageToStorage(user?.id, imgUrl);
 
       mutate({
         name,

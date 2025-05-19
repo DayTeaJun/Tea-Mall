@@ -104,6 +104,7 @@ export async function updateProduct({
 
   if (oldImageUrl) {
     const oldImagePath = extractFilePathFromUrl(oldImageUrl, bucket!);
+    console.log(oldImagePath, "기존 이미지 경로");
 
     if (oldImagePath) {
       const { data: removeResult, error: removeError } = await supabase.storage
