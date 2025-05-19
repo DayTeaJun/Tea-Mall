@@ -5,4 +5,5 @@ export interface ProductType {
   price: number;
   image_url: string;
   created_at?: string;
+  oldImageUrl?: string;
 }

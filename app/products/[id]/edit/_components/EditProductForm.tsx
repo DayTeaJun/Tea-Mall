@@ -42,9 +42,8 @@ export default function EditProductForm({ product }: { product: ProductType }) {
         description: description || "",
         price: Number(price),
         image_url: imageUrl || "",
+        oldImageUrl: product.image_url || "",
       });
-
-      toast.success("상품이 성공적으로 수정되었습니다.");
     } catch (err) {
       toast.error("수정 실패: " + (err as Error).message);
     } finally {

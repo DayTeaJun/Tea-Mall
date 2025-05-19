@@ -82,7 +82,9 @@ export default async function ProductDetailPage({
       {isOwner && (
         <div className="mt-10 flex gap-2 justify-end">
           <Link href={`/products/${product.id}/edit`}>
-            <Button variant="outline">수정하기</Button>
+            <Button variant="outline" className="cursor-pointer">
+              수정하기
+            </Button>
           </Link>
           <ProductDelBtn
             productUserId={product.user_id}
@@ -94,7 +96,7 @@ export default async function ProductDetailPage({
 
       <div className="mt-10">
         <h2 className="text-2xl font-bold mb-4">추천 상품</h2>
-        <RecommendProductsCarousel />
+        {/* <RecommendProductsCarousel /> */}
       </div>
     </main>
   );
