@@ -3,22 +3,21 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useDeleteProductMutation } from "@/lib/queries/admin";
-import { useAuthStore } from "@/lib/store/useAuthStore";
 
 export default function ProductDelBtn({
-  productUserId,
   productId,
   imageUrl,
+  isOwner,
 }: {
   productUserId: string | null;
   productId: string;
   imageUrl: string;
+  isOwner: boolean;
 }) {
   const { mutate } = useDeleteProductMutation(productId);
-  const { user } = useAuthStore();
 
   const handleDelete = async () => {
-    if (!user || user.id !== productUserId) {
+    if (!isOwner) {
       toast.error("해당 상품을 등록한 사용자만 삭제할 수 있습니다.");
       return;
     }

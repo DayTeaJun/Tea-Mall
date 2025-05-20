@@ -11,6 +11,8 @@ import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
 
 async function Header({ user }: { user: UserType | null }) {
+  console.log(user?.level);
+
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 z-50">
       <div className="w-full flex flex-col">

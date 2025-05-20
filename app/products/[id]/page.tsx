@@ -27,7 +27,8 @@ export default async function ProductDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isOwner = user?.id === product.user_id;
+  const isOwner =
+    user?.id === product.user_id || user?.user_metadata?.role === "admin";
 
   const formattedPrice = product.price.toLocaleString();
 
@@ -90,6 +91,7 @@ export default async function ProductDetailPage({
             productUserId={product.user_id}
             productId={product.id}
             imageUrl={product.image_url || ""}
+            isOwner={isOwner}
           />
         </div>
       )}

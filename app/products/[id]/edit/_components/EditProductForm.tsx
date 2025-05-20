@@ -9,6 +9,7 @@ import {
   useUpdateProductMutation,
 } from "@/lib/queries/admin";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 type ProductType = {
   id: string;
@@ -26,6 +27,7 @@ export default function EditProductForm({ product }: { product: ProductType }) {
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState(String(product.price));
   const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
   const { user } = useAuthStore();
 
@@ -118,13 +120,22 @@ export default function EditProductForm({ product }: { product: ProductType }) {
         onUpload={onUpload}
       />
 
-      <button
-        onClick={handleSubmit}
-        disabled={uploading}
-        className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
-      >
-        {uploading ? "수정 중..." : "수정 완료"}
-      </button>
+      <div className="flex gap-2 justify-between">
+        <button
+          onClick={() => router.back()}
+          className="w-1/3 bg-red-400 text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
+        >
+          취소
+        </button>
+
+        <button
+          onClick={handleSubmit}
+          disabled={uploading}
+          className="w-2/3 bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
+        >
+          {uploading ? "수정 중..." : "수정 완료"}
+        </button>
+      </div>
     </div>
   );
 }
