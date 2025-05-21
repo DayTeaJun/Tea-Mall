@@ -5,6 +5,7 @@ import ProductDelBtn from "./_components/ProductDelBtn";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
+import CartButtons from "./_components/CartBtn";
 
 export default async function ProductDetailPage({
   params,
@@ -69,10 +70,8 @@ export default async function ProductDetailPage({
 
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
-              <Button className="flex-1 bg-gray-800 text-white hover:bg-gray-700">
-                장바구니
-              </Button>
-              <Button className="flex-1 bg-red-600 text-white hover:bg-red-700">
+              {product && <CartButtons product={product} />}
+              <Button className="flex-1 bg-red-600 text-white hover:bg-red-700 cursor-pointer">
                 바로 구매
               </Button>
             </div>

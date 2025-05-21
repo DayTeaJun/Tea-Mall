@@ -1,9 +1,9 @@
-export interface ProductType {
-  id?: string;
+// types/product.ts
+export type ProductType = {
+  id: string;
   name: string;
-  description: string;
   price: number;
-  image_url: string;
-  created_at?: string;
-  oldImageUrl?: string;
-}
+  image_url: string | null;
+  description: string | null;
+  user_id: string | null;
+};
