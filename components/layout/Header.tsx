@@ -1,18 +1,11 @@
-import {
-  LogIn,
-  Search,
-  ShoppingBag,
-  ShoppingCart,
-  SquareUserRound,
-} from "lucide-react";
+import { LogIn, Search, ShoppingBag, SquareUserRound } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
+import CartLinkBtn from "../common/buttons/CartLinkBtn";
 
 async function Header({ user }: { user: UserType | null }) {
-  console.log(user?.level);
-
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 z-50">
       <div className="w-full flex flex-col">
@@ -62,9 +55,7 @@ async function Header({ user }: { user: UserType | null }) {
               <Search size={20} />
             </button>
 
-            <button className="cursor-pointer p-1">
-              <ShoppingCart size={20} />
-            </button>
+            <CartLinkBtn />
           </nav>
         </div>
       </div>
