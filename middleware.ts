@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "./lib/config/supabase/server/middleware";
 
-const protectedRoutes = ["/profile"];
+const protectedRoutes = ["/profile", "myCart"];
 const publicRoutes = ["/signin", "/signup"];
 const adminRoutes = ["/admin"];
 const sellerRoutes = ["/productRegist"];
