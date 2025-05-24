@@ -3,27 +3,50 @@
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 const supabase = createBrowserSupabaseClient();
+
+type CartItemType = {
+  id: string;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string | null;
+  } | null;
+};
 
 export default function MyCartPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const router = useRouter();
 
-  const { data: cartItems = [], isLoading } = useQuery({
-    queryKey: ["cartItems"],
+  const { data: cartItems = [], isLoading } = useQuery<CartItemType[], Error>({
+    queryKey: ["cartItems", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cart_items")
         .select(
-          "id, quantity, product:product_id ( id, name, price, image_url )",
+          `
+        id,
+        quantity,
+        product:product_id (
+          id,
+          name,
+          price,
+          image_url
         )
-        .eq("user_id", user.id)
+      `,
+        )
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+
+      return data as CartItemType[]; // ✅ 강제 타입 지정
     },
   });
 
@@ -43,7 +66,9 @@ export default function MyCartPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cartItems"] });
+      queryClient.invalidateQueries({
+        queryKey: ["cartItems", user?.id],
+      });
     },
   });
 
@@ -54,6 +79,8 @@ export default function MyCartPage() {
   );
 
   if (!user || isLoading) return <div className="p-5">로딩 중...</div>;
+
+  if (!user) return <div className="p-5">로그인 정보가 없습니다.</div>;
 
   return (
     <div className="p-5">
@@ -67,7 +94,8 @@ export default function MyCartPage() {
             {cartItems.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between border p-3 rounded"
+                className="flex items-center justify-between border p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                onClick={() => router.push(`/products/${item.product?.id}`)}
               >
                 <div className="flex items-center gap-3">
                   {item.product?.image_url ? (
@@ -90,26 +118,30 @@ export default function MyCartPage() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    className="px-2 border rounded"
-                    onClick={() =>
+                    className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       updateQuantity.mutate({
                         itemId: item.id,
                         quantity: item.quantity - 1,
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateQuantity.isPending}
                   >
                     -
                   </button>
-                  <span>{item.quantity}</span>
+                  <span className="min-w-[24px] text-center">
+                    {item.quantity}
+                  </span>
                   <button
-                    className="px-2 border rounded"
-                    onClick={() =>
+                    className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       updateQuantity.mutate({
                         itemId: item.id,
                         quantity: item.quantity + 1,
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateQuantity.isPending}
                   >
                     +
