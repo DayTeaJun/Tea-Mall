@@ -5,6 +5,7 @@ import ProductDelBtn from "./_components/ProductDelBtn";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import CartBtn from "./_components/CartBtn";
+import ProductDetailImages from "./_components/ProductDetailImages";
 
 export default async function ProductDetailPage({
   params,
@@ -66,6 +67,7 @@ export default async function ProductDetailPage({
               <p className="text-sm text-gray-500">재고 있음</p>
             </div>
           </div>
+          <ProductDetailImages productId={product.id} />
 
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
