@@ -1,6 +1,6 @@
 "use server";
 
-import { ProductType } from "@/types/product";
+import { CreateProductType, ProductType } from "@/types/product";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
 
@@ -9,7 +9,8 @@ export async function createProduct({
   description,
   price,
   image_url,
-}: ProductType) {
+  detailImages,
+}: CreateProductType) {
   const supabase = await createServerSupabaseClient();
 
   const {
@@ -20,20 +21,40 @@ export async function createProduct({
     return alert("로그인 후 사용해주세요.");
   }
 
-  const { data, error } = await supabase.from("products").insert([
-    {
-      name,
-      description,
-      price,
-      image_url: image_url,
-      user_id: user?.id,
-    },
-  ]);
-  if (error) {
-    console.error("상품 등록 실패:", error.message);
-    throw new Error(error.message);
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .insert([
+      {
+        name,
+        description,
+        price,
+        image_url,
+        user_id: user.id,
+      },
+    ])
+    .select()
+    .single();
+
+  if (productError) {
+    throw new Error("상품 등록 실패", productError);
   }
-  return data;
+
+  const imageRecords = detailImages.slice(0, 5).map((url, index) => ({
+    product_id: product.id,
+    image_url: url,
+    sort_order: index,
+  }));
+
+  const { error: detailError } = await supabase
+    .from("product_images")
+    .insert(imageRecords);
+
+  if (detailError) {
+    console.error("상세 이미지 등록 실패:", detailError.message);
+    throw new Error(detailError.message);
+  }
+
+  return product;
 }
 
 export async function deleteProduct({

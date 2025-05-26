@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { ImgPreview } from "@/hooks/useImagePrevew";
+import { ImgPreview } from "@/hooks/useImagePreview";
 import ImagePreviews from "@/app/(admin)/productRegist/_components/ImagePreview";
 import {
   uploadImageToStorage,

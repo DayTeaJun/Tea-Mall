@@ -6,7 +6,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ProductType } from "@/types/product";
+import { CreateProductType, ProductType } from "@/types/product";
 
 // 상품 이미지 업로드
 export const uploadImageToStorage = async (
@@ -45,7 +45,8 @@ export const useCreateProductMutation = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
-    mutationFn: async (productForm: ProductType) => createProduct(productForm),
+    mutationFn: async (productForm: CreateProductType) =>
+      createProduct(productForm),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("상품 등록이 완료되었습니다.");

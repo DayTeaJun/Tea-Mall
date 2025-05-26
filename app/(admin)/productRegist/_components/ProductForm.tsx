@@ -6,9 +6,10 @@ import {
   useCreateProductMutation,
 } from "@/lib/queries/admin";
 import { toast } from "sonner";
-import { ImgPreview } from "@/hooks/useImagePrevew";
+import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
 import ImagePreviews from "./ImagePreview";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import DetailImagePreview from "./DetailImagePreview";
 
 function ProductForm() {
   const [name, setName] = useState("");
@@ -17,11 +18,24 @@ function ProductForm() {
   const [uploading, setUploading] = useState(false);
   const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
+  const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
+    useDetailImagePreview();
+
   const { user } = useAuthStore();
 
   const { mutate } = useCreateProductMutation();
 
   const handleSubmit = async () => {
+    if (!name) {
+      toast.info("상품 이름을 입력해 주세요.");
+      return;
+    }
+
+    if (!description) {
+      toast.info("상품 설명을 입력해 주세요.");
+      return;
+    }
+
     if (!imgUrl) {
       toast.info("이미지를 선택해 주세요.");
       return;
@@ -36,11 +50,16 @@ function ProductForm() {
       setUploading(true);
       const imageUrl = await uploadImageToStorage(user?.id, imgUrl);
 
+      const detailImageUrls = await Promise.all(
+        detailFiles.map((file) => uploadImageToStorage(user.id, file)),
+      );
+
       mutate({
         name,
         description,
         price: Number(price),
         image_url: imageUrl,
+        detailImages: detailImageUrls,
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -107,6 +126,12 @@ function ProductForm() {
       </div>
 
       <ImagePreviews imageSrc={imageSrc || ""} onUpload={onUpload} />
+
+      <DetailImagePreview
+        previews={detailPreviews}
+        onUpload={detailOnUpload}
+        onRemove={removeDetailImage}
+      />
 
       <button
         onClick={handleSubmit}
