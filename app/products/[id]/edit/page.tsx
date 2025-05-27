@@ -1,4 +1,3 @@
-// app/products/[id]/edit/page.tsx
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import EditProductForm from "./_components/EditProductForm";
 
@@ -12,7 +11,7 @@ export default async function EditProductPage({
 
   const { data: product, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_images(id, image_url)")
     .eq("id", id)
     .eq("deleted", false)
     .single();
