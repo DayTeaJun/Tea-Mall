@@ -7,6 +7,12 @@ export interface ProductType {
   user_id?: string | null;
 }
 
+export interface ProductUpdateType extends ProductType {
+  detail_image_urls?: string[];
+  oldImageUrl?: string;
+  oldDetailImageIds?: string[];
+}
+
 export interface CreateProductType {
   name: string;
   description?: string;

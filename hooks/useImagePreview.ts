@@ -6,7 +6,7 @@ export function ImgPreview() {
   const [imgUrl, setImgUrl] = useState<File | null>(null);
 
   const onUpload = async (file: File): Promise<void> => {
-    const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "jfif"];
     const fileExt = file?.name.split(".").pop()?.toLowerCase();
 
     if (!file || !fileExt || !allowedExtensions.includes(fileExt)) {
@@ -39,7 +39,7 @@ export function useDetailImagePreview() {
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   const MAX_COUNT = 5;
-  const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp"];
+  const allowedExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "jfif"];
 
   const detailOnUpload = (files: FileList | null) => {
     if (!files) return;

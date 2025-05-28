@@ -12,7 +12,7 @@ import {
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
 
-type ProductWithImages = {
+interface ProductWithImages {
   id: string;
   name: string;
   description: string | null;
@@ -22,7 +22,7 @@ type ProductWithImages = {
   created_at: string | null;
   deleted: boolean;
   product_images?: { id: string; image_url: string }[];
-};
+}
 
 export default function EditProductForm({
   product,
@@ -42,12 +42,11 @@ export default function EditProductForm({
     useDetailImagePreview();
 
   const [existingDetailImages, setExistingDetailImages] = useState(
-    product.product_images?.map((img) => img.image_url) ?? [],
+    product.product_images?.map((img) => ({
+      id: img.id,
+      url: img.image_url,
+    })) ?? [],
   );
-
-  const handleRemoveExistingImage = (url: string) => {
-    setExistingDetailImages((prev) => prev.filter((item) => item !== url));
-  };
 
   const { mutate } = useUpdateProductMutation(product.id);
 
@@ -68,10 +67,18 @@ export default function EditProductForm({
         detailFiles.map((file) => uploadImageToStorage(user.id, file)),
       );
 
-      const mergedDetailImages = [
-        ...existingDetailImages,
+      const currentImagesToKeep = existingDetailImages;
+      const finalDetailImages = [
+        ...currentImagesToKeep.map((img) => img.url),
         ...newDetailImageUrls,
       ];
+
+      const oldDetailImageIds = currentImagesToKeep.map((img) => img.id);
+
+      const isDetailImageModified =
+        detailFiles.length > 0 ||
+        detailPreviews.length > 0 ||
+        currentImagesToKeep.length !== (product.product_images?.length || 0);
 
       mutate({
         id: product.id,
@@ -79,11 +86,13 @@ export default function EditProductForm({
         description,
         price: Number(price),
         image_url: newMainImageUrl || "",
-        oldImageUrl: product.image_url || "",
-        detailImages: mergedDetailImages,
+        oldImageUrl: product.image_url || undefined,
+        ...(isDetailImageModified && {
+          detail_image_urls: finalDetailImages,
+          oldDetailImageIds: oldDetailImageIds,
+        }),
       });
 
-      toast.success("상품이 수정되었습니다.");
       router.push("/admin/products");
     } catch (err) {
       toast.error("수정 중 오류가 발생했습니다.");
@@ -150,7 +159,10 @@ export default function EditProductForm({
       />
 
       <DetailImagePreview
-        previews={[...existingDetailImages, ...detailPreviews]}
+        previews={[
+          ...existingDetailImages.map((img) => img.url),
+          ...detailPreviews,
+        ]}
         onUpload={detailOnUpload}
         onRemove={(index) => {
           if (index < existingDetailImages.length) {
@@ -174,7 +186,7 @@ export default function EditProductForm({
         <button
           onClick={handleSubmit}
           disabled={uploading}
-          className="w-2/3 bg-black text-white py-2 rounded-md disabled:opacity-50"
+          className="w-2/3 bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
         >
           {uploading ? "수정 중..." : "수정 완료"}
         </button>

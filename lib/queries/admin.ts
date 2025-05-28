@@ -6,7 +6,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CreateProductType, ProductType } from "@/types/product";
+import { CreateProductType, ProductUpdateType } from "@/types/product";
 
 // 상품 이미지 업로드
 export const uploadImageToStorage = async (
@@ -47,8 +47,9 @@ export const useCreateProductMutation = () => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: async (productForm: CreateProductType) =>
       createProduct(productForm),
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["products"] });
+      await queryClient.invalidateQueries({ queryKey: ["products", data?.id] });
       toast.success("상품 등록이 완료되었습니다.");
       router.push("/");
     },
@@ -96,7 +97,7 @@ export const useUpdateProductMutation = (productId: string) => {
   const router = useRouter();
 
   const { data, isError, isPending, isSuccess, mutate } = useMutation({
-    mutationFn: async (product: ProductType) => updateProduct(product),
+    mutationFn: async (product: ProductUpdateType) => updateProduct(product),
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
