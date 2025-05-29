@@ -199,7 +199,7 @@ export async function updateProduct({
     sort_order: index,
   }));
 
-  if (inserts.length > 0) {
+  if (detail_image_urls && oldDetailImageIds) {
     const { error: insertError } = await supabase
       .from("product_images")
       .upsert(inserts, {
@@ -211,9 +211,6 @@ export async function updateProduct({
       throw new Error("새로운 상세 이미지 저장 실패: " + insertError.message);
     }
   }
-
-  console.log("삭제 대상 ID:", idsToDelete);
-  console.log("업로드 이미지 수:", detail_image_urls.length);
 
   return data;
 }

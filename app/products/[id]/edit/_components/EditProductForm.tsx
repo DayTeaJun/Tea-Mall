@@ -32,7 +32,6 @@ export default function EditProductForm({
   const [name, setName] = useState(product.name);
   const [description, setDescription] = useState(product.description || "");
   const [price, setPrice] = useState(String(product.price));
-  const [uploading, setUploading] = useState(false);
 
   const { user } = useAuthStore();
   const router = useRouter();
@@ -48,7 +47,7 @@ export default function EditProductForm({
     })) ?? [],
   );
 
-  const { mutate } = useUpdateProductMutation(product.id);
+  const { mutate, isPending, isSuccess } = useUpdateProductMutation(product.id);
 
   const handleSubmit = async () => {
     if (!name || !description || !user) {
@@ -57,8 +56,6 @@ export default function EditProductForm({
     }
 
     try {
-      setUploading(true);
-
       const newMainImageUrl = imgUrl
         ? await uploadImageToStorage(user.id, imgUrl)
         : product.image_url;
@@ -75,11 +72,6 @@ export default function EditProductForm({
 
       const oldDetailImageIds = currentImagesToKeep.map((img) => img.id);
 
-      const isDetailImageModified =
-        detailFiles.length > 0 ||
-        detailPreviews.length > 0 ||
-        currentImagesToKeep.length !== (product.product_images?.length || 0);
-
       mutate({
         id: product.id,
         name,
@@ -87,18 +79,12 @@ export default function EditProductForm({
         price: Number(price),
         image_url: newMainImageUrl || "",
         oldImageUrl: product.image_url || undefined,
-        ...(isDetailImageModified && {
-          detail_image_urls: finalDetailImages,
-          oldDetailImageIds: oldDetailImageIds,
-        }),
+        detail_image_urls: finalDetailImages,
+        oldDetailImageIds: oldDetailImageIds,
       });
-
-      router.push("/admin/products");
     } catch (err) {
       toast.error("수정 중 오류가 발생했습니다.");
       console.error(err);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -179,16 +165,16 @@ export default function EditProductForm({
       <div className="flex gap-2 justify-between">
         <button
           onClick={() => router.back()}
-          className="w-1/3 bg-red-400 text-white py-2 rounded-md"
+          className="w-1/3 bg-red-400 text-white py-2 rounded-md cursor-pointer"
         >
           취소
         </button>
         <button
           onClick={handleSubmit}
-          disabled={uploading}
+          disabled={isPending || isSuccess}
           className="w-2/3 bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
         >
-          {uploading ? "수정 중..." : "수정 완료"}
+          {isPending ? "수정 중..." : "수정"}
         </button>
       </div>
     </div>
