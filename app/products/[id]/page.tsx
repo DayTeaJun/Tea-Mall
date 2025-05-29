@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import CartBtn from "./_components/CartBtn";
 import ProductImageSection from "./_components/ProductImageSection";
+import ShareButton from "@/components/common/buttons/ShareBtn";
 
 export default async function ProductDetailPage({
   params,
@@ -50,23 +51,32 @@ export default async function ProductDetailPage({
         <div className="flex flex-col justify-between w-full">
           <div>
             <p className="text-sm text-gray-500 mb-1">티몰 공식 판매처</p>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-gray-700 mb-4 whitespace-pre-line">
-              {product.description}
-            </p>
+            <div className=" mb-2 flex items-center justify-between">
+              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <ShareButton />
+            </div>
+
+            <hr className="my-2" />
 
             <div className="flex flex-col gap-2">
               <div className="text-2xl font-bold text-green-700">
                 {formattedPrice}원
               </div>
+
               <p className="text-sm text-gray-500">
                 배송비 3,000원 (20,000원 이상 구매 시 무료)
               </p>
 
               <p className="text-sm text-gray-500">재고 있음</p>
             </div>
+
+            <hr className="my-2" />
+
+            <p className="text-gray-700 mb-4 whitespace-pre-line overflow-hidden text-ellipsis line-clamp-5">
+              {product.description}
+            </p>
           </div>
-          {/* <ProductDetailImages productId={product.id} /> */}
+          <hr className="my-4" />
 
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
