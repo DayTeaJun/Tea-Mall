@@ -7,6 +7,7 @@ import {
 } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MyCartPage() {
   const { user } = useAuthStore();
@@ -28,14 +29,14 @@ export default function MyCartPage() {
   if (isLoading || !cartItems) return <div className="p-5">로딩 중...</div>;
 
   return (
-    <div className="p-5">
+    <div className="p-5 max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">장바구니</h1>
 
       {cartItems.length === 0 || !cartItems ? (
         <p className="text-gray-600">장바구니가 비어 있습니다.</p>
       ) : (
-        <>
-          <ul className="flex flex-col gap-4 mb-6">
+        <div className="flex gap-4">
+          <ul className="flex flex-col gap-4 mb-6 flex-1">
             {cartItems.map((item) => (
               <li
                 key={item.id}
@@ -120,13 +121,41 @@ export default function MyCartPage() {
             ))}
           </ul>
 
-          <div className="border-t pt-4 text-right space-y-1">
-            <p className="text-sm text-gray-600">총 수량: {totalQuantity}개</p>
-            <p className="text-lg font-bold">
-              총 금액: ₩{totalPrice?.toLocaleString() || 0}
+          <div className="w-[300px] border p-4 flex flex-col gap-3 self-start rounded">
+            <p className="text-[22px]">주문 예상 금액</p>
+            <div className="flex justify-between items-center text-[16px]">
+              <p>총 수량</p>
+              <p>
+                <span className="font-bold">{totalQuantity} </span>개
+              </p>
+            </div>
+
+            <div className="flex justify-between items-center text-[16px]">
+              <p>총 상품 가격</p>
+              <p>
+                <span className="font-bold">
+                  {totalPrice?.toLocaleString() || 0}{" "}
+                </span>
+                원
+              </p>
+            </div>
+
+            <hr className="my-2" />
+
+            <p className="text-[20px] text-right">
+              {totalPrice?.toLocaleString() || 0}
+              <span className="font-normal text-[16px]"> 원</span>
             </p>
+
+            <button
+              onClick={() => toast.success("결제 기능 준비 중 입니다.")}
+              type="button"
+              className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition-colors cursor-pointer"
+            >
+              구매하기
+            </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
