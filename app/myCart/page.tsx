@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useDeleteCartItemMutation,
   useProductAllCart,
   useUpdateQuantityMutation,
 } from "@/lib/queries/products";
@@ -11,6 +12,7 @@ export default function MyCartPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const { mutate, isPending } = useUpdateQuantityMutation(user?.id ?? "");
+  const { mutate: deleteMutate } = useDeleteCartItemMutation(user?.id ?? "");
 
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
 
@@ -23,10 +25,7 @@ export default function MyCartPage() {
       0,
     );
 
-  if (!user || isLoading || !cartItems)
-    return <div className="p-5">로딩 중...</div>;
-
-  if (!user) return <div className="p-5">로그인 정보가 없습니다.</div>;
+  if (isLoading || !cartItems) return <div className="p-5">로딩 중...</div>;
 
   return (
     <div className="p-5">
@@ -40,57 +39,81 @@ export default function MyCartPage() {
             {cartItems.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between border p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                onClick={() => router.push(`/products/${item.product?.id}`)}
+                className="flex items-center justify-between border p-3 rounded "
               >
-                <div className="flex items-center gap-3">
-                  {item.product?.image_url ? (
-                    <img
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-200 rounded" />
-                  )}
+                <div className="flex items-start gap-3 justify-between w-full">
+                  <div className="flex items-center gap-4">
+                    {item.product?.image_url && (
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        className="w-32 h-32 object-cover rounded cursor-pointer"
+                        onClick={() =>
+                          router.push(`/products/${item.product?.id}`)
+                        }
+                      />
+                    )}
 
-                  <div>
-                    <p className="font-semibold">{item.product?.name}</p>
-                    <p className="text-sm text-gray-500">
-                      ₩{(item.product?.price ?? 0).toLocaleString()}
-                    </p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        className="cursor-pointer hover:underline text-left"
+                        type="button"
+                        onClick={() =>
+                          router.push(`/products/${item.product?.id}`)
+                        }
+                      >
+                        <span className="font-semibold">
+                          {item.product?.name}
+                        </span>
+                      </button>
+                      <p className="text-sm text-gray-500">
+                        ₩{(item.product?.price ?? 0).toLocaleString()}
+                      </p>
+
+                      <div className="flex items-center gap-2 mt-auto">
+                        <button
+                          className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                          onClick={() => {
+                            if (item.quantity === 1) {
+                              deleteMutate(item?.id);
+                              return;
+                            }
+                            mutate({
+                              itemId: item.id,
+                              quantity: item.quantity - 1,
+                            });
+                          }}
+                          disabled={isPending}
+                        >
+                          -
+                        </button>
+                        <span className="min-w-[24px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                          onClick={() => {
+                            mutate({
+                              itemId: item.id,
+                              quantity: item.quantity + 1,
+                            });
+                          }}
+                          disabled={isPending}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2">
                   <button
-                    className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      mutate({
-                        itemId: item.id,
-                        quantity: item.quantity - 1,
-                      });
-                    }}
-                    disabled={isPending}
+                    onClick={() => deleteMutate(item?.id)}
+                    type="button"
+                    className="shrink-0 cursor-pointer"
                   >
-                    -
-                  </button>
-                  <span className="min-w-[24px] text-center">
-                    {item.quantity}
-                  </span>
-                  <button
-                    className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      mutate({
-                        itemId: item.id,
-                        quantity: item.quantity + 1,
-                      });
-                    }}
-                    disabled={isPending}
-                  >
-                    +
+                    <span className="text-gray-500 underline transition-colors hover:no-underline hover:text-gray-800">
+                      삭제
+                    </span>
                   </button>
                 </div>
               </li>

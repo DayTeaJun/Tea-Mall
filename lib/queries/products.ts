@@ -4,6 +4,7 @@ import { ProductType } from "@/types/product";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
+import { toast } from "sonner";
 
 export type CartItemType = {
   id: string;
@@ -46,6 +47,8 @@ export function useProductAllToMainQuery() {
 export async function getProductAllCart(
   userId: string,
 ): Promise<CartItemType[]> {
+  if (!userId) return [];
+
   const { data, error } = await supabase
     .from("cart_items")
     .select("id, quantity, product:product_id ( id, name, price, image_url )") // 장바구니 및 장바구니 상품 정보 조회 조인
@@ -99,6 +102,31 @@ export const useUpdateQuantityMutation = (userId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["cart_items", userId],
       });
+    },
+  });
+  return { data, isError, mutate, isSuccess, isPending };
+};
+
+// 장바구니 상품 삭제
+export const deleteCartItem = async (itemId: string) => {
+  const { data, error } = await supabase
+    .from("cart_items")
+    .delete()
+    .eq("id", itemId);
+
+  console.log("DELETE result:", { data, error });
+  if (error) throw error;
+  return data ?? [];
+};
+
+export const useDeleteCartItemMutation = (userId: string) => {
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: deleteCartItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["cart_items", userId],
+      });
+      toast.success("장바구니 상품이 삭제되었습니다.");
     },
   });
   return { data, isError, mutate, isSuccess, isPending };
