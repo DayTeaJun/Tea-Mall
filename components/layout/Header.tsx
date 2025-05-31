@@ -1,9 +1,10 @@
-import { LogIn, Search, ShoppingBag, SquareUserRound } from "lucide-react";
+import { LogIn, ShoppingBag, SquareUserRound } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
+import SearchInput from "../ui/SearchInput";
 
 async function Header({ user }: { user: UserType | null }) {
   return (
@@ -44,16 +45,14 @@ async function Header({ user }: { user: UserType | null }) {
           )}
         </div>
 
-        <div className="w-full px-20 py-2 mx-auto flex items-center h-full justify-between bg-white">
+        <div className="w-full px-20 py-2 mx-auto flex items-center h-14 justify-between bg-white">
           <h1 className="text-green-600 text-2xl ">
             <Link href="/" className="text-green-600 font-bold">
               Tea Mall
             </Link>
           </h1>
           <nav className="flex gap-4 items-center">
-            <button className="cursor-pointer p-1">
-              <Search size={20} />
-            </button>
+            <SearchInput />
 
             <CartLinkBtn />
           </nav>
