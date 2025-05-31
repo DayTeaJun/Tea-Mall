@@ -114,7 +114,6 @@ export const deleteCartItem = async (itemId: string) => {
     .delete()
     .eq("id", itemId);
 
-  console.log("DELETE result:", { data, error });
   if (error) throw error;
   return data ?? [];
 };
@@ -130,4 +129,28 @@ export const useDeleteCartItemMutation = (userId: string) => {
     },
   });
   return { data, isError, mutate, isSuccess, isPending };
+};
+
+// 상품 검색 쿼리
+const getSearchProducts = async (query: string): Promise<ProductType[]> => {
+  if (!query.trim()) return [];
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .ilike("name", `%${query}%`);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
+
+export const useSearchProductsQuery = (query: string) => {
+  return useQuery<ProductType[]>({
+    queryKey: ["searchProducts", query],
+    queryFn: () => getSearchProducts(query),
+    enabled: !!query.trim(),
+  });
 };
