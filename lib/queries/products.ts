@@ -138,6 +138,7 @@ const getSearchProducts = async (query: string): Promise<ProductType[]> => {
   const { data, error } = await supabase
     .from("products")
     .select("*")
+    .eq("deleted", false)
     .ilike("name", `%${query}%`);
 
   if (error) {
