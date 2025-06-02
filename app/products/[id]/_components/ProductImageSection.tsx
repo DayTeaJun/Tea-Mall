@@ -43,12 +43,12 @@ export default function ProductImageSection({
         </div>
       )}
 
-      <div className="flex items-start justify-center w-full flex-1">
+      <div className="flex items-start justify-center w-[50%] h-[400px] flex-1">
         {hasImages ? (
           <img
             src={currentImage}
             alt="대표 이미지"
-            className="object-contain w-full max-h-[500px]"
+            className="object-cover w-full h-full"
           />
         ) : (
           <ImageOff className="w-20 h-20 text-gray-400" />
