@@ -13,6 +13,11 @@ export interface ProductUpdateType extends ProductType {
   oldDetailImageIds?: string[];
 }
 
+export interface ProductManageType extends ProductType {
+  created_at: string;
+  deleted: boolean;
+}
+
 export interface CreateProductType {
   name: string;
   description?: string;

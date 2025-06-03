@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductType } from "@/types/product";
+import { ProductManageType, ProductType } from "@/types/product";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -132,7 +132,10 @@ export const useDeleteCartItemMutation = (userId: string) => {
 };
 
 // 상품 검색 쿼리
-const getSearchProducts = async (query: string): Promise<ProductType[]> => {
+const getSearchProducts = async (
+  userId: string,
+  query: string,
+): Promise<ProductType[]> => {
   if (!query.trim()) return [];
 
   const { data, error } = await supabase
@@ -148,10 +151,46 @@ const getSearchProducts = async (query: string): Promise<ProductType[]> => {
   return data ?? [];
 };
 
-export const useSearchProductsQuery = (query: string) => {
-  return useQuery<ProductType[]>({
+export const useSearchProductsQuery = (userId: string, query: string) => {
+  const { data, isLoading } = useQuery<ProductType[]>({
     queryKey: ["searchProducts", query],
-    queryFn: () => getSearchProducts(query),
+    queryFn: () => getSearchProducts(userId, query),
     enabled: !!query.trim(),
   });
+
+  return {
+    data,
+    isLoading,
+  };
+};
+
+// 내 등록 상품 조회
+export async function getMyProducts(userId: string, query: string) {
+  let request = supabase
+    .from("products")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (query.trim()) {
+    request = request.ilike("name", `%${query}%`);
+  }
+
+  const { data, error } = await request;
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export const useMyProductsQuery = (userId: string, searchQuery: string) => {
+  const { data, isLoading } = useQuery<ProductManageType[]>({
+    queryKey: ["myProducts", userId, searchQuery],
+    queryFn: () => getMyProducts(userId, searchQuery),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+  };
 };

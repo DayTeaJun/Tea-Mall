@@ -1,4 +1,4 @@
-import { LogIn, ShoppingBag, SquareUserRound } from "lucide-react";
+import { ListCheck, LogIn, ShoppingBag, SquareUserRound } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
@@ -16,13 +16,23 @@ async function Header({ user }: { user: UserType | null }) {
               <SignOutBtn />
 
               {(user?.level ?? 1) >= 2 && (
-                <Link
-                  href="/productRegist"
-                  className="text-black flex gap-1 items-center"
-                >
-                  <p className="text-[14px]">상품등록</p>
-                  <ShoppingBag size={16} />
-                </Link>
+                <>
+                  <Link
+                    href="/products/regist"
+                    className="text-black flex gap-1 items-center"
+                  >
+                    <p className="text-[14px]">상품등록</p>
+                    <ShoppingBag size={16} />
+                  </Link>
+
+                  <Link
+                    href="/products/manage"
+                    className="text-black flex gap-1 items-center"
+                  >
+                    <p className="text-[14px]">상품 관리</p>
+                    <ListCheck size={16} />
+                  </Link>
+                </>
               )}
             </>
           ) : (

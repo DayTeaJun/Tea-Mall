@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
-import ImagePreviews from "@/app/(admin)/productRegist/_components/ImagePreview";
-import DetailImagePreview from "@/app/(admin)/productRegist/_components/DetailImagePreview";
+import ImagePreviews from "@/app/(admin)/products/regist/_components/ImagePreview";
+import DetailImagePreview from "@/app/(admin)/products/regist/_components/DetailImagePreview";
 import {
   uploadImageToStorage,
   useUpdateProductMutation,
