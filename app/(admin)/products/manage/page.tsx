@@ -3,14 +3,19 @@
 import { useState } from "react";
 import { useMyProductsQuery } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import useDebounce from "@/hooks/useDebounce";
+import { useRouter } from "next/navigation";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const debounceQuery = useDebounce<string>(searchQuery);
+  const router = useRouter();
+
   const { user } = useAuthStore();
 
   const { data: products = [], isLoading } = useMyProductsQuery(
     user?.id || "",
-    searchQuery,
+    debounceQuery,
   );
 
   return (
@@ -25,15 +30,8 @@ export default function ProductListPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border p-2 rounded w-64"
         />
-        <button
-          onClick={() => {}}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          검색
-        </button>
       </div>
 
-      {/* 테이블 */}
       <table className="w-full border-collapse border text-center">
         <thead>
           <tr className="bg-gray-100">
@@ -61,15 +59,13 @@ export default function ProductListPage() {
           ) : (
             products.map((product, index) => (
               <tr key={product.id}>
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">
+                <td className="border p-2">{products.length - index}</td>
+                <td className="border p-2 w-[20%] h-[120px]">
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      width={50}
-                      height={50}
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                     />
                   ) : (
                     "이미지 없음"
@@ -83,9 +79,20 @@ export default function ProductListPage() {
                   {new Date(product.created_at).toLocaleDateString()}
                 </td>
 
-                <td className="border p-2 space-x-2">
-                  <button className="text-blue-600">수정</button>
-                  <button className="text-red-600">삭제</button>
+                <td className="border p-2">
+                  <div className="  flex flex-col gap-2">
+                    <button
+                      onClick={() =>
+                        router.push(`/products/${product.id}/edit`)
+                      }
+                      className="border p-2 cursor-pointer hover:bg-gray-100 duration-200 transition-all"
+                    >
+                      수정
+                    </button>
+                    <button className="border p-2 cursor-pointer hover:bg-gray-100 duration-200 transition-all">
+                      삭제
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))

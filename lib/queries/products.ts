@@ -170,6 +170,7 @@ export async function getMyProducts(userId: string, query: string) {
     .from("products")
     .select("*")
     .eq("user_id", userId)
+    .eq("deleted", false)
     .order("created_at", { ascending: false });
 
   if (query.trim()) {
