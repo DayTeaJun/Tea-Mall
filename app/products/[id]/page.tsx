@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
-import ProductDelBtn from "./_components/ProductDelBtn";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import CartBtn from "./_components/CartBtn";
 import ProductImageSection from "./_components/ProductImageSection";
@@ -28,13 +26,6 @@ export default async function ProductDetailPage({
     .select("image_url, sort_order")
     .eq("product_id", product.id)
     .order("sort_order", { ascending: true });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isOwner =
-    user?.id === product.user_id || user?.user_metadata?.role === "admin";
 
   const formattedPrice = product.price.toLocaleString();
 
@@ -88,22 +79,6 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
-
-      {isOwner && (
-        <div className="mt-5 flex gap-2 justify-end">
-          <Link href={`/products/${product.id}/edit`}>
-            <Button variant="outline" className="cursor-pointer">
-              수정하기
-            </Button>
-          </Link>
-          <ProductDelBtn
-            productUserId={product.user_id}
-            productId={product.id}
-            imageUrl={product.image_url || ""}
-            isOwner={isOwner}
-          />
-        </div>
-      )}
 
       <div className="mt-10">
         <h2 className="text-2xl font-bold mb-4">추천 상품</h2>
