@@ -4,8 +4,6 @@ import { CreateProductType, ProductUpdateType } from "@/types/product";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
 
-const supabase = await createServerSupabaseClient();
-
 // 상품 등록
 export async function createProduct({
   name,
@@ -14,6 +12,8 @@ export async function createProduct({
   image_url,
   detailImages,
 }: CreateProductType) {
+  const supabase = await createServerSupabaseClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -65,6 +65,7 @@ export async function deleteProduct({
   productId: string;
   imagePath: string;
 }) {
+  const supabase = await createServerSupabaseClient();
   const { error: imageDeleteError } = await supabase.storage
     .from("product-images")
     .remove([imagePath]);
@@ -98,7 +99,7 @@ export async function updateProduct({
   detail_image_urls = [],
 }: ProductUpdateType) {
   const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
-
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -216,6 +217,7 @@ export async function updateProduct({
 
 // 내 등록 상품 조회
 export async function getMyProducts(userId: string, query: string) {
+  const supabase = await createServerSupabaseClient();
   let request = supabase
     .from("products")
     .select("*")

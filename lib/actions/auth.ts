@@ -1,10 +1,10 @@
 "use server";
 
-import { SignUpFormData } from "@/app/(auth)/type";
 import {
   createServerSupabaseAdminClient,
   createServerSupabaseClient,
 } from "@/lib/config/supabase/server/server";
+import { SignUpFormData } from "@/types/user";
 
 // 회원가입
 export async function signUpUser(formData: SignUpFormData) {
