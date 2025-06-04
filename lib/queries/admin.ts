@@ -1,12 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useMutation } from "@tanstack/react-query";
-import { createProduct, deleteProduct, updateProduct } from "../actions/admin";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createProduct,
+  deleteProduct,
+  getMyProducts,
+  updateProduct,
+} from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CreateProductType, ProductUpdateType } from "@/types/product";
+import {
+  CreateProductType,
+  ProductManageType,
+  ProductUpdateType,
+} from "@/types/product";
 
 // 상품 이미지 업로드
 export const uploadImageToStorage = async (
@@ -118,4 +127,18 @@ export const useUpdateProductMutation = (productId: string) => {
   });
 
   return { data, isError, mutate, isPending, isSuccess };
+};
+
+// 내 등록 상품 조회
+export const useMyProductsQuery = (userId: string, searchQuery: string) => {
+  const { data, isLoading } = useQuery<ProductManageType[]>({
+    queryKey: ["manageProducts", userId, searchQuery],
+    queryFn: () => getMyProducts(userId, searchQuery),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+  };
 };

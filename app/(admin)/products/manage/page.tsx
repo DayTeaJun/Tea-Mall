@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useMyProductsQuery } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 import ProductDelBtn from "./_components/ProductDelBtn";
+import { useMyProductsQuery } from "@/lib/queries/admin";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,7 +86,8 @@ export default function ProductListPage() {
                   {product.price.toLocaleString()}원
                 </td>
                 <td className="border p-2">
-                  {new Date(product.created_at).toLocaleDateString()}
+                  {product.created_at &&
+                    new Date(product.created_at).toLocaleDateString()}
                 </td>
 
                 <td className="border p-2">

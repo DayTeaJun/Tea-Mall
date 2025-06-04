@@ -4,7 +4,7 @@ export interface ProductType {
   price: number;
   image_url: string | null;
   description: string | null;
-  user_id?: string | null;
+  user_id: string | null;
 }
 
 export interface ProductUpdateType extends ProductType {
@@ -14,8 +14,7 @@ export interface ProductUpdateType extends ProductType {
 }
 
 export interface ProductManageType extends ProductType {
-  created_at: string;
-  deleted: boolean;
+  created_at: string | null;
 }
 
 export interface CreateProductType {

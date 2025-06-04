@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductManageType, ProductType } from "@/types/product";
+import { ProductType } from "@/types/product";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -153,38 +153,6 @@ export const useSearchProductsQuery = (query: string) => {
     queryKey: ["searchProducts", query],
     queryFn: () => getSearchProducts(query),
     enabled: !!query.trim(),
-  });
-
-  return {
-    data,
-    isLoading,
-  };
-};
-
-// 내 등록 상품 조회
-export async function getMyProducts(userId: string, query: string) {
-  let request = supabase
-    .from("products")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("deleted", false)
-    .order("created_at", { ascending: false });
-
-  if (query.trim()) {
-    request = request.ilike("name", `%${query}%`);
-  }
-
-  const { data, error } = await request;
-
-  if (error) throw error;
-  return data ?? [];
-}
-
-export const useMyProductsQuery = (userId: string, searchQuery: string) => {
-  const { data, isLoading } = useQuery<ProductManageType[]>({
-    queryKey: ["manageProducts", userId, searchQuery],
-    queryFn: () => getMyProducts(userId, searchQuery),
-    enabled: !!userId,
   });
 
   return {
