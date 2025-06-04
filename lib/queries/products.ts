@@ -132,10 +132,7 @@ export const useDeleteCartItemMutation = (userId: string) => {
 };
 
 // 상품 검색 쿼리
-const getSearchProducts = async (
-  userId: string,
-  query: string,
-): Promise<ProductType[]> => {
+const getSearchProducts = async (query: string): Promise<ProductType[]> => {
   if (!query.trim()) return [];
 
   const { data, error } = await supabase
@@ -151,10 +148,10 @@ const getSearchProducts = async (
   return data ?? [];
 };
 
-export const useSearchProductsQuery = (userId: string, query: string) => {
+export const useSearchProductsQuery = (query: string) => {
   const { data, isLoading } = useQuery<ProductType[]>({
     queryKey: ["searchProducts", query],
-    queryFn: () => getSearchProducts(userId, query),
+    queryFn: () => getSearchProducts(query),
     enabled: !!query.trim(),
   });
 
