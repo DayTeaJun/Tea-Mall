@@ -67,8 +67,6 @@ export const useCreateProductMutation = () => {
 
 // 상품 삭제
 export const useDeleteProductMutation = (productId: string) => {
-  const router = useRouter();
-
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: async (imagePath: string) =>
       deleteProduct({ productId, imagePath }),
@@ -76,9 +74,11 @@ export const useDeleteProductMutation = (productId: string) => {
       await queryClient.invalidateQueries({
         queryKey: ["products", productId],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["manageProducts"],
+      });
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("상품 삭제가 완료되었습니다.");
-      router.push("/");
     },
     onError: (error) => {
       if (error instanceof Error) {

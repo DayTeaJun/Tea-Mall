@@ -185,7 +185,7 @@ export async function getMyProducts(userId: string, query: string) {
 
 export const useMyProductsQuery = (userId: string, searchQuery: string) => {
   const { data, isLoading } = useQuery<ProductManageType[]>({
-    queryKey: ["myProducts", userId, searchQuery],
+    queryKey: ["manageProducts", userId, searchQuery],
     queryFn: () => getMyProducts(userId, searchQuery),
     enabled: !!userId,
   });

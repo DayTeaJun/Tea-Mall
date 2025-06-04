@@ -5,6 +5,7 @@ import { useMyProductsQuery } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
+import ProductDelBtn from "./_components/ProductDelBtn";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,21 +58,30 @@ export default function ProductListPage() {
               </td>
             </tr>
           ) : (
+            products &&
             products.map((product, index) => (
               <tr key={product.id}>
                 <td className="border p-2">{products.length - index}</td>
-                <td className="border p-2 w-[20%] h-[120px]">
+                <td
+                  onClick={() => router.push(`/products/${product.id}`)}
+                  className="border p-2 w-[20%] h-[120px] cursor-pointer overflow-hidden"
+                >
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="object-cover w-full h-full"
+                      className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
                     />
                   ) : (
                     "이미지 없음"
                   )}
                 </td>
-                <td className="border p-2 text-left">{product.name}</td>
+                <td
+                  onClick={() => router.push(`/products/${product.id}`)}
+                  className="border p-2 text-left cursor-pointer hover:underline"
+                >
+                  {product.name}
+                </td>
                 <td className="border p-2">
                   {product.price.toLocaleString()}원
                 </td>
@@ -89,9 +99,10 @@ export default function ProductListPage() {
                     >
                       수정
                     </button>
-                    <button className="border p-2 cursor-pointer hover:bg-gray-100 duration-200 transition-all">
-                      삭제
-                    </button>
+                    <ProductDelBtn
+                      productId={product.id}
+                      imageUrl={product.image_url || ""}
+                    />
                   </div>
                 </td>
               </tr>
