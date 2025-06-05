@@ -6,6 +6,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
+import { ShoppingBag } from "lucide-react";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,7 +24,7 @@ export default function ProductListPage() {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">등록한 상품 관리</h1>
 
-      <div className="mb-6 flex gap-2 items-center">
+      <div className="mb-6 flex justify-between items-center">
         <input
           type="text"
           placeholder="상품명 검색"
@@ -31,6 +32,14 @@ export default function ProductListPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border p-2 rounded w-64"
         />
+
+        <button
+          onClick={() => router.push("/products/regist")}
+          className="text-black flex gap-1 items-center cursor-pointer border p-2 px-4 hover:bg-gray-100 duration-200 transition-all rounded"
+        >
+          <p className="text-[14px]">상품등록</p>
+          <ShoppingBag size={16} />
+        </button>
       </div>
 
       <table className="w-full border-collapse border text-center">

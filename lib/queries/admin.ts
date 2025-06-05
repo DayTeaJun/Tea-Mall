@@ -59,8 +59,11 @@ export const useCreateProductMutation = () => {
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       await queryClient.invalidateQueries({ queryKey: ["products", data?.id] });
+      await queryClient.invalidateQueries({
+        queryKey: ["manageProducts"],
+      });
       toast.success("상품 등록이 완료되었습니다.");
-      router.push("/");
+      router.push("/products/manage");
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -132,7 +135,7 @@ export const useUpdateProductMutation = (productId: string) => {
 // 내 등록 상품 조회
 export const useMyProductsQuery = (userId: string, searchQuery: string) => {
   const { data, isLoading } = useQuery<ProductManageType[]>({
-    queryKey: ["manageProducts", userId, searchQuery],
+    queryKey: ["manageProducts", searchQuery],
     queryFn: () => getMyProducts(userId, searchQuery),
     enabled: !!userId,
   });
