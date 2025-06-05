@@ -4,7 +4,7 @@ export interface ProductType {
   price: number;
   image_url: string | null;
   description: string | null;
-  user_id: string | null;
+  user_id?: string | null;
 }
 
 export interface ProductUpdateType extends ProductType {
