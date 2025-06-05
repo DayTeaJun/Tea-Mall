@@ -3,10 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { ProductType } from "@/types/product";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function CartBtn({ product }: { product: ProductType }) {
   const supabase = createBrowserSupabaseClient();
+  const router = useRouter();
 
   const handleAddToCart = async () => {
     const {
@@ -55,6 +57,8 @@ export default function CartBtn({ product }: { product: ProductType }) {
     }
 
     toast.success("장바구니에 추가되었습니다.");
+
+    router.refresh();
   };
 
   return (
