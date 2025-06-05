@@ -3,26 +3,19 @@
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LogOut } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-const protectedRoutes = ["/productRegist", "/admin"];
 
 function SignOutBtn() {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
-  const pathname = usePathname();
   const { setUser } = useAuthStore();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     toast.success("로그아웃 되었습니다.");
-    if (protectedRoutes.includes(pathname)) {
-      window.location.href = "/";
-    } else {
-      router.refresh();
-    }
+    router.refresh();
   };
 
   return (

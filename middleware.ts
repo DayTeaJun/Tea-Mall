@@ -1,41 +1,52 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "./lib/config/supabase/server/middleware";
 
-const protectedRoutes = ["/profile", "myCart"];
+const protectedRoutes = [
+  "/profile",
+  "/myCart",
+  "/products/manage",
+  "/products/regist",
+];
 const publicRoutes = ["/signin", "/signup"];
 const adminRoutes = ["/admin"];
-const sellerRoutes = ["/productRegist"];
+
+const sellerRoutes = ["/products/manage", "/products/regist"];
 
 export async function middleware(request: NextRequest) {
   const { response, isLoggedIn, level } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
 
-  // 비로그인 상태인데 protected 경로 접근
-  if (!isLoggedIn && protectedRoutes.includes(pathname)) {
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
+  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  const isSellerRoute = sellerRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
+  const isAdmin = adminRoutes.some((route) => pathname.startsWith(route));
+
+  if (!isLoggedIn && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/signin";
+    url.pathname = "/not-found";
     return NextResponse.redirect(url);
   }
 
-  // 로그인 상태인데 public 경로 접근
-  if (isLoggedIn && publicRoutes.includes(pathname)) {
+  if (isLoggedIn && isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
-  if (level < 2 && sellerRoutes.includes(pathname)) {
+  if (level < 2 && isSellerRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
-    // url.searchParams.set("notice", "seller_only");
+    url.pathname = "/not-found";
     return NextResponse.redirect(url);
   }
 
-  if (level !== 3 && adminRoutes.includes(pathname)) {
+  if (level !== 3 && isAdmin) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
-    // url.searchParams.set("notice", "admin_only");
+    url.pathname = "/not-found";
     return NextResponse.redirect(url);
   }
 
