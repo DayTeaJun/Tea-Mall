@@ -15,41 +15,34 @@ function ProductForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
+  const [tags, setTags] = useState("");
+  const [category, setCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
+  const [gender, setGender] = useState("");
+  const [color, setColor] = useState("");
+
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [stockBySize, setStockBySize] = useState<Record<string, number>>({});
+
+  const [uploading, setUploading] = useState(false);
+
+  const { imageSrc, imgUrl, onUpload } = ImgPreview();
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
-
   const { user } = useAuthStore();
 
   const { mutate } = useCreateProductMutation();
 
   const handleSubmit = async () => {
-    if (!name) {
-      toast.info("상품 이름을 입력해 주세요.");
-      return;
-    }
-
-    if (!description) {
-      toast.info("상품 설명을 입력해 주세요.");
-      return;
-    }
-
-    if (!imgUrl) {
-      toast.info("이미지를 선택해 주세요.");
-      return;
-    }
-
-    if (!user) {
-      toast.info("로그인 후 사용해 주세요.");
+    if (!name || !description || !imgUrl || !user) {
+      toast.info("모든 필수 항목을 입력해 주세요.");
       return;
     }
 
     try {
       setUploading(true);
-      const imageUrl = await uploadImageToStorage(user?.id, imgUrl);
-
+      const imageUrl = await uploadImageToStorage(user.id, imgUrl);
       const detailImageUrls = await Promise.all(
         detailFiles.map((file) => uploadImageToStorage(user.id, file)),
       );
@@ -58,6 +51,16 @@ function ProductForm() {
         name,
         description,
         price: Number(price),
+        tags: tags.split(",").map((tag) => tag.trim()),
+        category,
+        subcategory,
+        gender,
+        color,
+        stockBySize,
+        totalStock: Object.values(stockBySize).reduce(
+          (sum, val) => sum + val,
+          0,
+        ),
         image_url: imageUrl,
         detailImages: detailImageUrls,
       });
@@ -72,6 +75,22 @@ function ProductForm() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleSizeToggle = (size: string) => {
+    if (selectedSizes.includes(size)) {
+      setSelectedSizes(selectedSizes.filter((s) => s !== size));
+      const newStock = { ...stockBySize };
+      delete newStock[size];
+      setStockBySize(newStock);
+    } else {
+      setSelectedSizes([...selectedSizes, size]);
+      setStockBySize({ ...stockBySize, [size]: 0 });
+    }
+  };
+
+  const handleStockChange = (size: string, value: number) => {
+    setStockBySize({ ...stockBySize, [size]: value });
   };
 
   return (
@@ -123,6 +142,107 @@ function ProductForm() {
           className="w-full border border-gray-300 rounded-none mt-2 p-2"
           placeholder="가격"
         />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          태그 (쉼표로 구분)
+        </label>
+        <input
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="예: 여름, 남성용, 캐주얼"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          카테고리
+        </label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+        >
+          <option value="">선택</option>
+          <option value="상의">상의</option>
+          <option value="하의">하의</option>
+          <option value="아우터">아우터</option>
+          <option value="신발">신발</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          하위 카테고리
+        </label>
+        <input
+          value={subcategory}
+          onChange={(e) => setSubcategory(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="하위 카테고리 입력"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">성별</label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+        >
+          <option value="">선택</option>
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">색상</label>
+        <input
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="색상 입력"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          사이즈 및 재고
+        </label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {["XS", "S", "M", "L", "XL", "XXL", "XXXL", "기타"].map((size) => (
+            <label key={size} className="flex items-center space-x-1">
+              <input
+                type="checkbox"
+                checked={selectedSizes.includes(size)}
+                onChange={() => handleSizeToggle(size)}
+              />
+              <span>{size}</span>
+            </label>
+          ))}
+        </div>
+
+        {selectedSizes.map((size) => (
+          <div key={size} className="flex items-center space-x-2 mb-1">
+            <span className="w-12">{size}</span>
+            <input
+              type="number"
+              min={0}
+              value={stockBySize[size] || 0}
+              onChange={(e) => handleStockChange(size, Number(e.target.value))}
+              className="flex-1 border border-gray-300 rounded-none p-2"
+              placeholder="재고 수량"
+            />
+          </div>
+        ))}
+
+        <div className="mt-2 text-sm text-gray-700 font-semibold">
+          총 재고량:{" "}
+          {Object.values(stockBySize).reduce((sum, val) => sum + val, 0)}
+        </div>
       </div>
 
       <ImagePreviews imageSrc={imageSrc || ""} onUpload={onUpload} />
