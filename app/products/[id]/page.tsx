@@ -81,7 +81,16 @@ export default async function ProductDetailPage({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-2xl font-bold mb-4">추천 상품</h2>
+        {detailImages &&
+          detailImages.map((image) => (
+            <div key={image.sort_order} className="mb-4">
+              <img
+                src={image.image_url}
+                alt={`Product detail ${image.sort_order}`}
+                className="w-full h-auto"
+              />
+            </div>
+          ))}
       </div>
     </main>
   );
