@@ -56,8 +56,8 @@ function ProductForm() {
         subcategory,
         gender,
         color,
-        stockBySize,
-        totalStock: Object.values(stockBySize).reduce(
+        stock_by_size: stockBySize,
+        total_stock: Object.values(stockBySize).reduce(
           (sum, val) => sum + val,
           0,
         ),
