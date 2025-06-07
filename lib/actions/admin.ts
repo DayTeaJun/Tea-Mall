@@ -11,6 +11,13 @@ export async function createProduct({
   price,
   image_url,
   detailImages,
+  tags,
+  category,
+  subcategory,
+  gender,
+  color,
+  stock_by_size,
+  total_stock,
 }: CreateProductType) {
   const supabase = await createServerSupabaseClient();
 
@@ -19,7 +26,7 @@ export async function createProduct({
   } = await supabase.auth.getUser();
 
   if (!user?.id) {
-    return alert("로그인 후 사용해주세요.");
+    throw new Error("로그인 후 사용해주세요.");
   }
 
   const { data: product, error: productError } = await supabase
@@ -31,28 +38,21 @@ export async function createProduct({
         price,
         image_url,
         user_id: user.id,
+        tags,
+        category,
+        subcategory,
+        gender,
+        color,
+        stock_by_size,
+        total_stock,
+        detail_images: detailImages.slice(0, 5), // 최대 5개까지만 저장
       },
     ])
     .select()
     .single();
 
   if (productError) {
-    throw new Error("상품 등록 실패", productError);
-  }
-
-  const imageRecords = detailImages.slice(0, 5).map((url, index) => ({
-    product_id: product.id,
-    image_url: url,
-    sort_order: index,
-  }));
-
-  const { error: detailError } = await supabase
-    .from("product_images")
-    .insert(imageRecords);
-
-  if (detailError) {
-    console.error("상세 이미지 등록 실패:", detailError.message);
-    throw new Error(detailError.message);
+    throw new Error(`상품 등록 실패: ${productError.message}`);
   }
 
   return product;
