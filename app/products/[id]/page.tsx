@@ -71,7 +71,7 @@ export default async function ProductDetailPage({
 
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
-              <CartBtn product={product} />
+              <CartBtn productId={product.id} />
               <Button className="flex-1 bg-red-600 text-white hover:bg-red-700 cursor-pointer">
                 바로 구매
               </Button>

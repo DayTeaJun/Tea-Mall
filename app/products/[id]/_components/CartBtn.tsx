@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { ProductType } from "@/types/product";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export default function CartBtn({ product }: { product: ProductType }) {
+export default function CartBtn({ productId }: { productId: string }) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
 
@@ -25,7 +24,7 @@ export default function CartBtn({ product }: { product: ProductType }) {
       .from("cart_items")
       .select("*")
       .eq("user_id", user.id)
-      .eq("product_id", product.id)
+      .eq("product_id", productId)
       .single();
 
     if (fetchError && fetchError.code !== "PGRST116") {
@@ -46,7 +45,7 @@ export default function CartBtn({ product }: { product: ProductType }) {
     } else {
       const { error: insertError } = await supabase.from("cart_items").insert({
         user_id: user.id,
-        product_id: product.id,
+        product_id: productId,
         quantity: 1,
       });
 
