@@ -5,7 +5,13 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export default function CartBtn({ productId }: { productId: string }) {
+export default function CartBtn({
+  productId,
+  quantity,
+}: {
+  productId: string;
+  quantity?: number;
+}) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
 
@@ -35,7 +41,7 @@ export default function CartBtn({ productId }: { productId: string }) {
     if (existing) {
       const { error: updateError } = await supabase
         .from("cart_items")
-        .update({ quantity: existing.quantity + 1 })
+        .update({ quantity: existing.quantity + quantity })
         .eq("id", existing.id);
 
       if (updateError) {
@@ -46,7 +52,7 @@ export default function CartBtn({ productId }: { productId: string }) {
       const { error: insertError } = await supabase.from("cart_items").insert({
         user_id: user.id,
         product_id: productId,
-        quantity: 1,
+        quantity: quantity,
       });
 
       if (insertError) {
