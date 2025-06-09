@@ -46,7 +46,6 @@ export default async function ProductDetailPage({
               <ShareButton />
             </div>
 
-            {/* 메타정보 */}
             <div className="text-sm text-gray-600 mb-2 space-x-2">
               {product.category && <span>카테고리: {product.category}</span>}
               {product.subcategory && (

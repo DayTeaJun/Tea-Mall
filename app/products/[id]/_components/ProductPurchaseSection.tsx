@@ -42,7 +42,7 @@ export default function ProductPurchaseSection({
             setQuantity(1);
           }}
         >
-          <SelectTrigger className="w-1/4">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="사이즈 선택" />
           </SelectTrigger>
           <SelectContent>

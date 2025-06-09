@@ -29,6 +29,7 @@ export async function createProduct({
     throw new Error("로그인 후 사용해주세요.");
   }
 
+  // 1️⃣ products 테이블에 insert
   const { data: product, error: productError } = await supabase
     .from("products")
     .insert([
@@ -45,7 +46,6 @@ export async function createProduct({
         color,
         stock_by_size,
         total_stock,
-        detail_images: detailImages.slice(0, 5), // 최대 5개까지만 저장
       },
     ])
     .select()
@@ -53,6 +53,21 @@ export async function createProduct({
 
   if (productError) {
     throw new Error(`상품 등록 실패: ${productError.message}`);
+  }
+
+  // 2️⃣ product_images 테이블에 insert
+  const imageRecords = detailImages.slice(0, 5).map((url, index) => ({
+    product_id: product.id,
+    image_url: url,
+    sort_order: index,
+  }));
+
+  const { error: detailError } = await supabase
+    .from("product_images")
+    .insert(imageRecords);
+
+  if (detailError) {
+    throw new Error(`상세 이미지 등록 실패: ${detailError.message}`);
   }
 
   return product;
