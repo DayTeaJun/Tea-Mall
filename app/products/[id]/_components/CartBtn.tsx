@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -68,12 +67,12 @@ export default function CartBtn({
 
   return (
     <div className="flex gap-2">
-      <Button
-        className="flex-1 bg-gray-800 text-white hover:bg-gray-700 cursor-pointer"
+      <button
+        className="flex-1 text-green-600 hover:text-green-900 border-2 border-green-600 hover:border-green-900 cursor-pointer p-2 duration-300 transition-colors"
         onClick={handleAddToCart}
       >
         장바구니 추가
-      </Button>
+      </button>
     </div>
   );
 }
