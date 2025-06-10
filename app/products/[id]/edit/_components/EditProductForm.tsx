@@ -11,17 +11,31 @@ import {
 } from "@/lib/queries/admin";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { Json } from "@/lib/config/supabase/types_db";
 
 interface ProductWithImages {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  image_url: string | null;
-  user_id: string | null;
+  category: string | null;
+  color: string | null;
   created_at: string | null;
   deleted: boolean;
-  product_images?: { id: string; image_url: string }[];
+  deleted_at: string | null;
+  description: string | null;
+  detail_images: string[] | null;
+  gender: string | null;
+  id: string;
+  image_url: string | null;
+  name: string;
+  price: number;
+  stock_by_size: Json | null;
+  subcategory: string | null;
+  tags: string[] | null;
+  total_stock: number | null;
+  updated_at: string | null;
+  user_id: string | null;
+  product_images: {
+    id: string;
+    image_url: string;
+  }[];
 }
 
 export default function EditProductForm({
@@ -33,6 +47,18 @@ export default function EditProductForm({
   const [description, setDescription] = useState(product.description || "");
   const [price, setPrice] = useState(String(product.price));
 
+  const [tags, setTags] = useState((product.tags || []).join(", "));
+  const [category, setCategory] = useState(product.category || "");
+  const [subcategory, setSubcategory] = useState(product.subcategory || "");
+  const [gender, setGender] = useState(product.gender || "");
+  const [color, setColor] = useState(product.color || "");
+
+  const [selectedSizes, setSelectedSizes] = useState(
+    Object.keys(product.stock_by_size || {}),
+  );
+  const [stockBySize, setStockBySize] = useState<Record<string, number>>(
+    (product.stock_by_size as Record<string, number>) || {},
+  );
   const { user } = useAuthStore();
   const router = useRouter();
 
@@ -64,28 +90,52 @@ export default function EditProductForm({
         detailFiles.map((file) => uploadImageToStorage(user.id, file)),
       );
 
-      const currentImagesToKeep = existingDetailImages;
       const finalDetailImages = [
-        ...currentImagesToKeep.map((img) => img.url),
+        ...existingDetailImages.map((img) => img.url),
         ...newDetailImageUrls,
       ];
 
-      const oldDetailImageIds = currentImagesToKeep.map((img) => img.id);
+      const oldDetailImageIds = existingDetailImages.map((img) => img.id);
 
       mutate({
         id: product.id,
         name,
         description,
         price: Number(price),
-        image_url: newMainImageUrl || "",
-        oldImageUrl: product.image_url || undefined,
+        tags: tags.split(",").map((tag) => tag.trim()),
+        category,
+        subcategory,
+        gender,
+        color,
+        stock_by_size: stockBySize,
+        total_stock: Object.values(stockBySize).reduce(
+          (sum, val) => sum + val,
+          0,
+        ),
+        image_url: newMainImageUrl,
         detail_image_urls: finalDetailImages,
-        oldDetailImageIds: oldDetailImageIds,
+        oldDetailImageIds,
       });
     } catch (err) {
       toast.error("수정 중 오류가 발생했습니다.");
       console.error(err);
     }
+  };
+
+  const handleSizeToggle = (size: string) => {
+    if (selectedSizes.includes(size)) {
+      setSelectedSizes(selectedSizes.filter((s) => s !== size));
+      const newStock = { ...stockBySize };
+      delete newStock[size];
+      setStockBySize(newStock);
+    } else {
+      setSelectedSizes([...selectedSizes, size]);
+      setStockBySize({ ...stockBySize, [size]: 0 });
+    }
+  };
+
+  const handleStockChange = (size: string, value: number) => {
+    setStockBySize({ ...stockBySize, [size]: value });
   };
 
   return (
@@ -136,6 +186,107 @@ export default function EditProductForm({
           onChange={(e) => setPrice(e.target.value)}
           className="w-full border border-gray-300 mt-2 p-2"
         />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          태그 (쉼표로 구분)
+        </label>
+        <input
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="예: 여름, 남성용, 캐주얼"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          카테고리
+        </label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+        >
+          <option value="">선택</option>
+          <option value="상의">상의</option>
+          <option value="하의">하의</option>
+          <option value="아우터">아우터</option>
+          <option value="신발">신발</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          하위 카테고리
+        </label>
+        <input
+          value={subcategory}
+          onChange={(e) => setSubcategory(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="하위 카테고리 입력"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">성별</label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+        >
+          <option value="">선택</option>
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">색상</label>
+        <input
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          className="w-full border border-gray-300 rounded-none mt-2 p-2"
+          placeholder="색상 입력"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          사이즈 및 재고
+        </label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {["XS", "S", "M", "L", "XL", "XXL", "XXXL", "기타"].map((size) => (
+            <label key={size} className="flex items-center space-x-1">
+              <input
+                type="checkbox"
+                checked={selectedSizes.includes(size)}
+                onChange={() => handleSizeToggle(size)}
+              />
+              <span>{size}</span>
+            </label>
+          ))}
+        </div>
+
+        {selectedSizes.map((size) => (
+          <div key={size} className="flex items-center space-x-2 mb-1">
+            <span className="w-12">{size}</span>
+            <input
+              type="number"
+              min={0}
+              value={stockBySize[size] || 0}
+              onChange={(e) => handleStockChange(size, Number(e.target.value))}
+              className="flex-1 border border-gray-300 rounded-none p-2"
+              placeholder="재고 수량"
+            />
+          </div>
+        ))}
+
+        <div className="mt-2 text-sm text-gray-700 font-semibold">
+          총 재고량:{" "}
+          {Object.values(stockBySize).reduce((sum, val) => sum + val, 0)}
+        </div>
       </div>
 
       <ImagePreviews

@@ -29,7 +29,6 @@ export async function createProduct({
     throw new Error("로그인 후 사용해주세요.");
   }
 
-  // 1️⃣ products 테이블에 insert
   const { data: product, error: productError } = await supabase
     .from("products")
     .insert([
@@ -55,7 +54,6 @@ export async function createProduct({
     throw new Error(`상품 등록 실패: ${productError.message}`);
   }
 
-  // 2️⃣ product_images 테이블에 insert
   const imageRecords = detailImages.slice(0, 5).map((url, index) => ({
     product_id: product.id,
     image_url: url,
@@ -112,6 +110,13 @@ export async function updateProduct({
   oldImageUrl,
   oldDetailImageIds = [],
   detail_image_urls = [],
+  tags,
+  category,
+  subcategory,
+  gender,
+  color,
+  stock_by_size,
+  total_stock,
 }: ProductUpdateType) {
   const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
   const supabase = await createServerSupabaseClient();
@@ -199,7 +204,19 @@ export async function updateProduct({
   // 상품 정보 업데이트
   const { data, error } = await supabase
     .from("products")
-    .update({ name, description, price, image_url })
+    .update({
+      name,
+      description,
+      price,
+      image_url,
+      tags,
+      category,
+      subcategory,
+      gender,
+      color,
+      stock_by_size,
+      total_stock,
+    })
     .eq("id", id);
 
   if (error) {
