@@ -10,7 +10,7 @@ export default async function ProductDetailPage({
   params: { id: string };
 }) {
   const supabase = await createServerSupabaseClient();
-  const { id } = params;
+  const { id } = await params;
 
   const { data: product, error } = await supabase
     .from("products")

@@ -29,7 +29,12 @@ export function ImgPreview() {
     };
   };
 
-  return { imageSrc, imgUrl, onUpload };
+  const onRemove = () => {
+    setImageSrc(null);
+    setImgUrl(null);
+  };
+
+  return { imageSrc, imgUrl, onUpload, onRemove };
 }
 
 // 이미지 상세 보기 (최대 5개)

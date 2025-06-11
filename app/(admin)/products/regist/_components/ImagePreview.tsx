@@ -2,15 +2,16 @@
 
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 
 interface Props {
   editImage?: string;
   imageSrc: string;
   onUpload: (file: File) => void;
+  onRemove: () => void;
 }
 
-function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
+function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isEdited, setIsEdited] = useState(false); // ✅ 사용자가 이미지를 업로드했는지 여부
@@ -63,11 +64,27 @@ function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
         </p>
 
         {imageSrc || (!isEdited && editImage) ? (
-          <img
-            className="w-60 h-60 object-cover m-auto"
-            src={isEdited ? imageSrc! : editImage!}
-            alt="상품 이미지"
-          />
+          <div className="relative flex flex-col items-center justify-center gap-2 object-cover m-auto">
+            <img
+              className="w-60 h-60 object-cover m-auto"
+              src={isEdited ? imageSrc! : editImage!}
+              alt="상품 이미지"
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+                setIsEdited(false);
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
+              }}
+              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md cursor-pointer border-gray-700 hover:bg-gray-200"
+            >
+              <X size={14} className="font-bold" />
+            </button>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 w-60 h-60 object-cover m-auto border-2 border-dashed">
             <ImagePlus size={40} className="text-gray-300" />

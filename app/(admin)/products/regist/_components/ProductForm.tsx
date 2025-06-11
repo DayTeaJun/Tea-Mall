@@ -27,7 +27,7 @@ function ProductForm() {
 
   const [uploading, setUploading] = useState(false);
 
-  const { imageSrc, imgUrl, onUpload } = ImgPreview();
+  const { imageSrc, imgUrl, onUpload, onRemove } = ImgPreview();
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
   const { user } = useAuthStore();
@@ -245,7 +245,11 @@ function ProductForm() {
         </div>
       </div>
 
-      <ImagePreviews imageSrc={imageSrc || ""} onUpload={onUpload} />
+      <ImagePreviews
+        imageSrc={imageSrc || ""}
+        onUpload={onUpload}
+        onRemove={onRemove}
+      />
 
       <DetailImagePreview
         previews={detailPreviews}

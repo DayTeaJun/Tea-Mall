@@ -62,7 +62,7 @@ export default function EditProductForm({
   const { user } = useAuthStore();
   const router = useRouter();
 
-  const { imageSrc, imgUrl, onUpload } = ImgPreview();
+  const { imageSrc, imgUrl, onUpload, onRemove } = ImgPreview();
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
 
@@ -293,6 +293,7 @@ export default function EditProductForm({
         editImage={product.image_url || ""}
         imageSrc={imageSrc || ""}
         onUpload={onUpload}
+        onRemove={onRemove}
       />
 
       <DetailImagePreview
