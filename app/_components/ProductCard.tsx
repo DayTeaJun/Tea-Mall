@@ -23,7 +23,10 @@ function ProductCard({ products }: { products: ProductType }) {
             onError={() => setImageError(true)}
           />
         ) : (
-          <ImageOff className="text-gray-400" size={40} />
+          <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100 ">
+            <ImageOff className="text-gray-400" size={40} />
+            <p className="text-gray-500">이미지가 없습니다.</p>
+          </div>
         )}
       </div>
       <h3 className="text-lg font-medium">{products.name}</h3>

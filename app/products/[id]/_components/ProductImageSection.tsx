@@ -25,6 +25,8 @@ export default function ProductImageSection({
 
   const hasImages = imageList.length > 0;
 
+  console.log("imageList", imageList);
+
   return (
     <div className="flex gap-4">
       {hasImages && (
@@ -34,8 +36,8 @@ export default function ProductImageSection({
               key={index}
               src={img}
               onClick={() => setCurrentImage(img)}
-              className={`w-[70px] h-[70px] object-cover cursor-pointer border shrink-0 ${
-                currentImage === img ? "border-blue-300" : ""
+              className={`w-[70px] h-[70px] object-cover cursor-pointer border-2 shrink-0 ${
+                currentImage === img ? "border-blue-400" : ""
               }`}
               alt={`상세 이미지 ${index + 1}`}
             />
@@ -45,13 +47,23 @@ export default function ProductImageSection({
 
       <div className="flex items-start justify-center w-[50%] h-[400px] flex-1">
         {hasImages ? (
-          <img
-            src={currentImage}
-            alt="대표 이미지"
-            className="object-cover w-full h-full"
-          />
+          currentImage ? (
+            <img
+              src={currentImage}
+              alt="대표 이미지"
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="flex flex-col gap-2 items-center justify-center w-full h-[400px] bg-gray-100 ">
+              <ImageOff size={40} className="text-gray-400" />
+              <p className="text-gray-500">대표 이미지가 없습니다.</p>
+            </div>
+          )
         ) : (
-          <ImageOff className="w-20 h-20 text-gray-400" />
+          <div className="flex flex-col gap-2 items-center justify-center w-full h-[400px] bg-gray-100 ">
+            <ImageOff size={40} className="text-gray-400" />
+            <p className="text-gray-500">이미지가 없습니다.</p>
+          </div>
         )}
       </div>
     </div>

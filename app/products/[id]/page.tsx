@@ -31,12 +31,10 @@ export default async function ProductDetailPage({
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {product.image_url && detailImages && (
-          <ProductImageSection
-            mainImage={product.image_url}
-            detailImages={detailImages ?? []}
-          />
-        )}
+        <ProductImageSection
+          mainImage={product.image_url ?? ""}
+          detailImages={detailImages ?? []}
+        />
 
         <div className="flex flex-col justify-between w-full">
           <div>
