@@ -11,11 +11,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  CreateProductType,
-  ProductManageType,
-  ProductUpdateType,
-} from "@/types/product";
+import { CreateProductType, ProductUpdateType } from "@/types/product";
 
 // 상품 이미지 업로드
 export const uploadImageToStorage = async (
@@ -134,7 +130,7 @@ export const useUpdateProductMutation = (productId: string) => {
 
 // 내 등록 상품 조회
 export const useMyProductsQuery = (userId: string, searchQuery: string) => {
-  const { data, isLoading } = useQuery<ProductManageType[]>({
+  const { data, isLoading } = useQuery({
     queryKey: ["manageProducts", searchQuery],
     queryFn: () => getMyProducts(userId, searchQuery),
     enabled: !!userId,

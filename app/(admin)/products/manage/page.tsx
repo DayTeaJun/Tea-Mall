@@ -6,7 +6,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
-import { ShoppingBag } from "lucide-react";
+import { ImageOff, ShoppingBag } from "lucide-react";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,7 +82,10 @@ export default function ProductListPage() {
                       className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
                     />
                   ) : (
-                    "이미지 없음"
+                    <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
+                      <ImageOff size={40} className="text-gray-400" />
+                      <p className="text-gray-500">이미지가 없습니다.</p>
+                    </div>
                   )}
                 </td>
                 <td
