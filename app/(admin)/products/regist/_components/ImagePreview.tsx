@@ -14,7 +14,7 @@ interface Props {
 function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isEdited, setIsEdited] = useState(false); // ✅ 사용자가 이미지를 업로드했는지 여부
+  const [isEdited, setIsEdited] = useState(false);
 
   const handleBoxClick = () => {
     fileInputRef.current?.click();

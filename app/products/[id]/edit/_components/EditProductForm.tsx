@@ -53,6 +53,8 @@ export default function EditProductForm({
   const [gender, setGender] = useState(product.gender || "");
   const [color, setColor] = useState(product.color || "");
 
+  const [mainImage, setMainImage] = useState(product.image_url || "");
+
   const [selectedSizes, setSelectedSizes] = useState(
     Object.keys(product.stock_by_size || {}),
   );
@@ -62,7 +64,23 @@ export default function EditProductForm({
   const { user } = useAuthStore();
   const router = useRouter();
 
-  const { imageSrc, imgUrl, onUpload, onRemove } = ImgPreview();
+  const {
+    imageSrc,
+    imgUrl,
+    onUpload: rawUpload,
+    onRemove: rawRemove,
+  } = ImgPreview();
+
+  const handleMainImageUpload = (file: File) => {
+    rawUpload(file);
+    setMainImage("");
+  };
+
+  const handleMainImageRemove = () => {
+    rawRemove();
+    setMainImage("");
+  };
+
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
 
@@ -84,7 +102,7 @@ export default function EditProductForm({
     try {
       const newMainImageUrl = imgUrl
         ? await uploadImageToStorage(user.id, imgUrl)
-        : product.image_url;
+        : mainImage || null;
 
       const newDetailImageUrls = await Promise.all(
         detailFiles.map((file) => uploadImageToStorage(user.id, file)),
@@ -290,10 +308,10 @@ export default function EditProductForm({
       </div>
 
       <ImagePreviews
-        editImage={product.image_url || ""}
+        editImage={mainImage}
         imageSrc={imageSrc || ""}
-        onUpload={onUpload}
-        onRemove={onRemove}
+        onUpload={handleMainImageUpload}
+        onRemove={handleMainImageRemove}
       />
 
       <DetailImagePreview
