@@ -20,8 +20,10 @@ export default function ProductListPage() {
     debounceQuery,
   );
 
+  console.log("products", user);
+
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-7xl mx-auto space-y-12">
       <h1 className="text-2xl font-bold mb-6">등록한 상품 관리</h1>
 
       <div className="mb-6 flex justify-between items-center">
@@ -99,7 +101,7 @@ export default function ProductListPage() {
                   className="w-[40%] border p-2 text-left cursor-pointer"
                 >
                   <span className="text-gray-500 text-sm">
-                    이름 | {product.id}
+                    {user?.email?.split("@")[0]} | {product.id}
                   </span>
                   <span className="block my-2 border p-1">{product.name}</span>
                   <span className="block border p-1">{product.category}</span>
