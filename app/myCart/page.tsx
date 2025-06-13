@@ -6,6 +6,7 @@ import {
   useUpdateQuantityMutation,
 } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { ImageOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -44,7 +45,7 @@ export default function MyCartPage() {
               >
                 <div className="flex items-start gap-3 justify-between w-full">
                   <div className="flex items-center gap-4">
-                    {item.product?.image_url && (
+                    {item.product?.image_url ? (
                       <img
                         src={item.product.image_url}
                         alt={item.product.name}
@@ -53,6 +54,13 @@ export default function MyCartPage() {
                           router.push(`/products/${item.product?.id}`)
                         }
                       />
+                    ) : (
+                      <div className="flex w-32 h-32 flex-col gap-2 items-center justify-center bg-gray-100 rounded">
+                        <ImageOff size={40} className="text-gray-400" />
+                        <p className="text-gray-500 text-sm text-center">
+                          이미지가 없습니다.
+                        </p>
+                      </div>
                     )}
 
                     <div className="flex flex-col gap-2">
