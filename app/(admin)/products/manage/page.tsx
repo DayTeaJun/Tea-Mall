@@ -47,9 +47,11 @@ export default function ProductListPage() {
           <tr className="bg-gray-100">
             <th className="border p-2">No</th>
             <th className="border p-2">이미지</th>
-            <th className="border p-2">상품명</th>
+            <th className="border p-2">
+              닉네임 / 상품번호 / 상품명 / 상품태그
+            </th>
             <th className="border p-2">판매가</th>
-            <th className="border p-2">등록일</th>
+            <th className="border p-2">처리 날짜</th>
             <th className="border p-2">관리</th>
           </tr>
         </thead>
@@ -73,33 +75,49 @@ export default function ProductListPage() {
                 <td className="border p-2">{products.length - index}</td>
                 <td
                   onClick={() => router.push(`/products/${product.id}`)}
-                  className="border p-2 w-[20%] h-[120px] cursor-pointer overflow-hidden"
+                  className="border p-2 w-[15%] cursor-pointer overflow-hidden"
                 >
-                  {product.image_url ? (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
-                    />
-                  ) : (
-                    <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
-                      <ImageOff size={40} className="text-gray-400" />
-                      <p className="text-gray-500">이미지가 없습니다.</p>
-                    </div>
-                  )}
+                  <div className="w-full aspect-square">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
+                      />
+                    ) : (
+                      <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
+                        <ImageOff size={40} className="text-gray-400" />
+                        <p className="text-gray-500 text-sm text-center">
+                          이미지가 없습니다.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td
                   onClick={() => router.push(`/products/${product.id}`)}
-                  className="border p-2 text-left cursor-pointer hover:underline"
+                  className="w-[40%] border p-2 text-left cursor-pointer"
                 >
-                  {product.name}
+                  <span className="text-gray-500 text-sm">
+                    이름 | {product.id}
+                  </span>
+                  <span className="block my-2 border p-1">{product.name}</span>
+                  <span className="block border p-1">{product.category}</span>
                 </td>
                 <td className="border p-2">
                   {product.price.toLocaleString()}원
                 </td>
                 <td className="border p-2">
-                  {product.created_at &&
-                    new Date(product.created_at).toLocaleDateString()}
+                  <span className="block mb-1">
+                    <span className="text-gray-500 mr-1">등록일 </span>
+                    {product.created_at &&
+                      new Date(product.created_at).toLocaleDateString()}
+                  </span>
+                  <span>
+                    <span className="text-gray-500 mr-1">갱신일 </span>
+                    {product.updated_at &&
+                      new Date(product.updated_at).toLocaleDateString()}
+                  </span>
                 </td>
 
                 <td className="border p-2">
