@@ -216,6 +216,7 @@ export async function updateProduct({
       color,
       stock_by_size,
       total_stock,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", id);
 

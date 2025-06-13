@@ -112,6 +112,8 @@ export const useUpdateProductMutation = (productId: string) => {
         queryKey: ["products", productId],
       });
       await queryClient.invalidateQueries({ queryKey: ["products"] });
+      await queryClient.invalidateQueries({ queryKey: ["manageProducts"] });
+
       toast.success("상품이 성공적으로 수정되었습니다.");
       router.replace(`/products/${productId}`);
     },

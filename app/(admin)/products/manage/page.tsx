@@ -20,8 +20,6 @@ export default function ProductListPage() {
     debounceQuery,
   );
 
-  console.log("products", user);
-
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-12">
       <h1 className="text-2xl font-bold mb-6">등록한 상품 관리</h1>
