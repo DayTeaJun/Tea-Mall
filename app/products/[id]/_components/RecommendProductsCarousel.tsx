@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useProductAllToMainQuery } from "@/lib/queries/products";
+import ProductCard from "@/app/_components/ProductCard";
 
 export default function RecommendProductsCarousel() {
   const carouselRef = React.useRef<HTMLDivElement>(null);
@@ -20,13 +19,6 @@ export default function RecommendProductsCarousel() {
       behavior: "smooth",
     });
   };
-
-  const extendedProducts =
-    !isLoading && products
-      ? Array.from({ length: 10 }).flatMap(() =>
-          products.map((p, i) => ({ ...p, id: `${p.id}-${i}` })),
-        )
-      : [];
 
   return (
     <div className="w-full mt-16">
@@ -47,32 +39,9 @@ export default function RecommendProductsCarousel() {
         className="flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar whitespace-nowrap"
       >
         {!isLoading &&
-          extendedProducts.map((product) => (
-            <Link
-              key={product.id}
-              href={`/products/${product.id.split("-")[0]}`} // 원래 ID로 이동
-              className="inline-block align-top w-[200px]"
-            >
-              <Card className="hover:shadow-md transition duration-200">
-                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
-                  {product.image_url ? (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="text-gray-400">No Image</div>
-                  )}
-                </div>
-                <CardContent className="p-3">
-                  <p className="font-semibold truncate">{product.name}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {product.price.toLocaleString()}원
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
+          products &&
+          products.map((product) => (
+            <ProductCard products={product} key={product.id} />
           ))}
       </div>
     </div>

@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 import ProductImageSection from "./_components/ProductImageSection";
 import ShareButton from "@/components/common/buttons/ShareBtn";
 import ProductPurchaseSection from "./_components/ProductPurchaseSection"; // 추가
+import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 
 export default async function ProductDetailPage({
   params,
@@ -110,6 +111,8 @@ export default async function ProductDetailPage({
             </div>
           ))}
       </div>
+
+      <RecommendProductsCarousel />
     </main>
   );
 }
