@@ -36,12 +36,17 @@ export default function RecommendProductsCarousel() {
 
       <div
         ref={carouselRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar whitespace-nowrap"
+        className="flex overflow-x-auto gap-4 pb-2 scroll-smooth"
       >
         {!isLoading &&
           products &&
           products.map((product) => (
-            <ProductCard products={product} key={product.id} />
+            <div
+              key={product.id}
+              className="w-[calc(100%/4-48px)] flex-shrink-0"
+            >
+              <ProductCard products={product} />
+            </div>
           ))}
       </div>
     </div>
