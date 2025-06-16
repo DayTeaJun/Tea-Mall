@@ -4,6 +4,7 @@ import ProductImageSection from "./_components/ProductImageSection";
 import ShareButton from "@/components/common/buttons/ShareBtn";
 import ProductPurchaseSection from "./_components/ProductPurchaseSection"; // 추가
 import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
+import CommentsSection from "./_components/CommentsSection";
 
 export default async function ProductDetailPage({
   params,
@@ -113,6 +114,8 @@ export default async function ProductDetailPage({
       </div>
 
       <RecommendProductsCarousel />
+
+      <CommentsSection />
     </main>
   );
 }
