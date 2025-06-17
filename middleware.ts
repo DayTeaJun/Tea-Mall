@@ -6,6 +6,7 @@ const protectedRoutes = [
   "/myCart",
   "/products/manage",
   "/products/regist",
+  "/productReview",
 ];
 const publicRoutes = ["/signin", "/signup"];
 const adminRoutes = ["/admin"];
