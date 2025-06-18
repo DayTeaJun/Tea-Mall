@@ -1,45 +1,23 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import { UploadIcon } from "lucide-react";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useParams } from "next/navigation";
-import { Database } from "@/lib/config/supabase/types_db";
+import { notFound } from "next/navigation";
 
-type Product = Database["public"]["Tables"]["products"]["Row"];
+export default async function ProductReview({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const supabase = await createServerSupabaseClient();
+  const { id } = await params;
 
-export default function ProductReview() {
-  const { productId } = useParams();
-  const [imageCount, setImageCount] = useState(0);
-  const [product, setProduct] = useState<Product | null>(null);
-
-  const id = productId as string;
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const supabase = createBrowserSupabaseClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        console.warn("로그인된 유저가 아닙니다.");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .eq("deleted", false)
-        .single();
-
-      if (!error && data) setProduct(data);
-    };
-
-    if (productId) fetchProduct();
-  }, [productId]);
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .eq("deleted", false)
+    .single();
+  if (!product || error) return notFound();
 
   console.log(product);
 
@@ -87,17 +65,10 @@ export default function ProductReview() {
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1">사용자 사진</label>
         <div className="flex items-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              setImageCount((prev) => (prev < 5 ? prev + 1 : prev))
-            }
-          >
+          <Button type="button" variant="outline">
             <UploadIcon className="w-4 h-4 mr-2" />
             사진 업로드하기
           </Button>
-          <p className="text-sm text-gray-600">{imageCount} / 5</p>
         </div>
         <p className="text-xs text-gray-400 mt-1">
           사진은 최대 5장까지 업로드 가능하며, jpg/png/jpeg/gif 포맷을
