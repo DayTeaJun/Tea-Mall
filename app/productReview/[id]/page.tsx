@@ -5,28 +5,43 @@ import { Button } from "@/components/ui/button";
 import { UploadIcon } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useParams } from "next/navigation";
+import { Database } from "@/lib/config/supabase/types_db";
+
+type Product = Database["public"]["Tables"]["products"]["Row"];
 
 export default function ProductReview() {
   const { productId } = useParams();
   const [imageCount, setImageCount] = useState(0);
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<Product | null>(null);
+
+  const id = productId as string;
 
   useEffect(() => {
-    const supabase = createBrowserSupabaseClient();
-
     const fetchProduct = async () => {
+      const supabase = createBrowserSupabaseClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.warn("로그인된 유저가 아닙니다.");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("id", productId)
+        .eq("id", id)
         .eq("deleted", false)
         .single();
 
-      if (!error) setProduct(data);
+      if (!error && data) setProduct(data);
     };
 
-    fetchProduct();
+    if (productId) fetchProduct();
   }, [productId]);
+
+  console.log(product);
 
   return (
     <div className="max-w-2xl mx-auto p-6 my-5 bg-white shadow rounded-md">
