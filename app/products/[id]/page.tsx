@@ -113,9 +113,9 @@ export default async function ProductDetailPage({
           ))}
       </div>
 
-      <RecommendProductsCarousel />
-
       <CommentsSection productId={id} />
+
+      <RecommendProductsCarousel />
     </main>
   );
 }
