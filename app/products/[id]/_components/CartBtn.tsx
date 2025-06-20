@@ -7,9 +7,11 @@ import { toast } from "sonner";
 export default function CartBtn({
   productId,
   quantity,
+  selectedSize,
 }: {
   productId: string;
-  quantity?: number;
+  quantity: number;
+  selectedSize: string;
 }) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
@@ -25,11 +27,14 @@ export default function CartBtn({
       return;
     }
 
+    const optionsObj = { size: selectedSize };
+
     const { data: existing, error: fetchError } = await supabase
       .from("cart_items")
       .select("*")
       .eq("user_id", user.id)
       .eq("product_id", productId)
+      .contains("options", optionsObj)
       .single();
 
     if (fetchError && fetchError.code !== "PGRST116") {
@@ -51,7 +56,8 @@ export default function CartBtn({
       const { error: insertError } = await supabase.from("cart_items").insert({
         user_id: user.id,
         product_id: productId,
-        quantity: quantity,
+        quantity,
+        options: optionsObj,
       });
 
       if (insertError) {

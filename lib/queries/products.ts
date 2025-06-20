@@ -15,6 +15,7 @@ export type CartItemType = {
     price: number;
     image_url: string | null;
   };
+  options: Record<string, string>;
 };
 
 const supabase = createBrowserSupabaseClient();
@@ -51,7 +52,9 @@ export async function getProductAllCart(
 
   const { data, error } = await supabase
     .from("cart_items")
-    .select("id, quantity, product:product_id ( id, name, price, image_url )") // 장바구니 및 장바구니 상품 정보 조회 조인
+    .select(
+      "id, quantity, product:product_id ( id, name, price, image_url ), options",
+    ) // 장바구니 및 장바구니 상품 정보 조회 조인
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
 

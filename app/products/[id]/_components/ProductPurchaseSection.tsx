@@ -82,7 +82,11 @@ export default function ProductPurchaseSection({
           />
         </div>
         <div className="flex gap-2 w-2/3">
-          <CartBtn productId={productId} quantity={quantity} />
+          <CartBtn
+            productId={productId}
+            quantity={quantity}
+            selectedSize={selectedSize}
+          />
           <button
             onClick={handleBuyNow}
             className="flex-1 bg-green-600 text-white hover:bg-green-700 flex items-center justify-center cursor-pointer duration-300 transition-colors p-2"
