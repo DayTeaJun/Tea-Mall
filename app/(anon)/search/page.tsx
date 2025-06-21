@@ -1,9 +1,9 @@
 "use client";
 
+import ProductCard from "@/app/_components/ProductCard";
+import ProductCardSkeleton from "@/app/_components/ProductCardSkeleton";
 import { useSearchProductsQuery } from "@/lib/queries/products";
 import { useSearchParams } from "next/navigation";
-import ProductCardSkeleton from "../_components/ProductCardSkeleton";
-import ProductCard from "../_components/ProductCard";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
