@@ -1,22 +1,10 @@
 "use client";
 
-import { ProductType } from "@/types/product";
+import { CartItemType, ProductType } from "@/types/product";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { toast } from "sonner";
-
-export type CartItemType = {
-  id: string;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image_url: string | null;
-  };
-  options: Record<string, string>;
-};
 
 const supabase = createBrowserSupabaseClient();
 

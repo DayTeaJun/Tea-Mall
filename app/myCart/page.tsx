@@ -1,5 +1,6 @@
 "use client";
 
+import { Json } from "@/lib/config/supabase/types_db";
 import {
   useDeleteCartItemMutation,
   useProductAllCart,
@@ -10,7 +11,7 @@ import { ImageOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-function CartItemOptions({ options }: { options?: Record<string, string> }) {
+function CartItemOptions({ options }: { options?: Json | null }) {
   if (!options) return null;
 
   const labels: Record<string, string> = {
