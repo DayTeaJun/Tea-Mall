@@ -152,7 +152,6 @@ export type Database = {
           deleted: boolean
           deleted_at: string | null
           description: string | null
-          detail_images: string[] | null
           gender: string | null
           id: string
           image_url: string | null
@@ -172,7 +171,6 @@ export type Database = {
           deleted?: boolean
           deleted_at?: string | null
           description?: string | null
-          detail_images?: string[] | null
           gender?: string | null
           id?: string
           image_url?: string | null
@@ -192,7 +190,6 @@ export type Database = {
           deleted?: boolean
           deleted_at?: string | null
           description?: string | null
-          detail_images?: string[] | null
           gender?: string | null
           id?: string
           image_url?: string | null

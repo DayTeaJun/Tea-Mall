@@ -225,23 +225,23 @@ export async function updateProduct({
     throw new Error(error.message);
   }
 
-  // 전체 이미지 목록을 정렬 순서 포함하여 덮어쓰기
+  // 기존 이미지 전체 삭제
+  await supabase.from("product_images").delete().eq("product_id", id);
+
+  // 새 이미지 전체 삽입
   const inserts = detail_image_urls.map((url, index) => ({
     product_id: id,
     image_url: url,
     sort_order: index,
   }));
 
-  if (detail_image_urls && oldDetailImageIds) {
+  if (inserts.length > 0) {
     const { error: insertError } = await supabase
       .from("product_images")
-      .upsert(inserts, {
-        onConflict: "product_id, sort_order",
-      });
+      .insert(inserts);
 
     if (insertError) {
-      console.warn("새 상세 이미지 삽입 실패:", insertError.message);
-      throw new Error("새로운 상세 이미지 저장 실패: " + insertError.message);
+      throw new Error("상세 이미지 저장 실패: " + insertError.message);
     }
   }
 

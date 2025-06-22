@@ -20,7 +20,6 @@ interface ProductWithImages {
   deleted: boolean;
   deleted_at: string | null;
   description: string | null;
-  detail_images: string[] | null;
   gender: string | null;
   id: string;
   image_url: string | null;
@@ -133,6 +132,9 @@ export default function EditProductForm({
         image_url: newMainImageUrl,
         detail_image_urls: finalDetailImages,
         oldDetailImageIds,
+        user_id: product.user_id,
+        created_at: product.created_at,
+        updated_at: new Date().toISOString(),
       });
     } catch (err) {
       toast.error("수정 중 오류가 발생했습니다.");
