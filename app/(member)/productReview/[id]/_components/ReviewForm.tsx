@@ -4,35 +4,14 @@ import DetailImagePreview from "@/app/(admin)/products/regist/_components/Detail
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { Json } from "@/lib/config/supabase/types_db";
+import { ProductType } from "@/types/product";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
-interface Props {
-  category: string | null;
-  color: string | null;
-  created_at: string | null;
-  deleted: boolean;
-  deleted_at: string | null;
-  description: string | null;
-  detail_images: string[] | null;
-  gender: string | null;
-  id: string;
-  image_url: string | null;
-  name: string;
-  price: number;
-  stock_by_size: Json | null;
-  subcategory: string | null;
-  tags: string[] | null;
-  total_stock: number | null;
-  updated_at: string | null;
-  user_id: string | null;
-}
-
 const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
 
-function ReviewForm({ product }: { product: Props }) {
+function ReviewForm({ product }: { product: ProductType }) {
   const [ratingValue, setRatingValue] = useState<number>(0);
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
@@ -83,10 +62,10 @@ function ReviewForm({ product }: { product: Props }) {
       const { data: urlData } = supabase.storage
         .from(bucket!)
         .getPublicUrl(filePath);
-
       imageUrls.push(urlData.publicUrl);
     }
 
+    // 1. 리뷰 등록
     const { error: insertError } = await supabase.from("reviews").insert([
       {
         user_id: user.id,
@@ -102,8 +81,35 @@ function ReviewForm({ product }: { product: Props }) {
       return;
     }
 
+    const { data: productData } = await supabase
+      .from("products")
+      .select("rating_map")
+      .eq("id", product.id)
+      .single();
+
+    const currentMap = (productData?.rating_map ?? {}) as Record<
+      string,
+      number
+    >;
+
+    const updatedRatingMap = {
+      ...currentMap,
+      [user.id]: ratingValue,
+    };
+
+    // 3. products 테이블 업데이트
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({ rating_map: updatedRatingMap })
+      .eq("id", product.id);
+
+    if (updateError) {
+      toast.error("상품 정보 업데이트 실패");
+      return;
+    }
+
     toast.success("리뷰가 등록되었습니다.");
-    router.push(`products/${product.id}`);
+    router.push(`/products/${product.id}`);
   };
 
   return (

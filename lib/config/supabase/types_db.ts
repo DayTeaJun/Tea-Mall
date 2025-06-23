@@ -157,6 +157,7 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          rating_map: Json | null
           stock_by_size: Json | null
           subcategory: string | null
           tags: string[] | null
@@ -176,6 +177,7 @@ export type Database = {
           image_url?: string | null
           name: string
           price: number
+          rating_map?: Json | null
           stock_by_size?: Json | null
           subcategory?: string | null
           tags?: string[] | null
@@ -195,6 +197,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+          rating_map?: Json | null
           stock_by_size?: Json | null
           subcategory?: string | null
           tags?: string[] | null

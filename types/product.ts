@@ -14,11 +14,13 @@ export interface ProductType {
   color: string | null;
   stock_by_size: Json | null;
   total_stock: number | null;
+  rating_map: Record<string, number> | null;
   created_at: string | null;
   updated_at: string | null;
   deleted?: boolean;
   deleted_at?: string | null;
 }
+
 export interface ProductUpdateType extends ProductType {
   detail_image_urls?: string[];
   oldImageUrl?: string;

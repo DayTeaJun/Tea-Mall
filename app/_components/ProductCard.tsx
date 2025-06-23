@@ -7,7 +7,17 @@ import React, { useState } from "react";
 function ProductCard({ products }: { products: ProductType }) {
   const [imageError, setImageError] = useState(false);
 
-  const tempRating = 4;
+  const ratings = Object.values(products.rating_map ?? {}) as number[];
+
+  const avgRating =
+    ratings.length > 0
+      ? parseFloat(
+          (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1),
+        )
+      : 0;
+
+  const reviewCount = ratings.length;
+
   const maxRating = 5;
 
   return (
@@ -33,20 +43,25 @@ function ProductCard({ products }: { products: ProductType }) {
         {products.price.toLocaleString()}원
       </p>
 
-      <div className="flex items-center gap-1 mt-1">
-        {Array.from({ length: maxRating }).map((_, index) => (
-          <Star
-            key={index}
-            size={16}
-            className={
-              index < tempRating
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300"
-            }
-          />
-        ))}
-        <p className="text-gray-500 text-[12px] tracking-wide ml-2">(21)</p>
-      </div>
+      {reviewCount > 0 && (
+        <div className="flex items-center gap-1 mt-1">
+          {[...Array(maxRating)].map((_, index) => {
+            const isFilled = index < avgRating;
+            return (
+              <Star
+                key={index}
+                size={16}
+                className={
+                  isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+                }
+              />
+            );
+          })}
+          <p className="text-gray-500 text-xs tracking-wide ml-2">
+            {reviewCount}건
+          </p>
+        </div>
+      )}
     </a>
   );
 }
