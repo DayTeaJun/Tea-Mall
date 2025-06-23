@@ -30,37 +30,21 @@ export async function updateSession(req: NextRequest) {
     },
   );
 
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
 
-  if (sessionError || !sessionData.session) {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData.user) {
-      return { response: res, isLoggedIn: false };
-    } else {
-      const { data: profile, error: profileError } = await supabase
-        .from("user_table")
-        .select("level")
-        .eq("id", userData.user.id)
-        .single();
-      return {
-        response: res,
-        isLoggedIn: true,
-        level: !profileError && profile?.level,
-      };
-    }
+  if (userError || !userData?.user) {
+    return { response: res, isLoggedIn: false };
   }
 
   const { data: profile, error: profileError } = await supabase
     .from("user_table")
     .select("level")
-    .eq("id", sessionData.session.user.id)
+    .eq("id", userData.user.id)
     .single();
 
   return {
     response: res,
-    isLoggedIn: true, // ✅ 정상 true
+    isLoggedIn: true,
     level: !profileError && profile?.level,
   };
 }
