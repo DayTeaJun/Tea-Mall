@@ -21,7 +21,11 @@ function ProductCard({ products }: { products: ProductType }) {
   const maxRating = 5;
 
   return (
-    <a key={products.id} href={`/products/${products.id}`} className="w-full">
+    <a
+      key={products.id}
+      href={`/products/${products.id}`}
+      className="w-full p-6 pt-0 hover:shadow-2xl transition-all duration-300"
+    >
       <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
           <img
