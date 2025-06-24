@@ -25,8 +25,6 @@ export default function ProductImageSection({
 
   const hasImages = imageList.length > 0;
 
-  console.log("imageList", imageList);
-
   return (
     <div className="flex gap-4">
       {hasImages && (
