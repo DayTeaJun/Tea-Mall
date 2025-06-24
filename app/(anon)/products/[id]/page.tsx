@@ -1,10 +1,71 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import ProductImageSection from "./_components/ProductImageSection";
 import ShareButton from "@/components/common/buttons/ShareBtn";
-import ProductPurchaseSection from "./_components/ProductPurchaseSection"; // 추가
+import ProductPurchaseSection from "./_components/ProductPurchaseSection";
 import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 import CommentsSection from "./_components/CommentsSection";
+import { publicSupabase } from "@/lib/config/supabase/publicClient";
+
+// 메타 태그 생성
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const { data: product } = await publicSupabase
+    .from("products")
+    .select("*")
+    .eq("id", params.id)
+    .eq("deleted", false)
+    .single();
+
+  if (!product) {
+    return {
+      title: "상품을 찾을 수 없습니다",
+      description: "존재하지 않거나 삭제된 상품입니다.",
+    };
+  }
+
+  return {
+    title: product.name,
+    description: product.description?.slice(0, 100) || "상품 상세 정보",
+    openGraph: {
+      title: product.name,
+      description: product.description?.slice(0, 100) || "상품 상세 정보",
+      images: product.image_url
+        ? [
+            {
+              url: product.image_url,
+              width: 800,
+              height: 600,
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.description?.slice(0, 100) || "상품 상세 정보",
+      images: product.image_url ? [product.image_url] : [],
+    },
+  };
+}
+
+// 정적 경로 생성 SSG
+export async function generateStaticParams() {
+  const { data: products } = await publicSupabase
+    .from("products")
+    .select("id")
+    .eq("deleted", false);
+
+  return (
+    products?.map((product) => ({
+      id: product.id,
+    })) ?? []
+  );
+}
 
 export default async function ProductDetailPage({
   params,
@@ -12,7 +73,7 @@ export default async function ProductDetailPage({
   params: { id: string };
 }) {
   const supabase = await createServerSupabaseClient();
-  const { id } = await params;
+  const { id } = params;
 
   const { data: product, error } = await supabase
     .from("products")
