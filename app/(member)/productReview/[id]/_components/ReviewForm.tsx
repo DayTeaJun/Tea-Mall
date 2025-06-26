@@ -177,7 +177,11 @@ function ReviewForm({ product }: { product: ProductType }) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button className="cursor-pointer" variant="outline">
+        <Button
+          className="cursor-pointer"
+          variant="outline"
+          onClick={() => router.back()}
+        >
           취소하기
         </Button>
         <Button className="cursor-pointer" type="button" onClick={handleSubmit}>
