@@ -109,6 +109,7 @@ export default function MyCartPage() {
                             onClick={() => {
                               if (item.quantity === 1) {
                                 deleteMutate(item?.id);
+                                router.refresh();
                                 return;
                               }
                               mutate({

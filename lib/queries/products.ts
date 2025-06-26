@@ -5,6 +5,7 @@ import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const supabase = createBrowserSupabaseClient();
 
@@ -68,6 +69,75 @@ export function useProductAllCart(userId: string) {
   };
 }
 
+// 장바구니 추가
+export const postCartItem = async ({
+  userId,
+  productId,
+  quantity,
+  selectedSize,
+}: {
+  userId: string;
+  productId: string;
+  quantity: number;
+  selectedSize: string;
+}) => {
+  const optionsObj = { size: selectedSize };
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("cart_items")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("product_id", productId)
+    .contains("options", optionsObj)
+    .single();
+
+  if (fetchError && fetchError.code !== "PGRST116") {
+    throw new Error("장바구니 조회 실패: " + fetchError.message);
+  }
+
+  if (existing) {
+    const { error: updateError } = await supabase
+      .from("cart_items")
+      .update({ quantity: existing.quantity + quantity })
+      .eq("id", existing.id);
+
+    if (updateError) {
+      throw new Error("장바구니 수량 업데이트 실패: " + updateError.message);
+    }
+  } else {
+    const { error: insertError } = await supabase.from("cart_items").insert({
+      user_id: userId,
+      product_id: productId,
+      quantity,
+      options: optionsObj,
+    });
+
+    if (insertError) {
+      throw new Error("장바구니 추가 실패: " + insertError.message);
+    }
+  }
+};
+
+export const usePostMutation = (userId: string) => {
+  const router = useRouter();
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: postCartItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["cart_items", userId],
+      });
+      router.refresh();
+      toast.success("장바구니에 상품이 추가되었습니다.");
+    },
+    onError: (error: Error) => {
+      console.error("장바구니 추가 실패:", error);
+      toast.error("관리자에게 문의해주세요.");
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending };
+};
+
 // 장바구니 수량 변경
 export const updateCartItemQuantity = async ({
   itemId,
@@ -110,6 +180,7 @@ export const deleteCartItem = async (itemId: string) => {
 };
 
 export const useDeleteCartItemMutation = (userId: string) => {
+  const router = useRouter();
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: deleteCartItem,
     onSuccess: () => {
@@ -117,6 +188,7 @@ export const useDeleteCartItemMutation = (userId: string) => {
         queryKey: ["cart_items", userId],
       });
       toast.success("장바구니 상품이 삭제되었습니다.");
+      router.refresh();
     },
   });
   return { data, isError, mutate, isSuccess, isPending };

@@ -1,7 +1,7 @@
 "use client";
 
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useRouter } from "next/navigation";
+import { usePostMutation } from "@/lib/queries/products";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 
 export default function CartBtn({
@@ -13,62 +13,28 @@ export default function CartBtn({
   quantity: number;
   selectedSize: string;
 }) {
-  const supabase = createBrowserSupabaseClient();
-  const router = useRouter();
+  const { user } = useAuthStore();
+  const userId = user?.id;
+
+  const { mutate } = usePostMutation(userId || "");
 
   const handleAddToCart = async () => {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    if (quantity <= 0) {
+      toast.error("수량은 1개 이상이어야 합니다.");
+      return;
+    }
 
-    if (userError || !user) {
+    if (!userId) {
       toast.error("로그인이 필요합니다.");
       return;
     }
 
-    const optionsObj = { size: selectedSize };
-
-    const { data: existing, error: fetchError } = await supabase
-      .from("cart_items")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("product_id", productId)
-      .contains("options", optionsObj)
-      .single();
-
-    if (fetchError && fetchError.code !== "PGRST116") {
-      toast.error("장바구니 조회 중 오류가 발생했습니다.");
+    if (!selectedSize) {
+      toast.error("사이즈를 선택해주세요.");
       return;
     }
 
-    if (existing) {
-      const { error: updateError } = await supabase
-        .from("cart_items")
-        .update({ quantity: existing.quantity + quantity })
-        .eq("id", existing.id);
-
-      if (updateError) {
-        toast.error("장바구니 수량 업데이트에 실패했습니다.");
-        return;
-      }
-    } else {
-      const { error: insertError } = await supabase.from("cart_items").insert({
-        user_id: user.id,
-        product_id: productId,
-        quantity,
-        options: optionsObj,
-      });
-
-      if (insertError) {
-        toast.error("장바구니 추가에 실패했습니다.");
-        return;
-      }
-    }
-
-    toast.success("장바구니에 추가되었습니다.");
-
-    router.refresh();
+    mutate({ userId, productId, quantity, selectedSize });
   };
 
   return (
