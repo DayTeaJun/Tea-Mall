@@ -8,6 +8,7 @@ import {
 } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { ImageOff } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -64,7 +65,9 @@ export default function MyCartPage() {
                   <div className="flex items-start gap-3 justify-between w-full">
                     <div className="flex items-center gap-4">
                       {item.product?.image_url ? (
-                        <img
+                        <Image
+                          width={128}
+                          height={128}
                           src={item.product.image_url}
                           alt={item.product.name}
                           className="w-32 h-32 object-cover rounded cursor-pointer"

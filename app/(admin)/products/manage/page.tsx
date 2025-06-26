@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
 import { ImageOff, ShoppingBag } from "lucide-react";
+import Image from "next/image";
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,7 +80,9 @@ export default function ProductListPage() {
                 >
                   <div className="w-full aspect-square">
                     {product.image_url ? (
-                      <img
+                      <Image
+                        width={200}
+                        height={200}
                         src={product.image_url}
                         alt={product.name}
                         className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"

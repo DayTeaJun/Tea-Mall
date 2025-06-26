@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { ProductType } from "@/types/product";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
@@ -115,7 +116,9 @@ function ReviewForm({ product }: { product: ProductType }) {
   return (
     <>
       <div className="flex items-start gap-4 mb-6">
-        <img
+        <Image
+          width={80}
+          height={80}
           src={product?.image_url || ""}
           alt="상품 이미지"
           className="w-20 h-20 object-cover rounded border"

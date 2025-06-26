@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { ImagePlus, X } from "lucide-react";
+import Image from "next/image";
 
 interface Props {
   editImage?: string;
@@ -65,7 +66,9 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
 
         {imageSrc || (!isEdited && editImage) ? (
           <div className="relative flex flex-col items-center justify-center gap-2 object-cover m-auto">
-            <img
+            <Image
+              width={240}
+              height={240}
               className="w-60 h-60 object-cover m-auto"
               src={isEdited ? imageSrc! : editImage!}
               alt="상품 이미지"
