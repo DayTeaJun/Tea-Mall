@@ -3,6 +3,7 @@
 import { ProductType } from "@/types/product";
 import { ImageOff, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 
 function ProductCard({ products }: { products: ProductType }) {
@@ -22,10 +23,10 @@ function ProductCard({ products }: { products: ProductType }) {
   const maxRating = 5;
 
   return (
-    <a
+    <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full hover:shadow-2xl transition-all duration-300"
+      className="w-full hover:shadow-2xl transition-all duration-300 px-4"
     >
       <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
@@ -68,7 +69,7 @@ function ProductCard({ products }: { products: ProductType }) {
           </p>
         </div>
       )}
-    </a>
+    </Link>
   );
 }
 
