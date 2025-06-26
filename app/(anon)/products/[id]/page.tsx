@@ -7,6 +7,7 @@ import ProductPurchaseSection from "./_components/ProductPurchaseSection";
 import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 import CommentsSection from "./_components/CommentsSection";
 import { publicSupabase } from "@/lib/config/supabase/publicClient";
+import Image from "next/image";
 
 // 메타 태그 생성
 export async function generateMetadata({
@@ -94,13 +95,15 @@ export default async function ProductDetailPage({
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <ProductImageSection
-          mainImage={product.image_url ?? ""}
-          detailImages={detailImages ?? []}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="col-span-1">
+          <ProductImageSection
+            mainImage={product.image_url ?? ""}
+            detailImages={detailImages ?? []}
+          />
+        </div>
 
-        <div className="flex flex-col justify-between w-full">
+        <div className="col-span-1 lg:col-span-2 flex flex-col justify-between w-full">
           <div>
             <p className="text-sm text-gray-500 mb-1">티몰 공식 판매처</p>
             <div className="mb-2 flex items-center justify-between">
@@ -165,8 +168,10 @@ export default async function ProductDetailPage({
       <div className="mt-10">
         {detailImages &&
           detailImages.map((image) => (
-            <div key={image.sort_order} className="mb-4">
-              <img
+            <div key={image.sort_order} className="mb-4 w-full">
+              <Image
+                width={1200}
+                height={1800}
                 src={image.image_url}
                 alt={`Product detail ${image.sort_order}`}
                 className="w-full h-auto"

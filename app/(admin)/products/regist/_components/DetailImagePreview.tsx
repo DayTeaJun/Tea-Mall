@@ -1,6 +1,7 @@
 "use client";
 
 import { ImagePlus, X } from "lucide-react";
+import Image from "next/image";
 import { useRef } from "react";
 
 interface Props {
@@ -38,7 +39,8 @@ export default function DetailImagePreview({
               key={idx}
               className="relative w-32 h-32 border flex-shrink-0 overflow-hidden rounded-md"
             >
-              <img
+              <Image
+                fill
                 src={src}
                 alt={`상세 이미지 ${idx + 1}`}
                 className="w-full h-full object-cover"

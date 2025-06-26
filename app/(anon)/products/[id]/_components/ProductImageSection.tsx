@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageOff } from "lucide-react";
+import Image from "next/image";
 
 interface ImageItem {
   image_url: string;
@@ -30,7 +31,9 @@ export default function ProductImageSection({
       {hasImages && (
         <div className="flex flex-col gap-2 overflow-x-auto shrink-0 scrollbar-gutter-stable pb-2">
           {imageList.map((img, index) => (
-            <img
+            <Image
+              width={70}
+              height={70}
               key={index}
               src={img}
               onClick={() => setCurrentImage(img)}
@@ -46,10 +49,12 @@ export default function ProductImageSection({
       <div className="flex items-start justify-center w-[50%] h-[400px] flex-1">
         {hasImages ? (
           currentImage ? (
-            <img
+            <Image
               src={currentImage}
               alt="대표 이미지"
               className="object-cover w-full h-full"
+              width={800}
+              height={600}
             />
           ) : (
             <div className="flex flex-col gap-2 items-center justify-center w-full h-[400px] bg-gray-100 ">

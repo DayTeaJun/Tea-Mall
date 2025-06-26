@@ -2,6 +2,7 @@
 
 import { ProductType } from "@/types/product";
 import { ImageOff, Star } from "lucide-react";
+import Image from "next/image";
 import React, { useState } from "react";
 
 function ProductCard({ products }: { products: ProductType }) {
@@ -28,7 +29,8 @@ function ProductCard({ products }: { products: ProductType }) {
     >
       <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
-          <img
+          <Image
+            fill
             src={products.image_url}
             alt={products.name}
             className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"

@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import { Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Props {
@@ -58,7 +59,8 @@ export default async function CommentsSection({ productId }: Props) {
                       key={idx}
                       className="relative w-24 h-24 overflow-hidden border"
                     >
-                      <img
+                      <Image
+                        fill
                         src={url}
                         alt={`review-${idx}`}
                         className="object-cover w-full h-full"
