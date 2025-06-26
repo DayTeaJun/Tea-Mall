@@ -25,7 +25,7 @@ function ProductCard({ products }: { products: ProductType }) {
     <a
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full p-6 pt-0 hover:shadow-2xl transition-all duration-300"
+      className="w-full hover:shadow-2xl transition-all duration-300"
     >
       <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
@@ -63,8 +63,8 @@ function ProductCard({ products }: { products: ProductType }) {
               />
             );
           })}
-          <p className="text-gray-500 text-xs tracking-wide ml-2">
-            {reviewCount}건
+          <p className="text-gray-500 text-xs font-bold tracking-wide ml-2">
+            ( {reviewCount} )
           </p>
         </div>
       )}

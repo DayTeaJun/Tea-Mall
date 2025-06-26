@@ -21,9 +21,9 @@ export default function RecommendProductsCarousel() {
   };
 
   return (
-    <div className="w-full mt-16">
-      <div className="flex justify-between items-center mb-4 px-2">
-        <h2 className="text-xl font-semibold">추천 상품</h2>
+    <div className="w-full flex flex-col gap-4">
+      <div className="flex justify-between items-center px-2">
+        <h2 className="text-[20px] font-semibold">추천 상품</h2>
         <div className="flex gap-2">
           <Button variant="ghost" size="icon" onClick={() => scroll("left")}>
             <ChevronLeft />
@@ -36,14 +36,14 @@ export default function RecommendProductsCarousel() {
 
       <div
         ref={carouselRef}
-        className="flex overflow-x-auto gap-4 pb-2 scroll-smooth"
+        className="flex overflow-hidden gap-4 scroll-smooth"
       >
         {!isLoading &&
           products &&
           products.map((product) => (
             <div
               key={product.id}
-              className="w-[calc(100%/4-48px)] flex-shrink-0"
+              className="w-[calc(100%/2-16px)] md:w-[calc(100%/3-16px)] lg:w-[calc(100%/4-16px)] flex-shrink-0 py-2"
             >
               <ProductCard products={product} />
             </div>
