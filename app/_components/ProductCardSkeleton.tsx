@@ -1,10 +1,13 @@
 export default function ProductCardSkeleton() {
   return (
-    <div className="p-4 rounded-lg shadow animate-pulse space-y-2 bg-white">
-      <div className="w-full h-40 bg-gray-200 rounded-md" />
-      <div className="h-4 bg-gray-200 rounded w-3/4" />
-      <div className="h-4 bg-gray-200 rounded w-5/6" />
-      <div className="h-4 bg-gray-300 rounded w-1/2 ml-auto" />
+    <div className="w-full transition-all duration-300 p-4 pt-0">
+      <div className="w-full h-80 mb-2 relative bg-gray-100 animate-pulse" />
+
+      <div className="h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
+
+      <div className="h-5 bg-gray-200 rounded w-1/2 mb-2 animate-pulse" />
+
+      <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
     </div>
   );
 }

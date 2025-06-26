@@ -26,7 +26,7 @@ function ProductCard({ products }: { products: ProductType }) {
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full hover:shadow-2xl transition-all duration-300 px-4"
+      className="w-full hover:shadow-2xl transition-all duration-300 p-4 pt-0"
     >
       <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
