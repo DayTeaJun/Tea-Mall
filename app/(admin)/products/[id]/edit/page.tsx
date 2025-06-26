@@ -4,10 +4,10 @@ import EditProductForm from "./_components/EditProductForm";
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const supabase = await createServerSupabaseClient();
-  const { id } = await params;
+  const id = (await params).id;
 
   const { data: product, error } = await supabase
     .from("products")

@@ -5,10 +5,10 @@ import ReviewForm from "./_components/ReviewForm";
 export default async function ProductReview({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const supabase = await createServerSupabaseClient();
-  const { id } = await params;
+  const id = (await params).id;
 
   const { data: product, error } = await supabase
     .from("products")

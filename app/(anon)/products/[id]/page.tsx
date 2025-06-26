@@ -12,12 +12,13 @@ import { publicSupabase } from "@/lib/config/supabase/publicClient";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const id = (await params).id;
   const { data: product } = await publicSupabase
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("deleted", false)
     .single();
 
@@ -70,10 +71,10 @@ export async function generateStaticParams() {
 export default async function ProductDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const supabase = await createServerSupabaseClient();
-  const { id } = params;
+  const id = (await params).id;
 
   const { data: product, error } = await supabase
     .from("products")
