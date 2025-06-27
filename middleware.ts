@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "./lib/config/supabase/server/middleware";
 
 const protectedRoutes = [
-  "/profile",
+  "/mypage",
   "/myCart",
   "/products/manage",
   "/products/regist",
