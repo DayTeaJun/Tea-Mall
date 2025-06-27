@@ -1,4 +1,4 @@
-import { ListCheck, LogIn, SquareUserRound } from "lucide-react";
+import { ListCheck, LogIn, SquareUserRound, User } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
@@ -14,6 +14,14 @@ async function Header({ user }: { user: UserType | null }) {
           {user ? (
             <>
               <SignOutBtn />
+
+              <Link
+                href={`/mypage`}
+                className="text-black flex gap-1 items-center"
+              >
+                <p className="text-[14px]">마이페이지</p>
+                <User size={16} />
+              </Link>
 
               {(user?.level ?? 1) >= 2 && (
                 <>
