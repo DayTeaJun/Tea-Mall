@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface OrderItem {
   product_id: string;
@@ -21,6 +22,8 @@ interface Order {
 }
 
 export default function OrderList({ orders }: { orders: Order[] }) {
+  const router = useRouter();
+
   return (
     <div className="max-w-7xl mx-auto">
       <h2 className="text-xl font-bold mb-4">주문목록</h2>
@@ -69,7 +72,10 @@ export default function OrderList({ orders }: { orders: Order[] }) {
             <ul className="space-y-6">
               {order.order_items.map((item, i) => (
                 <li key={i} className="flex justify-between items-center gap-4">
-                  <div className="flex gap-4">
+                  <div
+                    className="flex gap-4 cursor-pointer w-full"
+                    onClick={() => router.push(`/products/${item.product_id}`)}
+                  >
                     <Image
                       src={item.products.image_url ?? "/default-product.jpg"}
                       alt={item.products.name}
@@ -87,7 +93,7 @@ export default function OrderList({ orders }: { orders: Order[] }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-4">
+                  <div className="flex flex-col items-end gap-4 shrink-0">
                     <Button variant="outline" size="sm">
                       장바구니 담기
                     </Button>
@@ -97,6 +103,18 @@ export default function OrderList({ orders }: { orders: Order[] }) {
                         ? new Date(order.created_at).toLocaleDateString()
                         : "알 수 없음"}
                     </p>
+                  </div>
+
+                  <div className="">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        router.push(`/productReview/${item.product_id}`)
+                      }
+                    >
+                      상품 리뷰 작성
+                    </Button>
                   </div>
                 </li>
               ))}
