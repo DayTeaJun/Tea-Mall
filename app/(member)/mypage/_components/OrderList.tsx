@@ -34,17 +34,28 @@ export default function OrderList({ orders }: { orders: Order[] }) {
           placeholder="주문한 상품을 검색할 수 있어요!"
           className="w-full px-4 py-2 border rounded-md text-sm"
         />
-        <Button variant="outline">
+        <button
+          type="button"
+          className="p-2 text-black border rounded-md cursor-pointer"
+        >
           <Search size={20} />
-        </Button>
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        <Button variant="secondary">최근 6개월</Button>
+        <button
+          type="button"
+          className="bg-gray-300 text-white px-4 py-2 rounded-md"
+        >
+          최근 6개월
+        </button>
         {["2025", "2024", "2023", "2022", "2021", "2020"].map((year) => (
-          <Button key={year} variant="ghost" className="text-gray-600">
+          <button
+            key={year}
+            className="text-gray-700 hover:bg-gray-300 hover:text-white px-4 py-2 rounded-md cursor-pointer"
+          >
             {year}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -61,19 +72,30 @@ export default function OrderList({ orders }: { orders: Order[] }) {
                 : "알 수 없음"}{" "}
               주문
             </h3>
-            <Button variant="link" className="text-sm p-0 h-auto">
+            <button
+              type="button"
+              className="text-sm p-0 h-auto hover:underline cursor-pointer"
+            >
               주문 상세보기 &gt;
-            </Button>
+            </button>
           </div>
 
-          <div className="bg-gray-50 rounded-md p-4">
-            <h4 className="font-semibold text-sm mb-4">배송완료</h4>
+          <ul className="space-y-4">
+            {order.order_items.map((item, i) => (
+              <li
+                key={i}
+                className="border rounded-md p-4 flex flex-col gap-4 bg-white"
+              >
+                <div className="text-sm text-gray-700 font-semibold">
+                  구매일자:{" "}
+                  {order.created_at
+                    ? new Date(order.created_at).toLocaleDateString()
+                    : "알 수 없음"}
+                </div>
 
-            <ul className="space-y-6">
-              {order.order_items.map((item, i) => (
-                <li key={i} className="flex justify-between items-center gap-4">
+                <div className="flex justify-between items-center gap-4">
                   <div
-                    className="flex gap-4 cursor-pointer w-full"
+                    className="flex gap-4 cursor-pointer flex-1"
                     onClick={() => router.push(`/products/${item.product_id}`)}
                   >
                     <Image
@@ -83,43 +105,42 @@ export default function OrderList({ orders }: { orders: Order[] }) {
                       height={80}
                       className="rounded border object-cover"
                     />
-                    <div className="text-sm space-y-1">
-                      <div>
-                        <span>{item.products.name}</span>
-                      </div>
-                      <div className="text-gray-500">
+                    <div className="flex flex-col justify-center">
+                      <p className="text-sm font-medium">
+                        {item.products.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
                         {item.price.toLocaleString()}원 · {item.quantity}개
-                      </div>
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-4 shrink-0">
-                    <Button variant="outline" size="sm">
-                      장바구니 담기
-                    </Button>
-                    <p>
-                      구매일자:{" "}
-                      {order.created_at
-                        ? new Date(order.created_at).toLocaleDateString()
-                        : "알 수 없음"}
-                    </p>
-                  </div>
-
-                  <div className="">
-                    <Button
-                      variant="secondary"
-                      size="sm"
+                  <div className="flex flex-col items-end gap-2 shrink-0 border-l pl-4">
+                    <button
+                      type="button"
+                      className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                    >
+                      배송조회
+                    </button>
+                    <button
+                      type="button"
+                      className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                    >
+                      교환, 반품 신청
+                    </button>
+                    <button
+                      className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
                       onClick={() =>
                         router.push(`/productReview/${item.product_id}`)
                       }
                     >
-                      상품 리뷰 작성
-                    </Button>
+                      리뷰 작성하기
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       ))}
     </div>
