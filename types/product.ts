@@ -14,7 +14,7 @@ export interface ProductType {
   color: string | null;
   stock_by_size: Json | null;
   total_stock: number | null;
-  rating_map: Json | null;
+  rating_map?: Json | null;
   created_at: string | null;
   updated_at: string | null;
   deleted?: boolean;

@@ -51,15 +51,15 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onDragEnter={() => setIsDragging(true)}
         onDragLeave={() => setIsDragging(false)}
-        className={`w-44 h-44 rounded-full cursor-pointer flex gap-5 mt-2 overflow-hidden transition-all duration-200 ${
+        className={`relative w-44 h-44 rounded-full cursor-pointer flex gap-5 mt-2 overflow-hidden transition-all duration-200 ${
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
       >
         {imageSrc || (!isEdited && editImage) ? (
-          <div className="relative flex flex-col items-center justify-center gap-2 object-cover m-auto">
+          <div className="flex flex-col items-center justify-center gap-2 object-cover m-auto">
             <Image
-              width={44}
-              height={44}
+              width={176}
+              height={176}
               className="w-44 h-44 object-cover rounded-full"
               src={isEdited ? imageSrc! : editImage!}
               alt="프로필 이미지"
@@ -74,7 +74,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
                   fileInputRef.current.value = "";
                 }
               }}
-              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md cursor-pointer border-gray-700 hover:bg-gray-200"
+              className="absolute z-50 top-2 right-2 bg-gray-300 rounded-full p-1 shadow-md cursor-pointer border-gray-700 hover:bg-gray-200 text-black"
             >
               <X size={14} className="font-bold" />
             </button>

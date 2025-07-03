@@ -131,7 +131,10 @@ export const uploadImageToStorageProfile = async (
   const supabase = createBrowserSupabaseClient();
   const bucket = process.env.NEXT_PUBLIC_STORAGE_USER_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const fileName = `${userId}/${uuidv4()}-${file.name}`;
+  const cleanFileName = file.name.replace(/[^\w.-]/g, ""); // 안전한 ASCII 문자만 사용
+  const fileName = `${userId}/${uuidv4()}-${cleanFileName}`;
+
+  console.log(bucket, projectUrl);
 
   if (!bucket || !projectUrl) {
     throw new Error("env 설정 안했음");

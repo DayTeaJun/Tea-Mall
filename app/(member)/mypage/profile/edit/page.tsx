@@ -22,16 +22,32 @@ export default function EditProfilePage() {
   const [phone, setPhone] = useState(data?.phone || "");
   const [address, setAddress] = useState(data?.address || "");
 
+  const [profileImage, setProfileImage] = useState(
+    data?.profile_image_url || "",
+  );
+
   const { imageSrc, imgUrl, onUpload, onRemove } = ImgPreview();
 
+  const handleProfileImageChange = (file: File) => {
+    onUpload(file);
+    setProfileImage("");
+  };
+
+  const handleProfileImageRemove = () => {
+    onRemove();
+    setProfileImage("");
+  };
+
   const handleSubmit = async () => {
-    if (!userName || !phone || !imgUrl || !user) {
+    if (!userName || !phone || !user) {
       toast.info("모든 필수 항목을 입력해 주세요.");
       return;
     }
 
     try {
-      const imageUrl = await uploadImageToStorageProfile(user.id, imgUrl);
+      const imageUrl = imgUrl
+        ? await uploadImageToStorageProfile(user.id, imgUrl)
+        : profileImage || null;
 
       updateProfile({
         id: user.id,
@@ -60,8 +76,9 @@ export default function EditProfilePage() {
       <div className="flex flex-col gap-6">
         <ImagePreviews
           imageSrc={imageSrc || ""}
-          onUpload={onUpload}
-          onRemove={onRemove}
+          onUpload={handleProfileImageChange}
+          onRemove={handleProfileImageRemove}
+          editImage={data?.profile_image_url || ""}
         />
 
         <div className="flex flex-col gap-2 mb-4">

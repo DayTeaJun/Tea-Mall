@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         hostname: hostname,
         pathname: "/storage/v1/object/public/product-images/**",
       },
+      {
+        protocol: "https",
+        hostname: hostname,
+        pathname: "/storage/v1/object/public/user-profile/**",
+      },
     ],
   },
 };

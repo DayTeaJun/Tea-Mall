@@ -20,14 +20,14 @@ export default function ProfilePage() {
     <section className="flex flex-col gap-4">
       <h2 className="text-xl font-semibold mb-2">내 정보</h2>
       <div className="flex flex-col gap-6">
-        <div className="flex justify-center items-center w-20 h-20 rounded-full overflow-hidden border">
+        <div className="flex justify-center items-center w-25 h-25 rounded-full overflow-hidden border">
           {data?.profile_image_url ? (
             <Image
               src={data?.profile_image_url}
               alt="프로필 이미지"
-              className="w-20 h-20 rounded-full object-cover"
-              width={64}
-              height={64}
+              className="w-25 h-25 rounded-full object-cover"
+              width={100}
+              height={100}
             />
           ) : (
             <UserRound
