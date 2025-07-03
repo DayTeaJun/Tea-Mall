@@ -260,24 +260,33 @@ export type Database = {
       }
       user_table: {
         Row: {
+          address: string
           created_at: string | null
           email: string | null
           id: string
           level: number | null
+          phone: string
+          profile_image_url: string | null
           user_name: string | null
         }
         Insert: {
+          address?: string
           created_at?: string | null
           email?: string | null
           id: string
           level?: number | null
+          phone?: string
+          profile_image_url?: string | null
           user_name?: string | null
         }
         Update: {
+          address?: string
           created_at?: string | null
           email?: string | null
           id?: string
           level?: number | null
+          phone?: string
+          profile_image_url?: string | null
           user_name?: string | null
         }
         Relationships: []

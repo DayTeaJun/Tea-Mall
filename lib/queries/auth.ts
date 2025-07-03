@@ -1,8 +1,8 @@
 "use client";
 
-import { signInUser, signUpUser } from "@/lib/actions/auth";
+import { getMyProfile, signInUser, signUpUser } from "@/lib/actions/auth";
 import { SignInFormData, SignUpFormData } from "@/types/user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -67,3 +67,17 @@ export const useSignUpMutation = () => {
 
   return { data, isError, mutate, isSuccess, isPending };
 };
+
+export function useMyProfileQuery(userId: string | undefined) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myProfile", userId],
+    queryFn: () => getMyProfile(userId || ""),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}

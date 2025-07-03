@@ -89,3 +89,20 @@ export async function serverCheckUsernameExists(name: string) {
 
   return data !== null;
 }
+
+export async function getMyProfile(userId: string) {
+  const supabaseAdmin = await createServerSupabaseAdminClient();
+
+  const { data, error } = await supabaseAdmin
+    .from("user_table")
+    .select("id, email, user_name, level, phone, address, profile_image_url")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Supabase 에러", error);
+    throw new Error("프로필 조회 실패");
+  }
+
+  return data;
+}
