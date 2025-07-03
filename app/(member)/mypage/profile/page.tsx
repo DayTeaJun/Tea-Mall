@@ -4,9 +4,11 @@ import { useMyProfileQuery } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { UserRound } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
+  const router = useRouter();
 
   const { data, isLoading } = useMyProfileQuery(user?.id);
 
@@ -66,8 +68,11 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex mt-10 justify-between">
-        <button className="bg-green-700 text-white px-4 p-1 rounded">
-          정보 수정
+        <button
+          onClick={() => router.push("/mypage/profile/edit")}
+          className="bg-green-700 text-white px-4 p-1 rounded"
+        >
+          내 정보 수정
         </button>
 
         <div className="flex gap-2">

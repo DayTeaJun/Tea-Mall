@@ -15,3 +15,11 @@ export interface SignUpFormData {
   password: string;
   username: string;
 }
+
+export interface UserProfileType {
+  id: string;
+  user_name: string;
+  profile_image_url?: string | null;
+  address: string;
+  phone: string;
+}
