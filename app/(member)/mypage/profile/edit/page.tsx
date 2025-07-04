@@ -117,7 +117,7 @@ export default function EditProfilePage() {
               className="rounded border-gray-300 px-2 py-1 text-sm text-white hover:bg-gray-600 transition-colors bg-gray-500"
               onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
             >
-              {isAddressModalOpen ? "변경 취소" : "주소 검색"}
+              {isAddressModalOpen ? "변경 취소" : "배송지 변경"}
             </button>
           </div>
           <p className={`text-sm ${address ? "text-black" : "text-gray-500"}`}>
