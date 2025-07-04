@@ -10,8 +10,11 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
+import DaumPost from "./_components/AddressSearch";
+import { useRouter } from "next/navigation";
 
 export default function EditProfilePage() {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { data, isLoading } = useMyProfileQuery(user?.id);
   const { mutate: updateProfile, isPending } = useUpdateMyProfileMutation(
@@ -21,6 +24,10 @@ export default function EditProfilePage() {
   const [userName, setUserName] = useState(data?.user_name || "");
   const [phone, setPhone] = useState(data?.phone || "");
   const [address, setAddress] = useState(data?.address || "");
+  const [detailAddress, setDetailAddress] = useState("");
+
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
 
   const [profileImage, setProfileImage] = useState(
     data?.profile_image_url || "",
@@ -53,7 +60,9 @@ export default function EditProfilePage() {
         id: user.id,
         phone,
         user_name: userName,
-        address,
+        address: address
+          ? address + (detailAddress ? `, ${detailAddress}` : "")
+          : "",
         profile_image_url: imageUrl,
       });
     } catch (err) {
@@ -102,19 +111,50 @@ export default function EditProfilePage() {
         </div>
 
         <div className="flex flex-col gap-2 mb-4">
-          <label className="font-bold text-xl">기본 배송 주소</label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="border-b py-1 text-sm"
-          />
+          <div className="flex gap-4 items-center">
+            <label className="font-bold text-xl">기본 배송 주소</label>
+            <button
+              className="rounded border-gray-300 px-2 py-1 text-sm text-white hover:bg-gray-600 transition-colors bg-gray-500"
+              onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
+            >
+              {isAddressModalOpen ? "변경 취소" : "주소 검색"}
+            </button>
+          </div>
+          <p className={`text-sm ${address ? "text-black" : "text-gray-500"}`}>
+            {address || "등록된 주소 없음"}
+          </p>
+
+          {isDetailAddressOpen && (
+            <input
+              type="text"
+              placeholder="상세 주소 (선택)"
+              value={detailAddress}
+              onChange={(e) => setDetailAddress(e.target.value)}
+              className="border-b py-1 text-sm"
+            />
+          )}
         </div>
+
+        {isAddressModalOpen && (
+          <DaumPost
+            onComplete={(data) => {
+              setAddress(data.address);
+              setIsAddressModalOpen(false);
+              setIsDetailAddressOpen(true);
+            }}
+          />
+        )}
       </div>
 
-      <div className="flex justify-between mt-10">
+      <div className="flex justify-end gap-2 mt-10">
         <button
-          className="bg-green-700 text-white px-6 py-2 rounded font-semibold"
+          className="bg-red-500 text-white px-4 py-1 rounded"
+          onClick={() => router.push("/mypage/profile")}
+        >
+          취소
+        </button>
+        <button
+          className="bg-green-700 text-white px-4 py-1 rounded"
           onClick={handleSubmit}
           disabled={isPending}
         >
