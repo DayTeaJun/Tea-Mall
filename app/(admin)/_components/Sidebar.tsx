@@ -3,20 +3,22 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { UserCog } from "lucide-react";
-import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const menu = [
-  { name: "내 정보", href: "/mypage/profile" },
-  { name: "주문 목록", href: "/mypage/orderList" },
+  { name: "등록 상품 관리", href: "/products/manage" },
+  { name: "상품 등록", href: "/products/regist" },
 ];
 
 export default function SidebarNav() {
   const pathname = usePathname();
-  const { user } = useAuthStore();
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
       <ul className="flex flex-col gap-4 h-[70%]">
+        <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
+          <UserCog size={16} />
+          관리자 전용
+        </p>
         {menu.map(({ name, href }) => {
           const isActive = pathname.startsWith(href);
 
@@ -36,18 +38,6 @@ export default function SidebarNav() {
           );
         })}
       </ul>
-
-      {user?.level === 3 && (
-        <div className="mt-4 pt-4 border-t">
-          <Link
-            href="/products/manage"
-            className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
-          >
-            <UserCog size={14} />
-            관리자 메뉴 이동
-          </Link>
-        </div>
-      )}
     </nav>
   );
 }

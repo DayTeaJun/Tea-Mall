@@ -22,8 +22,8 @@ export default function ProductListPage() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-12">
-      <h1 className="text-2xl font-bold mb-6">등록한 상품 관리</h1>
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-xl font-bold mb-4">등록한 상품 관리</h1>
 
       <div className="mb-6 flex justify-between items-center">
         <input
