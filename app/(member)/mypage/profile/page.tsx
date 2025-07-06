@@ -1,12 +1,17 @@
 "use client";
 
+import Modal from "@/components/common/Modal";
+import { withdrawalUser } from "@/lib/actions/auth";
 import { useMyProfileQuery } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { UserRound } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
+  const [isModal, setIsModal] = useState(false);
   const { user } = useAuthStore();
   const router = useRouter();
 
@@ -15,6 +20,18 @@ export default function ProfilePage() {
   if (isLoading) {
     return <div>로딩 중...</div>;
   }
+
+  const handleDelete = async () => {
+    const withrawal = await withdrawalUser();
+    if (withrawal) {
+      toast.success("성공적으로 회원 탈퇴되었습니다.");
+      router.push("/");
+    } else {
+      toast.error("회원 탈퇴에 실패하였습니다. 관리자에게 문의 주세요");
+    }
+
+    setIsModal(false);
+  };
 
   return (
     <section className="flex flex-col gap-4">
@@ -79,11 +96,36 @@ export default function ProfilePage() {
           <button className="bg-gray-300 px-4 p-1 rounded">
             비밀번호 재설정
           </button>
-          <button className="bg-red-500 text-white px-4 p-1 rounded">
+          <button
+            onClick={() => setIsModal(true)}
+            className="bg-red-500 text-white px-4 p-1 rounded"
+          >
             회원탈퇴
           </button>
         </div>
       </div>
+
+      <Modal
+        isOpen={isModal}
+        onClose={() => setIsModal(false)}
+        title="정말 탈퇴하시겠습니까?"
+        description={`* 회원 정보는 모두 삭제되며 복구할 수 없습니다.\n(등록한 댓글 및 기록들은 자동으로 삭제되지 않습니다.)`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal(false)}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            탈퇴하기
+          </button>
+        </div>
+      </Modal>
     </section>
   );
 }

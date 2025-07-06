@@ -168,3 +168,26 @@ export async function updateMyProfile({
 
   return updatedData;
 }
+
+// 회원 탈퇴
+export const withdrawalUser = async () => {
+  const supabase = await createServerSupabaseClient();
+  const adminClient = await createServerSupabaseAdminClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("로그인된 사용자가 없습니다.");
+  }
+
+  await supabase.from("user_table").delete().eq("id", user.id);
+
+  const { error } = await adminClient.auth.admin.deleteUser(user.id);
+  if (error) {
+    throw new Error(`회원 탈퇴 실패: ${error.message}`);
+  }
+
+  return { success: true };
+};
