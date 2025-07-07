@@ -22,7 +22,12 @@ export default function EditProfilePage() {
   );
 
   const [userName, setUserName] = useState(data?.user_name || "");
-  const [phone, setPhone] = useState(data?.phone || "");
+  const [phone1, setPhone1] = useState("");
+  const [phone2, setPhone2] = useState("");
+  const [phone3, setPhone3] = useState("");
+
+  const fullPhone = `${phone1}-${phone2}-${phone3}`;
+
   const [address, setAddress] = useState(data?.address || "");
   const [detailAddress, setDetailAddress] = useState("");
 
@@ -46,7 +51,7 @@ export default function EditProfilePage() {
   };
 
   const handleSubmit = async () => {
-    if (!userName || !phone || !user) {
+    if (!userName || !fullPhone || !user) {
       toast.info("모든 필수 항목을 입력해 주세요.");
       return;
     }
@@ -58,7 +63,7 @@ export default function EditProfilePage() {
 
       updateProfile({
         id: user.id,
-        phone,
+        phone: fullPhone,
         user_name: userName,
         address: address
           ? address + (detailAddress ? `, ${detailAddress}` : "")
@@ -96,18 +101,38 @@ export default function EditProfilePage() {
             type="text"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
-            className="border-b py-1 text-sm"
+            className="border-b py-1 text-sm w-20 pl-2"
           />
         </div>
 
         <div className="flex flex-col gap-2 mb-4">
           <label className="font-bold text-xl">전화번호</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border-b py-1 text-sm"
-          />
+          <div className="flex items-center gap-2 font-bold">
+            <input
+              type="tel"
+              maxLength={3}
+              value={phone1}
+              onChange={(e) => setPhone1(e.target.value.replace(/\D/, ""))}
+              className="border-b py-1 text-sm w-16 text-center"
+              placeholder="010"
+            />
+            <span>-</span>
+            <input
+              type="tel"
+              maxLength={4}
+              value={phone2}
+              onChange={(e) => setPhone2(e.target.value.replace(/\D/, ""))}
+              className="border-b py-1 text-sm w-20 text-center"
+            />
+            <span>-</span>
+            <input
+              type="tel"
+              maxLength={4}
+              value={phone3}
+              onChange={(e) => setPhone3(e.target.value.replace(/\D/, ""))}
+              className="border-b py-1 text-sm w-20 text-center"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 mb-4">

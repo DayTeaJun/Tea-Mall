@@ -68,7 +68,7 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-2 mb-4">
           <p className="font-bold text-xl">전화번호</p>
           {data?.phone ? (
-            <span>{data?.phone}</span>
+            <span className="text-sm">{data.phone.split("-").join(" - ")}</span>
           ) : (
             <span className="text-gray-400">등록된 전화번호가 없습니다.</span>
           )}
