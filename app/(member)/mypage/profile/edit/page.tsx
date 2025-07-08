@@ -21,10 +21,15 @@ export default function EditProfilePage() {
     user?.id,
   );
 
+  const InitialPhone1 = data?.phone.split("-")[0];
+  const InitialPhone2 = data?.phone.split("-")[1];
+  const InitialPhone3 = data?.phone.split("-")[2];
+
   const [userName, setUserName] = useState(data?.user_name || "");
-  const [phone1, setPhone1] = useState("");
-  const [phone2, setPhone2] = useState("");
-  const [phone3, setPhone3] = useState("");
+
+  const [phone1, setPhone1] = useState(InitialPhone1 || "");
+  const [phone2, setPhone2] = useState(InitialPhone2 || "");
+  const [phone3, setPhone3] = useState(InitialPhone3 || "");
 
   const fullPhone = `${phone1}-${phone2}-${phone3}`;
 
