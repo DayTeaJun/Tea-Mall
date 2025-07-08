@@ -43,15 +43,10 @@ export default function EditProfilePage() {
     data?.profile_image_url || "",
   );
 
-  const { imageSrc, imgUrl, onUpload, onRemove } = ImgPreview();
+  const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
   const handleProfileImageChange = (file: File) => {
     onUpload(file);
-    setProfileImage("");
-  };
-
-  const handleProfileImageRemove = () => {
-    onRemove();
     setProfileImage("");
   };
 
@@ -96,7 +91,6 @@ export default function EditProfilePage() {
         <ImagePreviews
           imageSrc={imageSrc || ""}
           onUpload={handleProfileImageChange}
-          onRemove={handleProfileImageRemove}
           editImage={data?.profile_image_url || ""}
         />
 
@@ -106,7 +100,7 @@ export default function EditProfilePage() {
             type="text"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
-            className="border-b py-1 text-sm w-20 pl-2"
+            className="border-b py-1 text-sm w-40 pl-2"
           />
         </div>
 

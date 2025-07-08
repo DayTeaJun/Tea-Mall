@@ -2,17 +2,16 @@
 
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { ImagePlus, X } from "lucide-react";
+import { Camera, ImagePlus } from "lucide-react";
 import Image from "next/image";
 
 interface Props {
   editImage?: string;
   imageSrc: string;
   onUpload: (file: File) => void;
-  onRemove: () => void;
 }
 
-function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
+function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isEdited, setIsEdited] = useState(false);
@@ -51,7 +50,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onDragEnter={() => setIsDragging(true)}
         onDragLeave={() => setIsDragging(false)}
-        className={`relative w-44 h-44 rounded-full cursor-pointer flex gap-5 mt-2 overflow-hidden transition-all duration-200 ${
+        className={`relative w-44 h-44 rounded-full cursor-pointer flex gap-5 mt-2 transition-all duration-200 group ${
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
       >
@@ -65,18 +64,10 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
               alt="프로필 이미지"
             />
             <button
+              className="absolute bottom-2 right-2 bg-gray-300 p-2 group-hover:bg-gray-400 rounded-full transition-all duration-300"
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove();
-                setIsEdited(false);
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = "";
-                }
-              }}
-              className="absolute z-50 top-2 right-2 bg-gray-300 rounded-full p-1 shadow-md cursor-pointer border-gray-700 hover:bg-gray-200 text-black"
             >
-              <X size={14} className="font-bold" />
+              <Camera className="text-white" />
             </button>
           </div>
         ) : (
