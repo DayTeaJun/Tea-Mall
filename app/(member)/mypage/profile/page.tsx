@@ -93,7 +93,10 @@ export default function ProfilePage() {
         </button>
 
         <div className="flex gap-2">
-          <button className="bg-gray-300 px-4 p-1 rounded">
+          <button
+            onClick={() => router.push("/mypage/profile/resetPassword")}
+            className="bg-gray-300 px-4 p-1 rounded"
+          >
             비밀번호 재설정
           </button>
           <button
