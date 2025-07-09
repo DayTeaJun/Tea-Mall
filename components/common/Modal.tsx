@@ -1,8 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,19 +17,17 @@ export default function Modal({
   description,
   children,
 }: ModalProps) {
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
-
   if (!isOpen) return null;
 
-  return createPortal(
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-6 relative animate-fade-in">
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-40"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-6 relative animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -49,7 +45,6 @@ export default function Modal({
 
         {children}
       </div>
-    </div>,
-    document.body,
+    </div>
   );
 }
