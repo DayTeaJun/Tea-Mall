@@ -12,6 +12,7 @@ import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import DaumPost from "./_components/AddressSearch";
 import { useRouter } from "next/navigation";
+import PasswordForm from "../resetPassword/_components/PasswordForm";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -85,7 +86,7 @@ export default function EditProfilePage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold mb-2">프로필 수정</h2>
+      <h2 className="text-xl font-semibold mb-2">회원정보 수정</h2>
 
       <div className="flex flex-col gap-6">
         <ImagePreviews
@@ -132,6 +133,11 @@ export default function EditProfilePage() {
               className="border-b py-1 text-sm w-20 text-center"
             />
           </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-4">
+          <label className="font-bold text-xl">비밀번호 변경</label>
+          <PasswordForm />
         </div>
 
         <div className="flex flex-col gap-2 mb-4">
