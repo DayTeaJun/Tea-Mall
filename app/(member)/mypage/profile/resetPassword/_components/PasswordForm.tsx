@@ -4,13 +4,15 @@ import React, { useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 function PasswordForm() {
   const { user } = useAuthStore();
+  const router = useRouter();
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const supabase = createBrowserSupabaseClient();
 
@@ -28,23 +30,18 @@ function PasswordForm() {
       return;
     }
 
-    setIsLoading(true);
-
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: currentPassword,
     });
 
     if (signInError) {
-      setIsLoading(false);
       return;
     }
 
     const { error: updateError } = await supabase.auth.updateUser({
       password: newPassword,
     });
-
-    setIsLoading(false);
 
     if (updateError) {
       if (
@@ -60,6 +57,7 @@ function PasswordForm() {
         toast.error(updateError.message);
       }
     } else {
+      router.push("/mypage/profile");
       toast.success("비밀번호가 성공적으로 변경되었습니다.");
     }
   };
@@ -130,7 +128,7 @@ function PasswordForm() {
             : "bg-gray-500 hover:bg-gray-600"
         }`}
       >
-        {isLoading ? "변경 중..." : "비밀번호 변경"}
+        비밀번호 변경
       </button>
     </form>
   );
