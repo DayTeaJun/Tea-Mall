@@ -17,11 +17,13 @@ export default function SidebarNav() {
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
-      <ul className="flex flex-col gap-4 h-[70%]">
-        <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
-          <User size={16} />
-          <span className="text-green-600">{`${user?.user_name}`}</span> 님
-        </p>
+      <ul className="flex flex-col gap-4 h-[50vh]">
+        {user ? (
+          <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
+            <User size={16} />
+            <span className="text-green-600">{`${user?.user_name}`}</span> 님
+          </p>
+        ) : null}
 
         {menu.map(({ name, href }) => {
           const isActive = pathname.startsWith(href);
