@@ -23,7 +23,9 @@ export default function SidebarNav() {
             <User size={16} />
             <span className="text-green-600">{`${user?.user_name}`}</span> 님
           </p>
-        ) : null}
+        ) : (
+          <div className="h-[12px] pb-2" />
+        )}
 
         {menu.map(({ name, href }) => {
           const isActive = pathname.startsWith(href);
