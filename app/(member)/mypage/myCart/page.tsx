@@ -1,5 +1,6 @@
 "use client";
 
+import Modal from "@/components/common/Modal";
 import { Json } from "@/lib/config/supabase/types_db";
 import {
   useDeleteCartItemMutation,
@@ -38,6 +39,7 @@ export default function MyCartPage() {
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isModal, setIsModal] = useState(false);
 
   const toggleItemSelection = (id: string) => {
     setSelectedItems((prev) =>
@@ -77,6 +79,14 @@ export default function MyCartPage() {
     } else {
       setSelectedItems(cartItems?.map((item) => item.id) ?? []);
     }
+  };
+
+  const handleDelSelectCart = () => {
+    selectedItems.forEach((id) => deleteMutate(id));
+    setSelectedItems([]);
+    router.refresh();
+
+    setIsModal(false);
   };
 
   if (isLoading) {
@@ -119,6 +129,7 @@ export default function MyCartPage() {
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <input
+                    onChange={() => toggleSelectAll()}
                     type="checkbox"
                     className="w-4 h-4 accent-blue-600 cursor-pointer"
                     checked={selectedItems.length === cartItems?.length}
@@ -136,9 +147,7 @@ export default function MyCartPage() {
                         toast.error("삭제할 항목을 선택하세요.");
                         return;
                       }
-                      selectedItems.forEach((id) => deleteMutate(id));
-                      setSelectedItems([]);
-                      router.refresh();
+                      setIsModal(true);
                     }}
                     className="px-3 py-1 border text-sm rounded hover:bg-gray-100 transition"
                   >
@@ -290,6 +299,28 @@ export default function MyCartPage() {
             </div>
           </div>
         ))}
+
+      <Modal
+        isOpen={isModal}
+        onClose={() => setIsModal(false)}
+        title="선택한 상품을 삭제하시겠습니까?"
+        description={`* 선택한 상품이 장바구니에서 삭제됩니다. \n (상품페이지에서 다시 상품을 다시 추가할 수 있습니다.)`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal(false)}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleDelSelectCart}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            삭제
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
