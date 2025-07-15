@@ -10,6 +10,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { ImageOff, LoaderCircle, PackageX, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 function CartItemOptions({ options }: { options?: Json | null }) {
@@ -36,14 +37,47 @@ export default function MyCartPage() {
   const { mutate: deleteMutate } = useDeleteCartItemMutation(user?.id ?? "");
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
 
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id],
+    );
+  };
+
+  const selectedCartItems = cartItems?.filter((item) =>
+    selectedItems.includes(item.id),
+  );
+
   const totalQuantity =
-    cartItems?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+    selectedCartItems?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   const totalPrice =
-    cartItems?.reduce(
+    selectedCartItems?.reduce(
       (sum, item) => sum + (item.product?.price ?? 0) * item.quantity,
       0,
     ) ?? 0;
+
+  const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      toast.error("선택된 상품이 없습니다.");
+      return;
+    }
+
+    const query = new URLSearchParams();
+    selectedItems.forEach((id) => query.append("itemIds", id));
+    router.push(`/myCart/checkout?${query.toString()}`);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === cartItems?.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(cartItems?.map((item) => item.id) ?? []);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -69,7 +103,7 @@ export default function MyCartPage() {
               마음에 드는 상품을 장바구니에 담아보세요.
             </p>
             <button
-              onClick={() => router.push("/products")}
+              onClick={() => router.push("/")}
               className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
             >
               <ShoppingCart size={16} />
@@ -79,6 +113,40 @@ export default function MyCartPage() {
         ) : (
           <div className="flex gap-4">
             <ul className="flex flex-col gap-4 mb-6 flex-1">
+              <div className="flex items-center justify-between mb-4 border p-3 rounded bg-gray-50">
+                <div
+                  onClick={toggleSelectAll}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 accent-blue-600 cursor-pointer"
+                    checked={selectedItems.length === cartItems?.length}
+                  />
+                  <span className="text-sm text-gray-800 font-medium">
+                    전체 선택 ({selectedItems.length} / {cartItems?.length ?? 0}
+                    )
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      if (selectedItems.length === 0) {
+                        toast.error("삭제할 항목을 선택하세요.");
+                        return;
+                      }
+                      selectedItems.forEach((id) => deleteMutate(id));
+                      setSelectedItems([]);
+                      router.refresh();
+                    }}
+                    className="px-3 py-1 border text-sm rounded hover:bg-gray-100 transition"
+                  >
+                    선택삭제
+                  </button>
+                </div>
+              </div>
+
               {cartItems.map((item) => {
                 return (
                   <li
@@ -86,6 +154,13 @@ export default function MyCartPage() {
                     className="flex items-center justify-between border p-3 rounded"
                   >
                     <div className="flex items-start gap-3 justify-between w-full">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 mr-2 my-auto cursor-pointer"
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => toggleItemSelection(item.id)}
+                      />
+
                       <div className="flex items-center gap-4">
                         {item.product?.image_url ? (
                           <Image
@@ -180,6 +255,7 @@ export default function MyCartPage() {
 
             <div className="min-w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
               <p className="text-[22px]">주문 예상 금액</p>
+
               <div className="flex justify-between items-center text-[16px]">
                 <p>총 수량</p>
                 <p>
@@ -205,7 +281,7 @@ export default function MyCartPage() {
               </p>
 
               <button
-                onClick={() => toast.success("결제 기능 준비 중입니다.")}
+                onClick={handleCheckout}
                 type="button"
                 className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition-colors cursor-pointer"
               >
