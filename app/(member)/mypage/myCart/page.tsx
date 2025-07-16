@@ -99,7 +99,7 @@ export default function MyCartPage() {
   }
 
   return (
-    <div className="p-5 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">장바구니</h1>
 
       {cartItems &&

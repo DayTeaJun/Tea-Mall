@@ -33,9 +33,5 @@ export default async function OrderListPage() {
     return null;
   }
 
-  return (
-    <div>
-      <OrderList orders={orders} />
-    </div>
-  );
+  return <OrderList orders={orders} />;
 }

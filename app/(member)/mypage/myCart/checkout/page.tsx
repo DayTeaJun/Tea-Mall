@@ -8,6 +8,8 @@ import Image from "next/image";
 
 export default function CheckoutPage() {
   const { user } = useAuthStore();
+  console.log(user);
+
   const searchParams = useSearchParams();
   const itemIds = searchParams.getAll("itemIds");
 
@@ -24,18 +26,31 @@ export default function CheckoutPage() {
 
   const [orderer, setOrderer] = useState(user?.user_name ?? "");
   const [receiver, setReceiver] = useState(user?.user_name ?? "");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(user?.address ?? "");
   const [request, setRequest] = useState("");
 
   if (isLoading) return <p>로딩 중...</p>;
 
   return (
-    <div className="max-w-6xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">주문 / 결제</h1>
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-xl font-bold mb-4">주문 / 결제</h1>
 
       <div className="grid grid-cols-3 gap-8">
         <div className="flex flex-col gap-8 col-span-2">
-          <p className="text-sm text-gray-600">
+          <section className="border rounded">
+            <div className="flex justify-between items-center mb-2 bg-gray-50 p-4">
+              <h2 className="font-bold text-lg">배송지</h2>
+              <button className="text-sm underline text-gray-500">
+                배송지 변경
+              </button>
+            </div>
+            <div className="bg-white p-4 flex flex-col gap-2">
+              <p className="text-sm text-gray-700">{address}</p>
+              <p className="text-sm text-gray-700">휴대폰: {user?.phone}</p>
+            </div>
+          </section>
+
+          <p className="text-sm -mb-6">
             <span className="font-bold">{selectedCartItems.length} </span>개
             품목
           </p>
@@ -71,17 +86,6 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-
-          <section className="border rounded p-4 bg-gray-50">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="font-bold text-lg">배송지</h2>
-              <button className="text-sm underline text-gray-500">
-                배송지 변경
-              </button>
-            </div>
-            <p className="text-sm text-gray-700">{address}</p>
-            <p className="text-sm text-gray-700">휴대폰: 010-0000-0000</p>
-          </section>
 
           <div className="h-[1px] bg-gray-300" />
 
@@ -122,7 +126,13 @@ export default function CheckoutPage() {
           </section>
 
           <section className="">
-            <h2 className="font-bold text-lg mb-4">결제수단</h2>
+            <h2 className="font-bold text-lg mb-4">
+              결제수단{" "}
+              <span className="text-[11px] text-gray-400 mb-2">
+                (* 토스 페이먼츠를 이용한 테스트 결제입니다. 실제 결제되지
+                않습니다.)
+              </span>
+            </h2>
 
             <div className="space-y-2">
               <label className="flex items-center gap-2">
@@ -140,7 +150,7 @@ export default function CheckoutPage() {
             <span>{totalPrice.toLocaleString()}원</span>
           </div>
 
-          <hr className="my-4" />
+          <div className="h-[1px] bg-gray-300 mb-4" />
 
           <div className="flex flex-col text-sm font-bold mb-6">
             <span>총 결제 금액</span>
@@ -148,6 +158,8 @@ export default function CheckoutPage() {
               {totalPrice.toLocaleString()} <span className="text-sm">원</span>
             </p>
           </div>
+
+          <div className="h-[1px] bg-gray-200 mb-4" />
 
           <p className="text-[10px] text-gray-400 mb-2">
             토스 페이먼츠를 이용한 테스트 결제입니다. 실제 결제되지 않습니다.

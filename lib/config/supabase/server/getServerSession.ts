@@ -22,7 +22,7 @@ export async function getServerSession() {
 
   const { data: user_table } = await supabase
     .from("user_table")
-    .select("level, user_name")
+    .select("*")
     .eq("id", userData.user.id)
     .single();
 
@@ -32,6 +32,7 @@ export async function getServerSession() {
       email: userData.user.email ?? "",
       user_name: user_table?.user_name ?? "",
       level: user_table?.level ?? 1,
+      ...user_table,
       ...userData.user.user_metadata,
     },
   };
