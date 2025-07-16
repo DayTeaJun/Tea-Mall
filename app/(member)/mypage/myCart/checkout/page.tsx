@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 
 export default function CheckoutPage() {
   const { user } = useAuthStore();
@@ -33,7 +34,44 @@ export default function CheckoutPage() {
       <h1 className="text-2xl font-bold mb-6">주문 / 결제</h1>
 
       <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2 space-y-8">
+        <div className="flex flex-col gap-8 col-span-2">
+          <p className="text-sm text-gray-600">
+            <span className="font-bold">{selectedCartItems.length} </span>개
+            품목
+          </p>
+
+          <ul className="flex flex-col gap-2">
+            {selectedCartItems.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-start gap-4 border rounded p-4"
+              >
+                <Image
+                  src={item.product?.image_url ?? "/default-product.jpg"}
+                  width={80}
+                  height={80}
+                  alt={item.product?.name ?? "상품 이미지"}
+                  className="object-cover rounded border"
+                />
+
+                <div className="flex flex-col gap-1">
+                  <p className="font-semibold">{item.product?.name}</p>
+                  {item.options && (
+                    <p className="text-sm text-gray-500">
+                      {Object.entries(item.options)
+                        .map(([key, val]) => `${key}: ${val}`)
+                        .join(" / ")}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500">
+                    수량: {item.quantity}개 · 가격: ₩
+                    {(item.product?.price ?? 0).toLocaleString()}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
           <section className="border rounded p-4 bg-gray-50">
             <div className="flex justify-between items-center mb-2">
               <h2 className="font-bold text-lg">배송지</h2>
@@ -45,7 +83,7 @@ export default function CheckoutPage() {
             <p className="text-sm text-gray-700">휴대폰: 010-0000-0000</p>
           </section>
 
-          <hr className="border border-gray-300" />
+          <div className="h-[1px] bg-gray-300" />
 
           <section className="flex flex-col gap-4">
             <div>
@@ -71,7 +109,7 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          <hr className="border border-gray-300" />
+          <div className="h-[1px] bg-gray-300" />
 
           <section className="">
             <h2 className="font-bold text-lg mb-2">배송 요청사항</h2>
@@ -81,6 +119,16 @@ export default function CheckoutPage() {
               className="w-full border rounded p-2"
               placeholder="요청사항 입력"
             />
+          </section>
+
+          <section className="">
+            <h2 className="font-bold text-lg mb-4">결제수단</h2>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2">
+                <p className="font-bold text-gray-500"> *토스 페이먼츠</p>
+              </label>
+            </div>
           </section>
         </div>
 
@@ -102,8 +150,7 @@ export default function CheckoutPage() {
           </div>
 
           <p className="text-[10px] text-gray-400 mb-2">
-            토스 페이먼츠를 이용한 테스트 결제입니다. 실제 결제되지 않으며 결제
-            테스트가 가능합니다.
+            토스 페이먼츠를 이용한 테스트 결제입니다. 실제 결제되지 않습니다.
           </p>
 
           <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
