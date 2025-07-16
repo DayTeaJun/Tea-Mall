@@ -70,7 +70,7 @@ export default function MyCartPage() {
 
     const query = new URLSearchParams();
     selectedItems.forEach((id) => query.append("itemIds", id));
-    router.push(`/myCart/checkout?${query.toString()}`);
+    router.push(`/mypage/myCart/checkout?${query.toString()}`);
   };
 
   const toggleSelectAll = () => {
