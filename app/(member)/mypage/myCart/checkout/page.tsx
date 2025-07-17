@@ -5,7 +5,7 @@ import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import DaumPostcode from "../../profile/edit/_components/AddressSearch";
+import DaumPostcode from "../../../../../components/common/AddressSearch";
 import Modal from "@/components/common/Modal";
 
 export default function CheckoutPage() {

@@ -10,7 +10,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
-import DaumPost from "./_components/AddressSearch";
+import DaumPost from "../../../../../components/common/AddressSearch";
 import { useRouter } from "next/navigation";
 
 export default function EditProfilePage() {
