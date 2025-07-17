@@ -8,6 +8,7 @@ interface ModalProps {
   title: string;
   description?: string;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export default function Modal({
@@ -16,6 +17,7 @@ export default function Modal({
   title,
   description,
   children,
+  className,
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -25,7 +27,7 @@ export default function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-6 relative animate-fade-in"
+        className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-6 relative animate-fade-in ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button

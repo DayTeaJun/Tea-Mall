@@ -5,10 +5,11 @@ import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import DaumPostcode from "../../profile/edit/_components/AddressSearch";
+import Modal from "@/components/common/Modal";
 
 export default function CheckoutPage() {
   const { user } = useAuthStore();
-  console.log(user);
 
   const searchParams = useSearchParams();
   const itemIds = searchParams.getAll("itemIds");
@@ -28,6 +29,9 @@ export default function CheckoutPage() {
   const [receiver, setReceiver] = useState(user?.user_name ?? "");
   const [address, setAddress] = useState(user?.address ?? "");
   const [request, setRequest] = useState("");
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
+  const [detailAddress, setDetailAddress] = useState("");
 
   if (isLoading) return <p>로딩 중...</p>;
 
@@ -40,12 +44,26 @@ export default function CheckoutPage() {
           <section className="border rounded">
             <div className="flex justify-between items-center mb-2 bg-gray-50 p-4">
               <h2 className="font-bold text-lg">배송지</h2>
-              <button className="text-sm underline text-gray-500">
+              <button
+                type="button"
+                onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
+                className="text-sm underline text-gray-500"
+              >
                 배송지 변경
               </button>
             </div>
             <div className="bg-white p-4 flex flex-col gap-2">
               <p className="text-sm text-gray-700">{address}</p>
+
+              {isDetailAddressOpen && (
+                <input
+                  type="text"
+                  placeholder="상세 주소 (선택)"
+                  value={detailAddress}
+                  onChange={(e) => setDetailAddress(e.target.value)}
+                  className="border-b py-1 text-sm"
+                />
+              )}
               <p className="text-sm text-gray-700">휴대폰: {user?.phone}</p>
             </div>
           </section>
@@ -170,6 +188,21 @@ export default function CheckoutPage() {
           </button>
         </div>
       </div>
+
+      <Modal
+        title="배송지 변경"
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        className="rounded-none"
+      >
+        <DaumPostcode
+          onComplete={(data) => {
+            setAddress(data.address);
+            setIsAddressModalOpen(false);
+            setIsDetailAddressOpen(true);
+          }}
+        />
+      </Modal>
     </div>
   );
 }
