@@ -163,86 +163,88 @@ export default function MyCartPage() {
                     className="flex items-center justify-between border p-3 rounded"
                   >
                     <div className="flex items-start gap-3 justify-between w-full">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 mr-2 my-auto cursor-pointer"
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => toggleItemSelection(item.id)}
-                      />
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 mr-2 my-auto cursor-pointer"
+                          checked={selectedItems.includes(item.id)}
+                          onChange={() => toggleItemSelection(item.id)}
+                        />
 
-                      <div className="flex items-center gap-4">
-                        {item.product?.image_url ? (
-                          <Image
-                            width={128}
-                            height={128}
-                            src={item.product.image_url}
-                            alt={item.product.name}
-                            className="w-32 h-32 object-cover rounded cursor-pointer"
-                            onClick={() =>
-                              router.push(`/products/${item.product?.id}`)
-                            }
-                          />
-                        ) : (
-                          <div className="flex w-32 h-32 flex-col gap-2 items-center justify-center bg-gray-100 rounded">
-                            <ImageOff size={40} className="text-gray-400" />
-                            <p className="text-gray-500 text-sm text-center">
-                              이미지가 없습니다.
+                        <div className="flex items-center gap-4">
+                          {item.product?.image_url ? (
+                            <Image
+                              width={128}
+                              height={128}
+                              src={item.product.image_url}
+                              alt={item.product.name}
+                              className="w-32 h-32 object-cover rounded cursor-pointer"
+                              onClick={() =>
+                                router.push(`/products/${item.product?.id}`)
+                              }
+                            />
+                          ) : (
+                            <div className="flex w-32 h-32 flex-col gap-2 items-center justify-center bg-gray-100 rounded">
+                              <ImageOff size={40} className="text-gray-400" />
+                              <p className="text-gray-500 text-sm text-center">
+                                이미지가 없습니다.
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col gap-2">
+                            <button
+                              className="cursor-pointer hover:underline text-left"
+                              type="button"
+                              onClick={() =>
+                                router.push(`/products/${item.product?.id}`)
+                              }
+                            >
+                              <span className="font-semibold">
+                                {item.product?.name}
+                              </span>
+                            </button>
+
+                            <CartItemOptions options={item.options} />
+
+                            <p className="text-sm text-gray-500">
+                              ₩{(item.product?.price ?? 0).toLocaleString()}
                             </p>
-                          </div>
-                        )}
 
-                        <div className="flex flex-col gap-2">
-                          <button
-                            className="cursor-pointer hover:underline text-left"
-                            type="button"
-                            onClick={() =>
-                              router.push(`/products/${item.product?.id}`)
-                            }
-                          >
-                            <span className="font-semibold">
-                              {item.product?.name}
-                            </span>
-                          </button>
-
-                          <CartItemOptions options={item.options} />
-
-                          <p className="text-sm text-gray-500">
-                            ₩{(item.product?.price ?? 0).toLocaleString()}
-                          </p>
-
-                          <div className="flex items-center gap-2 mt-auto">
-                            <button
-                              className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                              onClick={() => {
-                                if (item.quantity === 1) {
-                                  deleteMutate(item?.id);
-                                  router.refresh();
-                                  return;
-                                }
-                                mutate({
-                                  itemId: item.id,
-                                  quantity: item.quantity - 1,
-                                });
-                              }}
-                              disabled={isPending}
-                            >
-                              -
-                            </button>
-                            <span className="min-w-[24px] text-center">
-                              {item.quantity}
-                            </span>
-                            <button
-                              className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                              onClick={() => {
-                                mutate({
-                                  itemId: item.id,
-                                  quantity: item.quantity + 1,
-                                });
-                              }}
-                              disabled={isPending}
-                            >
-                              +
-                            </button>
+                            <div className="flex items-center gap-2 mt-auto">
+                              <button
+                                className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                                onClick={() => {
+                                  if (item.quantity === 1) {
+                                    deleteMutate(item?.id);
+                                    router.refresh();
+                                    return;
+                                  }
+                                  mutate({
+                                    itemId: item.id,
+                                    quantity: item.quantity - 1,
+                                  });
+                                }}
+                                disabled={isPending}
+                              >
+                                -
+                              </button>
+                              <span className="min-w-[24px] text-center">
+                                {item.quantity}
+                              </span>
+                              <button
+                                className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                                onClick={() => {
+                                  mutate({
+                                    itemId: item.id,
+                                    quantity: item.quantity + 1,
+                                  });
+                                }}
+                                disabled={isPending}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
