@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import DaumPostcode from "../../../../../components/common/AddressSearch";
 import Modal from "@/components/common/Modal";
+import { LoaderCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const { user } = useAuthStore();
@@ -40,7 +41,14 @@ export default function CheckoutPage() {
     }
   }, [isLoading, selectedCartItems, router]);
 
-  if (isLoading) return <p>로딩 중...</p>;
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+        <LoaderCircle size={48} className="animate-spin mb-4" />
+        <p className="text-sm">장바구니 정보를 불러오고 있습니다...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto">

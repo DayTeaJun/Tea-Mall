@@ -91,7 +91,7 @@ export default function MyCartPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-600">
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
         <LoaderCircle size={48} className="animate-spin mb-4" />
         <p className="text-sm">장바구니 정보를 불러오고 있습니다...</p>
       </div>
