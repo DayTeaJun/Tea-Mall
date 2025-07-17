@@ -53,7 +53,9 @@ export default function CheckoutPage() {
               </button>
             </div>
             <div className="bg-white p-4 flex flex-col gap-2">
-              <p className="text-sm text-gray-700">{address}</p>
+              <p className="text-sm text-gray-700">
+                {address || user?.address}
+              </p>
 
               {isDetailAddressOpen && (
                 <input
@@ -67,6 +69,8 @@ export default function CheckoutPage() {
               <p className="text-sm text-gray-700">휴대폰: {user?.phone}</p>
             </div>
           </section>
+
+          <div className="h-[1px] bg-gray-300" />
 
           <p className="text-sm -mb-6">
             <span className="font-bold">{selectedCartItems.length} </span>개
@@ -84,7 +88,7 @@ export default function CheckoutPage() {
                   width={80}
                   height={80}
                   alt={item.product?.name ?? "상품 이미지"}
-                  className="object-cover rounded border"
+                  className="object-cover rounded border w-20 h-20"
                 />
 
                 <div className="flex flex-col gap-1">
@@ -98,7 +102,8 @@ export default function CheckoutPage() {
                   )}
                   <p className="text-sm text-gray-500">
                     수량: {item.quantity}개 · 가격: ₩
-                    {(item.product?.price ?? 0).toLocaleString()}
+                    {(item.product?.price ?? 0).toLocaleString()} · 총 가격 :{" "}
+                    {(item.product?.price * item.quantity).toLocaleString()}
                   </p>
                 </div>
               </li>
@@ -126,7 +131,7 @@ export default function CheckoutPage() {
                 value={receiver}
                 onChange={(e) => setReceiver(e.target.value)}
                 className="w-full border rounded p-2"
-                placeholder="수령인 이름 입력"
+                placeholder="수령인 이름 입력 (선택)"
               />
             </div>
           </section>
@@ -139,7 +144,7 @@ export default function CheckoutPage() {
               value={request}
               onChange={(e) => setRequest(e.target.value)}
               className="w-full border rounded p-2"
-              placeholder="요청사항 입력"
+              placeholder="요청사항 입력 (선택)"
             />
           </section>
 
