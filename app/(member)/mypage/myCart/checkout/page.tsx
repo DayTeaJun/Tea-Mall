@@ -1,9 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import DaumPostcode from "../../../../../components/common/AddressSearch";
 import Modal from "@/components/common/Modal";
@@ -32,6 +32,13 @@ export default function CheckoutPage() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
   const [detailAddress, setDetailAddress] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && selectedCartItems.length === 0) {
+      router.replace("/not-found");
+    }
+  }, [isLoading, selectedCartItems, router]);
 
   if (isLoading) return <p>로딩 중...</p>;
 
