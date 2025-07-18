@@ -134,8 +134,6 @@ export const uploadImageToStorageProfile = async (
   const cleanFileName = file.name.replace(/[^\w.-]/g, ""); // 안전한 ASCII 문자만 사용
   const fileName = `${userId}/${uuidv4()}-${cleanFileName}`;
 
-  console.log(bucket, projectUrl);
-
   if (!bucket || !projectUrl) {
     throw new Error("env 설정 안했음");
   }
@@ -155,3 +153,62 @@ export const uploadImageToStorageProfile = async (
   const publicUrl = `${projectUrl}/storage/v1/object/public/${bucket}/${data.path}`;
   return publicUrl;
 };
+
+// 주문목록 조회
+export async function getOrders(
+  userId: string,
+  filter: { year?: number; recent6Months?: boolean },
+) {
+  const supabase = createBrowserSupabaseClient();
+
+  let query = supabase
+    .from("orders")
+    .select(
+      `
+      id,
+      created_at,
+      order_items (
+        product_id,
+        quantity,
+        price,
+        products (
+          name,
+          image_url
+        )
+      )
+    `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (filter.recent6Months) {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    query = query.gte("created_at", sixMonthsAgo.toISOString());
+  } else if (filter.year) {
+    const start = new Date(filter.year, 0, 1).toISOString();
+    const end = new Date(filter.year + 1, 0, 1).toISOString();
+    query = query.gte("created_at", start).lt("created_at", end);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export function useGetOrders(
+  userId: string,
+  filter: { year?: number; recent6Months?: boolean },
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["orders", userId, filter],
+    queryFn: () => getOrders(userId, filter),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}

@@ -1,27 +1,32 @@
 "use client";
 
-import { PackageX, Search, ShoppingCart } from "lucide-react";
+import { useGetOrders } from "@/lib/queries/auth";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-interface OrderItem {
-  product_id: string;
-  quantity: number;
-  price: number;
-  products: {
-    name: string;
-    image_url: string | null;
-  };
-}
-
-interface Order {
-  id: string;
-  created_at: string | null;
-  order_items: OrderItem[];
-}
-
-export default function OrderList({ orders }: { orders: Order[] }) {
+export default function OrderList() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [recent6Months, setRecent6Months] = useState(true);
+
+  const { data: orders = [], isLoading } = useGetOrders(user?.id ?? "", {
+    recent6Months,
+    year: selectedYear ?? undefined,
+  });
+
+  const handleYearClick = (year: number) => {
+    setSelectedYear(year);
+    setRecent6Months(false);
+  };
+
+  const handleRecentClick = () => {
+    setSelectedYear(null);
+    setRecent6Months(true);
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -30,13 +35,10 @@ export default function OrderList({ orders }: { orders: Order[] }) {
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
-          placeholder="주문한 상품을 검색할 수 있어요!"
+          placeholder="주문한 상품을 검색할 수 있습니다."
           className="w-full px-4 py-2 border rounded-md text-sm"
         />
-        <button
-          type="button"
-          className="p-2 text-black border rounded-md cursor-pointer"
-        >
+        <button className="p-2 text-black border rounded-md cursor-pointer">
           <Search size={20} />
         </button>
       </div>
@@ -44,21 +46,36 @@ export default function OrderList({ orders }: { orders: Order[] }) {
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           type="button"
-          className="bg-gray-300 text-white px-4 py-2 rounded-md"
+          className={`px-4 py-2 rounded-md ${
+            recent6Months
+              ? "bg-gray-300 text-white"
+              : "text-gray-700 hover:bg-gray-300 hover:text-white"
+          }`}
+          onClick={handleRecentClick}
         >
           최근 6개월
         </button>
-        {["2025", "2024", "2023", "2022", "2021", "2020"].map((year) => (
+        {[2025, 2024, 2023, 2022, 2021, 2020].map((year) => (
           <button
             key={year}
-            className="text-gray-700 hover:bg-gray-300 hover:text-white px-4 py-2 rounded-md cursor-pointer"
+            onClick={() => handleYearClick(year)}
+            className={`px-4 py-2 rounded-md cursor-pointer ${
+              selectedYear === year
+                ? "bg-gray-300 text-white"
+                : "text-gray-700 hover:bg-gray-300 hover:text-white"
+            }`}
           >
             {year}
           </button>
         ))}
       </div>
 
-      {orders.length > 0 ? (
+      {isLoading ? (
+        <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+          <LoaderCircle size={48} className="animate-spin mb-4" />
+          <p className="text-sm">주문목록 정보를 불러오고 있습니다...</p>
+        </div>
+      ) : orders.length > 0 ? (
         orders.map((order) => (
           <div key={order.id} className="border rounded-md p-4 mb-6">
             <div className="flex justify-between items-center mb-2">

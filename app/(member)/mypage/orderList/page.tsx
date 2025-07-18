@@ -8,30 +8,5 @@ export default async function OrderListPage() {
   const userId = user?.user?.id;
   if (!userId) return notFound();
 
-  const { data: orders, error } = await supabase
-    .from("orders")
-    .select(
-      `
-      id,
-      created_at,
-      order_items (
-        product_id,
-        quantity,
-        price,
-        products (
-          name,
-          image_url
-        )
-      )
-    `,
-    )
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("주문 조회 실패:", error.message);
-    return null;
-  }
-
-  return <OrderList orders={orders} />;
+  return <OrderList />;
 }
