@@ -12,7 +12,7 @@ export default function SearchPage() {
   const { data: products, isLoading } = useSearchProductsQuery(query);
 
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
+    <div className="py-8 w-full max-w-7xl mx-auto">
       <h1 className="text-2xl mb-4 text-center">Search Result</h1>
       <p className="text-center text-gray-500 mb-8">
         <span className="text-black font-semibold">
