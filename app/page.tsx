@@ -13,7 +13,7 @@ export default function Home() {
         <MainCarousel />
       </section>
 
-      <section className="py-8 max-w-7xl mx-auto space-y-12">
+      <section className="p-8 max-w-7xl mx-auto space-y-12">
         <h2 className="text-xl font-semibold mb-4">추천 상품</h2>
         <ProductList />
       </section>

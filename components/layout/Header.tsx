@@ -10,8 +10,8 @@ async function Header({ user }: { user: UserType | null }) {
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 bg-white z-50">
       <div className="w-full flex flex-col">
-        <div className="w-full bg-gray-100">
-          <div className="w-7xl mx-auto flex items-center gap-4 h-10 justify-end ">
+        <div className="w-full bg-gray-100 px-8">
+          <div className="w-full max-w-7xl mx-auto flex items-center gap-4 h-10 justify-end ">
             {user ? (
               <>
                 <SignOutBtn />
@@ -45,7 +45,7 @@ async function Header({ user }: { user: UserType | null }) {
           </div>
         </div>
 
-        <div className="w-7xl mx-auto py-2 flex items-center h-14 justify-between bg-white">
+        <div className="w-full max-w-7xl mx-auto py-2 px-8 flex items-center h-14 justify-between bg-white">
           <h1 className="text-green-600 text-2xl ">
             <Link href="/" className="text-green-600 font-bold">
               Tea Mall
