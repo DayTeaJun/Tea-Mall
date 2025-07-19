@@ -55,19 +55,22 @@ export default function OrderList() {
         >
           최근 6개월
         </button>
-        {[2025, 2024, 2023, 2022, 2021, 2020].map((year) => (
-          <button
-            key={year}
-            onClick={() => handleYearClick(year)}
-            className={`px-4 py-2 rounded-md cursor-pointer ${
-              selectedYear === year
-                ? "bg-gray-300 text-white"
-                : "text-gray-700 hover:bg-gray-300 hover:text-white"
-            }`}
-          >
-            {year}
-          </button>
-        ))}
+        {Array.from({ length: 6 }, (_, i) => {
+          const year = new Date().getFullYear() - i;
+          return (
+            <button
+              key={year}
+              onClick={() => handleYearClick(year)}
+              className={`px-4 py-2 rounded-md cursor-pointer ${
+                selectedYear === year
+                  ? "bg-gray-300 text-white"
+                  : "text-gray-700 hover:bg-gray-300 hover:text-white"
+              }`}
+            >
+              {year}
+            </button>
+          );
+        })}
       </div>
 
       {isLoading ? (
