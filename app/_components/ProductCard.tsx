@@ -28,7 +28,7 @@ function ProductCard({ products }: { products: ProductType }) {
       href={`/products/${products.id}`}
       className="w-full hover:shadow-2xl transition-all duration-300 p-4 pt-0"
     >
-      <div className="w-full h-80 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
+      <div className="w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
           <Image
             fill
@@ -64,8 +64,8 @@ function ProductCard({ products }: { products: ProductType }) {
               />
             );
           })}
-          <p className="text-gray-500 text-xs font-bold tracking-wide ml-2">
-            ( {reviewCount} )
+          <p className="text-gray-500 text-xs font-bold tracking-widest ml-1">
+            ({reviewCount})
           </p>
         </div>
       )}

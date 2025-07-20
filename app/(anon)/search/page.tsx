@@ -24,13 +24,13 @@ export default function SearchPage() {
       </p>
 
       {isLoading ? (
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {Array.from({ length: 8 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </section>
       ) : products?.length ? (
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} products={product} />
           ))}
