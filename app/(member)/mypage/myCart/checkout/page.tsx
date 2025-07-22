@@ -9,6 +9,7 @@ import DaumPostcode from "../../../../../components/common/AddressSearch";
 import Modal from "@/components/common/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -43,6 +44,8 @@ export default function CheckoutPage() {
   }, [isLoading, selectedCartItems, router]);
 
   const handlePayment = async () => {
+    sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
+
     try {
       const tossPayments = await loadTossPayments(clientKey);
       const payment = tossPayments.payment({
@@ -59,8 +62,8 @@ export default function CheckoutPage() {
         orderName: `${selectedCartItems[0]?.product?.name ?? "상품"} 외 ${
           selectedCartItems.length - 1
         }건`,
-        successUrl: `${window.location.origin}/checkout/success`,
-        failUrl: `${window.location.origin}/checkout/fail`,
+        successUrl: `${window.location.origin}/mypage/myCart/checkout/success`,
+        failUrl: `${window.location.origin}/mypage/myCart/checkout/fail`,
         customerName: orderer,
         customerEmail: user?.email ?? "",
         customerMobilePhone:
@@ -72,8 +75,8 @@ export default function CheckoutPage() {
           useAppCardOnly: false,
         },
       });
-    } catch (err) {
-      console.error("결제 실패:", err);
+    } catch {
+      toast.error("결제 취소되었습니다. 다시 시도해주세요.");
     }
   };
 
