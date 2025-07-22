@@ -4,17 +4,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Image from "next/image";
+import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 
 export default function CheckoutDonePage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const [order, setOrder] = useState<any>(null);
-  const [error, setError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     if (!orderId) {
-      setError("주문 ID가 없습니다.");
+      toast.error("주문 ID가 없습니다.");
+      router.push("/not-found");
+
       return;
     }
 
@@ -36,7 +39,8 @@ export default function CheckoutDonePage() {
         .single();
 
       if (error) {
-        setError("주문 내역을 불러올 수 없습니다.");
+        toast.error("주문 내역을 불러올 수 없습니다.");
+        router.push("/not-found");
       } else {
         setOrder(data);
       }
@@ -45,12 +49,18 @@ export default function CheckoutDonePage() {
     fetchOrder();
   }, [orderId]);
 
-  if (error) return <p>{error}</p>;
-  if (!order) return <p>로딩 중...</p>;
+  if (!order) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+        <LoaderCircle size={48} className="animate-spin mb-4" />
+        <p className="text-sm">장바구니 정보를 불러오고 있습니다...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col">
-      <h1 className="text-xl font-bold mb-4">주문 완료</h1>
+    <div className="max-w-7xl mx-auto flex flex-col">
+      <h1 className="text-xl font-bold mb-4 mx-auto">주문 완료</h1>
       <p className="text-sm text-gray-500 mb-6">
         주문일: {new Date(order.created_at).toLocaleString()}
       </p>
@@ -78,21 +88,22 @@ export default function CheckoutDonePage() {
           </li>
         ))}
       </ul>
-      <div className="flex justify-between items-center pt-4">
-        <span className="text-[14px]">총 주문 금액</span>
-        <span className="text-[18px] font-bold ">
-          {order.order_items
-            .reduce(
-              (total: number, item: any) => total + item.price * item.quantity,
-              0,
-            )
-            .toLocaleString()}
-          원
-        </span>
-      </div>
-      <div className="flex justify-center mt-6">
+      <div className="flex gap-2 justify-between items-center pt-4">
+        <div className="flex items-center gap-2">
+          <span className="text-[14px]">총 주문 금액 : </span>
+          <span className="text-[18px] font-bold ">
+            {order.order_items
+              .reduce(
+                (total: number, item: any) =>
+                  total + item.price * item.quantity,
+                0,
+              )
+              .toLocaleString()}
+            원
+          </span>
+        </div>
         <button
-          className="px-10 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
+          className="px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
           onClick={() => router.push("/mypage/orderList")}
         >
           주문 내역 보기
