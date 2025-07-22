@@ -80,7 +80,7 @@ export default function OrderList() {
         </div>
       ) : orders.length > 0 ? (
         orders.map((order) => (
-          <div key={order.id} className="border rounded-md p-4 mb-6">
+          <div key={order.id} className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold text-sm text-gray-800">
                 {order.created_at
@@ -93,6 +93,11 @@ export default function OrderList() {
                 주문
               </h3>
               <button
+                onClick={() =>
+                  router.push(
+                    `/mypage/myCart/checkout/successDone?orderId=${order.id}`,
+                  )
+                }
                 type="button"
                 className="text-sm p-0 h-auto hover:underline cursor-pointer"
               >
@@ -100,19 +105,14 @@ export default function OrderList() {
               </button>
             </div>
 
-            <ul className="space-y-4">
+            <ul className="flex flex-col gap-1">
               {order.order_items.map((item, i) => (
                 <li
                   key={i}
-                  className="border rounded-md p-4 flex flex-col gap-4 bg-white"
+                  className={`p-4 flex flex-col gap-4 bg-white ${
+                    order.order_items.length - i !== 1 ? "border-b" : ""
+                  }`}
                 >
-                  <div className="text-sm text-gray-700 font-semibold">
-                    구매일자:{" "}
-                    {order.created_at
-                      ? new Date(order.created_at).toLocaleDateString()
-                      : "알 수 없음"}
-                  </div>
-
                   <div className="flex justify-between items-center gap-4">
                     <div
                       className="flex gap-4 cursor-pointer flex-1"
@@ -125,7 +125,7 @@ export default function OrderList() {
                         alt={item.products.name}
                         width={80}
                         height={80}
-                        className="rounded border object-cover"
+                        className="rounded border object-cover w-20 h-20"
                       />
                       <div className="flex flex-col justify-center">
                         <p className="text-sm font-medium">
@@ -138,12 +138,6 @@ export default function OrderList() {
                     </div>
 
                     <div className="flex flex-col items-end gap-2 shrink-0 border-l pl-4">
-                      <button
-                        type="button"
-                        className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                      >
-                        배송조회
-                      </button>
                       <button
                         type="button"
                         className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
