@@ -45,6 +45,12 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
+    sessionStorage.setItem("request", request);
+    sessionStorage.setItem("receiver", receiver);
+    sessionStorage.setItem(
+      "detailAddress",
+      address + (detailAddress ? `, ${detailAddress}` : ""),
+    );
 
     try {
       const tossPayments = await loadTossPayments(clientKey);

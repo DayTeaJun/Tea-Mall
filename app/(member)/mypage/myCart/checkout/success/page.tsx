@@ -25,6 +25,10 @@ export default function CheckoutSuccessPage() {
         return;
       }
 
+      const request = sessionStorage.getItem("request") ?? "";
+      const receiver = sessionStorage.getItem("receiver") ?? "";
+      const detailAddress = sessionStorage.getItem("detailAddress") ?? "";
+
       try {
         const confirmRes = await fetch("/api/toss/confirm", {
           method: "POST",
@@ -60,7 +64,12 @@ export default function CheckoutSuccessPage() {
 
       const { data: orderInsert, error: orderError } = await supabase
         .from("orders")
-        .insert({ user_id: user.id })
+        .insert({
+          user_id: user.id,
+          request,
+          receiver,
+          detail_address: detailAddress,
+        })
         .select("id")
         .single();
 
@@ -133,6 +142,9 @@ export default function CheckoutSuccessPage() {
 
       window.location.href = `/mypage/myCart/checkout/successDone?orderId=${order_id}`;
       sessionStorage.removeItem("checkoutItems");
+      sessionStorage.removeItem("request");
+      sessionStorage.removeItem("receiver");
+      sessionStorage.removeItem("detailAddress");
       toast.success("주문이 완료되었습니다.");
     };
 
