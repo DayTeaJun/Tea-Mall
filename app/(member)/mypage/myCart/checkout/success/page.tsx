@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, XCircle } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import { toast } from "sonner";
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function CheckoutSuccessPage() {
 
       if (!orderId || !paymentKey || isNaN(amount)) {
         setError("결제 정보가 유효하지 않습니다.");
+        toast.error("결제 정보가 유효하지 않습니다.");
         return;
       }
 
@@ -34,11 +36,13 @@ export default function CheckoutSuccessPage() {
           const result = await confirmRes.json();
           console.error("❌ Toss 인증 실패:", result);
           setError(`결제 인증 실패: ${result.message}`);
+          toast.error(`결제 인증 실패: ${result.message}`);
           return;
         }
       } catch (e) {
         console.error("❌ Toss 인증 요청 실패", e);
         setError("결제 인증 요청 중 오류가 발생했습니다.");
+        toast.error("결제 인증 요청 중 오류가 발생했습니다.");
         return;
       }
 
@@ -50,6 +54,7 @@ export default function CheckoutSuccessPage() {
       if (userError || !user) {
         console.error("❌ 사용자 인증 실패", userError);
         setError("사용자 인증 실패");
+        toast.error("사용자 인증 실패하였습니다.");
         return;
       }
 
@@ -62,6 +67,7 @@ export default function CheckoutSuccessPage() {
       if (orderError || !orderInsert) {
         console.error("❌ 주문 저장 실패", orderError);
         setError("주문 저장 실패");
+        toast.error("주문 저장에 실패하였습니다.");
         return;
       }
 
@@ -71,6 +77,7 @@ export default function CheckoutSuccessPage() {
 
       if (!Array.isArray(items) || items.length === 0) {
         setError("상품 정보가 비어 있습니다.");
+        toast.error("상품 정보가 비어 있습니다.");
         return;
       }
 
@@ -98,10 +105,35 @@ export default function CheckoutSuccessPage() {
       if (itemError) {
         console.error("❌ 주문 상품 저장 실패", itemError);
         setError("상품 정보 저장 실패");
+        toast.error("상품 정보 저장에 실패하였습니다.");
         return;
       }
 
-      router.replace(`/mypage/myCart/checkout/successDone?orderId=${order_id}`);
+      const checkoutItems = JSON.parse(
+        sessionStorage.getItem("checkoutItems") ?? "[]",
+      );
+
+      for (const item of checkoutItems) {
+        const { error: deleteError } = await supabase
+          .from("cart_items")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("product_id", item.product.id)
+          .contains("options", { size: item.options?.size });
+
+        if (deleteError) {
+          console.error("장바구니 삭제 실패:", deleteError.message);
+          toast.error(
+            "장바구니 삭제에 실패하였습니다. 관리자에게 문의해주세요.",
+          );
+        }
+      }
+
+      router.refresh();
+
+      window.location.href = `/mypage/myCart/checkout/successDone?orderId=${order_id}`;
+      sessionStorage.removeItem("checkoutItems");
+      toast.success("주문이 완료되었습니다.");
     };
 
     processOrder();

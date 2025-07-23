@@ -29,10 +29,10 @@ export default function OrderList() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">주문목록</h2>
+    <div className="max-w-7xl mx-auto flex flex-col gap-4">
+      <h2 className="text-xl font-bold">주문목록</h2>
 
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2">
         <input
           type="text"
           placeholder="주문한 상품을 검색할 수 있습니다."
@@ -43,7 +43,7 @@ export default function OrderList() {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
           className={`px-4 py-2 rounded-md ${
@@ -121,7 +121,7 @@ export default function OrderList() {
                       }
                     >
                       <Image
-                        src={item.products.image_url ?? "/default-product.jpg"}
+                        src={item.products.image_url ?? ""}
                         alt={item.products.name}
                         width={80}
                         height={80}
