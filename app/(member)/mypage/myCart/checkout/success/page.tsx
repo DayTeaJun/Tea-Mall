@@ -100,12 +100,20 @@ export default function CheckoutSuccessPage() {
         return acc;
       }, []);
 
-      const orderItems = mergedItems.map((item) => ({
-        order_id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        size: item.options?.size ?? "",
-      }));
+      const orderItems = mergedItems.map((item) => {
+        const price = item.product?.price;
+        if (typeof price !== "number") {
+          throw new Error("상품 가격이 유효하지 않습니다.");
+        }
+
+        return {
+          order_id,
+          product_id: item.product.id,
+          quantity: item.quantity,
+          size: item.options?.size ?? null,
+          price,
+        };
+      });
 
       const { error: itemError } = await supabase
         .from("order_items")

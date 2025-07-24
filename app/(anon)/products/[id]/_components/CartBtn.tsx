@@ -20,7 +20,9 @@ export default function CartBtn({
 
   const { mutate } = usePostMutation(userId || "");
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
     if (quantity <= 0) {
       toast.error("수량은 1개 이상이어야 합니다.");
       return;

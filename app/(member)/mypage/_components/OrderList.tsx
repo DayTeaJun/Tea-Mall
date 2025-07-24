@@ -143,8 +143,8 @@ export default function OrderList() {
                       <CartBtn
                         className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
                         productId={item.product_id}
-                        quantity={item.quantity}
-                        selectedSize={item.size}
+                        quantity={1}
+                        selectedSize={item.size || ""}
                       />
                     </div>
 

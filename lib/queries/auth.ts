@@ -171,6 +171,7 @@ export async function getOrders(
         product_id,
         quantity,
         price,
+        size,
         products (
           name,
           image_url
