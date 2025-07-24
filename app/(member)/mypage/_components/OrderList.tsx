@@ -1,5 +1,6 @@
 "use client";
 
+import CartBtn from "@/app/(anon)/products/[id]/_components/CartBtn";
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
@@ -115,26 +116,36 @@ export default function OrderList() {
                 >
                   <div className="flex justify-between items-center gap-4">
                     <div
-                      className="flex gap-4 cursor-pointer flex-1"
+                      className="flex gap-4 cursor-pointer flex-1 justify-between"
                       onClick={() =>
                         router.push(`/products/${item.product_id}`)
                       }
                     >
-                      <Image
-                        src={item.products.image_url ?? ""}
-                        alt={item.products.name}
-                        width={80}
-                        height={80}
-                        className="rounded border object-cover w-20 h-20"
-                      />
-                      <div className="flex flex-col justify-center">
-                        <p className="text-sm font-medium">
-                          {item.products.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {item.price.toLocaleString()}원 · {item.quantity}개
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <Image
+                          src={item.products.image_url ?? ""}
+                          alt={item.products.name}
+                          width={80}
+                          height={80}
+                          className="rounded border object-cover w-20 h-20"
+                        />
+                        <div className="flex flex-col justify-center">
+                          <p className="text-sm font-medium">
+                            {item.products.name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {item.price.toLocaleString()}원 · {item.quantity}개
+                            · 사이즈: {item.size}
+                          </p>
+                        </div>
                       </div>
+
+                      <CartBtn
+                        className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                        productId={item.product_id}
+                        quantity={item.quantity}
+                        selectedSize={item.size}
+                      />
                     </div>
 
                     <div className="flex flex-col items-end gap-2 shrink-0 border-l pl-4">

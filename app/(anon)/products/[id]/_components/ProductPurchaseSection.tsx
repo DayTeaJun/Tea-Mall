@@ -83,6 +83,7 @@ export default function ProductPurchaseSection({
         </div>
         <div className="flex gap-2 w-2/3">
           <CartBtn
+            className="text-green-600 hover:text-green-900 border-2 hover:border-green-900 cursor-pointer p-2 duration-300 transition-colors"
             productId={productId}
             quantity={quantity}
             selectedSize={selectedSize}

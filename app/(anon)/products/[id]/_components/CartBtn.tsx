@@ -8,10 +8,12 @@ export default function CartBtn({
   productId,
   quantity,
   selectedSize,
+  className,
 }: {
   productId: string;
   quantity: number;
   selectedSize: string;
+  className?: string;
 }) {
   const { user } = useAuthStore();
   const userId = user?.id;
@@ -39,10 +41,7 @@ export default function CartBtn({
 
   return (
     <div className="flex gap-2">
-      <button
-        className="flex-1 text-green-600 hover:text-green-900 border-2 border-green-600 hover:border-green-900 cursor-pointer p-2 duration-300 transition-colors"
-        onClick={handleAddToCart}
-      >
+      <button className={`flex-1 ${className} `} onClick={handleAddToCart}>
         장바구니 추가
       </button>
     </div>
