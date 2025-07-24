@@ -5,7 +5,13 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Image from "next/image";
 import { toast } from "sonner";
-import { LoaderCircle } from "lucide-react";
+import {
+  LoaderCircle,
+  UserRound,
+  StickyNote,
+  Package,
+  MapPin,
+} from "lucide-react";
 
 export default function CheckoutDonePage() {
   const searchParams = useSearchParams();
@@ -17,7 +23,6 @@ export default function CheckoutDonePage() {
     if (!orderId) {
       toast.error("주문 ID가 없습니다.");
       router.push("/not-found");
-
       return;
     }
 
@@ -26,9 +31,12 @@ export default function CheckoutDonePage() {
       const { data, error } = await supabase
         .from("orders")
         .select(
-          `id, created_at, order_items (
+          `
+          id, created_at, request, receiver, detail_address,
+          order_items (
             quantity,
             price,
+            size,
             products (
               name,
               image_url
@@ -53,17 +61,18 @@ export default function CheckoutDonePage() {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
         <LoaderCircle size={48} className="animate-spin mb-4" />
-        <p className="text-sm">장바구니 정보를 불러오고 있습니다...</p>
+        <p className="text-sm">주문 정보를 불러오고 있습니다...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col">
-      <h1 className="text-xl font-bold mb-4 mx-auto">주문 완료</h1>
-      <p className="text-sm text-gray-500 mb-6">
+    <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <h1 className="text-xl font-bold mx-auto">주문 완료</h1>
+      <p className="text-sm text-gray-500">
         주문일: {new Date(order.created_at).toLocaleString()}
       </p>
+
       <ul className="flex flex-col border p-5 gap-5">
         {order.order_items.map((item: any, idx: number) => (
           <li
@@ -79,16 +88,44 @@ export default function CheckoutDonePage() {
               alt={item.products?.name}
               className="w-16 h-16 object-cover rounded"
             />
-            <div>
-              <p className="font-semibold">{item.products?.name}</p>
+            <div className="flex flex-col justify-center">
+              <p className="text-sm font-medium">{item.products.name}</p>
               <p className="text-sm text-gray-500">
-                {item.price.toLocaleString()}원 · {item.quantity}개
+                {item.price.toLocaleString()}원 · {item.quantity}개 · 사이즈:{" "}
+                {item.size}
               </p>
             </div>
           </li>
         ))}
       </ul>
-      <div className="flex gap-2 justify-between items-center pt-4">
+
+      <div className="border rounded p-4 mb-6 bg-gray-50 space-y-2">
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <UserRound size={16} />
+          <span className="font-bold">
+            수령인 :{" "}
+            <span className="font-normal">{order.receiver || "정보 없음"}</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <Package size={16} />
+          <span className="font-bold">
+            배송지 :{" "}
+            <span className="font-normal">
+              {order.detail_address || "정보 없음"}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <StickyNote size={16} />
+          <span className="font-bold">
+            배송 요청사항 :{" "}
+            <span className="font-normal">{order.request || "없음"}</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="flex gap-2 justify-between items-center">
         <div className="flex items-center gap-2">
           <span className="text-[14px]">총 주문 금액 : </span>
           <span className="text-[18px] font-bold ">
@@ -102,6 +139,7 @@ export default function CheckoutDonePage() {
             원
           </span>
         </div>
+
         <button
           className="px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
           onClick={() => router.push("/mypage/orderList")}
