@@ -1,8 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import { MessageCircleQuestion, Star } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import ReportBtn from "./ReportBtn";
+import CommentBtn from "./CommentBtn";
 
 interface Props {
   productId: string;
@@ -21,11 +21,7 @@ export default async function CommentsSection({ productId }: Props) {
     <section className="border-t">
       <div className="flex justify-between items-center">
         <h2 className="text-[20px] font-semibold my-4">상품 리뷰</h2>
-        <Link href={`/productReview/${productId}`} className="cursor-pointer">
-          <span className="text-sm text-blue-600 hover:underline">
-            리뷰 작성하기
-          </span>
-        </Link>
+        <CommentBtn productId={productId} />
       </div>
       <ul className="space-y-4">
         {comments &&
