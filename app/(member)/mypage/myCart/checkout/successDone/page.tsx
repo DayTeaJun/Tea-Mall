@@ -5,13 +5,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Image from "next/image";
 import { toast } from "sonner";
-import {
-  LoaderCircle,
-  UserRound,
-  StickyNote,
-  Package,
-  MapPin,
-} from "lucide-react";
+import { LoaderCircle, UserRound, StickyNote, Package } from "lucide-react";
 
 export default function CheckoutDonePage() {
   const searchParams = useSearchParams();
@@ -21,7 +15,7 @@ export default function CheckoutDonePage() {
 
   useEffect(() => {
     if (!orderId) {
-      toast.error("주문 ID가 없습니다.");
+      toast.error("잘못된 접근입니다.");
       router.push("/not-found");
       return;
     }

@@ -44,7 +44,7 @@ export default function CartBtn({
   return (
     <div className="flex gap-2">
       <button className={`flex-1 ${className} `} onClick={handleAddToCart}>
-        장바구니 추가
+        장바구니 담기
       </button>
     </div>
   );

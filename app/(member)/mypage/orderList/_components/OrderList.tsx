@@ -96,7 +96,7 @@ export default function OrderList() {
               <button
                 onClick={() =>
                   router.push(
-                    `/mypage/myCart/checkout/successDone?orderId=${order.id}`,
+                    `/mypage/orderList/orderDetail?orderId=${order.id}`,
                   )
                 }
                 type="button"
@@ -178,7 +178,7 @@ export default function OrderList() {
             아직 상품을 구매하신 이력이 없습니다. 쇼핑을 시작해보세요!
           </p>
           <button
-            onClick={() => router.push("/products")}
+            onClick={() => router.push("/")}
             className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
           >
             <ShoppingCart size={16} />
