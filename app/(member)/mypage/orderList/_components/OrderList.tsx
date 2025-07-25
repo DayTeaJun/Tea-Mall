@@ -1,6 +1,6 @@
 "use client";
 
-import CartBtn from "@/app/(anon)/products/[id]/_components/CartBtn";
+import CartBtn from "@/components/common/buttons/CartBtn";
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";

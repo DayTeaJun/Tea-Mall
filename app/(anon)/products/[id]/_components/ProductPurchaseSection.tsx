@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CartBtn from "./CartBtn";
+import CartBtn from "../../../../../components/common/buttons/CartBtn";
 import { toast } from "sonner";
 import {
   Select,
