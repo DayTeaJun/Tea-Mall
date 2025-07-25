@@ -7,8 +7,9 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { LoaderCircle, UserRound, StickyNote, Package } from "lucide-react";
 import CartBtn from "@/components/common/buttons/CartBtn";
+import { Dropdown } from "@/components/common/Dropdown";
 
-export default function CheckoutDonePage() {
+export default function OrderListPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const [order, setOrder] = useState<any>(null);
@@ -64,7 +65,10 @@ export default function CheckoutDonePage() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <h1 className="text-xl font-bold">주문 상세</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">주문 상세</h1>
+        <Dropdown />
+      </div>
       <p className="text-sm text-gray-500">
         <span className="font-bold">주문일 : </span>
         {new Date(order.created_at).toLocaleString()}
