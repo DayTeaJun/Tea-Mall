@@ -53,7 +53,7 @@ export default function CheckoutDonePage() {
 
   if (!order) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center py-20 text-gray-600">
         <LoaderCircle size={48} className="animate-spin mb-4" />
         <p className="text-sm">주문 정보를 불러오고 있습니다...</p>
       </div>
