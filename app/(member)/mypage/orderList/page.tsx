@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import { notFound } from "next/navigation";
-import OrderList from "../_components/OrderList";
+import OrderList from "./_components/OrderList";
 
 export default async function OrderListPage() {
   const supabase = await createServerSupabaseClient();
