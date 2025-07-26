@@ -3,7 +3,11 @@
 import { EllipsisVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-export function Dropdown() {
+export function Dropdown({
+  setIsModal,
+}: {
+  setIsModal: (value: boolean) => void;
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -25,7 +29,8 @@ export function Dropdown() {
     };
   }, []);
 
-  const handleCurrent = () => {
+  const handleOpenModal = () => {
+    setIsModal(true);
     setIsMenuOpen(false);
   };
 
@@ -49,7 +54,7 @@ export function Dropdown() {
           <li className="hover:text-gray-800 w-full">
             <button
               type="button"
-              onClick={handleCurrent}
+              onClick={handleOpenModal}
               className="px-3 py-2 text-start w-full tracking-wide"
             >
               주문내역 삭제

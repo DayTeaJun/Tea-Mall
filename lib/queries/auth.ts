@@ -255,3 +255,34 @@ export function useGetOrderDetails(orderId: string) {
     isError,
   };
 }
+
+// 주문 내역 삭제
+export async function deleteOrder(orderId: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { error } = await supabase.from("orders").delete().eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+export function useDeleteOrderMutation() {
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (orderId: string) => deleteOrder(orderId),
+    onSuccess: () => {
+      toast.success("주문 내역이 삭제되었습니다.");
+      router.push("/mypage/orderList");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { mutate, isPending };
+}

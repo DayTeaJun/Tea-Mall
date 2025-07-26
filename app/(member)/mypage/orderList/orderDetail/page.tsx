@@ -12,14 +12,30 @@ import {
 } from "lucide-react";
 import CartBtn from "@/components/common/buttons/CartBtn";
 import { Dropdown } from "@/components/common/Dropdown";
-import { useGetOrderDetails } from "@/lib/queries/auth";
+import { useDeleteOrderMutation, useGetOrderDetails } from "@/lib/queries/auth";
 import { OrderItemType } from "@/types/product";
+import { useState } from "react";
+import Modal from "@/components/common/Modal";
 
 export default function OrderListPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const router = useRouter();
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
+  const { mutate: delOrderItemMutate } = useDeleteOrderMutation();
+
+  const [isModal, setIsModal] = useState(false);
+
+  if (!orderId) {
+    toast.error("잘못된 접근입니다.");
+    router.push("/");
+    return;
+  }
+
+  const handleDelOrderItem = () => {
+    delOrderItemMutate(orderId);
+    setIsModal(false);
+  };
 
   if (isLoading) {
     return (
@@ -49,7 +65,7 @@ export default function OrderListPage() {
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">주문 상세</h1>
-        <Dropdown />
+        <Dropdown setIsModal={setIsModal} />
       </div>
       <p className="text-sm text-gray-500">
         <span className="font-bold">주문일 : </span>
@@ -160,6 +176,28 @@ export default function OrderListPage() {
           원
         </span>
       </div>
+
+      <Modal
+        isOpen={isModal}
+        onClose={() => setIsModal(false)}
+        title="주문내역을 삭제하시겠습니까?"
+        description={`* 주문목록에서 주문내역이 삭제됩니다. \n (주문내역 삭제시 기록 복구가 불가능합니다.)`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal(false)}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleDelOrderItem}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            삭제
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
