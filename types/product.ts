@@ -57,3 +57,23 @@ export type CartItemType = {
   };
   options: Json | null;
 };
+
+export interface OrderItemType {
+  quantity: number;
+  price: number;
+  size: string | null;
+  products: {
+    id: string;
+    name: string;
+    image_url: string | null;
+  };
+}
+
+export interface OrderDetailsType {
+  id: string;
+  created_at: string | null;
+  request: string | null;
+  receiver: string | null;
+  detail_address: string | null;
+  order_items: OrderItemType[];
+}

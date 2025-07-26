@@ -14,6 +14,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { v4 as uuidv4 } from "uuid";
+import { OrderDetailsType } from "@/types/product";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -205,6 +206,47 @@ export function useGetOrders(
     queryKey: ["orders", userId, filter],
     queryFn: () => getOrders(userId, filter),
     enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 주문 상세 조회
+export async function getOrderDetails(orderId: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      `
+          id, created_at, request, receiver, detail_address,
+          order_items (
+            quantity,
+            price,
+            size,
+            products (
+              name,
+              image_url,
+              id
+            )
+          )`,
+    )
+    .eq("id", orderId)
+    .order("created_at", { ascending: false })
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export function useGetOrderDetails(orderId: string) {
+  const { data, isLoading, isError } = useQuery<OrderDetailsType>({
+    queryKey: ["orderDetails", orderId],
+    queryFn: () => getOrderDetails(orderId || ""),
+    enabled: !!orderId,
   });
 
   return {

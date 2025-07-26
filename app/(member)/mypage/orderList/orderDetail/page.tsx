@@ -1,64 +1,45 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Image from "next/image";
 import { toast } from "sonner";
-import { LoaderCircle, UserRound, StickyNote, Package } from "lucide-react";
+import {
+  LoaderCircle,
+  UserRound,
+  StickyNote,
+  Package,
+  PackageX,
+} from "lucide-react";
 import CartBtn from "@/components/common/buttons/CartBtn";
 import { Dropdown } from "@/components/common/Dropdown";
+import { useGetOrderDetails } from "@/lib/queries/auth";
+import { OrderItemType } from "@/types/product";
 
 export default function OrderListPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const [order, setOrder] = useState<any>(null);
   const router = useRouter();
+  const { data: order, isLoading } = useGetOrderDetails(orderId || "");
 
-  useEffect(() => {
-    if (!orderId) {
-      toast.error("잘못된 접근입니다.");
-      router.push("/not-found");
-      return;
-    }
-
-    const fetchOrder = async () => {
-      const supabase = createBrowserSupabaseClient();
-      const { data, error } = await supabase
-        .from("orders")
-        .select(
-          `
-          id, created_at, request, receiver, detail_address,
-          order_items (
-            quantity,
-            price,
-            size,
-            products (
-              name,
-              image_url,
-              id
-            )
-          )`,
-        )
-        .eq("id", orderId)
-        .single();
-
-      if (error) {
-        toast.error("주문 내역을 불러올 수 없습니다.");
-        router.push("/not-found");
-      } else {
-        setOrder(data);
-      }
-    };
-
-    fetchOrder();
-  }, [orderId]);
-
-  if (!order) {
+  if (isLoading) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
         <LoaderCircle size={48} className="animate-spin mb-4" />
         <p className="text-sm">주문 정보를 불러오고 있습니다...</p>
+      </div>
+    );
+  }
+  if (!order) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+        <PackageX size={48} className="mb-4" />
+        <p className="text-sm">해당 주문 정보를 찾을 수 없습니다.</p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+          onClick={() => router.push("/")}
+        >
+          홈으로 돌아가기
+        </button>
       </div>
     );
   }
@@ -71,7 +52,7 @@ export default function OrderListPage() {
       </div>
       <p className="text-sm text-gray-500">
         <span className="font-bold">주문일 : </span>
-        {new Date(order.created_at).toLocaleString()}
+        {new Date(order.created_at!).toLocaleString()}
       </p>
 
       <p className="text-sm text-gray-500 -mt-4">
@@ -170,7 +151,8 @@ export default function OrderListPage() {
         <span className="text-[20px] font-bold ">
           {order.order_items
             .reduce(
-              (total: number, item: any) => total + item.price * item.quantity,
+              (total: number, item: OrderItemType) =>
+                total + item.price * item.quantity,
               0,
             )
             .toLocaleString()}
