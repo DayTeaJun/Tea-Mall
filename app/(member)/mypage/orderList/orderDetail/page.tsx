@@ -29,6 +29,7 @@ export default function OrderListPage() {
       </div>
     );
   }
+
   if (!order) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">

@@ -1,61 +1,49 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Image from "next/image";
+import {
+  LoaderCircle,
+  UserRound,
+  StickyNote,
+  Package,
+  PackageX,
+} from "lucide-react";
+import { useGetOrderDetails } from "@/lib/queries/auth";
 import { toast } from "sonner";
-import { LoaderCircle, UserRound, StickyNote, Package } from "lucide-react";
+import { OrderItemType } from "@/types/product";
 
 export default function CheckoutDonePage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const [order, setOrder] = useState<any>(null);
+  const { data: order, isLoading } = useGetOrderDetails(orderId || "");
   const router = useRouter();
 
-  useEffect(() => {
-    if (!orderId) {
-      toast.error("잘못된 접근입니다.");
-      router.push("/not-found");
-      return;
-    }
+  if (!orderId) {
+    toast.error("잘못된 접근입니다.");
+    router.push("/");
+  }
 
-    const fetchOrder = async () => {
-      const supabase = createBrowserSupabaseClient();
-      const { data, error } = await supabase
-        .from("orders")
-        .select(
-          `
-          id, created_at, request, receiver, detail_address,
-          order_items (
-            quantity,
-            price,
-            size,
-            products (
-              name,
-              image_url
-            )
-          )`,
-        )
-        .eq("id", orderId)
-        .single();
-
-      if (error) {
-        toast.error("주문 내역을 불러올 수 없습니다.");
-        router.push("/not-found");
-      } else {
-        setOrder(data);
-      }
-    };
-
-    fetchOrder();
-  }, [orderId]);
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+        <LoaderCircle size={48} className="animate-spin mb-4" />
+        <p className="text-sm">주문 정보를 불러오고 있습니다...</p>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
-      <div className="w-full h-[60vh] flex flex-col items-center justify-center py-20 text-gray-600">
-        <LoaderCircle size={48} className="animate-spin mb-4" />
-        <p className="text-sm">주문 정보를 불러오고 있습니다...</p>
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+        <PackageX size={48} className="mb-4" />
+        <p className="text-sm">해당 주문 정보를 찾을 수 없습니다.</p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+          onClick={() => router.push("/")}
+        >
+          홈으로 돌아가기
+        </button>
       </div>
     );
   }
@@ -64,11 +52,11 @@ export default function CheckoutDonePage() {
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       <h1 className="text-xl font-bold mx-auto">주문 완료</h1>
       <p className="text-sm text-gray-500">
-        주문일: {new Date(order.created_at).toLocaleString()}
+        주문일: {new Date(order.created_at!).toLocaleString()}
       </p>
 
       <ul className="flex flex-col border p-5 gap-5">
-        {order.order_items.map((item: any, idx: number) => (
+        {order.order_items.map((item: OrderItemType, idx: number) => (
           <li
             key={idx}
             className={`flex gap-4 items-center ${
@@ -125,7 +113,7 @@ export default function CheckoutDonePage() {
           <span className="text-[18px] font-bold ">
             {order.order_items
               .reduce(
-                (total: number, item: any) =>
+                (total: number, item: OrderItemType) =>
                   total + item.price * item.quantity,
                 0,
               )
