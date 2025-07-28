@@ -91,12 +91,17 @@ export default function CheckoutSuccessPage() {
       }
 
       const mergedItems = items.reduce((acc: any[], item: any) => {
-        const existing = acc.find((i) => i.product.id === item.product.id);
+        const size = item.options?.size ?? null;
+        const existing = acc.find(
+          (i) => i.product.id === item.product.id && i.options?.size === size,
+        );
+
         if (existing) {
           existing.quantity += item.quantity;
         } else {
           acc.push({ ...item });
         }
+
         return acc;
       }, []);
 
