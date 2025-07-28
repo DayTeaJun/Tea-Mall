@@ -146,6 +146,55 @@ export default function CheckoutSuccessPage() {
         }
       }
 
+      const productGroupMap = new Map<
+        string,
+        { size: string | null; quantity: number }[]
+      >();
+
+      for (const item of orderItems) {
+        if (!productGroupMap.has(item.product_id)) {
+          productGroupMap.set(item.product_id, []);
+        }
+        productGroupMap.get(item.product_id)!.push({
+          size: item.size,
+          quantity: item.quantity,
+        });
+      }
+
+      for (const [productId, itemList] of productGroupMap.entries()) {
+        const { data: productData, error: productError } = await supabase
+          .from("products")
+          .select("stock_by_size")
+          .eq("id", productId)
+          .single();
+
+        if (productError || !productData?.stock_by_size) {
+          console.error("재고 조회 실패", productError);
+          continue;
+        }
+
+        const stockMap = {
+          ...((productData.stock_by_size as Record<string, number>) ?? {}),
+        };
+
+        for (const item of itemList) {
+          const size = item.size;
+          if (size && typeof stockMap[size] === "number") {
+            stockMap[size] = Math.max(0, stockMap[size] - item.quantity);
+          }
+        }
+
+        const { error: updateError } = await supabase
+          .from("products")
+          .update({ stock_by_size: stockMap })
+          .eq("id", productId);
+
+        if (updateError) {
+          console.error("재고 업데이트 실패", updateError);
+          toast.error("재고 업데이트 중 오류가 발생했습니다.");
+        }
+      }
+
       router.refresh();
 
       window.location.href = `/mypage/myCart/checkout/successDone?orderId=${order_id}`;
