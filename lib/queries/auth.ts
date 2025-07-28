@@ -247,6 +247,8 @@ export function useGetOrderDetails(orderId: string) {
     queryKey: ["orderDetails", orderId],
     queryFn: () => getOrderDetails(orderId || ""),
     enabled: !!orderId,
+    refetchOnMount: "always",
+    retry: false,
   });
 
   return {
@@ -265,14 +267,16 @@ export async function deleteOrder(orderId: string) {
   return true;
 }
 
-export function useDeleteOrderMutation() {
+export function useDeleteOrderMutation(orderId: string, userId: string) {
   const router = useRouter();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (orderId: string) => deleteOrder(orderId),
+    mutationFn: () => deleteOrder(orderId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orderDetails", orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders", userId] });
       toast.success("주문 내역이 삭제되었습니다.");
-      router.push("/mypage/orderList");
+      router.replace("/mypage/orderList");
     },
     onError: (error) => {
       if (error instanceof Error) {

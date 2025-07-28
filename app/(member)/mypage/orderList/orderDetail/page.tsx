@@ -16,13 +16,18 @@ import { useDeleteOrderMutation, useGetOrderDetails } from "@/lib/queries/auth";
 import { OrderItemType } from "@/types/product";
 import { useState } from "react";
 import Modal from "@/components/common/Modal";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 export default function OrderListPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const { user } = useAuthStore();
   const router = useRouter();
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
-  const { mutate: delOrderItemMutate } = useDeleteOrderMutation();
+  const { mutate: delOrderItemMutate } = useDeleteOrderMutation(
+    orderId || "",
+    user?.id || "",
+  );
 
   const [isModal, setIsModal] = useState(false);
 
@@ -33,7 +38,12 @@ export default function OrderListPage() {
   }
 
   const handleDelOrderItem = () => {
-    delOrderItemMutate(orderId);
+    if (!orderId || !user?.id) {
+      toast.error("주문 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    delOrderItemMutate();
     setIsModal(false);
   };
 
@@ -50,12 +60,12 @@ export default function OrderListPage() {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
         <PackageX size={48} className="mb-4" />
-        <p className="text-sm">해당 주문 정보를 찾을 수 없습니다.</p>
+        <p className="text-sm">삭제된 주문이거나 존재하지 않는 주문입니다.</p>
         <button
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-          onClick={() => router.push("/")}
+          onClick={() => router.replace("/mypage/orderList")}
         >
-          홈으로 돌아가기
+          주문 목록으로 이동
         </button>
       </div>
     );
