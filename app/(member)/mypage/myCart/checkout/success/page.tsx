@@ -146,22 +146,18 @@ export default function CheckoutSuccessPage() {
         }
       }
 
-      const productGroupMap = new Map<
+      const productStockMap = new Map<
         string,
         { size: string | null; quantity: number }[]
       >();
 
       for (const item of orderItems) {
-        if (!productGroupMap.has(item.product_id)) {
-          productGroupMap.set(item.product_id, []);
-        }
-        productGroupMap.get(item.product_id)!.push({
-          size: item.size,
-          quantity: item.quantity,
-        });
+        const group = productStockMap.get(item.product_id) ?? [];
+        group.push({ size: item.size, quantity: item.quantity });
+        productStockMap.set(item.product_id, group);
       }
 
-      for (const [productId, itemList] of productGroupMap.entries()) {
+      for (const [productId, sizeItems] of productStockMap.entries()) {
         const { data: productData, error: productError } = await supabase
           .from("products")
           .select("stock_by_size")
@@ -174,13 +170,12 @@ export default function CheckoutSuccessPage() {
         }
 
         const stockMap = {
-          ...((productData.stock_by_size as Record<string, number>) ?? {}),
+          ...(productData.stock_by_size as Record<string, number>),
         };
 
-        for (const item of itemList) {
-          const size = item.size;
+        for (const { size, quantity } of sizeItems) {
           if (size && typeof stockMap[size] === "number") {
-            stockMap[size] = Math.max(0, stockMap[size] - item.quantity);
+            stockMap[size] = Math.max(0, stockMap[size] - quantity);
           }
         }
 
