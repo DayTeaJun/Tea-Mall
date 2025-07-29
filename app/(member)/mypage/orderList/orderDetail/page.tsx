@@ -202,7 +202,7 @@ export default function OrderListPage() {
         isOpen={isModal}
         onClose={() => setIsModal(false)}
         title="주문내역을 삭제하시겠습니까?"
-        description={`* 주문목록에서 주문내역이 삭제됩니다. \n (주문내역 삭제시 기록 복구가 불가능합니다.)`}
+        description={`(* 해당 주문은 목록에서 숨겨지며, 삭제 후 2개월간 복구할 수 있습니다.)`}
       >
         <div className="flex justify-end gap-2">
           <button

@@ -181,6 +181,7 @@ export async function getOrders(
     `,
     )
     .eq("user_id", userId)
+    .eq("deleted", false)
     .order("created_at", { ascending: false });
 
   if (filter.recent6Months) {
@@ -261,7 +262,13 @@ export function useGetOrderDetails(orderId: string) {
 // 주문 내역 삭제
 export async function deleteOrder(orderId: string) {
   const supabase = createBrowserSupabaseClient();
-  const { error } = await supabase.from("orders").delete().eq("id", orderId);
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      deleted: true,
+      deleted_at: new Date().toISOString(),
+    })
+    .eq("id", orderId);
 
   if (error) throw new Error(error.message);
   return true;
