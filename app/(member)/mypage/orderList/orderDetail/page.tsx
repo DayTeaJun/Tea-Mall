@@ -75,7 +75,18 @@ export default function OrderListPage() {
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">주문 상세</h1>
-        <Dropdown setIsModal={setIsModal} />
+        <Dropdown>
+          <li className="hover:text-gray-800 w-full">
+            <button
+              onClick={() => {
+                setIsModal(true);
+              }}
+              className="px-3 py-2 text-start w-full tracking-wide"
+            >
+              주문내역 삭제
+            </button>
+          </li>
+        </Dropdown>
       </div>
       <p className="text-sm text-gray-500">
         <span className="font-bold">주문일 : </span>

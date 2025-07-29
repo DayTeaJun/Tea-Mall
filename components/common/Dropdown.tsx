@@ -1,13 +1,9 @@
 "use client";
 
 import { EllipsisVertical } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
-export function Dropdown({
-  setIsModal,
-}: {
-  setIsModal: (value: boolean) => void;
-}) {
+export function Dropdown({ children }: { children: ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -29,11 +25,6 @@ export function Dropdown({
     };
   }, []);
 
-  const handleOpenModal = () => {
-    setIsModal(true);
-    setIsMenuOpen(false);
-  };
-
   return (
     <div ref={menuRef} className="w-[280px] text-end text-black relative">
       <button
@@ -50,17 +41,7 @@ export function Dropdown({
           isMenuOpen ? "max-h-[500px] opacity-[0.98]" : "max-h-0 opacity-0"
         } overflow-hidden`}
       >
-        <ul className="border-t border-solid border-white text-black text-end">
-          <li className="hover:text-gray-800 w-full">
-            <button
-              type="button"
-              onClick={handleOpenModal}
-              className="px-3 py-2 text-start w-full tracking-wide"
-            >
-              주문내역 삭제
-            </button>
-          </li>
-        </ul>
+        <ul className="text-black text-end">{children}</ul>
       </div>
     </div>
   );
