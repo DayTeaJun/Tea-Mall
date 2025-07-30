@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CartBtn from "../../../../../components/common/buttons/CartBtn";
 import { toast } from "sonner";
 import {
@@ -19,11 +19,35 @@ export default function ProductPurchaseSection({
   productId: string;
   stockBySize: Record<string, number>;
 }) {
-  const sizes = Object.keys(stockBySize);
-  const [selectedSize, setSelectedSize] = useState<string>(sizes[0] || "");
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+  // 가용 사이즈 중 기본 선택값을 계산 (우선 L, 없으면 첫 가용 사이즈)
+  const pickFirstAvailable = (stock: Record<string, number>) => {
+    if ((stock["L"] ?? 0) > 0) return "L";
+    const first = sizeOptions.find((s) => (stock[s] ?? 0) > 0);
+    return first ?? "";
+  };
+
+  const [selectedSize, setSelectedSize] = useState<string>(() =>
+    pickFirstAvailable(stockBySize),
+  );
   const [quantity, setQuantity] = useState<number>(1);
 
-  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"];
+  const currentStock = stockBySize[selectedSize] ?? 0;
+
+  useEffect(() => {
+    // 현재 선택이 없거나 품절이면 재선택
+    if (!selectedSize || currentStock === 0) {
+      const next = pickFirstAvailable(stockBySize);
+      setSelectedSize(next);
+      // 선택이 가능하면 수량 1, 전부 품절이면 0 유지(아래 입력에서 min=1이므로 1로 둬도 무방)
+      setQuantity(next ? 1 : 1);
+    }
+    // 수량이 재고를 초과하면 클램프
+    if (currentStock > 0 && quantity > currentStock) {
+      setQuantity(currentStock);
+    }
+  }, [stockBySize, selectedSize, currentStock, quantity]);
 
   const handleBuyNow = () => {
     toast.info("바로 구매 기능은 현재 구현되지 않았습니다.");
@@ -39,7 +63,7 @@ export default function ProductPurchaseSection({
           value={selectedSize}
           onValueChange={(value) => {
             setSelectedSize(value);
-            setQuantity(1);
+            setQuantity(1); // 사이즈 변경 시 수량 초기화
           }}
         >
           <SelectTrigger className="w-full">
@@ -59,7 +83,7 @@ export default function ProductPurchaseSection({
                     isDisabled ? "text-gray-400 cursor-not-allowed" : ""
                   }
                 >
-                  {size}
+                  {size + ` (${stock}개 남음)`}
                 </SelectItem>
               );
             })}
@@ -75,10 +99,16 @@ export default function ProductPurchaseSection({
           <input
             type="number"
             min={1}
-            max={stockBySize[selectedSize] || 1}
+            max={Math.max(1, currentStock || 1)}
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              const max = Math.max(1, currentStock || 1);
+              const clamped = Math.min(Math.max(1, val), max);
+              setQuantity(clamped);
+            }}
             className="border px-3 py-2 w-20"
+            disabled={!selectedSize || currentStock === 0}
           />
         </div>
         <div className="flex gap-2 w-2/3">
@@ -91,6 +121,7 @@ export default function ProductPurchaseSection({
           <button
             onClick={handleBuyNow}
             className="flex-1 bg-green-600 text-white hover:bg-green-700 flex items-center justify-center cursor-pointer duration-300 transition-colors p-2"
+            disabled={!selectedSize || currentStock === 0}
           >
             <span>바로 구매</span>
             <ChevronRight />
