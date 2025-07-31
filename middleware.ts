@@ -7,6 +7,7 @@ const protectedRoutes = [
   "/products/manage",
   "/products/regist",
   "/productReview",
+  "/directCheckout",
 ];
 const publicRoutes = ["/signin", "/signup"];
 const adminRoutes = ["/admin"];

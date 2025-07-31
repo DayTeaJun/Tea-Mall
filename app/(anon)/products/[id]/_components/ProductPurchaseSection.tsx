@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import CartBtn from "../../../../../components/common/buttons/CartBtn";
 import { toast } from "sonner";
 import {
@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronRight } from "lucide-react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 export default function ProductPurchaseSection({
   productId,
@@ -19,6 +21,8 @@ export default function ProductPurchaseSection({
   productId: string;
   stockBySize: Record<string, number>;
 }) {
+  const { user } = useAuthStore();
+  const router = useRouter();
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 
   // 가용 사이즈 중 기본 선택값을 계산 (우선 L, 없으면 첫 가용 사이즈)
@@ -50,7 +54,18 @@ export default function ProductPurchaseSection({
   }, [stockBySize, selectedSize, currentStock, quantity]);
 
   const handleBuyNow = () => {
-    toast.info("바로 구매 기능은 현재 구현되지 않았습니다.");
+    if (!user) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+    if (!selectedSize || currentStock === 0) {
+      toast.error("사이즈를 선택해주세요.");
+      return;
+    }
+
+    router.push(
+      `/directCheckout?productId=${productId}&size=${selectedSize}&quantity=${quantity}`,
+    );
   };
 
   return (

@@ -33,6 +33,34 @@ export function useProductAllToMainQuery() {
   };
 }
 
+// 상품 상세 조회
+export async function getProductDetail(
+  id: string,
+): Promise<ProductType | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .eq("deleted", false)
+    .single();
+
+  if (error) throw error;
+  return data ?? null;
+}
+
+export function useGetProductDetail(id: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["products", id],
+    queryFn: () => getProductDetail(id),
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 장바구니 상품 전체 조회
 export async function getProductAllCart(
   userId: string,
