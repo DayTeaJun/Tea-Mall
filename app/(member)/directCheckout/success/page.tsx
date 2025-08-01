@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, XCircle } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
+import { useCheckoutStore } from "@/lib/store/useCheckoutStore";
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
@@ -12,6 +13,8 @@ export default function CheckoutSuccessPage() {
   const supabase = createBrowserSupabaseClient();
 
   const [error, setError] = useState("");
+
+  const { reset } = useCheckoutStore();
 
   useEffect(() => {
     const processOrder = async () => {
@@ -82,7 +85,7 @@ export default function CheckoutSuccessPage() {
 
       const order_id = orderInsert.id;
 
-      const items = JSON.parse(sessionStorage.getItem("checkoutItems") ?? "[]");
+      const items = JSON.parse(sessionStorage.getItem("checkout") ?? "[]");
 
       if (!Array.isArray(items) || items.length === 0) {
         setError("상품 정보가 비어 있습니다.");
@@ -176,12 +179,9 @@ export default function CheckoutSuccessPage() {
       }
 
       router.refresh();
-
+      reset();
       window.location.href = `/mypage/myCart/checkout/successDone?orderId=${order_id}`;
-      sessionStorage.removeItem("checkoutItems");
-      sessionStorage.removeItem("request");
-      sessionStorage.removeItem("receiver");
-      sessionStorage.removeItem("detailAddress");
+
       toast.success("주문이 완료되었습니다.");
     };
 
