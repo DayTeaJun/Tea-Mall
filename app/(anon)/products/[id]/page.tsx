@@ -93,6 +93,11 @@ export default async function ProductDetailPage({
 
   const formattedPrice = product.price.toLocaleString();
 
+  const isSoldOut =
+    product.total_stock === 0 ||
+    product.total_stock === null ||
+    product.total_stock === undefined;
+
   return (
     <main className="max-w-7xl mx-auto px-6 py-12 flex flex-col gap-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -106,8 +111,16 @@ export default async function ProductDetailPage({
         <div className="col-span-1 lg:col-span-2 flex flex-col justify-between w-full">
           <div>
             <p className="text-sm text-gray-500 mb-1">티몰 공식 판매처</p>
+
             <div className="mb-2 flex items-center justify-between">
-              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold">{product.name}</h1>
+                {isSoldOut && (
+                  <span className="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-700">
+                    Sold out
+                  </span>
+                )}
+              </div>
               <ShareButton />
             </div>
 
@@ -131,9 +144,15 @@ export default async function ProductDetailPage({
                 배송비 3,000원 (20,000원 이상 구매 시 무료)
               </p>
 
-              <p className="text-sm text-gray-500">
-                총 재고: {product.total_stock ?? "정보 없음"}개
-              </p>
+              {isSoldOut ? (
+                <p className="text-sm font-semibold text-red-600">
+                  현재 재고가 없습니다 (Sold out)
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  총 재고: {product.total_stock}개
+                </p>
+              )}
             </div>
 
             <hr className="my-2" />
@@ -158,10 +177,16 @@ export default async function ProductDetailPage({
 
           <hr className="my-4" />
 
-          <ProductPurchaseSection
-            productId={product.id}
-            stockBySize={product.stock_by_size as Record<string, number>}
-          />
+          {isSoldOut ? (
+            <div className="p-4 border rounded bg-gray-50 text-sm text-gray-600">
+              이 상품은 현재 품절되었습니다. 재입고 시 알림받기를 이용해 주세요.
+            </div>
+          ) : (
+            <ProductPurchaseSection
+              productId={product.id}
+              stockBySize={product.stock_by_size as Record<string, number>}
+            />
+          )}
         </div>
       </div>
 
