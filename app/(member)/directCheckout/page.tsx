@@ -10,7 +10,6 @@ import Image from "next/image";
 import { toast } from "sonner";
 import DaumPostcode from "@/components/common/AddressSearch";
 import { useGetProductDetail } from "@/lib/queries/products";
-import { useCheckoutStore } from "@/lib/store/useCheckoutStore";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -76,12 +75,6 @@ export default function CheckoutPage() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
 
-  const {
-    setRequest: setCheckoutRequest,
-    setReceiver: setCheckoutReceiver,
-    setDetailAddress: setCheckoutDetailAddress,
-  } = useCheckoutStore();
-
   const handlePayment = async () => {
     if (!user) {
       toast.error("로그인이 필요합니다.");
@@ -92,11 +85,11 @@ export default function CheckoutPage() {
       return;
     }
 
-    setCheckoutRequest(request);
-    setCheckoutReceiver(receiver);
-    setCheckoutDetailAddress(detailAddress);
-
-    setCheckoutDetailAddress(
+    sessionStorage.setItem("checkoutItems", JSON.stringify([selectedItem]));
+    sessionStorage.setItem("request", request);
+    sessionStorage.setItem("receiver", receiver);
+    sessionStorage.setItem(
+      "detailAddress",
       address + (detailAddress ? `, ${detailAddress}` : ""),
     );
 
