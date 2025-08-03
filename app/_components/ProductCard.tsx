@@ -11,6 +11,8 @@ function ProductCard({ products }: { products: ProductType }) {
 
   const ratings = Object.values(products.rating_map ?? {}) as number[];
 
+  const isSoldOut = (products.total_stock ?? 0) <= 0;
+
   const avgRating =
     ratings.length > 0
       ? parseFloat(
@@ -41,6 +43,17 @@ function ProductCard({ products }: { products: ProductType }) {
           <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100 ">
             <ImageOff className="text-gray-400" size={40} />
             <p className="text-gray-500">이미지가 없습니다.</p>
+          </div>
+        )}
+
+        {isSoldOut && (
+          <div
+            className="absolute inset-0 bg-black/35 flex items-center justify-center"
+            aria-label="품절 상태"
+          >
+            <span className="px-3 py-1 bg-white text-black text-sm font-semibold tracking-wider shadow">
+              Sold Out
+            </span>
           </div>
         )}
       </div>
