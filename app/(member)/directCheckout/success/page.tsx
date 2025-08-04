@@ -166,7 +166,13 @@ export default function CheckoutSuccessPage() {
 
         const { error: updateError } = await supabase
           .from("products")
-          .update({ stock_by_size: stockMap })
+          .update({
+            stock_by_size: stockMap,
+            total_stock: Object.values(stockMap).reduce(
+              (sum, qty) => sum + qty,
+              0,
+            ),
+          })
           .eq("id", productId);
 
         if (updateError) {
