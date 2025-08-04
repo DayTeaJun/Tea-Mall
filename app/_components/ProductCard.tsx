@@ -28,7 +28,7 @@ function ProductCard({ products }: { products: ProductType }) {
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full hover:shadow-2xl transition-all duration-300 p-4 pt-0"
+      className="w-full hover:shadow-2xl transition-all duration-300 p-4 pt-0 group"
     >
       <div className="w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
@@ -36,7 +36,7 @@ function ProductCard({ products }: { products: ProductType }) {
             fill
             src={products.image_url}
             alt={products.name}
-            className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
+            className="object-cover w-full h-full group-hover:scale-105 duration-200 transition-all"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -47,14 +47,9 @@ function ProductCard({ products }: { products: ProductType }) {
         )}
 
         {isSoldOut && (
-          <div
-            className="absolute inset-0 bg-black/35 flex items-center justify-center"
-            aria-label="품절 상태"
-          >
-            <span className="px-3 py-1 bg-white text-black text-sm font-semibold tracking-wider shadow">
-              Sold Out
-            </span>
-          </div>
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-30 py-2 px-1 bg-black/85 group-hover:bg-black/50 text-white text-[16px] font-bold tracking-wider shadow transition-all duration-300">
+            SOLD OUT
+          </span>
         )}
       </div>
       <h3 className="text-lg font-medium">{products.name}</h3>

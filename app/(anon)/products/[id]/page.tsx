@@ -162,7 +162,7 @@ export default async function ProductDetailPage({
             </p>
 
             {product.tags && product.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2">
                 {product.tags.map((tag) => (
                   <span
                     key={tag}
