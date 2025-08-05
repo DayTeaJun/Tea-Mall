@@ -12,6 +12,8 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import DetailImagePreview from "./DetailImagePreview";
 
 function ProductForm() {
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -213,7 +215,7 @@ function ProductForm() {
           사이즈 및 재고
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
-          {["XS", "S", "M", "L", "XL", "XXL", "XXXL", "기타"].map((size) => (
+          {sizeOptions.map((size) => (
             <label key={size} className="flex items-center space-x-1">
               <input
                 type="checkbox"
