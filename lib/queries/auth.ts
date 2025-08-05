@@ -236,6 +236,7 @@ export async function getOrderDetails(orderId: string) {
             quantity,
             price,
             size,
+            delivery_status,
             products (
               name,
               image_url,

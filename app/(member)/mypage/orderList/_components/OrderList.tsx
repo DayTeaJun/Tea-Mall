@@ -29,6 +29,14 @@ export default function OrderList() {
     setRecent6Months(true);
   };
 
+  const statusColors: Record<string, string> = {
+    결제완료: "text-gray-700",
+    배송준비중: "text-blue-700",
+    배송중: "text-yellow-700",
+    배송완료: "text-green-700",
+    취소됨: "text-red-700",
+  };
+
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
       <h2 className="text-xl font-bold">주문목록</h2>
@@ -110,42 +118,55 @@ export default function OrderList() {
               {order.order_items.map((item, i) => (
                 <li
                   key={i}
-                  className={`p-4 flex flex-col gap-4 bg-white ${
-                    order.order_items.length - i !== 1 ? "border-b" : ""
+                  className={`flex flex-col gap-4 bg-white ${
+                    order.order_items.length - i !== 1
+                      ? "border-b pb-4"
+                      : "pt-4"
                   }`}
                 >
                   <div className="flex justify-between items-center gap-4">
                     <div
-                      className="flex gap-4 cursor-pointer flex-1 justify-between"
+                      className="flex flex-col gap-2 cursor-pointer flex-1 justify-between"
                       onClick={() =>
                         router.push(`/products/${item.product_id}`)
                       }
                     >
-                      <div className="flex items-center gap-4">
-                        <Image
-                          src={item.products.image_url ?? ""}
-                          alt={item.products.name}
-                          width={80}
-                          height={80}
-                          className="rounded border object-cover w-20 h-20"
-                        />
-                        <div className="flex flex-col justify-center">
-                          <p className="text-sm font-medium">
-                            {item.products.name}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {item.price.toLocaleString()}원 · {item.quantity}개
-                            · 사이즈: {item.size}
-                          </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <Image
+                            src={item.products.image_url ?? ""}
+                            alt={item.products.name}
+                            width={80}
+                            height={80}
+                            className="rounded border object-cover w-20 h-20"
+                          />
+                          <div className="flex flex-col gap-1 justify-center">
+                            <p className="text-sm font-medium flex gap-1 items-center">
+                              {item.products.name}
+                              <span
+                                className={`text-xs font-bold rounded-full w-fit ${
+                                  statusColors[
+                                    item.delivery_status ?? "결제완료"
+                                  ]
+                                }`}
+                              >
+                                · {item.delivery_status ?? "결제완료"}
+                              </span>
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {item.price.toLocaleString()}원 · {item.quantity}
+                              개 · 사이즈: {item.size}
+                            </p>
+                          </div>
                         </div>
-                      </div>
 
-                      <CartBtn
-                        className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                        productId={item.product_id}
-                        quantity={1}
-                        selectedSize={item.size || ""}
-                      />
+                        <CartBtn
+                          className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                          productId={item.product_id}
+                          quantity={1}
+                          selectedSize={item.size || ""}
+                        />
+                      </div>
                     </div>
 
                     <div className="flex flex-col items-end gap-2 shrink-0 border-l pl-4">

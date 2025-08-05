@@ -31,6 +31,14 @@ export default function OrderListPage() {
 
   const [isModal, setIsModal] = useState(false);
 
+  const statusColors: Record<string, string> = {
+    결제완료: "text-gray-700",
+    배송준비중: "text-blue-700",
+    배송중: "text-yellow-700",
+    배송완료: "text-green-700",
+    취소됨: "text-red-700",
+  };
+
   if (!orderId) {
     toast.error("잘못된 접근입니다.");
     router.push("/");
@@ -119,8 +127,17 @@ export default function OrderListPage() {
                     height={80}
                     className="rounded border object-cover w-20 h-20"
                   />
-                  <div className="flex flex-col justify-center">
-                    <p className="text-sm font-medium">{item.products.name}</p>
+                  <div className="flex flex-col gap-1 justify-center">
+                    <p className="text-sm font-medium flex gap-1 items-center">
+                      {item.products.name}
+                      <span
+                        className={`text-xs font-bold rounded-full w-fit ${
+                          statusColors[item.delivery_status ?? "결제완료"]
+                        }`}
+                      >
+                        · {item.delivery_status ?? "결제완료"}
+                      </span>
+                    </p>
                     <p className="text-sm text-gray-500">
                       {item.price.toLocaleString()}원 · {item.quantity}개 ·
                       사이즈: {item.size}

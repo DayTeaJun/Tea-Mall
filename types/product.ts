@@ -62,6 +62,7 @@ export interface OrderItemType {
   quantity: number;
   price: number;
   size: string | null;
+  delivery_status: string | null;
   products: {
     id: string;
     name: string;
