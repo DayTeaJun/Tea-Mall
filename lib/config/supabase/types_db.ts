@@ -54,6 +54,7 @@ export type Database = {
       };
       order_items: {
         Row: {
+          delivery_status: string | null;
           id: string;
           order_id: string;
           price: number;
@@ -62,6 +63,7 @@ export type Database = {
           size: string | null;
         };
         Insert: {
+          delivery_status?: string | null;
           id?: string;
           order_id: string;
           price: number;
@@ -70,6 +72,7 @@ export type Database = {
           size?: string | null;
         };
         Update: {
+          delivery_status?: string | null;
           id?: string;
           order_id?: string;
           price?: number;

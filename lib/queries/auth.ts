@@ -159,6 +159,7 @@ export const uploadImageToStorageProfile = async (
 export async function getOrders(
   userId: string,
   filter: { year?: number; recent6Months?: boolean },
+  userLevel?: number,
 ) {
   const supabase = createBrowserSupabaseClient();
 
@@ -168,11 +169,14 @@ export async function getOrders(
       `
       id,
       created_at,
+      user: user_table (user_name, email),
       order_items (
+        id,
         product_id,
         quantity,
         price,
         size,
+        delivery_status,
         products (
           name,
           image_url
@@ -180,9 +184,12 @@ export async function getOrders(
       )
     `,
     )
-    .eq("user_id", userId)
     .eq("deleted", false)
     .order("created_at", { ascending: false });
+
+  if (userLevel !== 3) {
+    query = query.eq("user_id", userId);
+  }
 
   if (filter.recent6Months) {
     const sixMonthsAgo = new Date();
@@ -202,10 +209,11 @@ export async function getOrders(
 export function useGetOrders(
   userId: string,
   filter: { year?: number; recent6Months?: boolean },
+  userLevel?: number,
 ) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["orders", userId, filter],
-    queryFn: () => getOrders(userId, filter),
+    queryKey: ["orders", userId, filter, userLevel],
+    queryFn: () => getOrders(userId, filter, userLevel),
     enabled: !!userId,
   });
 

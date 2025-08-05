@@ -7,6 +7,7 @@ import { UserCog } from "lucide-react";
 const menu = [
   { name: "등록 상품 관리", href: "/products/manage" },
   { name: "상품 등록", href: "/products/regist" },
+  { name: "주문 상태 관리", href: "/products/orderList" },
 ];
 
 export default function SidebarNav() {

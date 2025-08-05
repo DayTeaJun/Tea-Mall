@@ -267,3 +267,20 @@ export async function getMyProducts(userId: string, query: string) {
   if (error) throw error;
   return data ?? [];
 }
+
+// 주문 배송상태 변경
+
+export async function updateDeliveryStatus(
+  orderItemId: string,
+  status: string,
+) {
+  const supabase = await createServerSupabaseClient();
+
+  const { error } = await supabase
+    .from("order_items")
+    .update({ delivery_status: status })
+    .eq("id", orderItemId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
