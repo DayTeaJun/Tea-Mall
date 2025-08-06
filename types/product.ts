@@ -59,6 +59,7 @@ export type CartItemType = {
 };
 
 export interface OrderItemType {
+  id: string;
   quantity: number;
   price: number;
   size: string | null;
@@ -70,6 +71,11 @@ export interface OrderItemType {
   };
 }
 
+export interface OrderUserType {
+  user_name: string | null;
+  email: string | null;
+}
+
 export interface OrderDetailsType {
   id: string;
   created_at: string | null;
@@ -77,4 +83,5 @@ export interface OrderDetailsType {
   receiver: string | null;
   detail_address: string | null;
   order_items: OrderItemType[];
+  user: OrderUserType | null;
 }

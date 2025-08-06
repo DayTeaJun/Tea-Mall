@@ -232,7 +232,9 @@ export async function getOrderDetails(orderId: string) {
     .select(
       `
           id, created_at, request, receiver, detail_address,
+          user: user_table (user_name, email),
           order_items (
+            id,
             quantity,
             price,
             size,

@@ -125,7 +125,11 @@ export default function AdminOrderList() {
                 </p>
               </div>
               <button
-                onClick={() => router.push(`/admin/orders/${order.id}`)}
+                onClick={() =>
+                  router.push(
+                    `/products/orderList/orderDetail?orderId=${order.id}`,
+                  )
+                }
                 className="text-sm hover:underline"
               >
                 주문 상세보기 &gt;

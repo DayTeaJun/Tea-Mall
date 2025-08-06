@@ -118,10 +118,8 @@ export default function OrderList() {
               {order.order_items.map((item, i) => (
                 <li
                   key={i}
-                  className={`flex flex-col gap-4 bg-white ${
-                    order.order_items.length - i !== 1
-                      ? "border-b pb-4"
-                      : "pt-4"
+                  className={`p-4 flex flex-col gap-4 bg-white ${
+                    order.order_items.length - i !== 1 ? "border-b" : ""
                   }`}
                 >
                   <div className="flex justify-between items-center gap-4">
