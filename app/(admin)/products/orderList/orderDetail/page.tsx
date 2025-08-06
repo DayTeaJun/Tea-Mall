@@ -28,6 +28,7 @@ export default function OrderListPage() {
   const { mutate: delOrderItemMutate } = useDeleteOrderMutation(
     orderId || "",
     user?.id || "",
+    true,
   );
 
   const [isModal, setIsModal] = useState(false);
