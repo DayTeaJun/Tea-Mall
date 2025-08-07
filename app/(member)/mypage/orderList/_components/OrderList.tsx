@@ -5,7 +5,7 @@ import CartBtn from "@/components/common/buttons/CartBtn";
 import Modal from "@/components/common/Modal";
 import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
+import { LoaderCircle, PackageX, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,7 @@ export default function OrderList() {
   const currentPage = Number(searchParams.get("page") ?? 1);
 
   const handlePageChange = (selected: { selected: number }) => {
-    const newPage = selected.selected + 1; // react-paginate는 0-based index
+    const newPage = selected.selected + 1;
     router.push(`/mypage/orderList?page=${newPage}`);
   };
 
@@ -79,18 +79,7 @@ export default function OrderList() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-xl font-bold">주문 내역</h2>
-
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="주문한 상품을 검색할 수 있습니다."
-          className="w-full px-4 py-2 border rounded-md text-sm"
-        />
-        <button className="p-2 text-black border rounded-md cursor-pointer">
-          <Search size={20} />
-        </button>
-      </div>
+      <h2 className="text-xl font-bold mb-4">주문 내역</h2>
 
       <div className="flex flex-wrap gap-2">
         <button

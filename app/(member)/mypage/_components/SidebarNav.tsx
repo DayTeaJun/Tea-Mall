@@ -6,9 +6,13 @@ import { User, UserCog } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const menu = [
-  { name: "내 정보", href: "/mypage/profile" },
-  { name: "주문 내역", href: "/mypage/orderList" },
-  { name: "장바구니", href: "/mypage/myCart" },
+  { name: "내 정보", currentPage: "/mypage/profile", href: "/mypage/profile" },
+  {
+    name: "주문 내역",
+    currentPage: "/mypage/orderList",
+    href: "/mypage/orderList?page=1",
+  },
+  { name: "장바구니", currentPage: "/mypage/myCart", href: "/mypage/myCart" },
 ];
 
 export default function SidebarNav() {
@@ -27,8 +31,8 @@ export default function SidebarNav() {
           <div className="h-[12px] pb-2" />
         )}
 
-        {menu.map(({ name, href }) => {
-          const isActive = pathname.startsWith(href);
+        {menu.map(({ name, href, currentPage }) => {
+          const isActive = pathname.startsWith(currentPage);
 
           return (
             <li key={href}>
