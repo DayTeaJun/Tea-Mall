@@ -316,3 +316,35 @@ export function useDeleteOrderMutation(
 
   return { mutate, isPending };
 }
+
+// 주문 취소
+async function updateCancelOrderItem(orderId: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { error } = await supabase
+    .from("order_items")
+    .update({ delivery_status: "취소됨" })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+export const useUpdateCancelOrderItem = (userId: string) => {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (orderId: string) => updateCancelOrderItem(orderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders", userId] });
+      toast.success("주문이 취소되었습니다.");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { mutate, isPending };
+};

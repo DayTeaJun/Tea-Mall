@@ -1,12 +1,13 @@
 "use client";
 
 import CartBtn from "@/components/common/buttons/CartBtn";
-import { useGetOrders } from "@/lib/queries/auth";
+import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function OrderList() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function OrderList() {
     year: selectedYear ?? undefined,
   });
 
+  const { mutate: cancelOrderItem } = useUpdateCancelOrderItem(user?.id ?? "");
+
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
     setRecent6Months(false);
@@ -27,6 +30,23 @@ export default function OrderList() {
   const handleRecentClick = () => {
     setSelectedYear(null);
     setRecent6Months(true);
+  };
+
+  const handleCancelOrder = (
+    orderId: string,
+    deliveryStatus: string | null,
+  ) => {
+    if (deliveryStatus === "배송완료") {
+      toast.error("배송완료된 주문은 취소할 수 없습니다.");
+      return;
+    }
+
+    if (deliveryStatus === "취소됨") {
+      toast.error("이미 취소된 주문입니다.");
+      return;
+    }
+
+    cancelOrderItem(orderId);
   };
 
   const statusColors: Record<string, string> = {
@@ -167,21 +187,50 @@ export default function OrderList() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2 shrink-0 border-l pl-4">
-                      <button
-                        type="button"
-                        className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                      >
-                        교환, 반품 신청
-                      </button>
-                      <button
-                        className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                        onClick={() =>
-                          router.push(`/productReview/${item.product_id}`)
-                        }
-                      >
-                        리뷰 작성하기
-                      </button>
+                    <div className="flex flex-col items-end justify-center gap-2 border-l pl-4 self-stretch">
+                      {item.delivery_status === "배송중" && (
+                        <button
+                          onClick={() =>
+                            toast.info("배송 현황은 준비중 입니다.")
+                          }
+                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                        >
+                          배송 현황 보기
+                        </button>
+                      )}
+
+                      {item.delivery_status !== "배송완료" && (
+                        <button
+                          onClick={() =>
+                            handleCancelOrder(item.id, item.delivery_status)
+                          }
+                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                        >
+                          주문 취소
+                        </button>
+                      )}
+
+                      {item.delivery_status === "배송완료" && (
+                        <button
+                          onClick={() =>
+                            toast.info("교환, 반품 신청은 준비중 입니다.")
+                          }
+                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                        >
+                          교환, 반품 신청
+                        </button>
+                      )}
+
+                      {item.delivery_status === "배송완료" && (
+                        <button
+                          onClick={() =>
+                            router.push(`/productReview/${item.product_id}`)
+                          }
+                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                        >
+                          리뷰 작성하기
+                        </button>
+                      )}
                     </div>
                   </div>
                 </li>
