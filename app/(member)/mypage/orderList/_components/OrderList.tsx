@@ -16,7 +16,7 @@ export default function OrderList() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [recent6Months, setRecent6Months] = useState(true);
 
-  const { data: orders = [], isLoading } = useGetOrders(user?.id ?? "", {
+  const { data: orders, isLoading } = useGetOrders(user?.id ?? "", {
     recent6Months,
     year: selectedYear ?? undefined,
   });
@@ -110,8 +110,23 @@ export default function OrderList() {
           <LoaderCircle size={48} className="animate-spin mb-4" />
           <p className="text-sm">주문목록 정보를 불러오고 있습니다...</p>
         </div>
-      ) : orders.length > 0 ? (
-        orders.map((order) => (
+      ) : orders?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
+          <PackageX size={48} className="mb-4" />
+          <h3 className="text-lg font-semibold mb-2">주문 내역이 없습니다</h3>
+          <p className="text-sm mb-6">
+            아직 상품을 구매하신 이력이 없습니다. 쇼핑을 시작해보세요!
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
+          >
+            <ShoppingCart size={16} />
+            쇼핑하러 가기
+          </button>
+        </div>
+      ) : (
+        orders?.map((order) => (
           <div key={order.id} className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold text-sm text-gray-800">
@@ -256,21 +271,6 @@ export default function OrderList() {
             </ul>
           </div>
         ))
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
-          <PackageX size={48} className="mb-4" />
-          <h3 className="text-lg font-semibold mb-2">주문 내역이 없습니다</h3>
-          <p className="text-sm mb-6">
-            아직 상품을 구매하신 이력이 없습니다. 쇼핑을 시작해보세요!
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
-          >
-            <ShoppingCart size={16} />
-            쇼핑하러 가기
-          </button>
-        </div>
       )}
 
       <Modal
