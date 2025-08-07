@@ -320,20 +320,25 @@ export function useDeleteOrderMutation(
 // 주문 취소
 async function updateCancelOrderItem(orderId: string) {
   const supabase = createBrowserSupabaseClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("order_items")
     .update({ delivery_status: "취소됨" })
-    .eq("id", orderId);
+    .eq("id", orderId)
+    .select("id, order_id")
+    .single();
 
   if (error) throw new Error(error.message);
-  return true;
+  return data;
 }
 
 export const useUpdateCancelOrderItem = (userId: string) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (orderId: string) => updateCancelOrderItem(orderId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["orders", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["orderDetails", data?.order_id],
+      });
       toast.success("주문이 취소되었습니다.");
     },
     onError: (error) => {
