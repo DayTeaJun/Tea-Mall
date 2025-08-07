@@ -7,7 +7,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const menu = [
   { name: "내 정보", href: "/mypage/profile" },
-  { name: "주문 목록", href: "/mypage/orderList" },
+  { name: "주문 내역", href: "/mypage/orderList" },
   { name: "장바구니", href: "/mypage/myCart" },
 ];
 

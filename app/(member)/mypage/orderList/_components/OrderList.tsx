@@ -1,6 +1,7 @@
 "use client";
 
 import CartBtn from "@/components/common/buttons/CartBtn";
+import Modal from "@/components/common/Modal";
 import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
@@ -22,6 +23,12 @@ export default function OrderList() {
 
   const { mutate: cancelOrderItem } = useUpdateCancelOrderItem(user?.id ?? "");
 
+  const [isCancelOrderModal, setIsCancelOrderModal] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<{
+    orderItemId: string;
+    deliveryStatus: string;
+  } | null>(null);
+
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
     setRecent6Months(false);
@@ -32,21 +39,17 @@ export default function OrderList() {
     setRecent6Months(true);
   };
 
-  const handleCancelOrder = (
-    orderId: string,
-    deliveryStatus: string | null,
-  ) => {
-    if (deliveryStatus === "배송완료") {
-      toast.error("배송완료된 주문은 취소할 수 없습니다.");
+  const handleCancelOrder = () => {
+    if (!cancelTarget || !user?.id) {
+      toast.error("주문 정보를 찾을 수 없습니다.");
       return;
     }
 
-    if (deliveryStatus === "취소됨") {
-      toast.error("이미 취소된 주문입니다.");
-      return;
-    }
+    const { orderItemId } = cancelTarget;
 
-    cancelOrderItem(orderId);
+    cancelOrderItem(orderItemId);
+    setIsCancelOrderModal(false);
+    setCancelTarget(null);
   };
 
   const statusColors: Record<string, string> = {
@@ -59,7 +62,7 @@ export default function OrderList() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-xl font-bold">주문목록</h2>
+      <h2 className="text-xl font-bold">주문 내역</h2>
 
       <div className="flex items-center gap-2">
         <input
@@ -201,14 +204,29 @@ export default function OrderList() {
 
                       {item.delivery_status !== "배송완료" && (
                         <button
-                          onClick={() =>
-                            handleCancelOrder(item.id, item.delivery_status)
-                          }
+                          onClick={() => {
+                            if (item.delivery_status === "취소됨") {
+                              toast.error("이미 취소된 주문입니다.");
+                              return;
+                            }
+
+                            setCancelTarget({
+                              orderItemId: item.id,
+                              deliveryStatus: item.delivery_status || "",
+                            });
+                            setIsCancelOrderModal(true);
+                          }}
                           className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
                         >
                           주문 취소
                         </button>
                       )}
+
+                      {/* {item.delivery_status === "취소됨" && (
+                        <p className="w-30 px-2 py-1 text-[14px] text-gray-900 text-center">
+                          주문 취소 완료
+                        </p>
+                      )} */}
 
                       {item.delivery_status === "배송완료" && (
                         <button
@@ -254,6 +272,34 @@ export default function OrderList() {
           </button>
         </div>
       )}
+
+      <Modal
+        isOpen={isCancelOrderModal}
+        onClose={() => {
+          setIsCancelOrderModal(false);
+          setCancelTarget(null);
+        }}
+        title="정말 주문을 취소하시겠습니까?"
+        description={`결제완료 이후의 주문만 취소할 수 있으며,\n취소 후 복구는 불가능합니다.`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => {
+              setIsCancelOrderModal(false);
+              setCancelTarget(null);
+            }}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            아니요
+          </button>
+          <button
+            onClick={handleCancelOrder}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            주문 취소
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
