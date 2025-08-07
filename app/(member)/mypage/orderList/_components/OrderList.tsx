@@ -1,25 +1,42 @@
 "use client";
 
+import ReactPaginate from "react-paginate";
 import CartBtn from "@/components/common/buttons/CartBtn";
 import Modal from "@/components/common/Modal";
 import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search, ShoppingCart } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function OrderList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [recent6Months, setRecent6Months] = useState(true);
 
-  const { data: orders, isLoading } = useGetOrders(user?.id ?? "", {
-    recent6Months,
-    year: selectedYear ?? undefined,
-  });
+  const currentPage = Number(searchParams.get("page") ?? 1);
+
+  const handlePageChange = (selected: { selected: number }) => {
+    const newPage = selected.selected + 1; // react-paginate는 0-based index
+    router.push(`/mypage/orderList?page=${newPage}`);
+  };
+
+  const { data: orders, isLoading } = useGetOrders(
+    user?.id ?? "",
+    {
+      recent6Months,
+      year: selectedYear ?? undefined,
+    },
+    currentPage,
+    1,
+  );
+
+  const totalCount = orders?.count ?? 0;
+  const pageCount = Math.ceil(totalCount / 1);
 
   const { mutate: cancelOrderItem } = useUpdateCancelOrderItem(user?.id ?? "");
 
@@ -110,7 +127,7 @@ export default function OrderList() {
           <LoaderCircle size={48} className="animate-spin mb-4" />
           <p className="text-sm">주문목록 정보를 불러오고 있습니다...</p>
         </div>
-      ) : orders?.length === 0 ? (
+      ) : orders?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
           <PackageX size={48} className="mb-4" />
           <h3 className="text-lg font-semibold mb-2">주문 내역이 없습니다</h3>
@@ -126,7 +143,7 @@ export default function OrderList() {
           </button>
         </div>
       ) : (
-        orders?.map((order) => (
+        orders?.data?.map((order) => (
           <div key={order.id} className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold text-sm text-gray-800">
@@ -259,7 +276,7 @@ export default function OrderList() {
                           onClick={() =>
                             router.push(`/productReview/${item.product_id}`)
                           }
-                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer "
                         >
                           리뷰 작성하기
                         </button>
@@ -271,6 +288,30 @@ export default function OrderList() {
             </ul>
           </div>
         ))
+      )}
+
+      {pageCount > 1 && (
+        <div className="mt-6 flex justify-center">
+          <ReactPaginate
+            onPageChange={handlePageChange}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            forcePage={currentPage - 1}
+            marginPagesDisplayed={1}
+            previousLabel={"이전"}
+            nextLabel={"다음"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+          />
+        </div>
       )}
 
       <Modal

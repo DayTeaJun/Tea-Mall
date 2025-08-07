@@ -124,7 +124,7 @@ export default function CheckoutDonePage() {
 
         <button
           className="px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
-          onClick={() => router.push("/mypage/orderList")}
+          onClick={() => router.push("/mypage/orderList?page=1")}
         >
           주문 내역 보기
         </button>

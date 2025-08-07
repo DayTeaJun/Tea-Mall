@@ -159,9 +159,13 @@ export const uploadImageToStorageProfile = async (
 export async function getOrders(
   userId: string,
   filter: { year?: number; recent6Months?: boolean },
+  page = 1,
+  limit = 10,
   userLevel?: number,
 ) {
   const supabase = createBrowserSupabaseClient();
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
   let query = supabase
     .from("orders")
@@ -183,7 +187,9 @@ export async function getOrders(
         )
       )
     `,
+      { count: "exact" },
     )
+    .range(from, to)
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
@@ -201,19 +207,21 @@ export async function getOrders(
     query = query.gte("created_at", start).lt("created_at", end);
   }
 
-  const { data, error } = await query;
+  const { data, count, error } = await query;
   if (error) throw new Error(error.message);
-  return data;
+  return { data, count };
 }
 
 export function useGetOrders(
   userId: string,
   filter: { year?: number; recent6Months?: boolean },
+  page?: number,
+  limit?: number,
   userLevel?: number,
 ) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["orders", userId, filter, userLevel],
-    queryFn: () => getOrders(userId, filter, userLevel),
+    queryKey: ["orders", userId, filter, page, limit, userLevel],
+    queryFn: () => getOrders(userId, filter, page, limit, userLevel),
     enabled: !!userId,
   });
 
@@ -301,7 +309,7 @@ export function useDeleteOrderMutation(
       if (manage) {
         router.replace("/products/orderList");
       } else {
-        router.replace("/mypage/orderList");
+        router.replace("/mypage/orderList?page=1");
       }
     },
     onError: (error) => {
