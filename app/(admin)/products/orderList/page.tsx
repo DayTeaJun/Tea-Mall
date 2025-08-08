@@ -4,7 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { updateDeliveryStatus } from "@/lib/actions/admin";
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { LoaderCircle, PackageX, Search, X } from "lucide-react";
+import { LoaderCircle, PackageX, RefreshCcw, Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -30,6 +30,13 @@ export default function AdminOrderList() {
 
   const handleSearch = () => {
     router.push(`/products/orderList?query=${searchInput}&page=1`);
+  };
+
+  const handleSearchRefresh = () => {
+    setRecent6Months(true);
+    setSelectedYear(null);
+    setSearchInput("");
+    router.push("/products/orderList?query=&page=1");
   };
 
   const { data: orders, isLoading } = useGetOrders(
@@ -116,34 +123,44 @@ export default function AdminOrderList() {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex justify-between items-center">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={`px-4 py-2 rounded-md ${
+              recent6Months
+                ? "bg-gray-300 text-white"
+                : "text-gray-700 hover:bg-gray-300 hover:text-white"
+            }`}
+            onClick={handleRecentClick}
+          >
+            최근 6개월
+          </button>
+          {Array.from({ length: 6 }, (_, i) => {
+            const year = new Date().getFullYear() - i;
+            return (
+              <button
+                key={year}
+                onClick={() => handleYearClick(year)}
+                className={`px-4 py-2 rounded-md cursor-pointer ${
+                  selectedYear === year
+                    ? "bg-gray-300 text-white"
+                    : "text-gray-700 hover:bg-gray-300 hover:text-white"
+                }`}
+              >
+                {year}
+              </button>
+            );
+          })}
+        </div>
+
         <button
-          type="button"
-          className={`px-4 py-2 rounded-md ${
-            recent6Months
-              ? "bg-gray-300 text-white"
-              : "text-gray-700 hover:bg-gray-300 hover:text-white"
-          }`}
-          onClick={handleRecentClick}
+          onClick={() => handleSearchRefresh()}
+          className="flex items-center gap-2 px-4 py-2 rounded-md border text-sm"
         >
-          최근 6개월
+          <RefreshCcw size={16} />
+          검색 초기화
         </button>
-        {Array.from({ length: 6 }, (_, i) => {
-          const year = new Date().getFullYear() - i;
-          return (
-            <button
-              key={year}
-              onClick={() => handleYearClick(year)}
-              className={`px-4 py-2 rounded-md cursor-pointer ${
-                selectedYear === year
-                  ? "bg-gray-300 text-white"
-                  : "text-gray-700 hover:bg-gray-300 hover:text-white"
-              }`}
-            >
-              {year}
-            </button>
-          );
-        })}
       </div>
 
       {isLoading ? (
