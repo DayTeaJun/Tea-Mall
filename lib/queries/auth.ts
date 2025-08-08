@@ -191,6 +191,7 @@ export async function getOrders(
     )
     .range(from, to)
     .eq("deleted", false)
+    .ilike("name", `%$gkfnck%`)
     .order("created_at", { ascending: false });
 
   if (userLevel !== 3) {

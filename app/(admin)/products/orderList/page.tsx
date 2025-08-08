@@ -6,21 +6,35 @@ import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { LoaderCircle, PackageX, Search } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import ReactPaginate from "react-paginate";
 import { toast } from "sonner";
 
 export default function AdminOrderList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [recent6Months, setRecent6Months] = useState(true);
 
-  const { data: orders = [], isLoading } = useGetOrders(
+  const currentPage = Number(searchParams.get("page") ?? 1);
+
+  const handlePageChange = (selected: { selected: number }) => {
+    const newPage = selected.selected + 1;
+    router.push(`/products/orderList?page=${newPage}`);
+  };
+
+  const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
     { recent6Months, year: selectedYear ?? undefined },
+    currentPage,
+    1,
     user?.level ?? 0,
   );
+
+  const totalCount = orders?.count ?? 0;
+  const pageCount = Math.ceil(totalCount / 1);
 
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
@@ -109,8 +123,13 @@ export default function AdminOrderList() {
           <LoaderCircle size={48} className="animate-spin mb-4" />
           <p className="text-sm">주문목록을 불러오는 중...</p>
         </div>
-      ) : orders.length > 0 ? (
-        orders.map((order) => (
+      ) : orders?.data?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-600">
+          <PackageX size={48} className="mb-4" />
+          <p>주문 내역이 없습니다.</p>
+        </div>
+      ) : (
+        orders?.data?.map((order) => (
           <div key={order.id} className="border rounded-md p-4 bg-white">
             <div className="flex justify-between items-center mb-3">
               <div className="flex flex-col gap-1">
@@ -177,10 +196,29 @@ export default function AdminOrderList() {
             </ul>
           </div>
         ))
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-600">
-          <PackageX size={48} className="mb-4" />
-          <p>주문 내역이 없습니다.</p>
+      )}
+
+      {pageCount > 1 && (
+        <div className="mt-6 flex justify-center">
+          <ReactPaginate
+            onPageChange={handlePageChange}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            forcePage={currentPage - 1}
+            marginPagesDisplayed={1}
+            previousLabel={"이전"}
+            nextLabel={"다음"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+          />
         </div>
       )}
     </div>

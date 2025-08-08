@@ -5,9 +5,21 @@ import Link from "next/link";
 import { UserCog } from "lucide-react";
 
 const menu = [
-  { name: "등록 상품 관리", href: "/products/manage" },
-  { name: "상품 등록", href: "/products/regist" },
-  { name: "주문 상태 관리", href: "/products/orderList" },
+  {
+    name: "등록 상품 관리",
+    currentPage: "/products/manage",
+    href: "/products/manage",
+  },
+  {
+    name: "상품 등록",
+    currentPage: "/products/regist",
+    href: "/products/regist",
+  },
+  {
+    name: "주문 상태 관리",
+    currentPage: "/products/orderList",
+    href: "/products/orderList?page=1",
+  },
 ];
 
 export default function SidebarNav() {
@@ -20,8 +32,8 @@ export default function SidebarNav() {
           <UserCog size={16} />
           관리자 전용
         </p>
-        {menu.map(({ name, href }) => {
-          const isActive = pathname.startsWith(href);
+        {menu.map(({ name, href, currentPage }) => {
+          const isActive = pathname.startsWith(currentPage);
 
           return (
             <li key={href}>
