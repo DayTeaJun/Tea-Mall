@@ -158,7 +158,7 @@ export const uploadImageToStorageProfile = async (
 // 주문목록 조회
 export async function getOrders(
   userId: string,
-  filter: { year?: number; recent6Months?: boolean },
+  filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
   page = 1,
   limit = 10,
   userLevel?: number,
@@ -168,12 +168,14 @@ export async function getOrders(
   const to = from + limit - 1;
 
   let query = supabase
-    .from("orders")
+    .from("orders_with_user_info")
     .select(
       `
       id,
       created_at,
-      user: user_table (user_name, email),
+      user_id,
+      user_name,
+      email,
       order_items (
         id,
         product_id,
@@ -191,13 +193,21 @@ export async function getOrders(
     )
     .range(from, to)
     .eq("deleted", false)
-    .ilike("name", `%$gkfnck%`)
     .order("created_at", { ascending: false });
 
+  // 관리자 아닐 경우 본인 주문만
   if (userLevel !== 3) {
     query = query.eq("user_id", userId);
   }
 
+  // 검색어 필터 (user_name 또는 email)
+  if (filter.searchKeyword && filter.searchKeyword.trim() !== "") {
+    query = query.or(
+      `user_name.ilike.%${filter.searchKeyword}%,email.ilike.%${filter.searchKeyword}%`,
+    );
+  }
+
+  // 날짜 필터
   if (filter.recent6Months) {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -215,7 +225,7 @@ export async function getOrders(
 
 export function useGetOrders(
   userId: string,
-  filter: { year?: number; recent6Months?: boolean },
+  filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
   page?: number,
   limit?: number,
   userLevel?: number,

@@ -18,7 +18,7 @@ const menu = [
   {
     name: "주문 상태 관리",
     currentPage: "/products/orderList",
-    href: "/products/orderList?page=1",
+    href: "/products/orderList?query=&page=1",
   },
 ];
 

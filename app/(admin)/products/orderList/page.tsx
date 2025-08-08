@@ -4,7 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { updateDeliveryStatus } from "@/lib/actions/admin";
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { LoaderCircle, PackageX, Search } from "lucide-react";
+import { LoaderCircle, PackageX, Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -18,16 +18,23 @@ export default function AdminOrderList() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [recent6Months, setRecent6Months] = useState(true);
 
+  const keyword = searchParams.get("query") ?? "";
+  const [searchInput, setSearchInput] = useState(keyword);
+
   const currentPage = Number(searchParams.get("page") ?? 1);
 
   const handlePageChange = (selected: { selected: number }) => {
     const newPage = selected.selected + 1;
-    router.push(`/products/orderList?page=${newPage}`);
+    router.push(`/products/orderList?query=${keyword}&page=${newPage}`);
+  };
+
+  const handleSearch = () => {
+    router.push(`/products/orderList?query=${searchInput}&page=1`);
   };
 
   const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
-    { recent6Months, year: selectedYear ?? undefined },
+    { recent6Months, year: selectedYear ?? undefined, searchKeyword: keyword },
     currentPage,
     1,
     user?.level ?? 0,
@@ -77,13 +84,34 @@ export default function AdminOrderList() {
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
       <h2 className="text-xl font-bold">주문 관리</h2>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 relative w-full">
         <input
           type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
           placeholder="주문자 이름 또는 이메일 검색"
-          className="w-full px-4 py-2 border rounded-md text-sm"
+          className="w-full px-4 py-2 pr-10 border rounded-md text-sm"
         />
-        <button className="p-2 text-black border rounded-md cursor-pointer">
+
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchInput("");
+            }}
+            className="absolute right-[52px] top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <X size={18} />
+          </button>
+        )}
+
+        <button
+          onClick={handleSearch}
+          className="p-2 text-black border rounded-md cursor-pointer"
+        >
           <Search size={20} />
         </button>
       </div>
@@ -140,7 +168,7 @@ export default function AdminOrderList() {
                     : "날짜 정보 없음"}
                 </p>
                 <p className="text-sm text-gray-500">
-                  주문자: {order.user?.user_name} ({order.user?.email})
+                  주문자: {order.user_name} ({order.email})
                 </p>
               </div>
               <button
