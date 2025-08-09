@@ -41,7 +41,7 @@ export default function AdminOrderList() {
 
   const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
-    { recent6Months, year: selectedYear ?? undefined, searchKeyword: keyword },
+    { searchKeyword: keyword, recent6Months, year: selectedYear ?? undefined },
     currentPage,
     1,
     user?.level ?? 0,
@@ -99,8 +99,8 @@ export default function AdminOrderList() {
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSearch();
           }}
-          placeholder="주문자 이름 또는 이메일 검색"
-          className="w-full px-4 py-2 pr-10 border rounded-md text-sm"
+          placeholder="주문자 이름 또는 이메일 검색 가능"
+          className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
         />
 
         {searchInput && (

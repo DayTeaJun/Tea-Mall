@@ -5,7 +5,14 @@ import CartBtn from "@/components/common/buttons/CartBtn";
 import Modal from "@/components/common/Modal";
 import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { LoaderCircle, PackageX, ShoppingCart } from "lucide-react";
+import {
+  LoaderCircle,
+  PackageX,
+  RefreshCcw,
+  Search,
+  ShoppingCart,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -18,16 +25,31 @@ export default function OrderList() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [recent6Months, setRecent6Months] = useState(true);
 
+  const keyword = searchParams.get("query") ?? "";
+  const [searchInput, setSearchInput] = useState(keyword);
+
   const currentPage = Number(searchParams.get("page") ?? 1);
 
   const handlePageChange = (selected: { selected: number }) => {
     const newPage = selected.selected + 1;
-    router.push(`/mypage/orderList?page=${newPage}`);
+    router.push(`/products/orderList?query=${keyword}&page=${newPage}`);
+  };
+
+  const handleSearch = () => {
+    router.push(`/products/orderList?query=${searchInput}&page=1`);
+  };
+
+  const handleSearchRefresh = () => {
+    setRecent6Months(true);
+    setSelectedYear(null);
+    setSearchInput("");
+    router.push("/products/orderList?query=&page=1");
   };
 
   const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
     {
+      searchKeyword: keyword,
       recent6Months,
       year: selectedYear ?? undefined,
     },
@@ -79,36 +101,78 @@ export default function OrderList() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-xl font-bold mb-4">주문 내역</h2>
+      <h2 className="text-xl font-bold">주문 내역</h2>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex items-center gap-2 relative w-full">
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+          placeholder="주문한 상품을 검색할 수 있습니다."
+          className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
+        />
+
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchInput("");
+            }}
+            className="absolute right-[52px] top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <X size={18} />
+          </button>
+        )}
+
         <button
-          type="button"
-          className={`px-4 py-2 rounded-md ${
-            recent6Months
-              ? "bg-gray-300 text-white"
-              : "text-gray-700 hover:bg-gray-300 hover:text-white"
-          }`}
-          onClick={handleRecentClick}
+          onClick={handleSearch}
+          className="p-2 text-black border rounded-md cursor-pointer"
         >
-          최근 6개월
+          <Search size={20} />
         </button>
-        {Array.from({ length: 6 }, (_, i) => {
-          const year = new Date().getFullYear() - i;
-          return (
-            <button
-              key={year}
-              onClick={() => handleYearClick(year)}
-              className={`px-4 py-2 rounded-md cursor-pointer ${
-                selectedYear === year
-                  ? "bg-gray-300 text-white"
-                  : "text-gray-700 hover:bg-gray-300 hover:text-white"
-              }`}
-            >
-              {year}
-            </button>
-          );
-        })}
+      </div>
+
+      <div className="flex justify-between items-center">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={`px-4 py-2 rounded-md ${
+              recent6Months
+                ? "bg-gray-300 text-white"
+                : "text-gray-700 hover:bg-gray-300 hover:text-white"
+            }`}
+            onClick={handleRecentClick}
+          >
+            최근 6개월
+          </button>
+          {Array.from({ length: 6 }, (_, i) => {
+            const year = new Date().getFullYear() - i;
+            return (
+              <button
+                key={year}
+                onClick={() => handleYearClick(year)}
+                className={`px-4 py-2 rounded-md cursor-pointer ${
+                  selectedYear === year
+                    ? "bg-gray-300 text-white"
+                    : "text-gray-700 hover:bg-gray-300 hover:text-white"
+                }`}
+              >
+                {year}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => handleSearchRefresh()}
+          className="flex items-center gap-2 px-4 py-2 rounded-md border text-sm"
+        >
+          <RefreshCcw size={16} />
+          검색 초기화
+        </button>
       </div>
 
       {isLoading ? (
@@ -159,11 +223,11 @@ export default function OrderList() {
             </div>
 
             <ul className="flex flex-col gap-1">
-              {order.order_items.map((item, i) => (
+              {order?.order_items?.map((item, i) => (
                 <li
                   key={i}
                   className={`p-4 flex flex-col gap-4 bg-white ${
-                    order.order_items.length - i !== 1 ? "border-b" : ""
+                    order?.order_items?.length - i !== 1 ? "border-b" : ""
                   }`}
                 >
                   <div className="flex justify-between items-center gap-4">

@@ -85,6 +85,13 @@ export type Database = {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "detailed_orders_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
@@ -326,12 +333,46 @@ export type Database = {
       }
     }
     Views: {
-      orders_with_user_info: {
+      detailed_orders_view: {
         Row: {
           created_at: string | null
           deleted: boolean | null
+          delivery_status: string | null
           email: string | null
           id: string | null
+          image_url: string | null
+          order_item_id: string | null
+          price: number | null
+          product_id: string | null
+          product_name: string | null
+          quantity: number | null
+          size: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders_with_user_info: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          order_items: Json | null
           user_id: string | null
           user_name: string | null
         }
