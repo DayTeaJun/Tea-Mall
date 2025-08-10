@@ -85,13 +85,6 @@ export type Database = {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
-            referencedRelation: "detailed_orders_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
@@ -100,6 +93,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders_with_user_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_user_product_names"
             referencedColumns: ["id"]
           },
           {
@@ -333,31 +333,17 @@ export type Database = {
       }
     }
     Views: {
-      detailed_orders_view: {
+      orders_with_user_info: {
         Row: {
           created_at: string | null
           deleted: boolean | null
-          delivery_status: string | null
           email: string | null
           id: string | null
-          image_url: string | null
-          order_item_id: string | null
-          price: number | null
-          product_id: string | null
-          product_name: string | null
-          quantity: number | null
-          size: string | null
+          product_names: string | null
           user_id: string | null
           user_name: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
@@ -367,12 +353,14 @@ export type Database = {
           },
         ]
       }
-      orders_with_user_info: {
+      orders_with_user_product_names: {
         Row: {
           created_at: string | null
+          deleted: boolean | null
           email: string | null
           id: string | null
           order_items: Json | null
+          product_names: string | null
           user_id: string | null
           user_name: string | null
         }
