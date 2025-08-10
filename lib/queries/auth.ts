@@ -169,25 +169,42 @@ export async function getOrders(
 
   let query = supabase
     .from("orders_with_user_info")
-    .select("*", { count: "exact" })
+    .select(
+      `
+      id,
+      created_at,
+      user_id,
+      user_name,
+      email,
+      order_items (
+        id,
+        product_id,
+        quantity,
+        price,
+        size,
+        delivery_status,
+        products (
+          name,
+          image_url
+        )
+      )
+    `,
+      { count: "exact" },
+    )
     .range(from, to)
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
-  // 본인 주문만
+  // 관리자 아닐 경우 본인 주문만
   if (userLevel !== 3) {
     query = query.eq("user_id", userId);
   }
 
-  // 검색어 필터링
+  // 검색어 필터 (user_name 또는 email)
   if (filter.searchKeyword && filter.searchKeyword.trim() !== "") {
-    const keyword = `%${filter.searchKeyword.trim()}%`;
-
-    if (userLevel === 3) {
-      query = query.or(`user_name.ilike.${keyword},email.ilike.${keyword}`);
-    } else {
-      query = query.ilike("product_name", keyword);
-    }
+    query = query.or(
+      `user_name.ilike.%${filter.searchKeyword}%,email.ilike.%${filter.searchKeyword}%`,
+    );
   }
 
   // 날짜 필터
@@ -206,72 +223,24 @@ export async function getOrders(
   return { data, count };
 }
 
-type ProductLite = { name: string; image_url: string | null };
-type OrderItem = {
-  id: string;
-  product_id: string;
-  quantity: number;
-  price: number;
-  size: string | null;
-  delivery_status: string | null;
-  products: ProductLite;
-};
-type OrderRow = {
-  id: string;
-  created_at: string | null;
-  user_id: string;
-  user_name?: string | null;
-  email?: string | null;
-  order_items: OrderItem[] | null; // ← Supabase JSON에서 올 수 있으니 null 허용
-};
-type OrdersResponse = { data: OrderRow[]; count: number | null };
-
 export function useGetOrders(
   userId: string,
   filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
-  page = 1,
-  limit = 10,
+  page?: number,
+  limit?: number,
   userLevel?: number,
 ) {
-  const { data, isLoading, isError } = useQuery<OrdersResponse>({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["orders", userId, filter, page, limit, userLevel],
-    queryFn: async () => {
-      const raw = await getOrders(userId, filter, page, limit, userLevel);
-
-      // 안전 가공: order_items를 항상 OrderItem[]로 강제
-      const normalized: OrdersResponse = {
-        count: raw.count ?? 0,
-        data: (raw.data ?? []).map((row: any) => ({
-          id: String(row.id),
-          created_at: row.created_at ?? null,
-          user_id: String(row.user_id),
-          user_name: row.user_name ?? null,
-          email: row.email ?? null,
-          order_items: Array.isArray(row.order_items)
-            ? row.order_items.map(
-                (oi: any): OrderItem => ({
-                  id: String(oi.id),
-                  product_id: String(oi.product_id),
-                  quantity: Number(oi.quantity ?? 0),
-                  price: Number(oi.price ?? 0),
-                  size: oi.size ?? null,
-                  delivery_status: oi.delivery_status ?? null,
-                  products: {
-                    name: oi.products?.name ?? "",
-                    image_url: oi.products?.image_url ?? null,
-                  },
-                }),
-              )
-            : [], // ← non-array면 빈배열
-        })),
-      };
-
-      return normalized;
-    },
+    queryFn: () => getOrders(userId, filter, page, limit, userLevel),
     enabled: !!userId,
   });
 
-  return { data, isLoading, isError };
+  return {
+    data,
+    isLoading,
+    isError,
+  };
 }
 
 // 주문 상세 조회
