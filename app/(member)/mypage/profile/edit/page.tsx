@@ -51,8 +51,13 @@ export default function EditProfilePage() {
   };
 
   const handleSubmit = async () => {
-    if (!userName || !fullPhone || !user) {
+    if (!userName || !user) {
       toast.info("모든 필수 항목을 입력해 주세요.");
+      return;
+    }
+
+    if (!phone1 || !phone2 || !phone3) {
+      toast.info("전화번호를 전부 입력해 주세요.");
       return;
     }
 
