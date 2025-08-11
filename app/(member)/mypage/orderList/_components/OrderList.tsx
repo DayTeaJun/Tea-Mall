@@ -3,7 +3,7 @@
 import ReactPaginate from "react-paginate";
 import CartBtn from "@/components/common/buttons/CartBtn";
 import Modal from "@/components/common/Modal";
-import { useGetUserOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
+import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import {
   LoaderCircle,
@@ -46,7 +46,7 @@ export default function OrderList() {
     router.push("/mypage/orderList?query=&page=1");
   };
 
-  const { data: orders, isLoading } = useGetUserOrders(
+  const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
     {
       searchKeyword: keyword,

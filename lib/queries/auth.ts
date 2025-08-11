@@ -155,7 +155,7 @@ export const uploadImageToStorageProfile = async (
   return publicUrl;
 };
 
-// 주문목록 조회 (관리자용)
+// 주문목록 조회 (사용자 및 관리자용)
 export async function getOrders(
   userId: string,
   filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
@@ -200,11 +200,15 @@ export async function getOrders(
     query = query.eq("user_id", userId);
   }
 
-  // 검색어 필터 (user_name 또는 email)
   if (filter.searchKeyword && filter.searchKeyword.trim() !== "") {
-    query = query.or(
-      `user_name.ilike.%${filter.searchKeyword}%,email.ilike.%${filter.searchKeyword}%`,
-    );
+    if (userLevel === 3) {
+      query = query.or(
+        `user_name.ilike.%${filter.searchKeyword}%,email.ilike.%${filter.searchKeyword}%`,
+      );
+    } else {
+      const kw = `%${filter.searchKeyword.trim()}%`;
+      query = query.ilike("product_names", kw);
+    }
   }
 
   // 날짜 필터
@@ -241,84 +245,6 @@ export function useGetOrders(
     isLoading,
     isError,
   };
-}
-
-// 사용자용 주문목록 조회 (상품명 검색 가능)
-export async function getUserOrders(
-  userId: string,
-  filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
-  page = 1,
-  limit = 10,
-) {
-  const supabase = createBrowserSupabaseClient();
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  let query = supabase
-    .from("orders_with_user_info")
-    .select(
-      `
-      id,
-      created_at,
-      user_id,
-      user_name,
-      email,
-      product_names,
-      order_items (
-        id,
-        product_id,
-        quantity,
-        price,
-        size,
-        delivery_status,
-        products (
-          name,
-          image_url
-        )
-      )
-    `,
-      { count: "exact" },
-    )
-    .eq("deleted", false)
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .range(from, to);
-
-  // 상품명 검색 (뷰의 product_names 대상)
-  if (filter.searchKeyword && filter.searchKeyword.trim() !== "") {
-    const kw = `%${filter.searchKeyword.trim()}%`;
-    query = query.ilike("product_names", kw);
-  }
-
-  // 기간 필터
-  if (filter.recent6Months) {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    query = query.gte("created_at", sixMonthsAgo.toISOString());
-  } else if (filter.year) {
-    const start = new Date(filter.year, 0, 1).toISOString();
-    const end = new Date(filter.year + 1, 0, 1).toISOString();
-    query = query.gte("created_at", start).lt("created_at", end);
-  }
-
-  const { data, count, error } = await query;
-  if (error) throw new Error(error.message);
-  return { data, count };
-}
-
-export function useGetUserOrders(
-  userId: string,
-  filter: { searchKeyword?: string; year?: number; recent6Months?: boolean },
-  page?: number,
-  limit?: number,
-) {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["userOrders", userId, filter, page, limit],
-    queryFn: () => getUserOrders(userId, filter, page, limit),
-    enabled: !!userId,
-  });
-
-  return { data, isLoading, isError };
 }
 
 // 주문 상세 조회
