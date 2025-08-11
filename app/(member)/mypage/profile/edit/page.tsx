@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   uploadImageToStorageProfile,
   useMyProfileQuery,
@@ -12,6 +12,9 @@ import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import DaumPost from "../../../../../components/common/AddressSearch";
 import { useRouter } from "next/navigation";
+import PasswordGate, {
+  hasValidProfileEditVerification,
+} from "./_components/PasswordGate";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -85,6 +88,16 @@ export default function EditProfilePage() {
       }
     }
   };
+
+  const [isVerified, setIsVerified] = useState(false);
+
+  useEffect(() => {
+    setIsVerified(hasValidProfileEditVerification());
+  }, []);
+
+  if (!isVerified) {
+    return <PasswordGate onVerified={() => setIsVerified(true)} />;
+  }
 
   if (isLoading) return <div>로딩 중...</div>;
 
