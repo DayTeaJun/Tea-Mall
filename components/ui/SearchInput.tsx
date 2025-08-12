@@ -19,7 +19,7 @@ function SearchInput() {
       toast.info("검색어를 입력해주세요.");
       return;
     }
-    router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
+    router.push(`/search?query=${encodeURIComponent(searchQuery)}&page=1`);
   };
 
   return (

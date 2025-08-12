@@ -223,26 +223,37 @@ export const useDeleteCartItemMutation = (userId: string) => {
 };
 
 // 상품 검색 쿼리
-const getSearchProducts = async (query: string): Promise<ProductType[]> => {
-  if (!query.trim()) return [];
+const getSearchProducts = async (
+  query: string,
+  page: number,
+  limit: number,
+) => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*", { count: "exact" })
+    .range(from, to)
     .eq("deleted", false)
-    .ilike("name", `%${query}%`);
+    .ilike("name", `%${query}%`)
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data ?? [];
+  return { data, count };
 };
 
-export const useSearchProductsQuery = (query: string) => {
-  const { data, isLoading } = useQuery<ProductType[]>({
-    queryKey: ["searchProducts", query],
-    queryFn: () => getSearchProducts(query),
+export const useSearchProductsQuery = (
+  query: string,
+  page: number,
+  limit: number,
+) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["searchProducts", query, page, limit],
+    queryFn: () => getSearchProducts(query, page, limit),
     enabled: !!query.trim(),
   });
 
