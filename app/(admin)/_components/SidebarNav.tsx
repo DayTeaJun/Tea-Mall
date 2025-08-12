@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { UserCog } from "lucide-react";
+import { User, UserCog } from "lucide-react";
 
 const menu = [
   {
@@ -27,11 +27,12 @@ export default function SidebarNav() {
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
-      <ul className="flex flex-col gap-4 h-[70%]">
+      <ul className="flex flex-col gap-4 h-[50vh]">
         <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
           <UserCog size={16} />
           관리자 전용
         </p>
+
         {menu.map(({ name, href, currentPage }) => {
           const isActive = pathname.startsWith(currentPage);
 
@@ -51,6 +52,15 @@ export default function SidebarNav() {
           );
         })}
       </ul>
+
+      <div className="mt-4 pt-4 border-t">
+        <Link
+          href="/mypage/profile"
+          className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
+        >
+          <User size={14} />내 정보 메뉴 이동
+        </Link>
+      </div>
     </nav>
   );
 }

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import SidebarNav from "./_components/Sidebar";
+import SidebarNav from "./_components/SidebarNav";
 
 export default function MyPageLayout({ children }: { children: ReactNode }) {
   return (
