@@ -46,7 +46,7 @@ export default async function ProductReview({
             이미 이 상품에 대한 리뷰를 작성하셨습니다. 이 상품에 대해 작성한
             리뷰를 수정할 수 있습니다.
           </p>
-          <ReviewEditForm product={product} />
+          <ReviewEditForm product={product} userId={user.id} />
         </>
       ) : (
         <>

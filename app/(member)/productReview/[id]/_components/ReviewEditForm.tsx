@@ -10,49 +10,64 @@ import { Button } from "@/components/ui/button";
 import DetailImagePreview from "@/app/(admin)/products/regist/_components/DetailImagePreview";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 
-function ReviewEditForm({ product }: { product: ProductType }) {
+function ReviewEditForm({
+  product,
+  userId,
+}: {
+  product: ProductType;
+  userId: string;
+}) {
   const [ratingValue, setRatingValue] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+
+  // 새로 추가하는 이미지(파일) & 미리보기
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
-  const [existingImages, setExistingImages] = useState<string[]>([]);
-  const router = useRouter();
 
+  // 화면에서 유지하기로 선택된 기존 이미지(public URL)
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  // 최초 로드된 원본 이미지(public URL) — 상품수정의 oldDetailImageIds와 유사한 스냅샷 역할
+  const [originalImages, setOriginalImages] = useState<string[]>([]);
+
+  const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET!;
+
+  // public URL → storage 경로로 변환
+  const publicUrlToPath = (url: string) => {
+    const marker = `/object/public/${BUCKET}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return "";
+    return url.substring(idx + marker.length);
+  };
 
   useEffect(() => {
     const fetchReview = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (!user || userError) {
-        toast.error("로그인이 필요합니다.");
-        return;
-      }
-
       const { data: review, error } = await supabase
         .from("reviews")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("product_id", product.id)
         .single();
 
       if (error || !review) {
-        toast.error("리뷰 정보를 불러오지 못했습니다.");
+        toast.error(
+          "리뷰 정보를 불러오지 못했습니다. 관리자에게 문의해주세요.",
+        );
         return;
       }
 
       setRatingValue(review.rating);
       setReviewText(review.content);
-      if (review.images?.length) {
-        setExistingImages(review.images);
-      }
+
+      const imgs: string[] = Array.isArray(review.images) ? review.images : [];
+      setExistingImages(imgs);
+      setOriginalImages(imgs); // 스냅샷 확정 (이후 절대 변경하지 않음)
     };
 
     fetchReview();
-  }, [product.id]);
+  }, [product.id, userId]);
 
   const handleStarClick = (index: number) => setRatingValue(index + 1);
 
@@ -62,49 +77,51 @@ function ReviewEditForm({ product }: { product: ProductType }) {
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      toast.error("로그인이 필요합니다.");
-      return;
-    }
-
+    // 1) 새 파일 업로드
     const uploadedUrls: string[] = [];
-
     for (const file of detailFiles) {
-      const filePath = `reviews/${user.id}/${Date.now()}-${file.name}`;
-      const { error } = await supabase.storage
-        .from(process.env.NEXT_PUBLIC_STORAGE_BUCKET!)
+      const filePath = `reviews/${userId}/${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET)
         .upload(filePath, file);
-
-      if (error) {
+      if (uploadError) {
         toast.error("이미지 업로드 실패");
         return;
       }
-
       const { data: urlData } = supabase.storage
-        .from(process.env.NEXT_PUBLIC_STORAGE_BUCKET!)
+        .from(BUCKET)
         .getPublicUrl(filePath);
-
       uploadedUrls.push(urlData.publicUrl);
     }
 
-    const { error } = await supabase
+    // 2) 삭제 대상 계산: 원본 - 현재 유지 중인 기존 이미지
+    const removed = originalImages.filter((u) => !existingImages.includes(u));
+
+    // 3) 스토리지에서 제거 (실패하더라도 저장 자체는 진행)
+    if (removed.length > 0) {
+      const deletePaths = removed
+        .map(publicUrlToPath)
+        .filter((p) => typeof p === "string" && p.length > 0);
+      if (deletePaths.length > 0) {
+        await supabase.storage.from(BUCKET).remove(deletePaths);
+      }
+    }
+
+    // 4) DB 반영: "남겨둔 기존 + 새 업로드"
+    //    detailPreviews는 UI 전용이므로 DB에 절대 넣지 않음
+    const nextImages = [...existingImages, ...uploadedUrls];
+
+    const { error: updateError } = await supabase
       .from("reviews")
       .update({
         rating: ratingValue,
         content: reviewText,
-        images:
-          uploadedUrls.length > 0
-            ? [...existingImages, ...uploadedUrls]
-            : [...existingImages, ...detailPreviews],
+        images: nextImages,
       })
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("product_id", product.id);
 
-    if (error) {
+    if (updateError) {
       toast.error("리뷰 수정 실패");
       return;
     }
@@ -151,15 +168,18 @@ function ReviewEditForm({ product }: { product: ProductType }) {
         onChange={(e) => setReviewText(e.target.value)}
         className="w-full border p-3 text-sm rounded mb-4"
         placeholder="수정할 리뷰 내용을 입력해주세요."
-      ></textarea>
+      />
 
+      {/* 화면 표시용으로만 기존 + 새 미리보기 합쳐서 전달 */}
       <DetailImagePreview
         previews={[...existingImages, ...detailPreviews]}
         onUpload={detailOnUpload}
         onRemove={(index) => {
           if (index < existingImages.length) {
+            // 기존 이미지 제거 → existingImages에서만 제외 (스토리지 삭제는 저장 시 일괄)
             setExistingImages((prev) => prev.filter((_, i) => i !== index));
           } else {
+            // 새 이미지 제거
             removeDetailImage(index - existingImages.length);
           }
         }}
