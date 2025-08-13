@@ -28,7 +28,7 @@ function ProductCard({ products }: { products: ProductType }) {
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full hover:shadow-2xl transition-all duration-300 p-4 pt-0 group"
+      className="w-full h-fit hover:shadow-2xl transition-all duration-300 p-4 pt-0 group"
     >
       <div className="w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
@@ -58,7 +58,7 @@ function ProductCard({ products }: { products: ProductType }) {
         {products.price.toLocaleString()}원
       </p>
 
-      {reviewCount > 0 && (
+      {reviewCount > 0 ? (
         <div className="flex items-center gap-1 mt-1">
           {[...Array(maxRating)].map((_, index) => {
             const isFilled = index < avgRating;
@@ -76,6 +76,8 @@ function ProductCard({ products }: { products: ProductType }) {
             ({reviewCount})
           </p>
         </div>
+      ) : (
+        <div className="h-5" />
       )}
     </Link>
   );

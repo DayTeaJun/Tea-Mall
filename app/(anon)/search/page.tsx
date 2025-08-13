@@ -20,7 +20,7 @@ export default function SearchPage() {
     8,
   );
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 10;
 
   const totalCount = products?.count ?? 0;
 
@@ -49,8 +49,8 @@ export default function SearchPage() {
       </p>
 
       {isLoading ? (
-        <section className="min-h-[calc(100vh-329px)] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {Array.from({ length: 8 }).map((_, idx) => (
+        <section className="min-h-[calc(100vh-329px)] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {Array.from({ length: 10 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </section>
