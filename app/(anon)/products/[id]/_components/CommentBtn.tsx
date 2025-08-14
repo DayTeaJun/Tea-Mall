@@ -7,37 +7,62 @@ import { useEffect, useState } from "react";
 
 function CommentBtn({ productId }: { productId: string }) {
   const { user } = useAuthStore();
+
   const [hasReview, setHasReview] = useState<boolean | null>(null);
+  const [canReview, setCanReview] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkReview = async () => {
+    const checkReviewAndEligibility = async () => {
       if (!user?.id) return;
 
       const supabase = createBrowserSupabaseClient();
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("product_id", productId)
-        .maybeSingle();
 
-      if (!error && data) {
-        setHasReview(true);
-      } else {
-        setHasReview(false);
-      }
+      const reviewPromise = supabase
+        .from("reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("product_id", productId);
+
+      const deliveredPromise = supabase
+        .from("orders")
+        .select("id, order_items!inner(product_id, delivery_status)", {
+          count: "exact",
+          head: true,
+        })
+        .eq("user_id", user.id)
+        .eq("deleted", false)
+        .eq("order_items.product_id", productId)
+        .eq("order_items.delivery_status", "배송완료");
+
+      const [
+        { count: reviewCount, error: reviewErr },
+        { count: deliveredCount, error: deliveredErr },
+      ] = await Promise.all([reviewPromise, deliveredPromise]);
+
+      setHasReview(!reviewErr && (reviewCount ?? 0) > 0);
+      setCanReview(!deliveredErr && (deliveredCount ?? 0) > 0);
     };
 
-    checkReview();
+    checkReviewAndEligibility();
   }, [user?.id, productId]);
 
-  if (!user || hasReview === null) return null;
+  if (!user || hasReview === null || canReview === null) return null;
 
+  if (!canReview && !hasReview) {
+    return (
+      <span
+        className="text-sm text-gray-400 cursor-default"
+        title="배송완료된 주문 고객만 리뷰를 작성할 수 있습니다."
+      >
+        리뷰 작성하기
+      </span>
+    );
+  }
+
+  const label = hasReview ? "리뷰 수정하기" : "리뷰 작성하기";
   return (
     <Link href={`/productReview/${productId}`} className="cursor-pointer">
-      <span className="text-sm text-blue-600 hover:underline">
-        {hasReview ? "리뷰 수정하기" : "리뷰 작성하기"}
-      </span>
+      <span className="text-sm text-blue-600 hover:underline">{label}</span>
     </Link>
   );
 }

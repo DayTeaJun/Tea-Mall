@@ -85,6 +85,7 @@ export default function ProductListPage() {
                         height={200}
                         src={product.image_url}
                         alt={product.name}
+                        priority
                         className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
                       />
                     ) : (
