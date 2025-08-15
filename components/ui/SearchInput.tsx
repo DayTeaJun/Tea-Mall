@@ -64,7 +64,7 @@ function SearchInput() {
         text-gray-400 hover:text-gray-600
         transition-opacity
         ${
-          searchQuery
+          searchQuery && isOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }
