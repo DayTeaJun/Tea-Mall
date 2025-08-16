@@ -11,22 +11,24 @@ function FindPasswordForm() {
   const [email, setEmail] = useState("");
   const [emailValid, setEmailValid] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const [step, setStep] = useState<"input" | "sent">("input");
 
   const isFormValid = emailValid === "중복된 이메일입니다.";
-
   const supabase = createBrowserSupabaseClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isFormValid) return;
+    if (!isFormValid || isLoading) return;
 
     setIsLoading(true);
 
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const redirectTo = `${origin}/reset-password?email=${encodeURIComponent(
+      email,
+    )}`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+      redirectTo,
     });
 
     setIsLoading(false);
@@ -67,6 +69,7 @@ function FindPasswordForm() {
       <p className="text-[13px] text-gray-500">
         비밀번호를 변경할 계정의 이메일을 입력해주세요.
       </p>
+
       <form
         onSubmit={handleSubmit}
         className="flex flex-col p-5 max-w-[500px] w-full"
