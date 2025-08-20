@@ -28,15 +28,15 @@ function ProductCard({ products }: { products: ProductType }) {
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full h-fit hover:shadow-2xl transition-all duration-300 p-4 pt-0 group"
+      className="w-full h-fit hover:shadow-2xl transition-all duration-300 sm:p-4 pt-0 group flex gap-2 sm:block"
     >
-      <div className="w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
+      <div className="w-40 sm:w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
           <Image
             fill
             src={products.image_url}
             alt={products.name}
-            className="object-cover w-full h-full group-hover:scale-105 duration-200 transition-all"
+            className="object-cover w-40 sm:w-full h-full group-hover:scale-105 duration-200 transition-all"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -52,33 +52,37 @@ function ProductCard({ products }: { products: ProductType }) {
           </span>
         )}
       </div>
-      <h3 className="text-lg font-medium">{products.name}</h3>
+      <div className="sm:block flex flex-col">
+        <h3 className="text-lg font-medium">{products.name}</h3>
 
-      <p className="mt-1 text-red-600 font-bold tracking-wide">
-        {products.price.toLocaleString()}원
-      </p>
+        <p className="mt-1 text-red-600 font-bold tracking-wide">
+          {products.price.toLocaleString()}원
+        </p>
 
-      {reviewCount > 0 ? (
-        <div className="flex items-center gap-1 mt-1">
-          {[...Array(maxRating)].map((_, index) => {
-            const isFilled = index < avgRating;
-            return (
-              <Star
-                key={index}
-                size={16}
-                className={
-                  isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
-                }
-              />
-            );
-          })}
-          <p className="text-gray-500 text-xs font-bold tracking-widest ml-1">
-            ({reviewCount})
-          </p>
-        </div>
-      ) : (
-        <div className="h-5" />
-      )}
+        {reviewCount > 0 ? (
+          <div className="flex items-center gap-1 mt-1">
+            {[...Array(maxRating)].map((_, index) => {
+              const isFilled = index < avgRating;
+              return (
+                <Star
+                  key={index}
+                  size={16}
+                  className={
+                    isFilled
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300"
+                  }
+                />
+              );
+            })}
+            <p className="text-gray-500 text-xs font-bold tracking-widest ml-1">
+              ({reviewCount})
+            </p>
+          </div>
+        ) : (
+          <div className="h-5" />
+        )}
+      </div>
     </Link>
   );
 }

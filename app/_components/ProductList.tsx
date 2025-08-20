@@ -8,7 +8,7 @@ export default function ProductList() {
   const { data: products, isLoading } = useProductAllToMainQuery();
 
   return (
-    <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+    <section className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
       {isLoading
         ? Array.from({ length: 8 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />

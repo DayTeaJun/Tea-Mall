@@ -30,7 +30,7 @@ export default function MainCarousel() {
   };
 
   return (
-    <div className="relative w-full h-[400px] overflow-hidden mt-4">
+    <div className="relative w-full h-[200px] sm:h-[400px] overflow-hidden sm:mt-4">
       {images.map((img, i) => (
         <div
           key={i}
