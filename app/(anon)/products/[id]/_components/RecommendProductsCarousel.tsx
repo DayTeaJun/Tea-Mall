@@ -43,9 +43,9 @@ export default function RecommendProductsCarousel() {
           products.map((product) => (
             <div
               key={product.id}
-              className="w-[calc(100%/2-16px)] md:w-[calc(100%/3-16px)] lg:w-[calc(100%/4-16px)] flex-shrink-0 py-2"
+              className="w-[calc(100%/2-16px)]  md:w-[calc(100%/3-16px)] lg:w-[calc(100%/4-16px)] flex-shrink-0 py-2"
             >
-              <ProductCard products={product} />
+              <ProductCard recommend={true} products={product} />
             </div>
           ))}
       </div>

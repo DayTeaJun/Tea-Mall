@@ -6,7 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
-function ProductCard({ products }: { products: ProductType }) {
+function ProductCard({
+  products,
+  recommend,
+}: {
+  products: ProductType;
+  recommend: boolean;
+}) {
   const [imageError, setImageError] = useState(false);
 
   const ratings = Object.values(products.rating_map ?? {}) as number[];
@@ -28,7 +34,9 @@ function ProductCard({ products }: { products: ProductType }) {
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className="w-full h-fit hover:shadow-2xl transition-all duration-300 sm:p-4 pt-0 group flex gap-2 sm:block"
+      className={`w-full h-fit hover:shadow-2xl transition-all duration-300 sm:p-4 pt-0 group flex gap-2 sm:block ${
+        recommend ? "flex-col" : "flex-row"
+      }`}
     >
       <div className="w-40 sm:w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (

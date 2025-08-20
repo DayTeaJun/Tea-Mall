@@ -46,7 +46,7 @@ export default function ProductImageSection({
         </div>
       )}
 
-      <div className="flex items-start justify-center w-[50%] h-[400px] flex-1">
+      <div className="flex items-start justify-center w-[50%] h-[200px] sm:h-[400px] flex-1">
         {hasImages ? (
           currentImage ? (
             <Image
