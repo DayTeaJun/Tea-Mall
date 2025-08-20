@@ -11,7 +11,7 @@ function ProductCard({
   recommend,
 }: {
   products: ProductType;
-  recommend: boolean;
+  recommend?: boolean;
 }) {
   const [imageError, setImageError] = useState(false);
 
@@ -34,11 +34,11 @@ function ProductCard({
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className={`w-full h-fit hover:shadow-2xl transition-all duration-300 sm:p-4 pt-0 group flex gap-2 sm:block ${
+      className={`w-full h-fit hover:shadow-2xl transition-all duration-300 sm:p-4 pt-0 group flex gap-3 sm:block ${
         recommend ? "flex-col" : "flex-row"
       }`}
     >
-      <div className="w-40 sm:w-full h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
+      <div className="w-40 sm:w-full h-40 sm:h-50 lg:h-60 mb-2 relative flex items-center justify-center bg-gray-50 overflow-hidden">
         {!imageError && products.image_url ? (
           <Image
             fill
