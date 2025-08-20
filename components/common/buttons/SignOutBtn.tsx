@@ -24,8 +24,8 @@ function SignOutBtn() {
       type="button"
       className="text-black flex gap-2 items-center cursor-pointer"
     >
-      <p className="text-[14px] ">로그아웃</p>
-      <LogOut size={20} />
+      <p className="text-[12px] sm:text-[14px]">로그아웃</p>
+      <LogOut size={20} className="hidden sm:block" />
     </button>
   );
 }

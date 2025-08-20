@@ -24,8 +24,8 @@ function SearchInput() {
 
   return (
     <div
-      className={`flex items-center space-x-2 relative ${
-        isOpen && "border rounded-2xl"
+      className={`flex items-center relative box-border ${
+        isOpen && "border rounded-2xl "
       } p-1`}
     >
       <button
