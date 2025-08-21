@@ -114,7 +114,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="flex mt-10 justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:mt-10 justify-between">
         <button
           onClick={() => router.push("/mypage/profile/edit")}
           className="bg-green-700 text-white px-4 p-1 rounded"
@@ -122,7 +122,7 @@ export default function ProfilePage() {
           내 정보 수정
         </button>
 
-        <div className="flex gap-2">
+        <div className="flex justify-between sm:justify-normal sm:gap-2">
           <button
             onClick={() => router.push("/mypage/profile/resetPassword")}
             className="bg-gray-300 px-4 p-1 rounded"
