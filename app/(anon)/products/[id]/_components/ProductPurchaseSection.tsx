@@ -106,8 +106,8 @@ export default function ProductPurchaseSection({
         </Select>
       </div>
 
-      <div className="flex justify-between items-end">
-        <div className="w-1/3">
+      <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row justify-between items-end">
+        <div className="w-full sm:w-1/3">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             수량
           </label>
@@ -122,11 +122,11 @@ export default function ProductPurchaseSection({
               const clamped = Math.min(Math.max(1, val), max);
               setQuantity(clamped);
             }}
-            className="border px-3 py-2 w-20"
+            className="border px-3 py-2 w-full sm:w-20"
             disabled={!selectedSize || currentStock === 0}
           />
         </div>
-        <div className="flex gap-2 w-2/3">
+        <div className="flex gap-2 w-full sm:w-2/3">
           <CartBtn
             className="text-green-600 hover:text-green-900 border-2 hover:border-green-900 cursor-pointer p-2 duration-300 transition-colors"
             productId={productId}
