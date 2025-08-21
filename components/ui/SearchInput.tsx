@@ -24,14 +24,16 @@ function SearchInput() {
 
   return (
     <div
-      className={`flex items-center relative ${
-        isOpen ? "border rounded-2xl" : ""
-      } p-1 gap-2`}
+      className={`
+    flex items-center relative gap-2 p-1 h-10 rounded-2xl
+    ring-1 ${isOpen ? "ring-gray-300" : "ring-transparent"}
+    transition-colors
+  `}
     >
       <button
         type="button"
         onClick={handleToggle}
-        className="p-1 rounded-full hover:bg-gray-200 transition cursor-pointer shrink-0"
+        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition cursor-pointer shrink-0"
         aria-label="검색 열기"
       >
         <Search className="w-5 h-5 text-gray-700" />
@@ -47,7 +49,7 @@ function SearchInput() {
           className={`
         bg-transparent text-gray-700 placeholder-gray-400 focus:outline-none
         transition-[width,opacity] duration-300 ease-in-out
-        ${isOpen ? "opacity-100 w-40 md:w-64" : "opacity-0 w-0"}
+        ${isOpen ? "opacity-100 w-50 md:w-64" : "opacity-0 w-0"}
         pr-7
       `}
           autoFocus={isOpen}
