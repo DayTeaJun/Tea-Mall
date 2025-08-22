@@ -68,39 +68,45 @@ function PasswordForm() {
       className="flex flex-col gap-3 max-w-[500px] w-full"
     >
       <div className="flex items-center gap-4">
-        <p className="w-[120px] text-sm text-gray-600">아이디(이메일)</p>
+        <p className="w-[100px] sm:w-[120px] shrink-0 text-sm text-gray-600">
+          아이디(이메일)
+        </p>
         <p className="flex-1 p-2 text-sm">{user?.email}</p>
       </div>
 
       <div className="flex items-center gap-4">
-        <label className="w-[120px] text-sm text-gray-600">현재 비밀번호</label>
+        <label className="w-[100px] sm:w-[120px] shrink-0 text-sm text-gray-600">
+          현재 비밀번호
+        </label>
         <input
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 text-sm"
+          className="w-full p-2 border border-gray-300 text-sm"
         />
       </div>
 
       <div className="flex items-center gap-4">
-        <label className="w-[120px] text-sm text-gray-600">새 비밀번호</label>
+        <label className="w-[100px] sm:w-[120px] shrink-0 text-sm text-gray-600">
+          새 비밀번호
+        </label>
         <input
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 text-sm"
+          className="w-full p-2 border border-gray-300 text-sm"
         />
       </div>
 
       <div className="flex items-center gap-4">
-        <label className="w-[120px] text-sm text-gray-600">
+        <label className="w-[100px] sm:w-[120px] shrink-0 text-sm text-gray-600">
           새 비밀번호 확인
         </label>
         <input
           type="password"
           value={newPasswordConfirm}
           onChange={(e) => setNewPasswordConfirm(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 text-sm"
+          className="w-full p-2 border border-gray-300 text-sm"
         />
       </div>
 

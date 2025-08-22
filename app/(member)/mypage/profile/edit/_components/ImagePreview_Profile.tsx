@@ -50,7 +50,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onDragEnter={() => setIsDragging(true)}
         onDragLeave={() => setIsDragging(false)}
-        className={`relative w-44 h-44 rounded-full cursor-pointer flex gap-5 mt-2 transition-all duration-200 group ${
+        className={`relative w-32 h-32 sm:w-44 sm:h-44 rounded-full cursor-pointer flex gap-5 mt-2 transition-all duration-200 group ${
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
       >
@@ -59,7 +59,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload }: Props) {
             <Image
               width={176}
               height={176}
-              className="w-44 h-44 object-cover rounded-full"
+              className="w-32 h-32 sm:w-44 sm:h-44 object-cover rounded-full"
               src={isEdited ? imageSrc! : editImage!}
               alt="프로필 이미지"
             />
