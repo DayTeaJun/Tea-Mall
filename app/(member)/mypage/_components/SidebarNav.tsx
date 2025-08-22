@@ -25,7 +25,7 @@ export default function SidebarNav() {
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
-      <div className="md:hidden">
+      <div className="md:hidden relative pb-2">
         <div className="flex gap-2 items-center">
           <button
             type="button"
@@ -48,7 +48,7 @@ export default function SidebarNav() {
         </div>
 
         <ul
-          className={`overflow-hidden transition-[max-height] duration-300 ease-in-out mt-2 ${
+          className={`absolute mt-2 w-full bg-white z-50 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
             open ? "max-h-96 border-b border-t" : "max-h-0"
           }`}
         >
