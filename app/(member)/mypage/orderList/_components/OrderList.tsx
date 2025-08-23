@@ -100,8 +100,8 @@ export default function OrderList() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-xl font-bold">주문 내역</h2>
+    <div className="max-w-7xl mx-auto flex flex-col gap-4 px-0 sm:px-6">
+      <h2 className="text-lg sm:text-xl font-bold">주문 내역</h2>
 
       <div className="flex items-center gap-2 relative w-full">
         <input
@@ -121,7 +121,8 @@ export default function OrderList() {
             onClick={() => {
               setSearchInput("");
             }}
-            className="absolute right-[52px] top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-12 sm:right-[52px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+            aria-label="검색어 지우기"
           >
             <X size={18} />
           </button>
@@ -129,46 +130,49 @@ export default function OrderList() {
 
         <button
           onClick={handleSearch}
-          className="p-2 text-black border rounded-md cursor-pointer"
+          className="p-2 text-black border rounded-md cursor-pointer active:scale-[0.98]"
+          aria-label="검색"
         >
           <Search size={20} />
         </button>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className={`px-4 py-2 rounded-md ${
-              recent6Months
-                ? "bg-gray-300 text-white"
-                : "text-gray-700 hover:bg-gray-300 hover:text-white"
-            }`}
-            onClick={handleRecentClick}
-          >
-            최근 6개월
-          </button>
-          {Array.from({ length: 6 }, (_, i) => {
-            const year = new Date().getFullYear() - i;
-            return (
-              <button
-                key={year}
-                onClick={() => handleYearClick(year)}
-                className={`px-4 py-2 rounded-md cursor-pointer ${
-                  selectedYear === year
-                    ? "bg-gray-300 text-white"
-                    : "text-gray-700 hover:bg-gray-300 hover:text-white"
-                }`}
-              >
-                {year}
-              </button>
-            );
-          })}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="w-full sm:w-auto overflow-x-scroll sm:pb-0 pb-1">
+          <div className="flex gap-2 pb-2">
+            <button
+              type="button"
+              className={`px-3 py-2 rounded-md text-sm shrink-0 ${
+                recent6Months
+                  ? "bg-gray-300 text-white"
+                  : "text-gray-700 hover:bg-gray-300 hover:text-white"
+              }`}
+              onClick={handleRecentClick}
+            >
+              최근 6개월
+            </button>
+            {Array.from({ length: 6 }, (_, i) => {
+              const year = new Date().getFullYear() - i;
+              return (
+                <button
+                  key={year}
+                  onClick={() => handleYearClick(year)}
+                  className={`px-3 py-2 rounded-md text-sm cursor-pointer shrink-0 ${
+                    selectedYear === year
+                      ? "bg-gray-300 text-white"
+                      : "text-gray-700 hover:bg-gray-300 hover:text-white"
+                  }`}
+                >
+                  {year}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <button
-          onClick={() => handleSearchRefresh()}
-          className="flex items-center gap-2 px-4 py-2 rounded-md border text-sm"
+          onClick={handleSearchRefresh}
+          className="flex items-center gap-2 px-3 py-2 rounded-md border text-sm self-end sm:self-auto w-full sm:w-auto justify-center sm:justify-start"
         >
           <RefreshCcw size={16} />
           검색 초기화
@@ -176,15 +180,17 @@ export default function OrderList() {
       </div>
 
       {isLoading ? (
-        <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
-          <LoaderCircle size={48} className="animate-spin mb-4" />
+        <div className="w-full h-full flex flex-col items-center justify-center py-16 text-gray-600">
+          <LoaderCircle size={40} className="animate-spin mb-3" />
           <p className="text-sm">주문목록 정보를 불러오고 있습니다...</p>
         </div>
       ) : orders?.data?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
-          <PackageX size={48} className="mb-4" />
-          <h3 className="text-lg font-semibold mb-2">주문 내역이 없습니다</h3>
-          <p className="text-sm mb-6">
+        <div className="flex flex-col items-center justify-center py-16 text-center text-gray-600">
+          <PackageX size={44} className="mb-3" />
+          <h3 className="text-base sm:text-lg font-semibold mb-1">
+            주문 내역이 없습니다
+          </h3>
+          <p className="text-sm mb-5">
             아직 상품을 구매하신 이력이 없습니다. 쇼핑을 시작해보세요!
           </p>
           <button
@@ -197,8 +203,8 @@ export default function OrderList() {
         </div>
       ) : (
         orders?.data?.map((order) => (
-          <div key={order.id} className="border rounded-md p-4">
-            <div className="flex justify-between items-center mb-2">
+          <div key={order.id} className="border rounded-md p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
               <h3 className="font-semibold text-sm text-gray-800">
                 {order.created_at
                   ? new Date(order.created_at).toLocaleDateString("ko-KR", {
@@ -216,38 +222,38 @@ export default function OrderList() {
                   )
                 }
                 type="button"
-                className="text-sm p-0 h-auto hover:underline cursor-pointer"
+                className="text-sm p-0 h-auto hover:underline cursor-pointer self-start sm:self-auto"
               >
                 주문 상세보기 &gt;
               </button>
             </div>
 
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col">
               {order.order_items.map((item, i) => (
                 <li
                   key={i}
-                  className={`p-4 flex flex-col gap-4 bg-white ${
+                  className={`py-3 sm:p-4 bg-white ${
                     order.order_items.length - i !== 1 ? "border-b" : ""
                   }`}
                 >
-                  <div className="flex justify-between items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-3 sm:gap-4">
                     <div
-                      className="flex flex-col gap-2 cursor-pointer flex-1 justify-between"
+                      className="flex flex-col gap-2 cursor-pointer sm:flex-1"
                       onClick={() =>
                         router.push(`/products/${item.product_id}`)
                       }
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                      <div className="flex items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                           <Image
                             src={item.products.image_url ?? ""}
                             alt={item.products.name}
                             width={80}
                             height={80}
-                            className="rounded border object-cover w-20 h-20"
+                            className="rounded border object-cover w-16 h-16 sm:w-20 sm:h-20"
                           />
                           <div className="flex flex-col gap-1 justify-center">
-                            <p className="text-sm font-medium flex gap-1 items-center">
+                            <p className="text-sm font-medium flex flex-wrap gap-1 items-center">
                               {item.products.name}
                               <span
                                 className={`text-xs font-bold rounded-full w-fit ${
@@ -259,81 +265,90 @@ export default function OrderList() {
                                 · {item.delivery_status ?? "결제완료"}
                               </span>
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs sm:text-sm text-gray-500">
                               {item.price.toLocaleString()}원 · {item.quantity}
                               개 · 사이즈: {item.size}
                             </p>
                           </div>
                         </div>
 
+                        <div className="hidden sm:block">
+                          <CartBtn
+                            className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                            productId={item.product_id}
+                            quantity={1}
+                            selectedSize={item.size || ""}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="sm:flex sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:border-l sm:pl-4">
+                      <div className="sm:hidden">
                         <CartBtn
-                          className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                          className="w-full border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
                           productId={item.product_id}
                           quantity={1}
                           selectedSize={item.size || ""}
                         />
                       </div>
-                    </div>
 
-                    <div className="flex flex-col items-end justify-center gap-2 border-l pl-4 self-stretch">
-                      {item.delivery_status === "배송중" && (
-                        <button
-                          onClick={() =>
-                            toast.info("배송 현황은 준비중 입니다.")
-                          }
-                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                        >
-                          배송 현황 보기
-                        </button>
-                      )}
-
-                      {item.delivery_status !== "배송완료" && (
-                        <button
-                          onClick={() => {
-                            if (item.delivery_status === "취소됨") {
-                              toast.error("이미 취소된 주문입니다.");
-                              return;
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0">
+                        {item.delivery_status === "배송중" && (
+                          <button
+                            onClick={() =>
+                              toast.info("배송 현황은 준비중 입니다.")
                             }
+                            className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                          >
+                            배송 현황 보기
+                          </button>
+                        )}
 
-                            setCancelTarget({
-                              orderItemId: item.id,
-                              deliveryStatus: item.delivery_status || "",
-                            });
-                            setIsCancelOrderModal(true);
-                          }}
-                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                        >
-                          주문 취소
-                        </button>
-                      )}
+                        {item.delivery_status !== "배송완료" && (
+                          <button
+                            onClick={() => {
+                              if (item.delivery_status === "취소됨") {
+                                toast.error("이미 취소된 주문입니다.");
+                                return;
+                              }
+                              setCancelTarget({
+                                orderItemId: item.id,
+                                deliveryStatus: item.delivery_status || "",
+                              });
+                              setIsCancelOrderModal(true);
+                            }}
+                            className={`border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30 ${
+                              item.delivery_status === "배송중"
+                                ? "col-span-1"
+                                : "col-span-2 sm:col-span-1"
+                            }`}
+                          >
+                            주문 취소
+                          </button>
+                        )}
 
-                      {/* {item.delivery_status === "취소됨" && (
-                        <p className="w-30 px-2 py-1 text-[14px] text-gray-900 text-center">
-                          주문 취소 완료
-                        </p>
-                      )} */}
-
-                      {item.delivery_status === "배송완료" && (
-                        <button
-                          onClick={() =>
-                            toast.info("교환, 반품 신청은 준비중 입니다.")
-                          }
-                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
-                        >
-                          교환, 반품 신청
-                        </button>
-                      )}
-
-                      {item.delivery_status === "배송완료" && (
-                        <button
-                          onClick={() =>
-                            router.push(`/productReview/${item.product_id}`)
-                          }
-                          className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer "
-                        >
-                          리뷰 작성하기
-                        </button>
-                      )}
+                        {item.delivery_status === "배송완료" && (
+                          <>
+                            <button
+                              onClick={() =>
+                                toast.info("교환, 반품 신청은 준비중 입니다.")
+                              }
+                              className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                            >
+                              교환, 반품 신청
+                            </button>
+                            <button
+                              onClick={() =>
+                                router.push(`/productReview/${item.product_id}`)
+                              }
+                              className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                            >
+                              리뷰 작성하기
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </li>

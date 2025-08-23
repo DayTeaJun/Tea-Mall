@@ -78,6 +78,30 @@ button {
   color: #555;
 }
 
+@media (max-width: 640px) {
+  .pagination {
+    flex-wrap: wrap;
+    gap: 4px;
+    row-gap: 6px;
+    padding: 0 4px;
+  }
+
+  .page-item {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  .page-link {
+    padding: 0 2px;
+  }
+
+  .break-me {
+    display: none;
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
