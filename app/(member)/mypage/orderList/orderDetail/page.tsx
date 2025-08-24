@@ -142,7 +142,7 @@ export default function OrderListPage() {
                 className="w-full flex flex-col sm:flex-row gap-4 cursor-pointer flex-1 justify-between"
                 onClick={() => router.push(`/products/${item.products.id}`)}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                   <Image
                     src={item.products.image_url ?? ""}
                     alt={item.products.name}
@@ -196,14 +196,18 @@ export default function OrderListPage() {
                         });
                         setIsCancelOrderModal(true);
                       }}
-                      className="w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                      className={`w-30 border rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer ${
+                        item.delivery_status === "배송중"
+                          ? "w-30"
+                          : "sm:w-30 w-full"
+                      }`}
                     >
                       주문 취소
                     </button>
                   )}
 
                 {item.delivery_status === "취소됨" && (
-                  <p className="w-30 px-2 py-1 text-[14px] text-gray-900 text-center">
+                  <p className="w-full sm:w-30 px-2 py-1 text-[14px] text-gray-900 text-center">
                     주문 취소 완료
                   </p>
                 )}
@@ -235,7 +239,7 @@ export default function OrderListPage() {
         ))}
       </ul>
 
-      <div className="border rounded p-4 mb-2 bg-gray-50 space-y-2">
+      <div className="border rounded p-2 sm:p-4 mb-2 bg-gray-50 space-y-2">
         <div className="flex items-center gap-2 text-sm text-gray-700">
           <UserRound size={16} />
           <span className="font-bold">
