@@ -100,7 +100,7 @@ export default function OrderList() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-4 px-0 sm:px-6">
+    <div className="max-w-7xl mx-auto flex flex-col gap-4">
       <h2 className="text-lg sm:text-xl font-bold">주문 내역</h2>
 
       <div className="flex items-center gap-2 relative w-full">

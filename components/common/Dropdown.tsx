@@ -26,7 +26,7 @@ export function Dropdown({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div ref={menuRef} className="w-[280px] text-end text-black relative">
+    <div ref={menuRef} className="w-[200px] text-end text-black relative">
       <button
         type="button"
         aria-label="메뉴 열기"

@@ -137,9 +137,9 @@ export default function OrderListPage() {
               order.order_items.length - i !== 1 ? "border-b" : ""
             }`}
           >
-            <div className="flex justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div
-                className="flex gap-4 cursor-pointer flex-1 justify-between"
+                className="w-full flex flex-col sm:flex-row gap-4 cursor-pointer flex-1 justify-between"
                 onClick={() => router.push(`/products/${item.products.id}`)}
               >
                 <div className="flex items-center gap-4">
@@ -169,14 +169,14 @@ export default function OrderListPage() {
                 </div>
 
                 <CartBtn
-                  className="w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
+                  className="w-full sm:w-30 h-fit border my-auto rounded-md px-2 py-1 text-[14px] text-gray-700 hover:bg-gray-200 cursor-pointer"
                   productId={item.products.id}
                   quantity={1}
                   selectedSize={item.size || ""}
                 />
               </div>
 
-              <div className="flex flex-col items-end justify-center gap-2 border-l pl-4 self-stretch">
+              <div className="flex flex-row sm:flex-col items-end justify-between sm:justify-center gap-2 sm:border-l sm:pl-4 self-stretch">
                 {item.delivery_status === "배송중" && (
                   <button
                     onClick={() => toast.info("배송 현황은 준비중 입니다.")}
