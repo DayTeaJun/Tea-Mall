@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, UserCog, Menu } from "lucide-react";
+import { User, UserCog, Menu, ArrowLeft } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const menu = [
@@ -16,7 +16,16 @@ const menu = [
   { name: "장바구니", currentPage: "/mypage/myCart", href: "/mypage/myCart" },
 ];
 
+const detailPage = [
+  { href: "/mypage/profile/edit" },
+  {
+    href: "/mypage/orderList/orderDetail",
+  },
+  { href: "/mypage/profile/resetPassword" },
+];
+
 export default function SidebarNav() {
+  const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -26,24 +35,36 @@ export default function SidebarNav() {
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
       <div className="md:hidden relative pb-2">
-        <div className="flex gap-2 items-center">
-          <button
-            type="button"
-            onClick={toggle}
-            aria-expanded={open}
-            aria-controls="mypage-nav-list"
-            className="flex items-center justify-between active:scale-[0.99] transition"
-          >
-            <Menu size={18} />
-          </button>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 items-center">
+            <button
+              type="button"
+              onClick={toggle}
+              aria-expanded={open}
+              aria-controls="mypage-nav-list"
+              className="flex items-center justify-between active:scale-[0.99] transition"
+            >
+              <Menu size={18} />
+            </button>
 
-          {user ? (
-            <p className="text-xs text-gray-500 px-1 flex items-center gap-2 font-bold">
-              <User size={14} />
-              <span className="text-green-600">{user.user_name}</span> 님
-            </p>
-          ) : (
-            <div className="h-[6px] mt-2" />
+            {user ? (
+              <p className="text-xs text-gray-500 px-1 flex items-center gap-2 font-bold">
+                <User size={14} />
+                <span className="text-green-600">{user.user_name}</span> 님
+              </p>
+            ) : (
+              <div className="h-[6px] mt-2" />
+            )}
+          </div>
+
+          {detailPage.some(({ href }) => pathname.startsWith(href)) && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="text-gray-600"
+            >
+              <ArrowLeft size={18} />
+            </button>
           )}
         </div>
 
