@@ -37,10 +37,12 @@ export default function Modal({
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
+        <h2 className="text-[18px] sm:text-xl font-bold text-gray-900 mb-2">
+          {title}
+        </h2>
 
         {description && (
-          <p className="text-sm text-gray-600 mb-4 whitespace-pre-line">
+          <p className="text-[12px] sm:text-sm text-gray-600 mb-4 whitespace-pre-line">
             {description}
           </p>
         )}
