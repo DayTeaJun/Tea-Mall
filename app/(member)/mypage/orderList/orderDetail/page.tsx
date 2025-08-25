@@ -239,15 +239,15 @@ export default function OrderListPage() {
         ))}
       </ul>
 
-      <div className="border rounded p-2 sm:p-4 mb-2 bg-gray-50 space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+      <div className="border rounded p-2 sm:p-4 mb-2 text-[12px] sm:text-sm bg-gray-50 space-y-2">
+        <div className="flex items-center gap-2 text-gray-700">
           <UserRound size={16} />
           <span className="font-bold">
             수령인 :{" "}
             <span className="font-normal">{order.receiver || "정보 없음"}</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <Package size={16} />
           <span className="font-bold">
             배송지 :{" "}
@@ -256,7 +256,7 @@ export default function OrderListPage() {
             </span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <StickyNote size={16} />
           <span className="font-bold">
             배송 요청사항 :{" "}
