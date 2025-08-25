@@ -163,7 +163,7 @@ export default function MyCartPage() {
                     className="flex items-center justify-between border p-3 rounded"
                   >
                     <div className="flex items-start gap-3 justify-between w-full">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <input
                           type="checkbox"
                           className="w-4 h-4 mr-2 my-auto cursor-pointer"
@@ -178,7 +178,7 @@ export default function MyCartPage() {
                               height={128}
                               src={item.product.image_url}
                               alt={item.product.name}
-                              className="w-32 h-32 object-cover rounded cursor-pointer"
+                              className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded cursor-pointer"
                               onClick={() =>
                                 router.push(`/products/${item.product?.id}`)
                               }
@@ -264,7 +264,7 @@ export default function MyCartPage() {
               })}
             </ul>
 
-            <div className="min-w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
+            <div className="w-full sm:min-w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
               <p className="text-[22px]">주문 예상 금액</p>
 
               <div className="flex justify-between items-center text-[16px]">
