@@ -121,7 +121,7 @@ export default function MyCartPage() {
             </button>
           </div>
         ) : (
-          <div className="flex gap-4">
+          <div className="flex sm:flex-row flex-col gap-4">
             <ul className="flex flex-col gap-4 mb-6 flex-1">
               <div className="flex items-center justify-between mb-4 border p-3 rounded bg-gray-50">
                 <div
