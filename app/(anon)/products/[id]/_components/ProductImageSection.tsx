@@ -27,7 +27,7 @@ export default function ProductImageSection({
   const hasImages = imageList.length > 0;
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-3 sm:gap-4">
       {hasImages && (
         <div className="flex flex-col gap-2 overflow-x-auto shrink-0 scrollbar-gutter-stable pb-2">
           {imageList.map((img, index) => (
@@ -37,7 +37,7 @@ export default function ProductImageSection({
               key={index}
               src={img}
               onClick={() => setCurrentImage(img)}
-              className={`w-[70px] h-[70px] object-cover cursor-pointer border-2 shrink-0 ${
+              className={`w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] object-cover cursor-pointer border-2 shrink-0 ${
                 currentImage === img ? "border-blue-400" : ""
               }`}
               alt={`상세 이미지 ${index + 1}`}
@@ -46,7 +46,7 @@ export default function ProductImageSection({
         </div>
       )}
 
-      <div className="flex items-start justify-center w-[50%] h-[200px] sm:h-[400px] flex-1">
+      <div className="flex items-start justify-center h-[300px] sm:h-[400px] flex-1">
         {hasImages ? (
           currentImage ? (
             <Image
