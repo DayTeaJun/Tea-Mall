@@ -49,8 +49,8 @@ export default function CheckoutDonePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <h1 className="text-xl font-bold mx-auto">주문 완료</h1>
+    <div className="max-w-7xl mx-auto flex flex-col gap-4">
+      <h1 className="text-xl font-bold -mb-2">주문 완료</h1>
       <p className="text-sm text-gray-500">
         주문일: {new Date(order.created_at!).toLocaleString()}
       </p>
@@ -60,8 +60,8 @@ export default function CheckoutDonePage() {
           <li
             key={idx}
             className={`flex gap-4 items-center ${
-              idx < order.order_items.length - 1 ? "border-b" : ""
-            } pb-4`}
+              idx < order.order_items.length - 1 ? "border-b pb-4" : "pb-0"
+            }`}
           >
             <Image
               width={200}
@@ -81,15 +81,15 @@ export default function CheckoutDonePage() {
         ))}
       </ul>
 
-      <div className="border rounded p-4 mb-6 bg-gray-50 space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+      <div className="border rounded p-2 sm:p-4 mb-2 text-[12px] sm:text-sm bg-gray-50 space-y-2">
+        <div className="flex items-center gap-2 text-gray-700">
           <UserRound size={16} />
           <span className="font-bold">
             수령인 :{" "}
             <span className="font-normal">{order.receiver || "정보 없음"}</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <Package size={16} />
           <span className="font-bold">
             배송지 :{" "}
@@ -98,7 +98,7 @@ export default function CheckoutDonePage() {
             </span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <StickyNote size={16} />
           <span className="font-bold">
             배송 요청사항 :{" "}
@@ -109,8 +109,8 @@ export default function CheckoutDonePage() {
 
       <div className="flex gap-2 justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="text-[14px]">총 주문 금액 : </span>
-          <span className="text-[18px] font-bold ">
+          <span className="text-[12px] sm:text-[14px]">총 주문 금액 : </span>
+          <span className="text-[16px] sm:text-[18px] font-bold ">
             {order.order_items
               .reduce(
                 (total: number, item: OrderItemType) =>
@@ -123,7 +123,7 @@ export default function CheckoutDonePage() {
         </div>
 
         <button
-          className="px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
+          className="text-[12px] sm:text-[16px] px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
           onClick={() => router.push("/mypage/orderList?page=1")}
         >
           주문 내역 보기

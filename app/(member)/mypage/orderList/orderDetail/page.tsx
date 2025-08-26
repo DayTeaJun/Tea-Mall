@@ -104,7 +104,7 @@ export default function OrderListPage() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center -mb-2">
         <h1 className="text-xl font-bold">주문 상세</h1>
         <Dropdown>
           <li className="hover:text-gray-800 w-full">
