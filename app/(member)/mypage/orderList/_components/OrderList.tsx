@@ -366,8 +366,8 @@ export default function OrderList() {
             pageCount={pageCount}
             forcePage={currentPage - 1}
             marginPagesDisplayed={1}
-            previousLabel={"이전"}
-            nextLabel={"다음"}
+            previousLabel={"<"}
+            nextLabel={">"}
             breakLabel={"..."}
             breakClassName={"break-me"}
             containerClassName={"pagination"}

@@ -83,22 +83,18 @@ button {
     flex-wrap: wrap;
     gap: 4px;
     row-gap: 6px;
-    padding: 0 4px;
+    padding: 0 2px;
   }
 
   .page-item {
-    width: 36px;
-    height: 36px;
-    font-size: 13px;
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
     border-radius: 8px;
   }
 
   .page-link {
     padding: 0 2px;
-  }
-
-  .break-me {
-    display: none;
   }
 }
 
