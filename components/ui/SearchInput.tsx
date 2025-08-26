@@ -24,10 +24,9 @@ function SearchInput() {
 
   return (
     <div
-      className={`
-    flex items-center relative gap-2 p-1 h-10 rounded-2xl
-    ring-1 ${isOpen ? "ring-gray-300" : "ring-transparent"}
-    transition-colors
+      className={`flex items-center relative gap-1 p-1 h-10 rounded-2xl ring-1 ${
+        isOpen ? "ring-gray-300" : "ring-transparent"
+      } transition-colors
   `}
     >
       <button
@@ -45,13 +44,10 @@ function SearchInput() {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           type="text"
-          placeholder="Search..."
-          className={`
-        bg-transparent text-gray-700 placeholder-gray-400 focus:outline-none
-        transition-[width,opacity] duration-300 ease-in-out
-        ${isOpen ? "opacity-100 w-50 md:w-64" : "opacity-0 w-0"}
-        pr-7
-      `}
+          placeholder="검색어를 입력해주세요."
+          className={`bg-transparent text-gray-700 placeholder-gray-400 focus:outline-none transition-[width,opacity] duration-300 ease-in-out ${
+            isOpen ? "opacity-100 w-48 md:w-64" : "opacity-0 w-0"
+          } pr-7`}
           autoFocus={isOpen}
         />
 
