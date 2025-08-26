@@ -99,7 +99,7 @@ export default function CheckoutPage() {
     <div className="max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">주문 / 결제</h1>
 
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-8">
         <div className="flex flex-col gap-8 col-span-2">
           <section className="border rounded">
             <div className="flex justify-between items-center mb-2 bg-gray-50 p-4">
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
           </section>
         </div>
 
-        <div className="border p-6 bg-white h-fit">
+        <div className="border p-6 bg-white h-fit sm:mt-0 mt-4">
           <h2 className="text-lg font-bold mb-4">최종 결제 금액</h2>
           <div className="flex justify-between mb-2 text-sm">
             <span>총 상품 가격</span>
