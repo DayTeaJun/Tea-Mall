@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SigninForm from "./_components/SigninForm";
+import OAuthForm from "./_components/OAuthForm";
 
 function LoginPage() {
   return (
@@ -10,6 +11,8 @@ function LoginPage() {
       <Link href="/signup" className="text-[14px] cursor-pointer underline">
         Create Account
       </Link>
+
+      <OAuthForm />
     </section>
   );
 }
