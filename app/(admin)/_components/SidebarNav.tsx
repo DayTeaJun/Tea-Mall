@@ -49,16 +49,6 @@ export default function SidebarNav() {
               관리자 전용
             </p>
           </div>
-
-          {/* {detailPage.some(({ href }) => pathname.startsWith(href)) && (
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="text-gray-600"
-            >
-              <ArrowLeft size={18} />
-            </button>
-          )} */}
         </div>
 
         <ul
@@ -73,6 +63,7 @@ export default function SidebarNav() {
               <li key={href}>
                 <Link
                   href={href}
+                  onClick={() => setOpen(false)}
                   className={`block px-4 py-2 transition-colors duration-150 ${
                     isActive
                       ? "bg-gray-800 text-white font-medium"
