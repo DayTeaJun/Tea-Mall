@@ -264,7 +264,7 @@ export default function MyCartPage() {
               })}
             </ul>
 
-            <div className="w-full sm:min-w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
+            <div className="w-full sm:w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
               <p className="text-[22px]">주문 예상 금액</p>
 
               <div className="flex justify-between items-center text-[16px]">
