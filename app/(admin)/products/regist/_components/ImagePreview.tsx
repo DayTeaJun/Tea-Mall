@@ -55,7 +55,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onDragEnter={() => setIsDragging(true)}
         onDragLeave={() => setIsDragging(false)}
-        className={`w-full h-80 cursor-pointer flex gap-5 border p-4 py-3 mt-2 overflow-hidden transition-all duration-200 ${
+        className={`w-full h-80 cursor-pointer flex sm:flex-row flex-col gap-5 border p-4 py-3 mt-2 overflow-hidden transition-all duration-200 ${
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
       >

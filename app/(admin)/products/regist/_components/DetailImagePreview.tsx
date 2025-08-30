@@ -37,10 +37,11 @@ export default function DetailImagePreview({
           {previews.slice(0, 5).map((src, idx) => (
             <div
               key={idx}
-              className="relative w-32 h-32 border flex-shrink-0 overflow-hidden rounded-md"
+              className="relative w-24 h-24 sm:w-32 sm:h-32 border flex-shrink-0 overflow-hidden rounded-md"
             >
               <Image
-                fill
+                width={128}
+                height={128}
                 src={src}
                 alt={`상세 이미지 ${idx + 1}`}
                 className="w-full h-full object-cover"
@@ -61,7 +62,7 @@ export default function DetailImagePreview({
           {previews.length < 5 && (
             <div
               onClick={handleClick}
-              className="w-32 h-32 border-2 border-dashed flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50 cursor-pointer flex-shrink-0 gap-2"
+              className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50 cursor-pointer flex-shrink-0 gap-2"
             >
               <ImagePlus size={32} className="text-gray-300" />
               <p className="text-[12px] font-bold text-gray-500">이미지 추가</p>
