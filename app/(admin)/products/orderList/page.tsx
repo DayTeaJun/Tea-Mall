@@ -123,40 +123,42 @@ export default function AdminOrderList() {
         </button>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className={`px-4 py-2 rounded-md ${
-              recent6Months
-                ? "bg-gray-300 text-white"
-                : "text-gray-700 hover:bg-gray-300 hover:text-white"
-            }`}
-            onClick={handleRecentClick}
-          >
-            최근 6개월
-          </button>
-          {Array.from({ length: 6 }, (_, i) => {
-            const year = new Date().getFullYear() - i;
-            return (
-              <button
-                key={year}
-                onClick={() => handleYearClick(year)}
-                className={`px-4 py-2 rounded-md cursor-pointer ${
-                  selectedYear === year
-                    ? "bg-gray-300 text-white"
-                    : "text-gray-700 hover:bg-gray-300 hover:text-white"
-                }`}
-              >
-                {year}
-              </button>
-            );
-          })}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="w-full sm:w-auto overflow-x-scroll sm:overflow-x-auto sm:pb-0 pb-1">
+          <div className="flex gap-2 pb-2">
+            <button
+              type="button"
+              className={`px-3 py-2 rounded-md text-sm shrink-0 ${
+                recent6Months
+                  ? "bg-gray-300 text-white"
+                  : "text-gray-700 hover:bg-gray-300 hover:text-white"
+              }`}
+              onClick={handleRecentClick}
+            >
+              최근 6개월
+            </button>
+            {Array.from({ length: 6 }, (_, i) => {
+              const year = new Date().getFullYear() - i;
+              return (
+                <button
+                  key={year}
+                  onClick={() => handleYearClick(year)}
+                  className={`px-3 py-2 rounded-md text-sm cursor-pointer shrink-0 ${
+                    selectedYear === year
+                      ? "bg-gray-300 text-white"
+                      : "text-gray-700 hover:bg-gray-300 hover:text-white"
+                  }`}
+                >
+                  {year}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <button
-          onClick={() => handleSearchRefresh()}
-          className="flex items-center gap-2 px-4 py-2 rounded-md border text-sm"
+          onClick={handleSearchRefresh}
+          className="flex items-center gap-2 px-3 py-2 rounded-md border text-sm self-end sm:self-auto w-full sm:w-auto justify-center sm:justify-start"
         >
           <RefreshCcw size={16} />
           검색 초기화
@@ -176,7 +178,7 @@ export default function AdminOrderList() {
       ) : (
         orders?.data?.map((order) => (
           <div key={order.id} className="border rounded-md p-4 bg-white">
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
               <div className="flex flex-col gap-1">
                 <p className="font-semibold">
                   주문일:{" "}
@@ -194,7 +196,7 @@ export default function AdminOrderList() {
                     `/products/orderList/orderDetail?orderId=${order.id}`,
                   )
                 }
-                className="text-sm hover:underline"
+                className="text-sm hover:underline ml-auto sm:ml-0"
               >
                 주문 상세보기 &gt;
               </button>
@@ -204,38 +206,38 @@ export default function AdminOrderList() {
               {order.order_items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex justify-between items-center border-t pt-3"
+                  className="flex items-start sm:items-center gap-3 sm:gap-4"
                 >
-                  <div className="flex items-center gap-4">
-                    <Image
-                      src={item.products.image_url ?? ""}
-                      alt={item.products.name}
-                      width={80}
-                      height={80}
-                      className="rounded border object-cover w-20 h-20"
-                    />
-                    <div>
-                      <p className="font-medium">{item.products.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {item.price.toLocaleString()}원 · {item.quantity}개 ·
-                        사이즈: {item.size}
-                      </p>
-                    </div>
-                  </div>
+                  <Image
+                    src={item.products.image_url ?? ""}
+                    alt={item.products.name}
+                    width={80}
+                    height={80}
+                    className="rounded border object-cover w-16 h-16 sm:w-20 sm:h-20"
+                  />
+                  <div className="flex flex-col gap-1 justify-center">
+                    <p className="text-sm font-medium flex flex-wrap gap-1 items-center">
+                      {item.products.name}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {item.price.toLocaleString()}원 · {item.quantity}개 ·
+                      사이즈: {item.size}
+                    </p>
 
-                  <select
-                    value={item.delivery_status ?? "결제완료"}
-                    onChange={(e) =>
-                      handleStatusChange(item.id, e.target.value)
-                    }
-                    className="border p-1 rounded text-sm"
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      value={item.delivery_status ?? "결제완료"}
+                      onChange={(e) =>
+                        handleStatusChange(item.id, e.target.value)
+                      }
+                      className="border p-1 rounded text-sm"
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -251,8 +253,8 @@ export default function AdminOrderList() {
             pageCount={pageCount}
             forcePage={currentPage - 1}
             marginPagesDisplayed={1}
-            previousLabel={"이전"}
-            nextLabel={"다음"}
+            previousLabel={"<"}
+            nextLabel={">"}
             breakLabel={"..."}
             breakClassName={"break-me"}
             containerClassName={"pagination"}
