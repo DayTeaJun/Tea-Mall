@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Menu, User, UserCog } from "lucide-react";
+import { ArrowLeft, Menu, User, UserCog } from "lucide-react";
 import { useState } from "react";
 
 const menu = [
@@ -23,7 +23,13 @@ const menu = [
   },
 ];
 
+const detailPage = [
+  { href: "/products/orderList/orderDetail" },
+  { href: "/edit" },
+];
+
 export default function SidebarNav() {
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -49,6 +55,16 @@ export default function SidebarNav() {
               관리자 전용
             </p>
           </div>
+
+          {detailPage.some(({ href }) => pathname.match(href)) && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="text-gray-600"
+            >
+              <ArrowLeft size={18} />
+            </button>
+          )}
         </div>
 
         <ul
