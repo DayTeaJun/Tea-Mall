@@ -94,7 +94,7 @@ export default function OrderListPage() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center -mb-2">
         <h1 className="text-xl font-bold">주문 상세</h1>
         <Dropdown>
           <li className="hover:text-gray-800 w-full">
@@ -123,60 +123,53 @@ export default function OrderListPage() {
         {order.order_items.map((item, i) => (
           <li
             key={item.id}
-            className={`flex justify-between items-center p-4 ${
+            className={`flex justify-between items-center py-4 sm:p-4 ${
               order.order_items.length - i !== 1 ? "border-b" : ""
             }`}
           >
-            <div className="flex items-center gap-4">
-              <Image
-                src={item.products.image_url ?? ""}
-                alt={item.products.name}
-                width={80}
-                height={80}
-                className="rounded border object-cover w-20 h-20"
-              />
-              <div>
-                <p className="font-medium">{item.products.name}</p>
-                <p className="text-sm text-gray-500">
-                  {item.price.toLocaleString()}원 · {item.quantity}개 · 사이즈:{" "}
-                  {item.size}
-                </p>
+            <div className="w-full flex justify-between sm:justify-start items-center gap-4 flex-col sm:flex-row">
+              <div className="flex ">
+                <Image
+                  src={item.products.image_url ?? ""}
+                  alt={item.products.name}
+                  width={80}
+                  height={80}
+                  className="rounded border object-cover w-20 h-20"
+                />
+                <div>
+                  <p className="font-medium">{item.products.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {item.price.toLocaleString()}원 · {item.quantity}개 ·
+                    사이즈: {item.size}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <select
-              value={item.delivery_status ?? "결제완료"}
-              onChange={(e) => handleStatusChange(item.id, e.target.value)}
-              className="border p-1 rounded text-sm"
-            >
-              {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
+              <select
+                value={item.delivery_status ?? "결제완료"}
+                onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                className="border p-1 rounded text-sm ml-auto"
+              >
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
           </li>
         ))}
       </ul>
 
-      <div className="border rounded p-4 mb-2 bg-gray-50 space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
-          <UserRound size={16} />
-          <span className="font-bold">
-            주문자 :{" "}
-            <span className="font-normal">
-              {order.user?.user_name} ({order.user?.email})
-            </span>
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+      <div className="border rounded p-2 sm:p-4 mb-2 text-[12px] sm:text-sm bg-gray-50 space-y-2">
+        <div className="flex items-center gap-2 text-gray-700">
           <UserRound size={16} />
           <span className="font-bold">
             수령인 :{" "}
             <span className="font-normal">{order.receiver || "정보 없음"}</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <Package size={16} />
           <span className="font-bold">
             배송지 :{" "}
@@ -185,7 +178,7 @@ export default function OrderListPage() {
             </span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
           <StickyNote size={16} />
           <span className="font-bold">
             배송 요청사항 :{" "}
