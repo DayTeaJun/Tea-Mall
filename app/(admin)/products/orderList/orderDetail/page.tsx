@@ -123,32 +123,42 @@ export default function OrderListPage() {
         {order.order_items.map((item, i) => (
           <li
             key={item.id}
-            className={`flex justify-between items-center py-4 sm:p-4 ${
+            className={`flex items-stretch py-4 gap-3 sm:p-4 ${
               order.order_items.length - i !== 1 ? "border-b" : ""
             }`}
           >
-            <div className="w-full flex justify-between sm:justify-start items-center gap-4 flex-col sm:flex-row">
-              <div className="flex ">
-                <Image
-                  src={item.products.image_url ?? ""}
-                  alt={item.products.name}
-                  width={80}
-                  height={80}
-                  className="rounded border object-cover w-20 h-20"
-                />
-                <div>
-                  <p className="font-medium">{item.products.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.price.toLocaleString()}원 · {item.quantity}개 ·
-                    사이즈: {item.size}
-                  </p>
-                </div>
-              </div>
+            <Image
+              src={item.products.image_url ?? ""}
+              alt={item.products.name}
+              width={80}
+              height={80}
+              className="rounded border object-cover w-20 h-20"
+            />
+            <div className="flex flex-col sm:justify-center justify-start">
+              <p className="font-medium">{item.products.name}</p>
+              <p className="text-sm text-gray-500">
+                {item.price.toLocaleString()}원 · {item.quantity}개 · 사이즈:{" "}
+                {item.size}
+              </p>
 
               <select
                 value={item.delivery_status ?? "결제완료"}
                 onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                className="border p-1 rounded text-sm ml-auto"
+                className="border p-1 rounded text-sm sm:hidden mt-auto block"
+              >
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-col justify-center border-l pl-4 self-stretch hidden sm:flex ml-auto">
+              <select
+                value={item.delivery_status ?? "결제완료"}
+                onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                className="border p-1 rounded text-sm"
               >
                 {statusOptions.map((status) => (
                   <option key={status} value={status}>
