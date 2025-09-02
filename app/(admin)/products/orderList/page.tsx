@@ -177,16 +177,16 @@ export default function AdminOrderList() {
         </div>
       ) : (
         orders?.data?.map((order) => (
-          <div key={order.id} className="border rounded-md p-4 bg-white">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
+          <div key={order.id} className="border rounded-md p-3 sm:p-4 bg-white">
+            <div className="flex flex-col sm:flex-row items-start sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
               <div className="flex flex-col gap-1">
-                <p className="font-semibold">
+                <p className="font-semibold text-[14px] sm:text-[16px]">
                   주문일:{" "}
                   {order.created_at
                     ? new Date(order.created_at).toLocaleDateString("ko-KR")
                     : "날짜 정보 없음"}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-[12px] sm:text-[14px] text-gray-500">
                   주문자: {order.user_name} ({order.email})
                 </p>
               </div>
@@ -196,26 +196,23 @@ export default function AdminOrderList() {
                     `/products/orderList/orderDetail?orderId=${order.id}`,
                   )
                 }
-                className="text-sm hover:underline ml-auto sm:ml-0"
+                className="text-sm hover:underline"
               >
                 주문 상세보기 &gt;
               </button>
             </div>
 
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3 py-3">
               {order.order_items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-start sm:items-center gap-3 sm:gap-4"
-                >
+                <li key={item.id} className="flex items-stretch gap-3 sm:gap-4">
                   <Image
                     src={item.products.image_url ?? ""}
                     alt={item.products.name}
                     width={80}
                     height={80}
-                    className="rounded border object-cover w-16 h-16 sm:w-20 sm:h-20"
+                    className="rounded border object-cover w-20 h-20"
                   />
-                  <div className="flex flex-col gap-1 justify-center">
+                  <div className="flex flex-col justify-between">
                     <p className="text-sm font-medium flex flex-wrap gap-1 items-center">
                       {item.products.name}
                     </p>
