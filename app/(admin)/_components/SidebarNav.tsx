@@ -37,7 +37,7 @@ export default function SidebarNav() {
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
-      <div className="sm:hidden relative pb-2">
+      <div className="md:hidden relative pb-2">
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             <button
@@ -92,7 +92,7 @@ export default function SidebarNav() {
             );
           })}
 
-          <div className="mt-4 pt-4 border-t">
+          <div className="py-4 border-t">
             <Link
               href="/mypage/profile"
               className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
