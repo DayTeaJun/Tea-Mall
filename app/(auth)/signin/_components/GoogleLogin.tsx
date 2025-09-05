@@ -1,30 +1,48 @@
 "use client";
 
-import useHydrate from "@/hooks/useHydrate";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
 
 function AuthUIForm() {
   const supabase = createBrowserSupabaseClient();
 
-  const isMount = useHydrate();
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+      },
+    });
+  };
 
-  if (!isMount) return null;
+  const handleGithubLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+      },
+    });
+  };
 
   return (
-    <div className="w-full">
-      <div className="max-w-[500px] mx-auto px-5">
-        <Auth
-          redirectTo={process.env.NEXT_PUBLIC_SITE_URL}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          supabaseClient={supabase as unknown as SupabaseClient<any, "public">}
-          appearance={{ theme: ThemeSupa }}
-          onlyThirdPartyProviders
-          providers={["google", "github"]}
-        ></Auth>
+    <div className="relative w-full mt-6">
+      <p className="absolute left-1/2 transform -translate-y-1/2 -translate-x-1/2 bg-white px-4">
+        or
+      </p>
+      <div className="max-w-[500px] mx-auto px-5 flex flex-col gap-4 border-t pt-6">
+        <button
+          onClick={() => handleGoogleLogin()}
+          className="w-full py-2 rounded text-gray-500 border border-gray-300 hover:text-black hover:border-black transition-all duration-300"
+        >
+          구글 로그인
+        </button>
+
+        <button
+          onClick={() => handleGithubLogin()}
+          className="w-full py-2 rounded text-gray-500 border border-gray-300 hover:text-black hover:border-black transition-all duration-300"
+        >
+          깃허브 로그인
+        </button>
       </div>
     </div>
   );
