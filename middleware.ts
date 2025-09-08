@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isLoggedIn && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/not-found";
+    url.pathname = "/signin";
     return NextResponse.redirect(url);
   }
 
