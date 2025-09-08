@@ -15,15 +15,6 @@ function AuthUIForm() {
     });
   };
 
-  const handleGithubLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: process.env.NEXT_PUBLIC_SITE_URL,
-      },
-    });
-  };
-
   return (
     <div className="relative w-full mt-6">
       <p className="absolute left-1/2 transform -translate-y-1/2 -translate-x-1/2 bg-white px-4">
@@ -35,13 +26,6 @@ function AuthUIForm() {
           className="w-full py-2 rounded text-gray-500 border border-gray-300 hover:text-black hover:border-black transition-all duration-300"
         >
           구글 로그인
-        </button>
-
-        <button
-          onClick={() => handleGithubLogin()}
-          className="w-full py-2 rounded text-gray-500 border border-gray-300 hover:text-black hover:border-black transition-all duration-300"
-        >
-          깃허브 로그인
         </button>
       </div>
     </div>
