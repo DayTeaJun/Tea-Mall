@@ -1,6 +1,5 @@
 import Link from "next/link";
 import SigninForm from "./_components/SigninForm";
-import OAuthForm from "./_components/OAuthForm";
 import AuthUIForm from "./_components/GoogleLogin";
 
 function LoginPage() {
