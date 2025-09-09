@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "./lib/config/supabase/server/middleware";
 
+// 로그인 필요
 const protectedRoutes = [
   "/mypage",
   "/myCart",
@@ -11,11 +12,14 @@ const protectedRoutes = [
   "/directCheckout",
 ];
 
+// 비로그인 전용
 const publicRoutes = ["/signin", "/signup"];
+
+// 권한 라우트
 const adminRoutes = ["/admin"];
 const sellerRoutes = ["/products/manage", "/products/regist"];
 
-// 온보딩/인증 등은 루프 방지 위해 예외
+// 온보딩/인증/정적 등 예외(리다이렉트 루프 방지)
 const onboardingSafePrefixes = [
   "/onboarding",
   "/auth",
@@ -37,29 +41,26 @@ export async function middleware(request: NextRequest) {
   const isSellerRoute = sellerRoutes.some((route) =>
     pathname.startsWith(route),
   );
-  const isAdmin = adminRoutes.some((route) => pathname.startsWith(route));
-  const isOnboardingSafe = onboardingSafePrefixes.some((p) =>
-    pathname.startsWith(p),
-  );
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isSafe = onboardingSafePrefixes.some((p) => pathname.startsWith(p));
 
-  // 0) 로그인 안 됐고 보호 경로면 로그인 페이지로
+  // 0) 비로그인 + 보호 경로 → /signin
   if (!isLoggedIn && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/signin";
+    url.pathname = "/signin"; // ✅ 실제 URL
     return NextResponse.redirect(url);
   }
 
-  // 1) 로그인 상태에서 level이 비어 있으면(=null) 온보딩으로 보냄 (예외 경로 제외)
-  if (isLoggedIn && username == null && !isOnboardingSafe) {
+  // 1) 로그인 + username 없음 → /onboarding (예외 경로 제외)
+  if (isLoggedIn && username == null && !isSafe) {
     const url = request.nextUrl.clone();
-    url.pathname = "/onboarding";
-    // 원래 가려던 목적지 보존
+    url.pathname = "/onboarding"; // ✅ 실제 URL
     const returnTo = pathname + (search || "");
     url.searchParams.set("returnTo", returnTo);
     return NextResponse.redirect(url);
   }
 
-  // 2) 로그인 상태에서 public 페이지 접근 시 홈으로
+  // 2) 로그인 + public 경로 접근 → 홈
   if (isLoggedIn && isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
@@ -74,7 +75,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 4) 관리자 권한 체크
-  if (isLoggedIn && level !== 3 && isAdmin) {
+  if (isLoggedIn && level !== 3 && isAdminRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/not-found";
     return NextResponse.redirect(url);
