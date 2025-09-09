@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         hostname: hostname,
         pathname: "/storage/v1/object/public/user-profile/**",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
     ],
   },
 };

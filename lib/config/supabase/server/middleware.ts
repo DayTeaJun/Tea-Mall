@@ -36,15 +36,19 @@ export async function updateSession(req: NextRequest) {
     return { response: res, isLoggedIn: false };
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile } = await supabase
     .from("user_table")
-    .select("level")
+    .select("*")
     .eq("id", userData.user.id)
     .single();
+
+  const level = profile?.level ?? null;
+  const username = profile?.user_name ?? null;
 
   return {
     response: res,
     isLoggedIn: true,
-    level: !profileError && profile?.level,
+    level,
+    username,
   };
 }
