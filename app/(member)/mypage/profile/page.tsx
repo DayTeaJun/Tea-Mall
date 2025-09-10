@@ -15,8 +15,6 @@ export default function ProfilePage() {
   const { user } = useAuthStore();
   const router = useRouter();
 
-  console.log(user);
-
   const { data, isLoading } = useMyProfileQuery(user?.id);
 
   if (isLoading) {

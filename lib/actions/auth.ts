@@ -42,29 +42,19 @@ export async function signUpOAuth(formData: SignUpFormData) {
     throw new Error("OAuth 회원가입에는 ID가 필요합니다.");
   }
 
-  const {
-    id,
-    email,
-    username,
-    phone,
-    address,
-    profile_image_url: avatarUrl,
-  } = formData;
+  const { id, email, username, phone, address, profile_image_url } = formData;
 
-  const { data, error: upsertError } = await supabase
-    .from("user_table")
-    .upsert(
-      {
-        id: id,
-        email: email,
-        user_name: username,
-        profile_image_url: avatarUrl || null,
-        phone: phone || null,
-        address: address || null,
-      },
-      { onConflict: "id" },
-    )
-    .eq("id", id);
+  const { data, error: upsertError } = await supabase.from("user_table").upsert(
+    {
+      id,
+      email,
+      user_name: username,
+      profile_image_url: profile_image_url || null,
+      phone: phone || null,
+      address: address || null,
+    },
+    { onConflict: "id" },
+  );
 
   if (upsertError) throw upsertError;
 
@@ -125,7 +115,7 @@ export async function serverCheckUsernameExists(name: string) {
     throw new Error("이메일 중복 확인 실패");
   }
 
-  return data !== null;
+  return data;
 }
 
 // 내 프로필 조회

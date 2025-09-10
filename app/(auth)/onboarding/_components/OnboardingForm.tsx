@@ -1,28 +1,44 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import useDebounce from "@/hooks/useDebounce";
 import { serverCheckUsernameExists } from "@/lib/actions/auth";
 import { USERNAME_REGEX } from "../../constants";
-import { useSignUpMutation } from "@/lib/queries/auth";
+import {
+  uploadImageToStorageProfile,
+  useSignUpOAuthMutation,
+} from "@/lib/queries/auth";
 import { User } from "@supabase/supabase-js";
+import { ImgPreview } from "@/hooks/useImagePreview";
+import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
+import DaumPostcode from "@/components/common/AddressSearch";
 
 interface Props {
   user: User;
 }
 
 export default function OnboardingForm({ user }: Props) {
-  const supabase = createBrowserSupabaseClient();
-  const { mutate } = useSignUpMutation();
+  const { mutate } = useSignUpOAuthMutation();
   const [username, setUsername] = useState("");
 
   const debounceUsername = useDebounce<string>(username);
 
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const { imageSrc, imgUrl, onUpload } = ImgPreview();
+
+  const [profileImage, setProfileImage] = useState("");
+
+  const handleProfileImageChange = (file: File) => {
+    onUpload(file);
+    setProfileImage("");
+  };
+
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [hint, setHint] = useState<string>("");
+
+  const [detailAddress, setDetailAddress] = useState("");
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
 
   useEffect(() => {
     const validateUsername = async () => {
@@ -66,103 +82,77 @@ export default function OnboardingForm({ user }: Props) {
     setPhone(formatted);
   };
 
-  const onAvatarChange = async (file?: File) => {
-    if (!file) return;
-
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `user/${user.id}/profile.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("user")
-      .upload(path, file, {
-        upsert: true,
-        cacheControl: "3600",
-        contentType: file.type,
-      });
-
-    if (upErr) {
-      alert(`이미지 업로드 실패: ${upErr.message}`);
-      return;
-    }
-    const { data: pub } = supabase.storage.from("user").getPublicUrl(path);
-    setAvatarUrl(pub.publicUrl);
-  };
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const imageUrl = imgUrl
+      ? await uploadImageToStorageProfile(user.id, imgUrl)
+      : profileImage || null;
 
     mutate({
       id: user.id,
       email: user.email || "",
       username,
       phone,
-      address,
-      profile_image_url: avatarUrl,
+      address: address
+        ? address + (detailAddress ? `, ${detailAddress}` : "")
+        : "",
+      profile_image_url: imageUrl || "",
     });
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-1">계정 설정 마무리</h1>
+    <div className="max-w-[500px] mx-auto p-5">
+      <h1 className="text-2xl font-bold mb-1">계정 설정</h1>
       <p className="text-sm text-gray-600 mb-6">
-        처음 오셨네요. 사용자 정보를 입력해주세요.
+        처음 오셨네요! 사용자 정보를 입력해주세요.
       </p>
 
       <form onSubmit={onSubmit} className="w-full flex flex-col gap-5">
-        <div>
-          <label className="block text-sm font-medium mb-1">이메일</label>
-          <input
-            className="w-full border rounded px-3 py-2 bg-gray-50"
-            value={user.email}
-            readOnly
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">사용자명 *</label>
-          <input
-            className="w-full border rounded px-3 py-2"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="영문/숫자/-/_ 1~16자"
-            maxLength={16}
-          />
-          <p
-            className={`text-xs mt-1 ${
-              hint === "중복된 사용자명입니다."
-                ? "text-red-600"
-                : hint === "사용 가능한 사용자명입니다."
-                ? "text-green-600"
-                : "text-gray-500"
-            }`}
-          >
-            {hint ? hint : "영문/숫자/-/_ 만 허용됩니다."}
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            프로필 이미지
-          </label>
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full overflow-hidden border bg-gray-50">
-              <img
-                alt="avatar"
-                src={avatarUrl || "/placeholder.png"}
-                className="w-full h-full object-cover"
+        <div className="flex gap-4 sm:flex-row flex-col">
+          <div className="flex-1 flex flex-col justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="block text-sm font-medium mb-1">이메일</label>
+              <input
+                className="w-full border rounded px-3 py-2 bg-gray-50"
+                value={user.email}
+                readOnly
               />
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => onAvatarChange(e.target.files?.[0])}
-            />
+
+            <div className="flex flex-col gap-1">
+              <label className="block text-sm font-medium mb-1">
+                사용자명 *
+              </label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="영문/숫자/-/_ 1~16자"
+                maxLength={16}
+              />
+              <p
+                className={`text-xs ${
+                  hint === "중복된 사용자명입니다."
+                    ? "text-red-600"
+                    : hint === "사용 가능한 사용자명입니다."
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {hint ? hint : "영문/숫자/-/_ 만 허용됩니다."}
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
-            정사각형 이미지를 권장합니다.
-          </p>
+
+          <ImagePreviews
+            imageSrc={imageSrc || ""}
+            onUpload={handleProfileImageChange}
+            className="w-20 h-20 sm:w-24 sm:h-24"
+          />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1">
           <label className="block text-sm font-medium mb-1">휴대폰</label>
           <input
             className="w-full border rounded px-3 py-2"
@@ -173,14 +163,43 @@ export default function OnboardingForm({ user }: Props) {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">주소</label>
-          <textarea
-            className="w-full border rounded px-3 py-2 h-24"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="주소를 입력해주세요"
-          />
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2 mb-4">
+            <div className="flex gap-4 items-center">
+              <label className="font-bold text-xl">기본 배송 주소</label>
+              <button
+                type="button"
+                className="rounded border-gray-300 px-2 py-1 text-sm text-white hover:bg-gray-600 transition-colors bg-gray-500"
+                onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
+              >
+                {isAddressModalOpen ? "취소" : "배송지 추가"}
+              </button>
+            </div>
+            <p
+              className={`text-sm ${address ? "text-black" : "text-gray-500"}`}
+            >
+              {address || "등록된 주소 없음"}
+            </p>
+
+            {isDetailAddressOpen && (
+              <input
+                type="text"
+                placeholder="상세 주소 (선택)"
+                value={detailAddress}
+                onChange={(e) => setDetailAddress(e.target.value)}
+                className="border-b py-1 text-sm"
+              />
+            )}
+          </div>
+          {isAddressModalOpen && (
+            <DaumPostcode
+              onComplete={(data) => {
+                setAddress(data.address);
+                setIsAddressModalOpen(false);
+                setIsDetailAddressOpen(true);
+              }}
+            />
+          )}
         </div>
 
         <div className="pt-2 ml-auto">
