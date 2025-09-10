@@ -34,6 +34,43 @@ export async function signUpUser(formData: SignUpFormData) {
   return data.user;
 }
 
+// 소셜 로그인 (회원가입)
+export async function signUpOAuth(formData: SignUpFormData) {
+  const supabase = await createServerSupabaseClient();
+
+  if (!formData.id) {
+    throw new Error("OAuth 회원가입에는 ID가 필요합니다.");
+  }
+
+  const {
+    id,
+    email,
+    username,
+    phone,
+    address,
+    profile_image_url: avatarUrl,
+  } = formData;
+
+  const { data, error: upsertError } = await supabase
+    .from("user_table")
+    .upsert(
+      {
+        id: id,
+        email: email,
+        user_name: username,
+        profile_image_url: avatarUrl || null,
+        phone: phone || null,
+        address: address || null,
+      },
+      { onConflict: "id" },
+    )
+    .eq("id", id);
+
+  if (upsertError) throw upsertError;
+
+  return data;
+}
+
 // 로그인
 export async function signInUser(formData: {
   email: string;

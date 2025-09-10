@@ -4,6 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   getMyProfile,
   signInUser,
+  signUpOAuth,
   signUpUser,
   updateMyProfile,
 } from "@/lib/actions/auth";
@@ -51,6 +52,38 @@ export const useSignUpMutation = () => {
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignUpFormData) => signUpUser(formData),
+
+    onSuccess: () => {
+      toast.success("회원가입에 성공하였습니다.");
+      router.push("/");
+    },
+    onError: (error) => {
+      if (error && typeof error === "object" && "status" in error) {
+        const status = (error as { status: number }).status;
+        const message = (error as { message: string }).message;
+
+        if (status === 400) {
+          toast.error("잘못된 로그인 정보입니다.");
+        } else if (status === 500) {
+          toast.error("서버 에러입니다.");
+        } else {
+          toast.error(`알 수 없는 오류: ${message}`);
+        }
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending };
+};
+
+// 소셜 로그인 (회원가입)
+export const useSignUpOAuthMutation = () => {
+  const router = useRouter();
+
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (formData: SignUpFormData) => signUpOAuth(formData),
 
     onSuccess: () => {
       toast.success("회원가입에 성공하였습니다.");

@@ -1,70 +1,57 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import useDebounce from "@/hooks/useDebounce";
+import { serverCheckUsernameExists } from "@/lib/actions/auth";
+import { USERNAME_REGEX } from "../../constants";
+import { useSignUpMutation } from "@/lib/queries/auth";
+import { User } from "@supabase/supabase-js";
 
-type Props = {
-  initial: {
-    email: string;
-    user_name: string;
-    profile_image_url: string;
-    phone: string;
-    address: string;
-  };
-};
+interface Props {
+  user: User;
+}
 
-export default function OnboardingForm({ initial }: Props) {
-  const router = useRouter();
-  const sp = useSearchParams();
+export default function OnboardingForm({ user }: Props) {
   const supabase = createBrowserSupabaseClient();
+  const { mutate } = useSignUpMutation();
+  const [username, setUsername] = useState("");
 
-  const returnTo = useMemo(() => sp.get("returnTo") || "/", [sp]);
+  const debounceUsername = useDebounce<string>(username);
 
-  const [email] = useState(initial.email);
-  const [userName, setUserName] = useState(initial.user_name || "");
-  const [avatarUrl, setAvatarUrl] = useState(initial.profile_image_url || "");
-  const [phone, setPhone] = useState(initial.phone || "");
-  const [address, setAddress] = useState(initial.address || "");
-  const [checking, setChecking] = useState(false);
-  const [okUserName, setOkUserName] = useState<boolean | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [hint, setHint] = useState<string>("");
-  const [saving, setSaving] = useState(false);
 
-  const normalizeUserName = (v: string) =>
-    v
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9_-]/g, "")
-      .slice(1 - 1, 16); // 1~16자
+  useEffect(() => {
+    const validateUsername = async () => {
+      if (debounceUsername.length === 0) {
+        setHint("");
+        return;
+      }
 
-  const onChangeUserName = async (v: string) => {
-    const u = normalizeUserName(v);
-    setUserName(u);
+      if (!USERNAME_REGEX.test(debounceUsername)) {
+        setHint("최소 2글자 이상 20자 미만의 닉네임을 입력해주세요.");
+        return;
+      }
 
-    if (!u) {
-      setHint("영문/숫자/-/_ 1~16자");
-      setOkUserName(false);
-      return;
-    }
+      try {
+        const exists = await serverCheckUsernameExists(debounceUsername);
 
-    setChecking(true);
-    const { data: cur } = await supabase.auth.getUser();
-    const { data: exists } = await supabase
-      .from("user_table")
-      .select("id")
-      .eq("user_name", u)
-      .maybeSingle();
+        if (exists) {
+          setHint("중복된 사용자명입니다.");
+        } else {
+          setHint("사용 가능한 사용자명입니다.");
+        }
+      } catch (error) {
+        console.error("닉네임 확인 중 오류:", error);
+        setHint("이메일 확인 중 오류가 발생했습니다. 관리자에게 문의해주세요.");
+      }
+    };
 
-    if (exists && exists.id !== cur.user?.id) {
-      setHint("이미 사용 중인 사용자명입니다.");
-      setOkUserName(false);
-    } else {
-      setHint("사용 가능한 사용자명입니다.");
-      setOkUserName(true);
-    }
-    setChecking(false);
-  };
+    validateUsername();
+  }, [debounceUsername, setHint]);
 
   const onChangePhone = (raw: string) => {
     const digits = raw.replace(/\D/g, "").slice(0, 11);
@@ -81,13 +68,6 @@ export default function OnboardingForm({ initial }: Props) {
 
   const onAvatarChange = async (file?: File) => {
     if (!file) return;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
 
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `user/${user.id}/profile.${ext}`;
@@ -109,68 +89,15 @@ export default function OnboardingForm({ initial }: Props) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (saving) return;
 
-    const uname = normalizeUserName(userName);
-    if (!uname) {
-      alert("사용자명을 입력해주세요.");
-      return;
-    }
-
-    setSaving(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-
-    // 최종 중복 확인
-    const { data: exists } = await supabase
-      .from("user_table")
-      .select("id")
-      .eq("user_name", uname)
-      .maybeSingle();
-    if (exists && exists.id !== user.id) {
-      setSaving(false);
-      alert("이미 사용 중인 사용자명입니다.");
-      return;
-    }
-
-    // 업서트(본인 row만)
-    const { error: upErr } = await supabase
-      .from("user_table")
-      .upsert(
-        {
-          id: user.id,
-          email: email || user.email,
-          user_name: uname,
-          profile_image_url: avatarUrl || null,
-          phone: phone || null,
-          address: address || null,
-        },
-        { onConflict: "id" },
-      )
-      .eq("id", user.id);
-
-    if (upErr) {
-      setSaving(false);
-      alert(`저장 실패: ${upErr.message}`);
-      return;
-    }
-
-    // (선택) auth user metadata 동기화
-    await supabase.auth.updateUser({
-      data: {
-        user_name: uname,
-        avatar_url: avatarUrl || null,
-        phone: phone || null,
-      },
+    mutate({
+      id: user.id,
+      email: user.email || "",
+      username,
+      phone,
+      address,
+      profile_image_url: avatarUrl,
     });
-
-    router.replace(returnTo);
   };
 
   return (
@@ -180,46 +107,44 @@ export default function OnboardingForm({ initial }: Props) {
         처음 오셨네요. 사용자 정보를 입력해주세요.
       </p>
 
-      <form onSubmit={onSubmit} className="space-y-5">
-        {/* 이메일(읽기전용) */}
+      <form onSubmit={onSubmit} className="w-full flex flex-col gap-5">
         <div>
           <label className="block text-sm font-medium mb-1">이메일</label>
           <input
             className="w-full border rounded px-3 py-2 bg-gray-50"
-            value={email}
+            value={user.email}
             readOnly
           />
         </div>
 
-        {/* 사용자명 */}
         <div>
           <label className="block text-sm font-medium mb-1">사용자명 *</label>
           <input
             className="w-full border rounded px-3 py-2"
-            value={userName}
-            onChange={(e) => onChangeUserName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="영문/숫자/-/_ 1~16자"
             maxLength={16}
           />
           <p
             className={`text-xs mt-1 ${
-              okUserName ? "text-green-600" : "text-gray-500"
+              hint === "중복된 사용자명입니다."
+                ? "text-red-600"
+                : hint === "사용 가능한 사용자명입니다."
+                ? "text-green-600"
+                : "text-gray-500"
             }`}
           >
-            {checking
-              ? "중복 검사 중…"
-              : hint || "영문/숫자/-/_ 만 허용됩니다."}
+            {hint ? hint : "영문/숫자/-/_ 만 허용됩니다."}
           </p>
         </div>
 
-        {/* 프로필 이미지 */}
         <div>
           <label className="block text-sm font-medium mb-1">
             프로필 이미지
           </label>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full overflow-hidden border bg-gray-50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt="avatar"
                 src={avatarUrl || "/placeholder.png"}
@@ -237,7 +162,6 @@ export default function OnboardingForm({ initial }: Props) {
           </p>
         </div>
 
-        {/* 휴대폰 */}
         <div>
           <label className="block text-sm font-medium mb-1">휴대폰</label>
           <input
@@ -245,11 +169,10 @@ export default function OnboardingForm({ initial }: Props) {
             value={phone}
             onChange={(e) => onChangePhone(e.target.value)}
             inputMode="numeric"
-            placeholder="010-1234-5678"
+            placeholder="- 없이 숫자만 입력"
           />
         </div>
 
-        {/* 주소(단일 컬럼) */}
         <div>
           <label className="block text-sm font-medium mb-1">주소</label>
           <textarea
@@ -260,13 +183,13 @@ export default function OnboardingForm({ initial }: Props) {
           />
         </div>
 
-        <div className="pt-2">
+        <div className="pt-2 ml-auto">
           <button
             type="submit"
-            disabled={saving || !userName}
+            disabled={!username}
             className="px-4 py-2 rounded border hover:bg-gray-50 disabled:opacity-60"
           >
-            {saving ? "저장 중..." : "저장하고 시작하기"}
+            저장하고 시작하기
           </button>
         </div>
       </form>

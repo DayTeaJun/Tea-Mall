@@ -15,8 +15,12 @@ export interface SignInFormData {
 
 export interface SignUpFormData {
   email: string;
-  password: string;
   username: string;
+  password?: string;
+  id?: string;
+  phone?: string;
+  address?: string;
+  profile_image_url?: string;
 }
 
 export interface UserProfileType {
