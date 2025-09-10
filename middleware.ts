@@ -47,17 +47,16 @@ export async function middleware(request: NextRequest) {
   // 0) 비로그인 + 보호 경로 → /signin
   if (!isLoggedIn && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/signin"; // ✅ 실제 URL
+    url.pathname = "/signin";
     return NextResponse.redirect(url);
   }
 
   // 1) 로그인 + username 없음 → /onboarding (예외 경로 제외)
   if (isLoggedIn && username == null && !isSafe) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/onboarding"; // ✅ 실제 URL
+    const clean = new URL("/onboarding", request.url);
     const returnTo = pathname + (search || "");
-    url.searchParams.set("returnTo", returnTo);
-    return NextResponse.redirect(url);
+    clean.searchParams.set("returnTo", returnTo);
+    return NextResponse.redirect(clean);
   }
 
   // 2) 로그인 + public 경로 접근 → 홈
