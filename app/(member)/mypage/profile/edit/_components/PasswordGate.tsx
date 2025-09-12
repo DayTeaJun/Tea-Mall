@@ -5,14 +5,6 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 
-const STORAGE_KEY = "profile_edit_verified_until";
-const REAUTH_TTL_MIN = 5; // 재인증 유효 시간
-
-export function hasValidProfileEditVerification(): boolean {
-  const until = Number(sessionStorage.getItem(STORAGE_KEY) ?? 0);
-  return Date.now() < until;
-}
-
 export default function PasswordGate({
   onVerified,
 }: {
@@ -40,10 +32,7 @@ export default function PasswordGate({
       toast.error("계정 불일치가 감지되었습니다.");
       return;
     }
-    sessionStorage.setItem(
-      STORAGE_KEY,
-      String(Date.now() + REAUTH_TTL_MIN * 60 * 1000),
-    );
+
     onVerified();
   };
 
@@ -66,7 +55,7 @@ export default function PasswordGate({
         disabled={password.length === 0}
         className="w-full bg-green-600 text-white py-2 rounded disabled:opacity-50"
       >
-        {"비밀번호 확인"}
+        비밀번호 확인
       </button>
     </div>
   );

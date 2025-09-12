@@ -46,6 +46,8 @@ export default function EditProfilePage() {
     data?.profile_image_url || "",
   );
 
+  const [isVerified, setIsVerified] = useState(false);
+
   const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
   const handleProfileImageChange = (file: File) => {
@@ -95,23 +97,13 @@ export default function EditProfilePage() {
     const p = user.app_metadata?.provider;
     if (p && p !== "email") return true;
 
-    console.log(p);
-
     const identities: Array<{ provider?: string }> = user.identities ?? [];
     return identities.some((id) => id.provider && id.provider !== "email");
   };
 
-  const [isVerified, setIsVerified] = useState(false);
+  const oauth = isOAuthUser(user);
 
-  useEffect(() => {
-    if (isOAuthUser(user)) {
-      setIsVerified(true);
-      return;
-    }
-    setIsVerified(hasValidProfileEditVerification());
-  }, [user]);
-
-  if (!isVerified) {
+  if (!oauth && !isVerified) {
     return <PasswordGate onVerified={() => setIsVerified(true)} />;
   }
 
