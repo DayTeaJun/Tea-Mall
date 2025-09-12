@@ -1,16 +1,25 @@
 "use client";
 
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import { usePathname, useSearchParams } from "next/navigation";
 import React from "react";
 
 function AuthUIForm() {
   const supabase = createBrowserSupabaseClient();
+  const pathname = usePathname();
+  const search = useSearchParams();
+  const next = `${pathname}${
+    search?.toString() ? `?${search.toString()}` : ""
+  }`;
 
   const handleGoogleLogin = async () => {
+    const site = process.env.NEXT_PUBLIC_SITE_URL!;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+        redirectTo: `${site}/api/auth/callback?next=${encodeURIComponent(
+          next,
+        )}`,
       },
     });
   };
