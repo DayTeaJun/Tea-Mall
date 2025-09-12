@@ -32,6 +32,8 @@ export async function getServerSession() {
       email: userData.user.email ?? "",
       user_name: user_table?.user_name ?? "",
       level: user_table?.level ?? 1,
+      app_metadata: userData.user.app_metadata,
+      identities: userData.user.identities,
       ...user_table,
       ...userData.user.user_metadata,
     },

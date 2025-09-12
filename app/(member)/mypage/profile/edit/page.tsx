@@ -89,11 +89,27 @@ export default function EditProfilePage() {
     }
   };
 
+  const isOAuthUser = (user?: any) => {
+    if (!user) return false;
+
+    const p = user.app_metadata?.provider;
+    if (p && p !== "email") return true;
+
+    console.log(p);
+
+    const identities: Array<{ provider?: string }> = user.identities ?? [];
+    return identities.some((id) => id.provider && id.provider !== "email");
+  };
+
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
+    if (isOAuthUser(user)) {
+      setIsVerified(true);
+      return;
+    }
     setIsVerified(hasValidProfileEditVerification());
-  }, []);
+  }, [user]);
 
   if (!isVerified) {
     return <PasswordGate onVerified={() => setIsVerified(true)} />;
