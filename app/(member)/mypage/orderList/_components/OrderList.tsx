@@ -54,11 +54,11 @@ export default function OrderList() {
       year: selectedYear ?? undefined,
     },
     currentPage,
-    1,
+    5,
   );
 
   const totalCount = orders?.count ?? 0;
-  const pageCount = Math.ceil(totalCount / 1);
+  const pageCount = Math.ceil(totalCount / 5);
 
   const { mutate: cancelOrderItem } = useUpdateCancelOrderItem(user?.id ?? "");
 
@@ -71,11 +71,13 @@ export default function OrderList() {
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
     setRecent6Months(false);
+    router.push("/mypage/orderList?query=&page=1");
   };
 
   const handleRecentClick = () => {
     setSelectedYear(null);
     setRecent6Months(true);
+    router.push("/mypage/orderList?query=&page=1");
   };
 
   const handleCancelOrder = () => {
