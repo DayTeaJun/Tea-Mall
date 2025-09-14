@@ -299,7 +299,7 @@ export default function OrderList() {
                             onClick={() =>
                               toast.info("배송 현황은 준비중 입니다.")
                             }
-                            className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                            className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
                           >
                             배송 현황 보기
                           </button>
@@ -318,7 +318,7 @@ export default function OrderList() {
                               });
                               setIsCancelOrderModal(true);
                             }}
-                            className={`border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30 ${
+                            className={`border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30 ${
                               item.delivery_status === "배송중"
                                 ? "col-span-1"
                                 : "col-span-2 sm:col-span-1"
@@ -334,7 +334,7 @@ export default function OrderList() {
                               onClick={() =>
                                 toast.info("교환, 반품 신청은 준비중 입니다.")
                               }
-                              className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                              className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
                             >
                               교환, 반품 신청
                             </button>
@@ -342,7 +342,7 @@ export default function OrderList() {
                               onClick={() =>
                                 router.push(`/productReview/${item.product_id}`)
                               }
-                              className="border rounded-md px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
+                              className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer"
                             >
                               리뷰 작성하기
                             </button>
