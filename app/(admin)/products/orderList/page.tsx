@@ -43,21 +43,23 @@ export default function AdminOrderList() {
     user?.id ?? "",
     { searchKeyword: keyword, recent6Months, year: selectedYear ?? undefined },
     currentPage,
-    1,
+    5,
     user?.level ?? 0,
   );
 
   const totalCount = orders?.count ?? 0;
-  const pageCount = Math.ceil(totalCount / 1);
+  const pageCount = Math.ceil(totalCount / 5);
 
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
     setRecent6Months(false);
+    router.push("/mypage/orderList?query=&page=1");
   };
 
   const handleRecentClick = () => {
     setSelectedYear(null);
     setRecent6Months(true);
+    router.push("/mypage/orderList?query=&page=1");
   };
 
   const statusOptions = [
