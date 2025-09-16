@@ -47,7 +47,7 @@ export default async function CommentsSection({ productId }: Props) {
               >
                 <div className="flex gap-2 items-center">
                   <div className="rounded-full overflow-hidden">
-                    {!comment.user_table.profile_image_url ? (
+                    {comment.user_table.profile_image_url ? (
                       <Image
                         src={comment.user_table.profile_image_url}
                         alt={comment.user_name}
