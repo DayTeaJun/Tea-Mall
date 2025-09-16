@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
-import { MessageCircleQuestion, Star } from "lucide-react";
+import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
 import ReportBtn from "./ReportBtn";
 import CommentBtn from "./CommentBtn";
@@ -13,9 +13,18 @@ export default async function CommentsSection({ productId }: Props) {
 
   const { data: comments } = await supabase
     .from("reviews")
-    .select("*")
+    .select(
+      `
+    *,
+    user_table (
+      profile_image_url
+    )
+  `,
+    )
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
+
+  console.log(comments);
 
   return (
     <section className="border-t">
@@ -36,28 +45,48 @@ export default async function CommentsSection({ productId }: Props) {
                 key={comment.id}
                 className="py-4 border-b flex flex-col gap-4"
               >
-                <div className="flex justify-between -my-2 text-sm text-gray-800">
-                  <span>{comment.user_name}</span>
-                  <span className="text-gray-500 text-[13px]">
-                    {new Date(comment.created_at || "").toLocaleDateString()}
-                  </span>
-                </div>
+                <div className="flex gap-2 items-center">
+                  <div className="rounded-full overflow-hidden">
+                    {!comment.user_table.profile_image_url ? (
+                      <Image
+                        src={comment.user_table.profile_image_url}
+                        alt={comment.user_name}
+                        width={40}
+                        height={40}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 flex items-center justify-center text-gray-300">
+                        <UserRound size={32} />
+                      </div>
+                    )}
+                  </div>
 
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={
-                        i < comment.rating ? "text-yellow-500" : "text-gray-300"
-                      }
-                      fill={
-                        i < comment.rating
-                          ? "oklch(79.5% 0.184 86.047)"
-                          : "none"
-                      }
-                    />
-                  ))}
+                  <div className="flex flex-1 justify-between -my-2 text-sm text-gray-800">
+                    <div className="flex flex-col justify-between">
+                      <span>{comment.user_name}</span>
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={16}
+                            className={
+                              i < comment.rating
+                                ? "text-yellow-500"
+                                : "text-gray-300"
+                            }
+                            fill={
+                              i < comment.rating
+                                ? "oklch(79.5% 0.184 86.047)"
+                                : "none"
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-gray-500 text-[13px]">
+                      {new Date(comment.created_at || "").toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
 
                 {comment.images && comment.images.length > 0 && (
