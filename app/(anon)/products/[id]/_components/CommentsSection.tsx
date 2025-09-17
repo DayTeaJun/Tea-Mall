@@ -3,10 +3,15 @@ import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
 import ReportBtn from "./ReportBtn";
 import CommentBtn from "./CommentBtn";
+import { Database } from "@/lib/config/supabase/types_db";
 
 interface Props {
   productId: string;
 }
+
+type ReviewWithUser = Database["public"]["Tables"]["reviews"]["Row"] & {
+  user_table: { profile_image_url: string | null } | null;
+};
 
 export default async function CommentsSection({ productId }: Props) {
   const supabase = await createServerSupabaseClient();
@@ -15,16 +20,12 @@ export default async function CommentsSection({ productId }: Props) {
     .from("reviews")
     .select(
       `
-    *,
-    user_table (
-      profile_image_url
-    )
+    id, user_name, rating, created_at, images, content, product_id,
+    user_table ( profile_image_url )
   `,
     )
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
-
-  console.log(comments);
 
   return (
     <section className="border-t">
@@ -40,14 +41,14 @@ export default async function CommentsSection({ productId }: Props) {
               아직 작성된 리뷰가 없습니다.
             </li>
           ) : (
-            comments.map((comment) => (
+            comments.map((comment: ReviewWithUser) => (
               <li
                 key={comment.id}
                 className="py-4 border-b flex flex-col gap-4"
               >
                 <div className="flex gap-2 items-center">
                   <div className="rounded-full overflow-hidden">
-                    {comment.user_table.profile_image_url ? (
+                    {comment?.user_table?.profile_image_url ? (
                       <Image
                         src={comment.user_table.profile_image_url}
                         alt={comment.user_name}
