@@ -3,15 +3,10 @@ import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
 import ReportBtn from "./ReportBtn";
 import CommentBtn from "./CommentBtn";
-import { Database } from "@/lib/config/supabase/types_db";
 
 interface Props {
   productId: string;
 }
-
-type ReviewWithUser = Database["public"]["Tables"]["reviews"]["Row"] & {
-  user_table: { profile_image_url: string | null } | null;
-};
 
 export default async function CommentsSection({ productId }: Props) {
   const supabase = await createServerSupabaseClient();
@@ -41,7 +36,7 @@ export default async function CommentsSection({ productId }: Props) {
               아직 작성된 리뷰가 없습니다.
             </li>
           ) : (
-            comments.map((comment: ReviewWithUser) => (
+            comments.map((comment) => (
               <li
                 key={comment.id}
                 className="py-4 border-b flex flex-col gap-4"
