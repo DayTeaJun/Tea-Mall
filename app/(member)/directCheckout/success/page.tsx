@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, XCircle } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
+import { CheckoutItem } from "@/types/product";
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
@@ -90,20 +91,28 @@ export default function CheckoutSuccessPage() {
         return;
       }
 
-      const mergedItems = items.reduce((acc: any[], item: any) => {
-        const size = item.options?.size ?? null;
-        const existing = acc.find(
-          (i) => i.product.id === item.product.id && i.options?.size === size,
-        );
+      function mergeItems(items: CheckoutItem[]): CheckoutItem[] {
+        const map = new Map<string, CheckoutItem>();
 
-        if (existing) {
-          existing.quantity += item.quantity;
-        } else {
-          acc.push({ ...item });
+        for (const item of items) {
+          const size = item.options?.size ?? null;
+          const key = `${item.product.id}::${size ?? "null"}`;
+
+          const existed = map.get(key);
+          if (existed) {
+            map.set(key, {
+              ...existed,
+              quantity: existed.quantity + item.quantity,
+            });
+          } else {
+            map.set(key, { ...item });
+          }
         }
 
-        return acc;
-      }, []);
+        return Array.from(map.values());
+      }
+
+      const mergedItems = mergeItems(items as CheckoutItem[]);
 
       const orderItems = mergedItems.map((item) => {
         const price = item.product?.price;
