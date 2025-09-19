@@ -85,3 +85,18 @@ export interface OrderDetailsType {
   order_items: OrderItemType[];
   user: OrderUserType | null;
 }
+
+type Product = {
+  id: string;
+  price: number;
+};
+
+type ItemOptions = {
+  size?: string | null;
+};
+
+export interface CheckoutItem {
+  product: Product;
+  quantity: number;
+  options?: ItemOptions;
+}
