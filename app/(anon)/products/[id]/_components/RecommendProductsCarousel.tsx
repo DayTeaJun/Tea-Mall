@@ -11,11 +11,12 @@ export default function RecommendProductsCarousel() {
   const { data: products, isLoading } = useProductAllToMainQuery();
 
   const scroll = (direction: "left" | "right") => {
-    const container = carouselRef.current;
-    if (!container) return;
-    const scrollAmount = container.clientWidth * 0.8;
-    container.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
+    const el = carouselRef.current;
+    if (!el) return;
+    // 한 화면(컨테이너 폭) 단위로 이동 → 끊김 없이 정렬
+    const delta = el.clientWidth;
+    el.scrollBy({
+      left: direction === "left" ? -delta : delta,
       behavior: "smooth",
     });
   };
@@ -36,16 +37,29 @@ export default function RecommendProductsCarousel() {
 
       <div
         ref={carouselRef}
-        className="flex overflow-hidden gap-4 scroll-smooth"
+        className={`
+          flex gap-4
+          overflow-hidden
+          scroll-smooth
+          snap-x snap-mandatory
+          px-1
+        `}
       >
         {!isLoading &&
           products &&
           products.map((product) => (
             <div
               key={product.id}
-              className="w-[calc(100%/2-16px)]  md:w-[calc(100%/3-16px)] lg:w-[calc(100%/4-16px)] flex-shrink-0 py-2"
+              data-card
+              className={`
+                flex-none snap-start py-2
+                basis-[calc((100%-0rem)/1)]
+                sm:basis-[calc((100%-1rem)/2)]
+                md:basis-[calc((100%-2rem)/3)]
+                lg:basis-[calc((100%-3rem)/4)]
+              `}
             >
-              <ProductCard recommend={true} products={product} />
+              <ProductCard recommend products={product} />
             </div>
           ))}
       </div>
