@@ -15,7 +15,7 @@ export default async function CommentsSection({ productId }: Props) {
     .from("reviews")
     .select(
       `
-    id, user_name, rating, created_at, images, content, product_id,
+    id, user_name, rating, created_at, images, content, product_id, updated_at,
     user_table ( profile_image_url )
   `,
     )
@@ -79,9 +79,19 @@ export default async function CommentsSection({ productId }: Props) {
                         ))}
                       </div>
                     </div>
-                    <span className="text-gray-500 text-[13px]">
-                      {new Date(comment.created_at || "").toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 text-[13px]">
+                        {new Date(
+                          comment.created_at || "",
+                        ).toLocaleDateString()}
+
+                        {comment.updated_at && (
+                          <span className="text-gray-500 text-[12px]">
+                            (수정됨)
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
