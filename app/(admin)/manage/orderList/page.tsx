@@ -53,13 +53,13 @@ export default function AdminOrderList() {
   const handleYearClick = (year: number) => {
     setSelectedYear(year);
     setRecent6Months(false);
-    router.push("/mypage/orderList?query=&page=1");
+    router.push("/manage/orderList?query=&page=1");
   };
 
   const handleRecentClick = () => {
     setSelectedYear(null);
     setRecent6Months(true);
-    router.push("/mypage/orderList?query=&page=1");
+    router.push("/manage/orderList?query=&page=1");
   };
 
   const statusOptions = [
