@@ -59,7 +59,7 @@ export const useCreateProductMutation = () => {
         queryKey: ["manageProducts"],
       });
       toast.success("상품 등록이 완료되었습니다.");
-      router.push("/products/manage");
+      router.push("/manage/productList");
     },
     onError: (error) => {
       if (error instanceof Error) {

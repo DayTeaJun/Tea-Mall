@@ -25,18 +25,18 @@ export default function AdminOrderList() {
 
   const handlePageChange = (selected: { selected: number }) => {
     const newPage = selected.selected + 1;
-    router.push(`/products/orderList?query=${keyword}&page=${newPage}`);
+    router.push(`/manage/orderList?query=${keyword}&page=${newPage}`);
   };
 
   const handleSearch = () => {
-    router.push(`/products/orderList?query=${searchInput}&page=1`);
+    router.push(`/manage/orderList?query=${searchInput}&page=1`);
   };
 
   const handleSearchRefresh = () => {
     setRecent6Months(true);
     setSelectedYear(null);
     setSearchInput("");
-    router.push("/products/orderList?query=&page=1");
+    router.push("/manage/orderList?query=&page=1");
   };
 
   const { data: orders, isLoading } = useGetOrders(
@@ -195,7 +195,7 @@ export default function AdminOrderList() {
               <button
                 onClick={() =>
                   router.push(
-                    `/products/orderList/orderDetail?orderId=${order.id}`,
+                    `/manage/orderList/orderDetail?orderId=${order.id}`,
                   )
                 }
                 className="text-sm hover:underline"

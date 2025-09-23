@@ -8,23 +8,23 @@ import { useState } from "react";
 const menu = [
   {
     name: "등록 상품 관리",
-    currentPage: "/products/manage",
-    href: "/products/manage",
+    currentPage: "/manage/productList",
+    href: "/manage/productList",
   },
   {
     name: "상품 등록",
-    currentPage: "/products/regist",
-    href: "/products/regist",
+    currentPage: "/manage/regist",
+    href: "/manage/regist",
   },
   {
     name: "주문 상태 관리",
-    currentPage: "/products/orderList",
-    href: "/products/orderList?query=&page=1",
+    currentPage: "/manage/orderList",
+    href: "/manage/orderList?query=&page=1",
   },
 ];
 
 const detailPage = [
-  { href: "/products/orderList/orderDetail" },
+  { href: "/manage/orderList/orderDetail" },
   { href: "/edit" },
 ];
 

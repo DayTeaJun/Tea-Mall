@@ -10,8 +10,8 @@ import {
 } from "@/lib/queries/auth";
 import { User } from "@supabase/supabase-js";
 import { ImgPreview } from "@/hooks/useImagePreview";
-import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
 import DaumPostcode from "@/components/common/AddressSearch";
+import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
 
 interface Props {
   user: User;

@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
-import ImagePreviews from "@/app/(admin)/products/regist/_components/ImagePreview";
-import DetailImagePreview from "@/app/(admin)/products/regist/_components/DetailImagePreview";
 import {
   uploadImageToStorage,
   useUpdateProductMutation,
@@ -12,6 +10,8 @@ import {
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { Json } from "@/lib/config/supabase/types_db";
+import ImagePreviews from "../../../regist/_components/ImagePreview";
+import DetailImagePreview from "../../../regist/_components/DetailImagePreview";
 
 interface ProductWithImages {
   category: string | null;

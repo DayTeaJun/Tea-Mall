@@ -355,7 +355,7 @@ export function useDeleteOrderMutation(
       queryClient.invalidateQueries({ queryKey: ["orders", userId] });
       toast.success("주문 내역이 삭제되었습니다.");
       if (manage) {
-        router.replace("/products/orderList");
+        router.replace("/manage/orderList");
       } else {
         router.replace("/mypage/orderList?page=1");
       }

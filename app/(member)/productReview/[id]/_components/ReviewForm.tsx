@@ -1,6 +1,6 @@
 "use client";
 
-import DetailImagePreview from "@/app/(admin)/products/regist/_components/DetailImagePreview";
+import DetailImagePreview from "@/app/(admin)/manage/regist/_components/DetailImagePreview";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";

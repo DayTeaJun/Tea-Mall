@@ -34,7 +34,7 @@ export default function ProductListPage() {
         />
 
         <button
-          onClick={() => router.push("/products/regist")}
+          onClick={() => router.push("/manage/regist")}
           className="text-black flex gap-1 items-center cursor-pointer border p-2 px-4 hover:bg-gray-100 duration-200 transition-all rounded self-stretch sm:self-auto justify-center"
         >
           <p className="text-[14px]">상품등록</p>
@@ -131,7 +131,7 @@ export default function ProductListPage() {
                       <div className="flex flex-col gap-2">
                         <button
                           onClick={() =>
-                            router.push(`/products/${product.id}/edit`)
+                            router.push(`/manage/edit/${product.id}`)
                           }
                           className="border p-2 cursor-pointer hover:bg-gray-100 duration-200 transition-all"
                         >
@@ -228,7 +228,7 @@ export default function ProductListPage() {
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <button
                         onClick={() =>
-                          router.push(`/products/${product.id}/edit`)
+                          router.push(`/manage/edit/${product.id}`)
                         }
                         className="border rounded p-2 text-sm hover:bg-gray-100 active:scale-[0.99] transition"
                       >

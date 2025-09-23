@@ -5,9 +5,9 @@ import { updateSession } from "./lib/config/supabase/server/middleware";
 const protectedRoutes = [
   "/mypage",
   "/myCart",
-  "/products/manage",
-  "/products/regist",
-  "/products/orderList",
+  "/manage",
+  "/manage/regist",
+  "/manage/orderList",
   "/productReview",
   "/directCheckout",
 ];
@@ -17,7 +17,7 @@ const publicRoutes = ["/signin", "/signup"];
 
 // 권한 라우트
 const adminRoutes = ["/admin"];
-const sellerRoutes = ["/products/manage", "/products/regist"];
+const sellerRoutes = ["/manage/productList", "/manage/regist"];
 
 // 온보딩/인증/정적 등 예외(리다이렉트 루프 방지)
 const onboardingSafePrefixes = [
