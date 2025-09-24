@@ -7,8 +7,8 @@ import { ProductType } from "@/types/product";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import DetailImagePreview from "@/app/(admin)/products/regist/_components/DetailImagePreview";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
+import DetailImagePreview from "@/app/(admin)/manage/regist/_components/DetailImagePreview";
 
 function ReviewEditForm({
   product,
