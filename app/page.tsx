@@ -6,11 +6,33 @@ export default function Home() {
     <main className="sm:mt-4">
       <section className="text-center">
         <div className="hidden sm:block">
-          <h1 className="text-3xl font-bold text-green-600">Tea Mall</h1>
+          <h1 className="text-3xl font-bold text-green-600">T-Mall</h1>
 
           <p className="text-gray-500 mt-2">
-            당신의 취향을 찾아드립니다. 다양한 티백을 만나보세요.
+            사이즈, 핏, 가격까지 한 번에 비교하고 고르는 남녀 공용부터 트렌디
+            라인
           </p>
+
+          {/* <div className="mt-4 flex items-center justify-center gap-3">
+            <Link
+              href="/products?sort=new&page=1"
+              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
+            >
+              신상품
+            </Link>
+            <Link
+              href="/products?sort=best&page=1"
+              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
+            >
+              베스트
+            </Link>
+            <Link
+              href="/products?category=sale&page=1"
+              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
+            >
+              세일
+            </Link>
+          </div> */}
         </div>
 
         <MainCarousel />

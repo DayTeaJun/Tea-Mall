@@ -14,7 +14,7 @@ async function Header({ user }: { user: UserType | null }) {
           <div className="w-full max-w-7xl mx-auto flex items-center gap-4 h-10 justify-end sm:px-8">
             <h1 className="mr-auto text-green-600 text-[14px] sm:hidden">
               <Link href="/" className="text-green-600 font-bold">
-                Tea Mall
+                T-Mall
               </Link>
             </h1>
 
@@ -54,7 +54,7 @@ async function Header({ user }: { user: UserType | null }) {
         <div className="w-full max-w-7xl mx-auto py-2 px-4 sm:px-8 flex items-center h-14 justify-between bg-white">
           <h1 className="text-green-600 text-2xl sm:block hidden">
             <Link href="/" className="text-green-600 font-bold">
-              Tea Mall
+              T-Mall
             </Link>
           </h1>
           <nav className="flex gap-4 items-center justify-between w-full sm:w-auto sm:ml-auto">
