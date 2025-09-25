@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "@/styles/globals.css";
 import LayoutSection from "@/components/layout/LayoutSection";
 import ReactQueryClientProvider from "@/components/providers/ReactQueryProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -7,8 +6,9 @@ import { getServerSession } from "@/lib/config/supabase/server/getServerSession"
 import Toaster from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Tea - Mall",
-  description: "Find one's taste, Tea Mall",
+  title: "T-Mall",
+  description:
+    "티셔츠부터 아우터까지, 다양한 사이즈와 합리적인 가격으로 만나는 패션 쇼핑몰 T-Mall.",
 };
 
 export default async function RootLayout({
