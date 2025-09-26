@@ -4,6 +4,7 @@ import ReactQueryClientProvider from "@/components/providers/ReactQueryProvider"
 import AuthProvider from "@/components/providers/AuthProvider";
 import { getServerSession } from "@/lib/config/supabase/server/getServerSession";
 import Toaster from "@/components/ui/sonner";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "T-Mall",
