@@ -5,6 +5,7 @@ import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
+import CategoryTabs from "../ui/CategoryTabs";
 
 async function Header({ user }: { user: UserType | null }) {
   return (
@@ -64,6 +65,12 @@ async function Header({ user }: { user: UserType | null }) {
               <CartLinkBtn />
             </div>
           </nav>
+        </div>
+
+        <div className="w-full border-t bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8">
+            <CategoryTabs basePath="/products" />
+          </div>
         </div>
       </div>
     </header>
