@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 type CategoryTabsProps = {
   categories?: string[];
-  basePath?: string; // 카테고리 링크 생성 시 사용할 basePath (예: "/products")
+  basePath?: string;
   initial?: string;
 };
 
@@ -17,23 +17,23 @@ export default function CategoryTabs({
     "티셔츠",
     "셔츠/블라우스",
     "아우터",
-    "팬츠",
     "스커트",
     "드레스",
     "니트",
     "스포츠웨어",
-    "신발",
-    "액세서리",
   ],
-  basePath = "/products",
+  basePath = "/search",
   initial,
 }: CategoryTabsProps) {
   const searchParams = useSearchParams();
 
   const paramCategory = searchParams?.get("category") ?? undefined;
-  const defaultCategory = paramCategory ?? initial ?? categories[0];
+  const query = searchParams?.get("query") ?? ""; // 기본 검색어
+  const page = searchParams?.get("page") ?? "1"; // 기본 페이지
 
+  const defaultCategory = paramCategory ?? initial ?? categories[0];
   const [active, setActive] = useState<string>(defaultCategory);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<HTMLAnchorElement | null>(null);
 
@@ -66,9 +66,10 @@ export default function CategoryTabs({
       <div className="inline-flex gap-2 py-2 px-1">
         {categories.map((cat) => {
           const isActive = cat === active;
-          const href = `${basePath}${
-            basePath.includes("?") ? "&" : "?"
-          }category=${encodeURIComponent(cat)}`;
+          const href = `${basePath}?query=${encodeURIComponent(
+            query,
+          )}&page=${page}&category=${encodeURIComponent(cat)}`;
+
           return (
             <Link
               key={cat}
