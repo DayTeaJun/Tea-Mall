@@ -224,6 +224,7 @@ export const useDeleteCartItemMutation = (userId: string) => {
 
 // 상품 검색 쿼리
 const getSearchProducts = async (
+  category: string,
   query: string,
   page: number,
   limit: number,
@@ -236,6 +237,7 @@ const getSearchProducts = async (
     .select("*", { count: "exact" })
     .range(from, to)
     .eq("deleted", false)
+    .eq(category && category !== "전체" ? "category" : "", category || "")
     .ilike("name", `%${query}%`)
     .order("created_at", { ascending: false });
 
@@ -247,13 +249,14 @@ const getSearchProducts = async (
 };
 
 export const useSearchProductsQuery = (
-  query: string,
+  category: string,
+  query: string = "",
   page: number,
   limit: number,
 ) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["searchProducts", query, page, limit],
-    queryFn: () => getSearchProducts(query, page, limit),
+    queryKey: ["searchProducts", category, query, page, limit],
+    queryFn: () => getSearchProducts(category, query, page, limit),
     enabled: !!query.trim(),
   });
 

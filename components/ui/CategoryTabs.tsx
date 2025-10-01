@@ -13,7 +13,7 @@ type CategoryTabsProps = {
 export default function CategoryTabs({
   categories = [
     "전체",
-    "신상품",
+    "상의",
     "티셔츠",
     "셔츠/블라우스",
     "아우터",
@@ -66,9 +66,9 @@ export default function CategoryTabs({
       <div className="inline-flex gap-2 py-2 px-1">
         {categories.map((cat) => {
           const isActive = cat === active;
-          const href = `${basePath}?query=${encodeURIComponent(
-            query,
-          )}&page=${page}&category=${encodeURIComponent(cat)}`;
+          const href = `${basePath}?category=${encodeURIComponent(
+            cat,
+          )}&query=${encodeURIComponent(query)}&page=${page}`;
 
           return (
             <Link

@@ -11,10 +11,13 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") ?? "";
 
+  const category = searchParams.get("category") ?? "";
+
   const keyword = searchParams.get("query") ?? "";
 
   const currentPage = Number(searchParams.get("page") ?? 1);
   const { data: products, isLoading } = useSearchProductsQuery(
+    category,
     query,
     currentPage,
     8,
@@ -37,7 +40,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="p-4 sm:p-8 w-full max-w-7xl mx-auto">
+    <div className="p-4 sm:p-8 py-8 sm:py-16 w-full max-w-7xl mx-auto">
       <h1 className="text-[16px] sm:text-2xl mb-4 text-center">
         Search Result
       </h1>
