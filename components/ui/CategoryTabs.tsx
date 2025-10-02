@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 
 type CategoryTabsProps = {
   categories?: string[];
@@ -26,21 +26,34 @@ export default function CategoryTabs({
   initial,
 }: CategoryTabsProps) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const paramCategory = searchParams?.get("category") ?? undefined;
-  const query = searchParams?.get("query") ?? ""; // 기본 검색어
-  const page = searchParams?.get("page") ?? "1"; // 기본 페이지
+  const query = searchParams?.get("query") ?? "";
+  const page = searchParams?.get("page") ?? "1";
 
-  const defaultCategory = paramCategory ?? initial ?? categories[0];
+  const defaultCategory =
+    pathname === basePath
+      ? paramCategory ?? initial ?? categories[0]
+      : categories[0];
+
   const [active, setActive] = useState<string>(defaultCategory);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
+    if (pathname !== basePath) {
+      setActive(categories[0]);
+      return;
+    }
+
     if (paramCategory && paramCategory !== active) setActive(paramCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramCategory]);
+
+    if (paramCategory === null && active !== categories[0]) {
+      setActive(categories[0]);
+    }
+  }, [paramCategory, pathname]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -66,9 +79,14 @@ export default function CategoryTabs({
       <div className="inline-flex gap-2 py-2 px-1">
         {categories.map((cat) => {
           const isActive = cat === active;
-          const href = `${basePath}?category=${encodeURIComponent(
-            cat,
-          )}&query=${encodeURIComponent(query)}&page=${page}`;
+
+          // search 페이지일 때만 querystring 유지
+          const href =
+            pathname === basePath
+              ? `${basePath}?category=${encodeURIComponent(
+                  cat,
+                )}&query=${encodeURIComponent(query)}&page=${page}`
+              : basePath; // 그 외는 단순 basePath (전체로)
 
           return (
             <Link
