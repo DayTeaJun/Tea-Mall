@@ -26,7 +26,13 @@ export default function CategoryTabs({
   initial,
 }: CategoryTabsProps) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
+
+  const allowedPaths = ["/", "/search", "/products"];
+
+  const isAllowedPath = allowedPaths.some((p) =>
+    p === "/" ? pathname === "/" : pathname.startsWith(p),
+  );
 
   const paramCategory = searchParams?.get("category") ?? undefined;
   const query = searchParams?.get("query") ?? "";
@@ -69,44 +75,50 @@ export default function CategoryTabs({
     container.scrollBy({ left: offset, behavior: "smooth" });
   }, [active]);
 
+  if (!isAllowedPath) return null;
+
   return (
-    <div
-      className="w-full overflow-x-auto scrollbar-hide"
-      ref={containerRef}
-      role="tablist"
-      aria-label="의류 카테고리"
-    >
-      <div className="inline-flex gap-2 py-2 px-1">
-        {categories.map((cat) => {
-          const isActive = cat === active;
+    <div className="w-full border-t bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div
+          className="w-full overflow-x-auto scrollbar-hide"
+          ref={containerRef}
+          role="tablist"
+          aria-label="의류 카테고리"
+        >
+          <div className="inline-flex gap-2 py-2 px-1">
+            {categories.map((cat) => {
+              const isActive = cat === active;
 
-          // search 페이지일 때만 querystring 유지
-          const href =
-            pathname === basePath
-              ? `${basePath}?category=${encodeURIComponent(
-                  cat,
-                )}&query=${encodeURIComponent(query)}&page=${page}`
-              : basePath; // 그 외는 단순 basePath (전체로)
+              // search 페이지일 때만 querystring 유지
+              const href =
+                pathname === basePath
+                  ? `${basePath}?category=${encodeURIComponent(
+                      cat,
+                    )}&query=${encodeURIComponent(query)}&page=${page}`
+                  : basePath; // 그 외는 단순 basePath (전체로)
 
-          return (
-            <Link
-              key={cat}
-              href={href}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActive(cat)}
-              ref={isActive ? activeRef : undefined}
-              className={
-                "inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium transition " +
-                (isActive
-                  ? "bg-green-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-800 hover:bg-gray-200")
-              }
-            >
-              {cat}
-            </Link>
-          );
-        })}
+              return (
+                <Link
+                  key={cat}
+                  href={href}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActive(cat)}
+                  ref={isActive ? activeRef : undefined}
+                  className={
+                    "inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium transition " +
+                    (isActive
+                      ? "bg-green-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-800 hover:bg-gray-200")
+                  }
+                >
+                  {cat}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

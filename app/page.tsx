@@ -12,27 +12,6 @@ export default function Home() {
             사이즈, 핏, 가격까지 한 번에 비교하고 고르는 남녀 공용부터 트렌디
             라인
           </p>
-
-          {/* <div className="mt-4 flex items-center justify-center gap-3">
-            <Link
-              href="/products?sort=new&page=1"
-              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
-            >
-              신상품
-            </Link>
-            <Link
-              href="/products?sort=best&page=1"
-              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
-            >
-              베스트
-            </Link>
-            <Link
-              href="/products?category=sale&page=1"
-              className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
-            >
-              세일
-            </Link>
-          </div> */}
         </div>
 
         <MainCarousel />

@@ -67,11 +67,7 @@ async function Header({ user }: { user: UserType | null }) {
           </nav>
         </div>
 
-        <div className="w-full border-t bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8">
-            <CategoryTabs basePath="/search" />
-          </div>
-        </div>
+        <CategoryTabs basePath="/search" />
       </div>
     </header>
   );
