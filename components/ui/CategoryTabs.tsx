@@ -90,13 +90,12 @@ export default function CategoryTabs({
             {categories.map((cat) => {
               const isActive = cat === active;
 
-              // search 페이지일 때만 querystring 유지
-              const href =
-                pathname === basePath
-                  ? `${basePath}?category=${encodeURIComponent(
-                      cat,
-                    )}&query=${encodeURIComponent(query)}&page=${page}`
-                  : basePath; // 그 외는 단순 basePath (전체로)
+              const params = new URLSearchParams();
+              params.set("category", cat);
+              if (query) params.set("query", query);
+              if (page) params.set("page", page);
+
+              const href = `${basePath}?${params.toString()}`;
 
               return (
                 <Link
