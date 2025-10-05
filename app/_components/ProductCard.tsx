@@ -52,7 +52,6 @@ function ProductCard({
             src={products.image_url}
             alt={products.name}
             className="object-cover w-full h-full group-hover:scale-105 duration-200 transition-all"
-            sizes="(max-width: 640px) 100vw, 33vw"
             onError={() => setImageError(true)}
             priority={recommend}
           />
@@ -79,7 +78,7 @@ function ProductCard({
         )}
       </div>
 
-      <div className="sm:block flex flex-col">
+      <div className="flex-1 flex flex-col">
         <h3 className="text-lg font-medium line-clamp-2">{products.name}</h3>
 
         <p className="mt-1 text-red-600 font-bold tracking-wide">
@@ -87,7 +86,7 @@ function ProductCard({
         </p>
 
         {reviewCount > 0 ? (
-          <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-1 w-[120px]">
             {[...Array(maxRating)].map((_, index) => {
               const isFilled = index < Math.round(avgRating);
               return (
@@ -107,7 +106,7 @@ function ProductCard({
             </p>
           </div>
         ) : (
-          <div className="h-5" />
+          <div className="h-5 w-[120px]" />
         )}
       </div>
     </Link>
