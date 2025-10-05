@@ -40,18 +40,23 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="p-4 sm:p-8 py-8 sm:py-16 w-full max-w-7xl mx-auto">
+    <div className="py-8 p-4 sm:p-4 sm:py-8 w-full max-w-7xl mx-auto">
       <h1 className="text-[16px] sm:text-2xl mb-4 text-center">
         Search Result
       </h1>
-      <p className="text-center text-[14px] sm:text-xl text-gray-500 mb-4 sm:mb-8">
-        <span className="text-black font-semibold">
-          &quot;
-          {query}
-          &quot;
-        </span>{" "}
-        에 대한 검색 결과입니다.
-      </p>
+
+      {query && (
+        <>
+          <p className="text-center text-[14px] sm:text-xl text-gray-500 mb-4 sm:mb-8">
+            <span className="text-black font-semibold">
+              &quot;
+              {query}
+              &quot;
+            </span>{" "}
+            에 대한 검색 결과입니다.
+          </p>
+        </>
+      )}
 
       {isLoading ? (
         <section className="min-h-[calc(100vh-329px)] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">

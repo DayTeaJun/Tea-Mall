@@ -224,22 +224,31 @@ export const useDeleteCartItemMutation = (userId: string) => {
 
 // 상품 검색 쿼리
 const getSearchProducts = async (
-  category: string,
-  query: string,
+  category: string = "",
+  query: string = "",
   page: number,
   limit: number,
 ) => {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const { data, count, error } = await supabase
+  let queryBuilder = supabase
     .from("products")
     .select("*", { count: "exact" })
     .range(from, to)
-    .eq("deleted", false)
-    .eq(category && category !== "전체" ? "category" : "", category || "")
-    .ilike("name", `%${query}%`)
-    .order("created_at", { ascending: false });
+    .eq("deleted", false);
+
+  if (category && category !== "전체") {
+    queryBuilder = queryBuilder.eq("category", category);
+  }
+
+  if (query.trim() !== "") {
+    queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+  }
+
+  const { data, count, error } = await queryBuilder.order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     throw new Error(error.message);
@@ -249,7 +258,7 @@ const getSearchProducts = async (
 };
 
 export const useSearchProductsQuery = (
-  category: string,
+  category: string = "",
   query: string = "",
   page: number,
   limit: number,
@@ -257,7 +266,6 @@ export const useSearchProductsQuery = (
   const { data, isLoading } = useQuery({
     queryKey: ["searchProducts", category, query, page, limit],
     queryFn: () => getSearchProducts(category, query, page, limit),
-    enabled: !!query.trim(),
   });
 
   return {
