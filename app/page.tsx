@@ -3,7 +3,7 @@ import ProductList from "./_components/ProductList";
 
 export default function Home() {
   return (
-    <main className="sm:mt-4">
+    <main className="sm:mt-16 mt-12">
       <section className="text-center">
         <div className="hidden sm:block">
           <h1 className="text-3xl font-bold text-green-600">T-Mall</h1>

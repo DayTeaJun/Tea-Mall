@@ -40,7 +40,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="py-8 p-4 sm:p-4 sm:py-8 w-full max-w-7xl mx-auto">
+    <div className="mt-8 py-8 p-4 sm:p-4 sm:py-8 w-full max-w-7xl mx-auto">
       <h1 className="text-[16px] sm:text-2xl mb-4 text-center">
         Search Result
       </h1>
