@@ -130,9 +130,9 @@ export default function AdminOrderList() {
           <div className="flex gap-2 pb-2">
             <button
               type="button"
-              className={`px-3 py-2 rounded-md text-sm shrink-0 ${
+              className={`px-3 py-2 rounded-md text-sm shrink-0 border ${
                 recent6Months
-                  ? "bg-gray-300 text-white"
+                  ? "bg-gray-500 text-white"
                   : "text-gray-700 hover:bg-gray-300 hover:text-white"
               }`}
               onClick={handleRecentClick}
@@ -145,9 +145,9 @@ export default function AdminOrderList() {
                 <button
                   key={year}
                   onClick={() => handleYearClick(year)}
-                  className={`px-3 py-2 rounded-md text-sm cursor-pointer shrink-0 ${
+                  className={`px-3 py-2 rounded-md text-sm cursor-pointer shrink-0 border ${
                     selectedYear === year
-                      ? "bg-gray-300 text-white"
+                      ? "bg-gray-500 text-white"
                       : "text-gray-700 hover:bg-gray-300 hover:text-white"
                   }`}
                 >
