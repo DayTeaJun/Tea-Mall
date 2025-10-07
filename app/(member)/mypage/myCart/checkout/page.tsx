@@ -102,7 +102,7 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-8">
         <div className="flex flex-col gap-8 col-span-2">
           <section className="border rounded">
-            <div className="flex justify-between items-center mb-2 bg-gray-50 p-4">
+            <div className="flex justify-between items-center bg-gray-50 p-4">
               <h2 className="font-bold text-lg">배송지</h2>
               <button
                 type="button"
