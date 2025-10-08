@@ -13,6 +13,17 @@ import DetailImagePreview from "./DetailImagePreview";
 
 function ProductForm() {
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+  const categories = [
+    "전체",
+    "상의",
+    "티셔츠",
+    "셔츠/블라우스",
+    "아우터",
+    "스커트",
+    "드레스",
+    "니트",
+    "스포츠웨어",
+  ];
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -168,10 +179,11 @@ function ProductForm() {
           className="w-full border border-gray-300 rounded-none mt-2 p-2"
         >
           <option value="">선택</option>
-          <option value="상의">상의</option>
-          <option value="하의">하의</option>
-          <option value="아우터">아우터</option>
-          <option value="신발">신발</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
         </select>
       </div>
 
