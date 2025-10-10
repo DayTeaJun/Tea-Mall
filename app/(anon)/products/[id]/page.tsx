@@ -8,6 +8,7 @@ import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 import CommentsSection from "./_components/CommentsSection";
 import { publicSupabase } from "@/lib/config/supabase/publicClient";
 import Image from "next/image";
+import ProductDetail from "./_components/ProductView";
 
 // 메타 태그 생성
 export async function generateMetadata({
@@ -208,6 +209,8 @@ export default async function ProductDetailPage({
       <CommentsSection productId={id} />
 
       <RecommendProductsCarousel />
+
+      <ProductDetail productId={id} />
     </main>
   );
 }

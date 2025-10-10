@@ -197,6 +197,7 @@ export type Database = {
           total_stock: number | null;
           updated_at: string | null;
           user_id: string | null;
+          views: number;
         };
         Insert: {
           category?: string | null;
@@ -217,6 +218,7 @@ export type Database = {
           total_stock?: number | null;
           updated_at?: string | null;
           user_id?: string | null;
+          views?: number;
         };
         Update: {
           category?: string | null;
@@ -237,6 +239,7 @@ export type Database = {
           total_stock?: number | null;
           updated_at?: string | null;
           user_id?: string | null;
+          views?: number;
         };
         Relationships: [];
       };
@@ -360,7 +363,10 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      increment_product_views: {
+        Args: { p_id: string };
+        Returns: number;
+      };
     };
     Enums: {
       [_ in never]: never;
