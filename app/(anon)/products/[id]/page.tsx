@@ -9,6 +9,7 @@ import CommentsSection from "./_components/CommentsSection";
 import { publicSupabase } from "@/lib/config/supabase/publicClient";
 import Image from "next/image";
 import ProductDetail from "./_components/ProductView";
+import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 
 // 메타 태그 생성
 export async function generateMetadata({
@@ -122,7 +123,10 @@ export default async function ProductDetailPage({
                   </span>
                 )}
               </div>
-              <ShareButton />
+              <div className="flex gap-1 items-center">
+                <BookmarkBtn productId={id} />
+                <ShareButton />
+              </div>
             </div>
 
             <div className="text-sm text-gray-600 mb-2 space-x-2">
