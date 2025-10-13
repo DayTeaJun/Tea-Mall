@@ -6,12 +6,17 @@ import {
 } from "@/lib/config/supabase/server/server";
 import { SignUpFormData, UserProfileType } from "@/types/user";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
-
-const supabase = await createServerSupabaseClient();
+import { Database } from "../config/supabase/types_db";
 
 // 회원가입
 export async function signUpUser(formData: SignUpFormData) {
+  const supabase = await createServerSupabaseClient();
+
   const { email, password, username } = formData;
+
+  if (!email || !password || !username) {
+    throw new Error("필수 입력값이 누락되었습니다.");
+  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -36,26 +41,29 @@ export async function signUpUser(formData: SignUpFormData) {
 
 // 소셜 로그인 (회원가입)
 export async function signUpOAuth(formData: SignUpFormData) {
+  const supabase = await createServerSupabaseClient();
+  type UserInsert = Database["public"]["Tables"]["user_table"]["Insert"];
+
   if (!formData.id) {
     throw new Error("OAuth 회원가입에는 ID가 필요합니다.");
   }
 
   const { id, email, username, phone, address, profile_image_url } = formData;
 
-  const { data, error: upsertError } = await supabase.from("user_table").upsert(
-    {
-      id,
-      email,
-      user_name: username,
-      profile_image_url: profile_image_url || null,
-      phone: phone || null,
-      address: address || null,
-    },
-    { onConflict: "id" },
-  );
+  const payload: UserInsert = {
+    id,
+    email: email ?? null,
+    user_name: username ?? null,
+    phone: phone ?? "",
+    address: address ?? "",
+    profile_image_url: profile_image_url ?? null,
+  };
 
-  if (upsertError) throw upsertError;
+  const { data, error } = await supabase
+    .from("user_table")
+    .upsert([payload], { onConflict: "id" });
 
+  if (error) throw error;
   return data;
 }
 
@@ -196,6 +204,7 @@ export async function updateMyProfile({
 
 // 회원 탈퇴
 export const withdrawalUser = async () => {
+  const supabase = await createServerSupabaseClient();
   const adminClient = await createServerSupabaseAdminClient();
 
   const {
