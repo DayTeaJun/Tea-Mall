@@ -87,6 +87,25 @@ export default async function ProductDetailPage({
     .single();
   if (!product || error) return notFound();
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const userId = session?.user?.id ?? null;
+
+  let initialFavorited = false;
+
+  if (userId) {
+    const { data: isFavorited, error: favError } = await supabase
+      .from("favorites")
+      .select("product_id")
+      .eq("user_id", userId)
+      .eq("product_id", id)
+      .maybeSingle();
+
+    if (!favError && isFavorited) initialFavorited = true;
+  }
+
   const { data: detailImages } = await supabase
     .from("product_images")
     .select("image_url, sort_order")
@@ -124,7 +143,10 @@ export default async function ProductDetailPage({
                 )}
               </div>
               <div className="flex gap-1 items-center">
-                <BookmarkBtn productId={id} />
+                <BookmarkBtn
+                  productId={id}
+                  initialFavorited={initialFavorited}
+                />
                 <ShareButton />
               </div>
             </div>

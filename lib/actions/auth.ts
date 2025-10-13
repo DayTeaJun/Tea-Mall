@@ -7,10 +7,10 @@ import {
 import { SignUpFormData, UserProfileType } from "@/types/user";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
 
+const supabase = await createServerSupabaseClient();
+
 // 회원가입
 export async function signUpUser(formData: SignUpFormData) {
-  const supabase = await createServerSupabaseClient();
-
   const { email, password, username } = formData;
 
   const { data, error } = await supabase.auth.signUp({
@@ -36,8 +36,6 @@ export async function signUpUser(formData: SignUpFormData) {
 
 // 소셜 로그인 (회원가입)
 export async function signUpOAuth(formData: SignUpFormData) {
-  const supabase = await createServerSupabaseClient();
-
   if (!formData.id) {
     throw new Error("OAuth 회원가입에는 ID가 필요합니다.");
   }
@@ -198,7 +196,6 @@ export async function updateMyProfile({
 
 // 회원 탈퇴
 export const withdrawalUser = async () => {
-  const supabase = await createServerSupabaseClient();
   const adminClient = await createServerSupabaseAdminClient();
 
   const {

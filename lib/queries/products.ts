@@ -273,3 +273,73 @@ export const useSearchProductsQuery = (
     isLoading,
   };
 };
+
+// 즐겨찾기 단일 조회
+export async function getFavorite(userId: string, productId: string) {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("product_id", productId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error("즐겨찾기 조회 실패: " + error.message);
+  }
+
+  return data;
+}
+
+// 즐겨찾기 추가
+export const postFavorite = async (
+  userId: string,
+  productId: string,
+): Promise<boolean> => {
+  try {
+    const { data: existing, error: fetchError } = await supabase
+      .from("favorites")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("product_id", productId)
+      .single();
+
+    if (fetchError && fetchError.code !== "PGRST116") {
+      console.error("즐겨찾기 조회 실패:", fetchError.message);
+      return false;
+    }
+
+    if (existing) {
+      console.warn("이미 즐겨찾기에 추가된 상품입니다.");
+      return false;
+    }
+
+    const { error: insertError } = await supabase.from("favorites").insert({
+      user_id: userId,
+      product_id: productId,
+    });
+
+    if (insertError) {
+      console.error("즐겨찾기 추가 실패:", insertError.message);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error("즐겨찾기 처리 중 예외 발생:", err);
+    return false;
+  }
+};
+
+// 즐겨찾기 삭제
+export const deleteFavorite = async (userId: string, productId: string) => {
+  const { error } = await supabase
+    .from("favorites")
+    .delete()
+    .match({ user_id: userId, product_id: productId });
+
+  if (error) {
+    throw new Error("즐겨찾기 삭제 실패: " + error.message);
+  }
+
+  return { userId, productId };
+};
