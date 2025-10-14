@@ -290,6 +290,33 @@ export async function getFavorite(userId: string, productId: string) {
   return data;
 }
 
+// 즐겨찾기 전체 조회
+async function getFavoritesAll(userId: string) {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error("즐겨찾기 조회 실패: " + error.message);
+  }
+
+  return data;
+}
+
+export const useFavoritesAll = (userId: string) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["favorites", userId],
+    queryFn: () => getFavoritesAll(userId),
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+};
+
 // 즐겨찾기 추가
 export const postFavorite = async (
   userId: string,

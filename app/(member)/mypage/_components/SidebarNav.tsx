@@ -9,11 +9,16 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 const menu = [
   { name: "내 정보", currentPage: "/mypage/profile", href: "/mypage/profile" },
   {
+    name: "찜 목록",
+    currentPage: "/mypage/bookmark",
+    href: "/mypage/bookmark",
+  },
+  { name: "장바구니", currentPage: "/mypage/myCart", href: "/mypage/myCart" },
+  {
     name: "주문 내역",
     currentPage: "/mypage/orderList",
     href: "/mypage/orderList?page=1",
   },
-  { name: "장바구니", currentPage: "/mypage/myCart", href: "/mypage/myCart" },
 ];
 
 const detailPage = [
