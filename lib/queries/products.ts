@@ -294,8 +294,23 @@ export async function getFavorite(userId: string, productId: string) {
 async function getFavoritesAll(userId: string) {
   const { data, error } = await supabase
     .from("favorites")
-    .select("*")
-    .eq("user_id", userId);
+    .select(
+      `
+        product_id,
+        created_at,
+        products (
+          id,
+          name,
+          price,
+          image_url,
+          category,
+          subcategory,
+          total_stock
+        )
+      `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error("즐겨찾기 조회 실패: " + error.message);
