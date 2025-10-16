@@ -5,6 +5,9 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, PackageX, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import Modal from "@/components/common/Modal";
 
 export default function BookmarkPage() {
   const { user } = useAuthStore();
@@ -14,6 +17,25 @@ export default function BookmarkPage() {
     isLoading,
     isError,
   } = useFavoritesAll(user?.id ?? "");
+
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isModal, setIsModal] = useState(false);
+
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id],
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === favorites?.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(favorites?.map((item) => item.products.id) ?? []);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -54,7 +76,38 @@ export default function BookmarkPage() {
           </button>
         </div>
       ) : (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col border-b">
+          <div className="flex items-center justify-between mb-4 border-t border-b p-3 bg-gray-50">
+            <div
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <input
+                onChange={() => toggleSelectAll()}
+                type="checkbox"
+                className="w-4 h-4 accent-blue-600 cursor-pointer"
+                checked={selectedItems.length === favorites?.length}
+              />
+              <span className="text-sm text-gray-800 font-medium">
+                전체 선택 ({selectedItems.length} / {favorites?.length ?? 0})
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (selectedItems.length === 0) {
+                    toast.error("삭제할 항목을 선택하세요.");
+                    return;
+                  }
+                  setIsModal(true);
+                }}
+                className="px-3 py-1 border text-sm rounded hover:bg-gray-100 transition"
+              >
+                선택삭제
+              </button>
+            </div>
+          </div>
           {favorites.map((fav, i) => {
             const p = fav.products;
             return (
@@ -65,6 +118,12 @@ export default function BookmarkPage() {
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-3 sm:gap-4">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 mr-2  cursor-pointer"
+                    checked={selectedItems.includes(p.id)}
+                    onChange={() => toggleItemSelection(p.id)}
+                  />
                   <div
                     className="flex flex-col gap-2 cursor-pointer sm:flex-1"
                     onClick={() => router.push(`/products/${p.id}`)}
@@ -110,6 +169,25 @@ export default function BookmarkPage() {
           })}
         </ul>
       )}
+
+      <Modal
+        isOpen={isModal}
+        onClose={() => setIsModal(false)}
+        title="선택한 상품을 삭제하시겠습니까?"
+        description={`* 선택한 상품이 장바구니에서 삭제됩니다. \n (상품페이지에서 다시 상품을 다시 추가할 수 있습니다.)`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal(false)}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button className="px-4 py-2 bg-red-600 text-white rounded">
+            삭제
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
