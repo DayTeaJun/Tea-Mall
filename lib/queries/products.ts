@@ -385,3 +385,16 @@ export const deleteFavorite = async (userId: string, productId: string) => {
 
   return { userId, productId };
 };
+
+export const useDeleteFavoriteMutation = (userId: string) => {
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (productId: string) => deleteFavorite(userId, productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["favorites", userId],
+      });
+      toast.success("선택한 즐겨찾기가 삭제되었습니다.");
+    },
+  });
+  return { data, isError, mutate, isSuccess, isPending };
+};

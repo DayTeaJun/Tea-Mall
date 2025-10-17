@@ -1,6 +1,10 @@
 "use client";
 
-import { useFavoritesAll } from "@/lib/queries/products";
+import {
+  useDeleteFavoriteMutation,
+  useFavoritesAll,
+  usePostMutation,
+} from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,6 +21,9 @@ export default function BookmarkPage() {
     isLoading,
     isError,
   } = useFavoritesAll(user?.id ?? "");
+
+  const { mutate: deleteMutate } = useDeleteFavoriteMutation(user?.id ?? "");
+  const { mutate: addCartMutate } = usePostMutation(user?.id ?? "");
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isModal, setIsModal] = useState(false);
@@ -35,6 +42,14 @@ export default function BookmarkPage() {
     } else {
       setSelectedItems(favorites?.map((item) => item.products.id) ?? []);
     }
+  };
+
+  const handleDelSelectFavorites = () => {
+    selectedItems.forEach((id) => deleteMutate(id));
+    setSelectedItems([]);
+    router.refresh();
+
+    setIsModal(false);
   };
 
   if (isLoading) {
@@ -149,14 +164,21 @@ export default function BookmarkPage() {
 
                   <div className="sm:flex sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:border-l sm:pl-4">
                     <button
-                      onClick={() => router.push(`/products/${p.id}`)}
+                      onClick={() =>
+                        addCartMutate({
+                          productId: p.id,
+                          userId: user?.id || "",
+                          quantity: 1,
+                          selectedSize: "M",
+                        })
+                      }
                       className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                     >
                       장바구니 담기
                     </button>
                     <button
                       onClick={() => {
-                        // 즐겨찾기 삭제 로직 추가 가능
+                        deleteMutate(fav.product_id);
                       }}
                       className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                     >
@@ -183,7 +205,10 @@ export default function BookmarkPage() {
           >
             취소
           </button>
-          <button className="px-4 py-2 bg-red-600 text-white rounded">
+          <button
+            onClick={handleDelSelectFavorites}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
             삭제
           </button>
         </div>
