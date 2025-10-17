@@ -6,9 +6,9 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
-  deleteFavorite,
   getFavorite,
-  postFavorite,
+  useDeleteFavoriteMutation,
+  usePostFavoriteMutation,
 } from "@/lib/queries/products";
 
 type Props = {
@@ -21,6 +21,10 @@ export default function BookmarkBtn({ productId, initialFavorited }: Props) {
   const router = useRouter();
 
   const [isFavorited, setIsFavorited] = useState<boolean>(initialFavorited);
+  const { mutate: addFavoriteMutate } = usePostFavoriteMutation(user?.id ?? "");
+  const { mutate: delFavoriteMutate } = useDeleteFavoriteMutation(
+    user?.id ?? "",
+  );
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -39,17 +43,11 @@ export default function BookmarkBtn({ productId, initialFavorited }: Props) {
     }
 
     if (isFavorited) {
-      const removed = await deleteFavorite(user.id, productId);
-      if (removed) {
-        toast.success("즐겨찾기에서 제거되었습니다.");
-        setIsFavorited(false);
-      }
+      delFavoriteMutate(productId);
+      setIsFavorited(false);
     } else {
-      const added = await postFavorite(user.id, productId);
-      if (added) {
-        toast.success("즐겨찾기에 추가되었습니다.");
-        setIsFavorited(true);
-      }
+      addFavoriteMutate(productId);
+      setIsFavorited(true);
     }
 
     router.refresh();

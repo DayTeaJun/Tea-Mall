@@ -372,6 +372,19 @@ export const postFavorite = async (
   }
 };
 
+export const usePostFavoriteMutation = (userId: string) => {
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (productId: string) => postFavorite(userId, productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["favorites", userId],
+      });
+      toast.success("선택한 즐겨찾기가 추가되었습니다.");
+    },
+  });
+  return { data, isError, mutate, isSuccess, isPending };
+};
+
 // 즐겨찾기 삭제
 export const deleteFavorite = async (userId: string, productId: string) => {
   const { error } = await supabase
