@@ -291,8 +291,16 @@ export async function getFavorite(userId: string, productId: string) {
 }
 
 // 즐겨찾기 전체 조회
-async function getFavoritesAll(userId: string) {
-  const { data, error } = await supabase
+async function getFavoritesAll(
+  userId: string,
+  query: string = "",
+  page: number,
+  limit: number,
+) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let queryBuilder = supabase
     .from("favorites")
     .select(
       `
@@ -309,20 +317,34 @@ async function getFavoritesAll(userId: string) {
         )
       `,
     )
+    .range(from, to)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
+
+  if (query.trim() !== "") {
+    queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+  }
+
+  const { data, count, error } = await queryBuilder.order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     throw new Error("즐겨찾기 조회 실패: " + error.message);
   }
 
-  return data;
+  return { data, count };
 }
 
-export const useFavoritesAll = (userId: string) => {
+export const useFavoritesAll = (
+  userId: string,
+  query: string = "",
+  page: number,
+  limit: number,
+) => {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["favorites", userId],
-    queryFn: () => getFavoritesAll(userId),
+    queryKey: ["favorites", userId, query, page, limit],
+    queryFn: () => getFavoritesAll(userId, query, page, limit),
   });
 
   return {

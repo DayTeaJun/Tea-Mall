@@ -7,26 +7,46 @@ import {
 } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, PackageX, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Modal from "@/components/common/Modal";
+import ReactPaginate from "react-paginate";
 
 export default function BookmarkPage() {
   const { user } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const query = searchParams.get("query") ?? "";
+
+  const currentPage = Number(searchParams.get("page") ?? 1);
+
   const {
     data: favorites,
     isLoading,
     isError,
-  } = useFavoritesAll(user?.id ?? "");
+  } = useFavoritesAll(user?.id ?? "", query, currentPage, 8);
 
   const { mutate: deleteMutate } = useDeleteFavoriteMutation(user?.id ?? "");
   const { mutate: addCartMutate } = usePostMutation(user?.id ?? "");
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isModal, setIsModal] = useState(false);
+
+  const handlePageChange = (selected: { selected: number }) => {
+    const newPage = selected.selected + 1;
+    router.push(
+      `/mypage/bookmark?query=${encodeURIComponent(query)}&page=${newPage}`,
+    );
+  };
+
+  const PAGE_SIZE = 10;
+
+  const totalCount = favorites?.count ?? 0;
+
+  const pageCount = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const toggleItemSelection = (id: string) => {
     setSelectedItems((prev) =>
@@ -37,10 +57,10 @@ export default function BookmarkPage() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedItems.length === favorites?.length) {
+    if (selectedItems.length === favorites?.data.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(favorites?.map((item) => item.products.id) ?? []);
+      setSelectedItems(favorites?.data.map((item) => item.products.id) ?? []);
     }
   };
 
@@ -73,7 +93,7 @@ export default function BookmarkPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">찜 리스트</h1>
-      {favorites && favorites.length === 0 ? (
+      {favorites && favorites?.data.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
           <PackageX size={48} className="mb-4" />
           <h3 className="text-lg font-semibold mb-2">
@@ -101,10 +121,11 @@ export default function BookmarkPage() {
                 onChange={() => toggleSelectAll()}
                 type="checkbox"
                 className="w-4 h-4 accent-blue-600 cursor-pointer"
-                checked={selectedItems.length === favorites?.length}
+                checked={selectedItems.length === favorites?.data.length}
               />
               <span className="text-sm text-gray-800 font-medium">
-                전체 선택 ({selectedItems.length} / {favorites?.length ?? 0})
+                전체 선택 ({selectedItems.length} /{" "}
+                {favorites?.data.length ?? 0})
               </span>
             </div>
 
@@ -123,13 +144,13 @@ export default function BookmarkPage() {
               </button>
             </div>
           </div>
-          {favorites.map((fav, i) => {
+          {favorites?.data.map((fav, i) => {
             const p = fav.products;
             return (
               <li
                 key={i}
                 className={`py-3 sm:p-4 px-0 bg-white ${
-                  favorites.length - i !== 1 ? "border-b" : ""
+                  favorites?.data.length - i !== 1 ? "border-b" : ""
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-3 sm:gap-4">
@@ -190,6 +211,30 @@ export default function BookmarkPage() {
             );
           })}
         </ul>
+      )}
+
+      {pageCount > 1 && (
+        <div className="mt-6 flex justify-center">
+          <ReactPaginate
+            onPageChange={handlePageChange}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            forcePage={currentPage - 1}
+            marginPagesDisplayed={1}
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+          />
+        </div>
       )}
 
       <Modal
