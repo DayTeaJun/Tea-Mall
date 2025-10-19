@@ -100,9 +100,12 @@ export default function BookmarkPage() {
 
   if (isError || !favorites) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
-        <PackageX size={48} className="mb-4" />
-        <p className="text-sm">찜 목록을 불러오는 중 문제가 발생했습니다.</p>
+      <div className="max-w-7xl">
+        <h1 className="text-xl font-bold">찜 리스트</h1>
+        <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+          <PackageX size={48} className="mb-4" />
+          <p className="text-sm">찜 목록을 불러오는 중 문제가 발생했습니다.</p>
+        </div>
       </div>
     );
   }

@@ -293,20 +293,21 @@ export async function getFavorite(userId: string, productId: string) {
 // 즐겨찾기 전체 조회
 async function getFavoritesAll(
   userId: string,
-  query: string = "",
+  rawQuery: string = "",
   page: number,
   limit: number,
 ) {
+  const query = (rawQuery ?? "").trim();
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let queryBuilder = supabase
+  let qb = supabase
     .from("favorites")
     .select(
       `
         product_id,
         created_at,
-        products (
+        products!inner (
           id,
           name,
           price,
@@ -316,18 +317,16 @@ async function getFavoritesAll(
           total_stock
         )
       `,
+      { count: "exact" },
     )
-    .range(from, to)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (query.trim() !== "") {
-    queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+  if (query !== "") {
+    qb = qb.ilike("products.name", `%${query}%`);
   }
 
-  const { data, count, error } = await queryBuilder.order("created_at", {
-    ascending: false,
-  });
+  const { data, count, error } = await qb.range(from, to);
 
   if (error) {
     throw new Error("즐겨찾기 조회 실패: " + error.message);
