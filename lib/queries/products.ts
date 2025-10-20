@@ -314,7 +314,8 @@ async function getFavoritesAll(
           image_url,
           category,
           subcategory,
-          total_stock
+          total_stock,
+          stock_by_size
         )
       `,
       { count: "exact" },

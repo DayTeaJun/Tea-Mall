@@ -16,10 +16,27 @@ import {
   ShoppingCart,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import React, { useEffect, useState } from "react"; // ← useEffect 추가
 import { toast } from "sonner";
 import Modal from "@/components/common/Modal";
 import ReactPaginate from "react-paginate";
+
+type StockMap = Record<string, number>;
+
+const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"] as const;
+
+const pickFirstAvailable = (stock: StockMap) => {
+  if ((stock["L"] ?? 0) > 0) return "L";
+  const first = SIZE_OPTIONS.find((s) => (stock[s] ?? 0) > 0);
+  return first ?? "";
+};
 
 export default function BookmarkPage() {
   const { user } = useAuthStore();
@@ -43,6 +60,74 @@ export default function BookmarkPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isModal, setIsModal] = useState(false);
 
+  const [selectedSizeById, setSelectedSizeById] = useState<
+    Record<string, string>
+  >({});
+  const [quantityById, setQuantityById] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!favorites?.data) return;
+
+    setSelectedSizeById((prev) => {
+      const next = { ...prev };
+      for (const fav of favorites.data) {
+        const p = fav.products;
+        const stock: StockMap = (p?.stock_by_size as StockMap) ?? {};
+        if (!next[p.id]) {
+          next[p.id] = pickFirstAvailable(stock);
+        } else {
+          const cur = next[p.id];
+          if (!cur || (stock[cur] ?? 0) === 0) {
+            next[p.id] = pickFirstAvailable(stock);
+          }
+        }
+      }
+      return next;
+    });
+
+    setQuantityById((prev) => {
+      const next = { ...prev };
+      for (const fav of favorites.data) {
+        const p = fav.products;
+        if (!next[p.id] || !Number.isFinite(next[p.id]) || next[p.id] < 1) {
+          next[p.id] = 1;
+        }
+      }
+      return next;
+    });
+  }, [favorites?.data]);
+
+  const getStockMap = (p: any): StockMap => {
+    return (p?.stock_by_size as StockMap) ?? {};
+  };
+
+  const validateBeforeAdd = (p: any) => {
+    const stockBySize = getStockMap(p);
+    const selectedSize = selectedSizeById[p.id] ?? "";
+    const qty = quantityById[p.id] ?? 1;
+    const currentStock = stockBySize[selectedSize] ?? 0;
+
+    if (!selectedSize) {
+      toast.error("사이즈를 선택해주세요.");
+      return false;
+    }
+    if (currentStock <= 0) {
+      toast.error("선택하신 사이즈는 품절입니다.");
+      return false;
+    }
+    if (!Number.isFinite(qty) || qty < 1) {
+      toast.error("수량은 1 이상으로 입력해주세요.");
+      return false;
+    }
+    if (qty > currentStock) {
+      toast.error(
+        `현재 선택하신 재고는 최대 ${currentStock}개입니다.\n수량을 조정해주세요.`,
+      );
+      return false;
+    }
+    return true;
+  };
+
   const handleSearch = () => {
     router.push(`/mypage/bookmark?query=${searchInput}&page=1`);
   };
@@ -59,10 +144,8 @@ export default function BookmarkPage() {
     );
   };
 
-  const PAGE_SIZE = 10;
-
+  const PAGE_SIZE = 10; // ← 훅에서 8을 쓰고 있어 불일치합니다. 둘 중 하나로 통일 권장 (예: 10)
   const totalCount = favorites?.count ?? 0;
-
   const pageCount = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const toggleItemSelection = (id: string) => {
@@ -74,10 +157,11 @@ export default function BookmarkPage() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedItems.length === favorites?.data.length) {
+    const allIds = favorites?.data?.map((item: any) => item.products.id) ?? [];
+    if (selectedItems.length === allIds.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(favorites?.data.map((item) => item.products.id) ?? []);
+      setSelectedItems(allIds);
     }
   };
 
@@ -85,7 +169,6 @@ export default function BookmarkPage() {
     selectedItems.forEach((id) => deleteMutate(id));
     setSelectedItems([]);
     router.refresh();
-
     setIsModal(false);
   };
 
@@ -138,26 +221,20 @@ export default function BookmarkPage() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="상품 이름을 검색해보세요!"
                 className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
               />
-
               {searchInput && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchInput("");
-                  }}
+                  onClick={() => setSearchInput("")}
                   className="absolute right-12 sm:right-[52px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
                   aria-label="검색어 지우기"
                 >
                   <X size={18} />
                 </button>
               )}
-
               <button
                 onClick={handleSearch}
                 className="p-2 text-black border rounded-md cursor-pointer active:scale-[0.98]"
@@ -165,7 +242,6 @@ export default function BookmarkPage() {
               >
                 <Search size={20} />
               </button>
-
               <button
                 onClick={handleSearchRefresh}
                 className="flex items-center gap-2 px-3 py-2 rounded-md border text-sm self-end sm:self-auto w-full sm:w-auto justify-center sm:justify-start shrink-0"
@@ -174,23 +250,23 @@ export default function BookmarkPage() {
                 검색 초기화
               </button>
             </div>
+
             <div className="flex items-center justify-between border-t border-b p-3 px-4 bg-gray-50">
-              <div
-                onClick={toggleSelectAll}
-                className="flex items-center gap-2 cursor-pointer"
-              >
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
-                  onChange={() => toggleSelectAll()}
+                  onChange={toggleSelectAll}
                   type="checkbox"
                   className="w-4 h-4 accent-blue-600 cursor-pointer"
-                  checked={selectedItems.length === favorites?.data.length}
+                  checked={
+                    (favorites?.data?.length ?? 0) > 0 &&
+                    selectedItems.length === (favorites?.data?.length ?? 0)
+                  }
                 />
                 <span className="text-sm text-gray-800 font-medium">
                   전체 선택 ({selectedItems.length} /{" "}
-                  {favorites?.data.length ?? 0})
+                  {favorites?.data?.length ?? 0})
                 </span>
-              </div>
-
+              </label>
               <div className="flex gap-2">
                 <button
                   onClick={() => {
@@ -206,11 +282,17 @@ export default function BookmarkPage() {
                 </button>
               </div>
             </div>
-            {favorites?.data.map((fav, i) => {
+
+            {favorites?.data.map((fav: any, i: number) => {
               const p = fav.products;
+              const stockBySize = getStockMap(p);
+              const selectedSize = selectedSizeById[p.id] ?? "";
+              const qty = quantityById[p.id] ?? 1;
+              const currentStock = stockBySize[selectedSize] ?? 0;
+
               return (
                 <li
-                  key={i}
+                  key={p.id}
                   className={`py-3 sm:p-4 px-0 bg-white ${
                     favorites?.data.length - i !== 1 ? "border-b" : ""
                   }`}
@@ -218,13 +300,18 @@ export default function BookmarkPage() {
                   <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-3 sm:gap-4">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 mr-2  cursor-pointer"
+                      className="w-4 h-4 mr-2 cursor-pointer"
                       checked={selectedItems.includes(p.id)}
                       onChange={() => toggleItemSelection(p.id)}
                     />
+
                     <div
-                      className="flex flex-col gap-2 cursor-pointer sm:flex-1"
-                      onClick={() => router.push(`/products/${p.id}`)}
+                      className="flex flex-col gap-2 sm:flex-1"
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        const ignore = target.closest("[data-no-nav='true']");
+                        if (!ignore) router.push(`/products/${p.id}`);
+                      }}
                     >
                       <div className="flex items-start sm:items-center justify-between gap-3">
                         <div className="flex items-start sm:items-center gap-3">
@@ -238,31 +325,138 @@ export default function BookmarkPage() {
                           <div className="flex flex-col gap-1 justify-center">
                             <p className="text-sm font-medium">{p.name}</p>
                             <p className="text-xs sm:text-sm text-gray-500">
-                              {p.price.toLocaleString()}원
+                              {p.price?.toLocaleString?.() ?? 0}원
                             </p>
+
+                            <div className="mt-2" data-no-nav="true">
+                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                                사이즈 선택
+                              </label>
+                              <Select
+                                value={selectedSize}
+                                onValueChange={(value) => {
+                                  setSelectedSizeById((prev) => ({
+                                    ...prev,
+                                    [p.id]: value,
+                                  }));
+                                  setQuantityById((prev) => ({
+                                    ...prev,
+                                    [p.id]: 1,
+                                  }));
+                                }}
+                              >
+                                <SelectTrigger className="w-40">
+                                  <SelectValue placeholder="사이즈 선택" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SIZE_OPTIONS.map((size) => {
+                                    const stock = stockBySize[size] ?? 0;
+                                    const disabled = stock === 0;
+                                    return (
+                                      <SelectItem
+                                        key={size}
+                                        value={size}
+                                        disabled={disabled}
+                                        className={
+                                          disabled
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : ""
+                                        }
+                                      >
+                                        {size} {`(${stock}개 남음)`}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div
+                              className="mt-2 flex items-center gap-2"
+                              data-no-nav="true"
+                            >
+                              <label className="text-xs text-gray-700">
+                                수량
+                              </label>
+                              <div className="flex items-center border rounded-md">
+                                <button
+                                  type="button"
+                                  className="px-2 py-1"
+                                  onClick={() =>
+                                    setQuantityById((prev) => ({
+                                      ...prev,
+                                      [p.id]: Math.max(
+                                        1,
+                                        (prev[p.id] ?? 1) - 1,
+                                      ),
+                                    }))
+                                  }
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={qty}
+                                  onChange={(e) => {
+                                    const next = Number(e.target.value);
+                                    setQuantityById((prev) => ({
+                                      ...prev,
+                                      [p.id]:
+                                        Number.isFinite(next) && next >= 1
+                                          ? next
+                                          : 1,
+                                    }));
+                                  }}
+                                  className="w-14 text-center outline-none py-1"
+                                />
+                                <button
+                                  type="button"
+                                  className="px-2 py-1"
+                                  onClick={() =>
+                                    setQuantityById((prev) => {
+                                      const nextVal = (prev[p.id] ?? 1) + 1;
+                                      const cap =
+                                        stockBySize[selectedSize] ?? Infinity;
+                                      return {
+                                        ...prev,
+                                        [p.id]: Math.min(nextVal, cap),
+                                      };
+                                    })
+                                  }
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                재고 {currentStock}개
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="sm:flex sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:border-l sm:pl-4">
+                    <div
+                      className="sm:flex sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:border-l sm:pl-4"
+                      data-no-nav="true"
+                    >
                       <button
-                        onClick={() =>
+                        onClick={() => {
+                          if (!validateBeforeAdd(p)) return;
                           addCartMutate({
                             productId: p.id,
                             userId: user?.id || "",
-                            quantity: 1,
-                            selectedSize: "M",
-                          })
-                        }
+                            quantity: quantityById[p.id] ?? 1,
+                            selectedSize: selectedSizeById[p.id],
+                          });
+                        }}
                         className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                       >
                         장바구니 담기
                       </button>
                       <button
-                        onClick={() => {
-                          deleteMutate(fav.product_id);
-                        }}
+                        onClick={() => deleteMutate(fav.product_id)}
                         className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                       >
                         삭제
@@ -273,6 +467,7 @@ export default function BookmarkPage() {
               );
             })}
           </ul>
+
           <div className="mt-6 flex justify-center">
             <ReactPaginate
               onPageChange={handlePageChange}
