@@ -247,35 +247,46 @@ export default function BookmarkPage() {
       ) : (
         <>
           <ul className="flex flex-col border-b">
-            <div className="flex items-center mb-4 gap-2 relative w-full">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="상품 이름을 검색해보세요!"
-                className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
-              />
-              {searchInput && (
+            <div className="flex flex-col mb-4 sm:gap-0 gap-4">
+              <div className="flex items-center gap-2 relative w-full">
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="상품 이름을 검색해보세요!"
+                  className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchInput("")}
+                    className="absolute right-12 sm:right-[52px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    aria-label="검색어 지우기"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
                 <button
-                  type="button"
-                  onClick={() => setSearchInput("")}
-                  className="absolute right-12 sm:right-[52px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                  aria-label="검색어 지우기"
+                  onClick={handleSearch}
+                  className="p-2 text-black border rounded-md cursor-pointer active:scale-[0.98]"
+                  aria-label="검색"
                 >
-                  <X size={18} />
+                  <Search size={20} />
                 </button>
-              )}
-              <button
-                onClick={handleSearch}
-                className="p-2 text-black border rounded-md cursor-pointer active:scale-[0.98]"
-                aria-label="검색"
-              >
-                <Search size={20} />
-              </button>
+
+                <button
+                  onClick={handleSearchRefresh}
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-md border text-sm self-end sm:self-auto w-full sm:w-auto justify-center sm:justify-start shrink-0"
+                >
+                  <RefreshCcw size={16} />
+                  검색 초기화
+                </button>
+              </div>
+
               <button
                 onClick={handleSearchRefresh}
-                className="flex items-center gap-2 px-3 py-2 rounded-md border text-sm self-end sm:self-auto w-full sm:w-auto justify-center sm:justify-start shrink-0"
+                className="flex sm:hidden items-center gap-2 px-3 py-2 rounded-md border text-sm self-end w-full justify-center shrink-0"
               >
                 <RefreshCcw size={16} />
                 검색 초기화
@@ -335,7 +346,7 @@ export default function BookmarkPage() {
               return (
                 <li
                   key={p.id}
-                  className={`py-3 sm:p-4 px-0 bg-white ${
+                  className={`py-3 px-4 bg-white ${
                     favorites?.data.length - i !== 1 ? "border-b" : ""
                   }`}
                 >
@@ -360,9 +371,9 @@ export default function BookmarkPage() {
                           <Image
                             src={p.image_url ?? ""}
                             alt={p.name}
-                            width={80}
-                            height={80}
-                            className="rounded border object-cover w-16 h-16 sm:w-20 sm:h-20"
+                            width={96}
+                            height={96}
+                            className="rounded border object-cover w-20 h-20 sm:w-24 sm:h-24"
                           />
                           <div className="flex flex-col gap-1 justify-center">
                             <p className="text-sm font-medium">{p.name}</p>
@@ -370,52 +381,54 @@ export default function BookmarkPage() {
                               {p.price?.toLocaleString?.() ?? 0}원
                             </p>
 
-                            <Select
-                              value={selectedSize}
-                              onValueChange={(value) => {
-                                setSelectedSizeById((prev) => ({
-                                  ...prev,
-                                  [p.id]: value,
-                                }));
-                                setQuantityById((prev) => ({
-                                  ...prev,
-                                  [p.id]: 1,
-                                }));
-                              }}
+                            <button
+                              type="button"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <SelectTrigger className="w-40">
-                                <SelectValue placeholder="사이즈 선택" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {SIZE_OPTIONS.map((size) => {
-                                  const stock = stockBySize[size] ?? 0;
-                                  const disabled = stock === 0;
-                                  return (
-                                    <SelectItem
-                                      key={size}
-                                      value={size}
-                                      disabled={disabled}
-                                      className={
-                                        disabled
-                                          ? "text-gray-400 cursor-not-allowed"
-                                          : ""
-                                      }
-                                    >
-                                      {size} {`(${stock}개 남음)`}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
+                              <Select
+                                value={selectedSize}
+                                onValueChange={(value) => {
+                                  setSelectedSizeById((prev) => ({
+                                    ...prev,
+                                    [p.id]: value,
+                                  }));
+                                  setQuantityById((prev) => ({
+                                    ...prev,
+                                    [p.id]: 1,
+                                  }));
+                                }}
+                              >
+                                <SelectTrigger className="w-40">
+                                  <SelectValue placeholder="사이즈 선택" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SIZE_OPTIONS.map((size) => {
+                                    const stock = stockBySize[size] ?? 0;
+                                    const disabled = stock === 0;
+                                    return (
+                                      <SelectItem
+                                        key={size}
+                                        value={size}
+                                        disabled={disabled}
+                                        className={
+                                          disabled
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : ""
+                                        }
+                                      >
+                                        {size} {`(${stock}개 남음)`}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </button>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div
-                      className="sm:flex sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:border-l sm:pl-4"
-                      data-no-nav="true"
-                    >
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0">
                       <button
                         onClick={() => {
                           if (!validateBeforeAdd(p)) return;
