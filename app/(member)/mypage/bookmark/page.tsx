@@ -30,6 +30,37 @@ import ReactPaginate from "react-paginate";
 
 type StockMap = Record<string, number>;
 
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string | null;
+  stock_by_size?: StockMap;
+}
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export interface FavoriteMapValue {
+  product_id: string;
+  created_at: string;
+  products: {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string | null;
+    category: string | null;
+    subcategory: string | null;
+    total_stock: number | null;
+    stock_by_size: Json;
+  };
+}
+
 const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"] as const;
 
 const pickFirstAvailable = (stock: StockMap) => {
@@ -97,11 +128,11 @@ export default function BookmarkPage() {
     });
   }, [favorites?.data]);
 
-  const getStockMap = (p: any): StockMap => {
+  const getStockMap = (p: Product): StockMap => {
     return (p?.stock_by_size as StockMap) ?? {};
   };
 
-  const validateBeforeAdd = (p: any) => {
+  const validateBeforeAdd = (p: Product) => {
     const stockBySize = getStockMap(p);
     const selectedSize = selectedSizeById[p.id] ?? "";
     const qty = quantityById[p.id] ?? 1;
@@ -157,7 +188,7 @@ export default function BookmarkPage() {
   };
 
   const toggleSelectAll = () => {
-    const allIds = favorites?.data?.map((item: any) => item.products.id) ?? [];
+    const allIds = favorites?.data?.map((item) => item.products.id) ?? [];
     if (selectedItems.length === allIds.length) {
       setSelectedItems([]);
     } else {
@@ -283,12 +314,23 @@ export default function BookmarkPage() {
               </div>
             </div>
 
-            {favorites?.data.map((fav: any, i: number) => {
-              const p = fav.products;
+            {favorites?.data.map((fav: FavoriteMapValue, i: number) => {
+              const p: Product = {
+                ...fav.products,
+                stock_by_size:
+                  fav.products.stock_by_size &&
+                  typeof fav.products.stock_by_size === "object" &&
+                  !Array.isArray(fav.products.stock_by_size)
+                    ? (Object.fromEntries(
+                        Object.entries(
+                          fav.products.stock_by_size as Record<string, unknown>,
+                        ).filter(([, v]) => typeof v === "number"),
+                      ) as StockMap)
+                    : undefined,
+              };
+
               const stockBySize = getStockMap(p);
               const selectedSize = selectedSizeById[p.id] ?? "";
-              const qty = quantityById[p.id] ?? 1;
-              const currentStock = stockBySize[selectedSize] ?? 0;
 
               return (
                 <li
@@ -328,110 +370,43 @@ export default function BookmarkPage() {
                               {p.price?.toLocaleString?.() ?? 0}원
                             </p>
 
-                            <div className="mt-2" data-no-nav="true">
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                사이즈 선택
-                              </label>
-                              <Select
-                                value={selectedSize}
-                                onValueChange={(value) => {
-                                  setSelectedSizeById((prev) => ({
-                                    ...prev,
-                                    [p.id]: value,
-                                  }));
-                                  setQuantityById((prev) => ({
-                                    ...prev,
-                                    [p.id]: 1,
-                                  }));
-                                }}
-                              >
-                                <SelectTrigger className="w-40">
-                                  <SelectValue placeholder="사이즈 선택" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {SIZE_OPTIONS.map((size) => {
-                                    const stock = stockBySize[size] ?? 0;
-                                    const disabled = stock === 0;
-                                    return (
-                                      <SelectItem
-                                        key={size}
-                                        value={size}
-                                        disabled={disabled}
-                                        className={
-                                          disabled
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : ""
-                                        }
-                                      >
-                                        {size} {`(${stock}개 남음)`}
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div
-                              className="mt-2 flex items-center gap-2"
-                              data-no-nav="true"
+                            <Select
+                              value={selectedSize}
+                              onValueChange={(value) => {
+                                setSelectedSizeById((prev) => ({
+                                  ...prev,
+                                  [p.id]: value,
+                                }));
+                                setQuantityById((prev) => ({
+                                  ...prev,
+                                  [p.id]: 1,
+                                }));
+                              }}
                             >
-                              <label className="text-xs text-gray-700">
-                                수량
-                              </label>
-                              <div className="flex items-center border rounded-md">
-                                <button
-                                  type="button"
-                                  className="px-2 py-1"
-                                  onClick={() =>
-                                    setQuantityById((prev) => ({
-                                      ...prev,
-                                      [p.id]: Math.max(
-                                        1,
-                                        (prev[p.id] ?? 1) - 1,
-                                      ),
-                                    }))
-                                  }
-                                >
-                                  -
-                                </button>
-                                <input
-                                  type="number"
-                                  min={1}
-                                  value={qty}
-                                  onChange={(e) => {
-                                    const next = Number(e.target.value);
-                                    setQuantityById((prev) => ({
-                                      ...prev,
-                                      [p.id]:
-                                        Number.isFinite(next) && next >= 1
-                                          ? next
-                                          : 1,
-                                    }));
-                                  }}
-                                  className="w-14 text-center outline-none py-1"
-                                />
-                                <button
-                                  type="button"
-                                  className="px-2 py-1"
-                                  onClick={() =>
-                                    setQuantityById((prev) => {
-                                      const nextVal = (prev[p.id] ?? 1) + 1;
-                                      const cap =
-                                        stockBySize[selectedSize] ?? Infinity;
-                                      return {
-                                        ...prev,
-                                        [p.id]: Math.min(nextVal, cap),
-                                      };
-                                    })
-                                  }
-                                >
-                                  +
-                                </button>
-                              </div>
-                              <span className="text-xs text-gray-500">
-                                재고 {currentStock}개
-                              </span>
-                            </div>
+                              <SelectTrigger className="w-40">
+                                <SelectValue placeholder="사이즈 선택" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SIZE_OPTIONS.map((size) => {
+                                  const stock = stockBySize[size] ?? 0;
+                                  const disabled = stock === 0;
+                                  return (
+                                    <SelectItem
+                                      key={size}
+                                      value={size}
+                                      disabled={disabled}
+                                      className={
+                                        disabled
+                                          ? "text-gray-400 cursor-not-allowed"
+                                          : ""
+                                      }
+                                    >
+                                      {size} {`(${stock}개 남음)`}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       </div>
