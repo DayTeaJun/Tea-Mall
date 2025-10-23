@@ -381,48 +381,46 @@ export default function BookmarkPage() {
                               {p.price?.toLocaleString?.() ?? 0}원
                             </p>
 
-                            <button
-                              type="button"
-                              onClick={(e) => e.stopPropagation()}
+                            <Select
+                              value={selectedSize}
+                              onValueChange={(value) => {
+                                setSelectedSizeById((prev) => ({
+                                  ...prev,
+                                  [p.id]: value,
+                                }));
+                                setQuantityById((prev) => ({
+                                  ...prev,
+                                  [p.id]: 1,
+                                }));
+                              }}
                             >
-                              <Select
-                                value={selectedSize}
-                                onValueChange={(value) => {
-                                  setSelectedSizeById((prev) => ({
-                                    ...prev,
-                                    [p.id]: value,
-                                  }));
-                                  setQuantityById((prev) => ({
-                                    ...prev,
-                                    [p.id]: 1,
-                                  }));
-                                }}
+                              <SelectTrigger
+                                className="w-40"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                <SelectTrigger className="w-40">
-                                  <SelectValue placeholder="사이즈 선택" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {SIZE_OPTIONS.map((size) => {
-                                    const stock = stockBySize[size] ?? 0;
-                                    const disabled = stock === 0;
-                                    return (
-                                      <SelectItem
-                                        key={size}
-                                        value={size}
-                                        disabled={disabled}
-                                        className={
-                                          disabled
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : ""
-                                        }
-                                      >
-                                        {size} {`(${stock}개 남음)`}
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
-                            </button>
+                                <SelectValue placeholder="사이즈 선택" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SIZE_OPTIONS.map((size) => {
+                                  const stock = stockBySize[size] ?? 0;
+                                  const disabled = stock === 0;
+                                  return (
+                                    <SelectItem
+                                      key={size}
+                                      value={size}
+                                      disabled={disabled}
+                                      className={
+                                        disabled
+                                          ? "text-gray-400 cursor-not-allowed"
+                                          : ""
+                                      }
+                                    >
+                                      {size} {`(${stock}개 남음)`}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       </div>
