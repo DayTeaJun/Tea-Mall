@@ -375,7 +375,7 @@ export default function BookmarkPage() {
                             height={96}
                             className="rounded border object-cover w-20 h-20 sm:w-24 sm:h-24"
                           />
-                          <div className="flex flex-col gap-1 justify-center">
+                          <div className="flex flex-col gap-1 justify-between">
                             <p className="text-sm font-medium">{p.name}</p>
                             <p className="text-xs sm:text-sm text-gray-500">
                               {p.price?.toLocaleString?.() ?? 0}원
@@ -426,7 +426,7 @@ export default function BookmarkPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0">
+                    <div className="grid grid-cols-2 gap-1 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0">
                       <button
                         onClick={() => {
                           if (!validateBeforeAdd(p)) return;
@@ -437,13 +437,14 @@ export default function BookmarkPage() {
                             selectedSize: selectedSizeById[p.id],
                           });
                         }}
-                        className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
+                        className="border h-8 rounded-md px-2 py-auto text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                       >
                         장바구니 담기
                       </button>
+
                       <button
                         onClick={() => deleteMutate(fav.product_id)}
-                        className="border rounded-md px-2 sm:py-1 py-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
+                        className="border h-8 rounded-md px-2 py-auto text-sm text-gray-700 hover:bg-gray-200 cursor-pointer w-auto sm:w-30"
                       >
                         삭제
                       </button>
