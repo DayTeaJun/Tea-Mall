@@ -16,13 +16,6 @@ import {
   ShoppingCart,
   X,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import React, { useEffect, useState } from "react"; // ← useEffect 추가
 import { toast } from "sonner";
 import Modal from "@/components/common/Modal";
@@ -346,7 +339,7 @@ export default function BookmarkPage() {
               return (
                 <li
                   key={p.id}
-                  className={`py-3 px-4 bg-white ${
+                  className={`p-4 bg-white ${
                     favorites?.data.length - i !== 1 ? "border-b" : ""
                   }`}
                 >
@@ -359,7 +352,7 @@ export default function BookmarkPage() {
                     />
 
                     <div
-                      className="flex flex-col gap-2 sm:flex-1"
+                      className="flex flex-col gap-2 sm:flex-1 cursor-pointer"
                       onClick={(e) => {
                         const target = e.target as HTMLElement;
                         const ignore = target.closest("[data-no-nav='true']");
@@ -375,58 +368,59 @@ export default function BookmarkPage() {
                             height={96}
                             className="rounded border object-cover w-20 h-20 sm:w-24 sm:h-24"
                           />
-                          <div className="flex flex-col gap-1 justify-between">
+                          <div className="flex flex-col justify-between h-20 sm:h-24 flex-1">
                             <p className="text-sm font-medium">{p.name}</p>
                             <p className="text-xs sm:text-sm text-gray-500">
                               {p.price?.toLocaleString?.() ?? 0}원
                             </p>
 
-                            <Select
-                              value={selectedSize}
-                              onValueChange={(value) => {
+                            <select
+                              value={selectedSize || ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+
+                                if (!value) return;
+
                                 setSelectedSizeById((prev) => ({
                                   ...prev,
                                   [p.id]: value,
                                 }));
+
                                 setQuantityById((prev) => ({
                                   ...prev,
                                   [p.id]: 1,
                                 }));
                               }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              className="w-42 border p-2 text-sm bg-white"
                             >
-                              <SelectTrigger
-                                className="w-40"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <SelectValue placeholder="사이즈 선택" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {SIZE_OPTIONS.map((size) => {
-                                  const stock = stockBySize[size] ?? 0;
-                                  const disabled = stock === 0;
-                                  return (
-                                    <SelectItem
-                                      key={size}
-                                      value={size}
-                                      disabled={disabled}
-                                      className={
-                                        disabled
-                                          ? "text-gray-400 cursor-not-allowed"
-                                          : ""
-                                      }
-                                    >
-                                      {size} {`(${stock}개 남음)`}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
+                              <option value="" disabled hidden>
+                                사이즈 선택
+                              </option>
+
+                              {SIZE_OPTIONS.map((size) => {
+                                const stock = stockBySize[size] ?? 0;
+                                const disabled = stock === 0;
+
+                                return (
+                                  <option
+                                    key={size}
+                                    value={size}
+                                    disabled={disabled}
+                                  >
+                                    {size} ({stock}개 남음)
+                                  </option>
+                                );
+                              })}
+                            </select>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-1 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0">
+                    <div className="grid grid-cols-2 gap-1 sm:grid-cols-1 sm:gap-2 mt-2 sm:mt-0 sm:flex sm:flex-col sm:justify-between">
                       <button
                         onClick={() => {
                           if (!validateBeforeAdd(p)) return;
@@ -441,6 +435,8 @@ export default function BookmarkPage() {
                       >
                         장바구니 담기
                       </button>
+
+                      <hr className="sm:block hidden" />
 
                       <button
                         onClick={() => deleteMutate(fav.product_id)}

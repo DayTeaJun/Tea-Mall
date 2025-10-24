@@ -174,8 +174,8 @@ export default function MyCartPage() {
                         <div className="flex items-center gap-4">
                           {item.product?.image_url ? (
                             <Image
-                              width={128}
-                              height={128}
+                              width={144}
+                              height={144}
                               src={item.product.image_url}
                               alt={item.product.name}
                               className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded cursor-pointer"
