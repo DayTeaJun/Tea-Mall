@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   uploadImageToStorageProfile,
   useMyProfileQuery,
   useUpdateMyProfileMutation,
 } from "@/lib/queries/auth";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { AuthUser, useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import DaumPost from "../../../../../components/common/AddressSearch";
 import { useRouter } from "next/navigation";
-import PasswordGate, {
-  hasValidProfileEditVerification,
-} from "./_components/PasswordGate";
+import PasswordGate from "./_components/PasswordGate";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -91,17 +89,12 @@ export default function EditProfilePage() {
     }
   };
 
-  const isOAuthUser = (user?: any) => {
+  const isOAuthUserFromStore = (user?: AuthUser | null) => {
     if (!user) return false;
-
-    const p = user.app_metadata?.provider;
-    if (p && p !== "email") return true;
-
-    const identities: Array<{ provider?: string }> = user.identities ?? [];
-    return identities.some((id) => id.provider && id.provider !== "email");
+    return user.provider !== "email";
   };
 
-  const oauth = isOAuthUser(user);
+  const oauth = isOAuthUserFromStore(user);
 
   if (!oauth && !isVerified) {
     return <PasswordGate onVerified={() => setIsVerified(true)} />;

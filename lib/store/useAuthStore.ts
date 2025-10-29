@@ -1,21 +1,22 @@
 // lib/store/useAuthStore.ts
 import { create } from "zustand";
 
-type User = {
+export type AuthUser = {
   id: string;
   email: string;
   user_name: string;
   level: number;
   phone: string;
   address: string;
+  provider: "email" | string;
 };
 
 interface AuthState {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user?: AuthUser | null;
+  setUser: (user: AuthUser | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  user: undefined,
   setUser: (user) => set({ user }),
 }));
