@@ -34,7 +34,7 @@ export default function ShareButton() {
 
   return (
     <button
-      className=" hover:text-gray-900 hover:bg-gray-100 m-1 p-1 rounded-full shrink-0 transition-all duration-200"
+      className=" hover:text-gray-900 hover:bg-gray-100 rounded-full shrink-0 transition-all duration-200  border p-2 border-gray-300 ml-1"
       onClick={handleShare}
       title="공유하기"
     >

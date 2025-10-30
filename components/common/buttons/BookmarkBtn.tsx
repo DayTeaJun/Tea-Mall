@@ -57,7 +57,7 @@ export default function BookmarkBtn({ productId, initialFavorited }: Props) {
     <button
       onClick={handleBookmark}
       title="즐겨찾기"
-      className="hover:text-gray-900 hover:bg-gray-100 m-1 p-1 rounded-full shrink-0 transition-all duration-200"
+      className="hover:text-gray-900 hover:bg-gray-100 rounded-full shrink-0 transition-all duration-200 border p-2 border-gray-300"
     >
       <Heart
         className={`w-6 h-6 cursor-pointer ${
