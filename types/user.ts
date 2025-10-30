@@ -6,6 +6,7 @@ export interface UserType {
   profile_image_url?: string | null;
   address: string;
   phone: string;
+  provider: "email" | string;
 }
 
 export interface SignInFormData {
