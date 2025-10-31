@@ -37,7 +37,7 @@ export default async function ProductReview({
   if (reviewError) return notFound();
 
   return (
-    <div className="max-w-2xl mx-auto p-6 my-5 bg-white shadow rounded-md">
+    <div className="max-w-2xl mx-auto p-6 sm:my-5 bg-white sm:shadow rounded-md">
       <h2 className="text-xl font-semibold mb-4">상품 품질 리뷰</h2>
 
       {existingReview ? (
