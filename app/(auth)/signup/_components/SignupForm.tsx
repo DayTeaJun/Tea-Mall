@@ -5,6 +5,7 @@ import ValidEmail from "./ValidEmail";
 import ValidPassword from "./ValidPassword";
 import ValidUsername from "./ValidUsername";
 import { useSignUpMutation } from "@/lib/queries/auth";
+import PolicyForm from "./PolicyForm";
 
 function SignupForm() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,11 @@ function SignupForm() {
   const [username, setUsername] = useState("");
   const [usernameValid, setUsernameValid] = useState("");
 
+  const [agreements, setAgreements] = useState({
+    terms: false,
+    privacy: false,
+  });
+
   const { mutate } = useSignUpMutation();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,7 +34,9 @@ function SignupForm() {
   const isFormValid =
     emailValid === "사용 가능한 이메일입니다." &&
     passwordCheck === "비밀번호가 일치합니다." &&
-    usernameValid === "사용 가능한 사용자명입니다.";
+    usernameValid === "사용 가능한 사용자명입니다." &&
+    agreements.terms &&
+    agreements.privacy;
 
   return (
     <form
@@ -89,6 +97,8 @@ function SignupForm() {
       >
         {usernameValid || "\u00A0"}
       </p>
+
+      <PolicyForm agreements={agreements} setAgreements={setAgreements} />
 
       <button
         className={`p-3 rounded-md font-bold transition-all duration-200 ease-in-out ${
