@@ -12,6 +12,7 @@ import { User } from "@supabase/supabase-js";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import DaumPostcode from "@/components/common/AddressSearch";
 import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
+import PolicyForm from "../../signup/_components/PolicyForm";
 
 interface Props {
   user: User;
@@ -27,6 +28,11 @@ export default function OnboardingForm({ user }: Props) {
 
   const [profileImage, setProfileImage] = useState("");
 
+  const [agreements, setAgreements] = useState({
+    terms: false,
+    privacy: false,
+  });
+
   const handleProfileImageChange = (file: File) => {
     onUpload(file);
     setProfileImage("");
@@ -39,6 +45,11 @@ export default function OnboardingForm({ user }: Props) {
   const [detailAddress, setDetailAddress] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
+
+  const isFormValid =
+    hint === "사용 가능한 사용자명입니다." &&
+    agreements.terms &&
+    agreements.privacy;
 
   useEffect(() => {
     const validateUsername = async () => {
@@ -202,11 +213,18 @@ export default function OnboardingForm({ user }: Props) {
           )}
         </div>
 
+        <PolicyForm agreements={agreements} setAgreements={setAgreements} />
+
         <div className="pt-2 ml-auto">
           <button
             type="submit"
-            disabled={!username}
-            className="px-4 py-2 rounded border hover:bg-gray-50 disabled:opacity-60"
+            disabled={!isFormValid}
+            className={`font-bold transition-all duration-200 ease-in-out
+              px-4 py-2 rounded border hover:bg-gray-300 disabled:opacity-60 ${
+                isFormValid
+                  ? "bg-gray-600 text-white hover:bg-gray-700 cursor-pointer"
+                  : "bg-gray-300 text-white cursor-default"
+              }`}
           >
             저장하고 시작하기
           </button>
