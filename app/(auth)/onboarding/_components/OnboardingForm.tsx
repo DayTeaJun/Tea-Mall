@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import useDebounce from "@/hooks/useDebounce";
-import { serverCheckUsernameExists } from "@/lib/actions/auth";
 import { USERNAME_REGEX } from "../../constants";
 import {
   uploadImageToStorageProfile,
@@ -13,6 +12,7 @@ import { ImgPreview } from "@/hooks/useImagePreview";
 import DaumPostcode from "@/components/common/AddressSearch";
 import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
 import PolicyForm from "../../signup/_components/PolicyForm";
+import { serverCheckUsernameExists } from "@/lib/actions/auth";
 
 interface Props {
   user: User;
