@@ -64,7 +64,8 @@ export default function OnboardingForm({ user }: Props) {
       }
 
       try {
-        const exists = await serverCheckUsernameExists(debounceUsername);
+        const res = await fetch(`/api/check-username?name=${debounceUsername}`);
+        const { exists } = await res.json();
 
         if (exists) {
           setHint("중복된 사용자명입니다.");
@@ -73,12 +74,12 @@ export default function OnboardingForm({ user }: Props) {
         }
       } catch (error) {
         console.error("닉네임 확인 중 오류:", error);
-        setHint("이메일 확인 중 오류가 발생했습니다. 관리자에게 문의해주세요.");
+        setHint("닉네임 확인 중 오류가 발생했습니다. 관리자에게 문의해주세요.");
       }
     };
 
     validateUsername();
-  }, [debounceUsername, setHint]);
+  }, [debounceUsername]);
 
   const onChangePhone = (raw: string) => {
     const digits = raw.replace(/\D/g, "").slice(0, 11);
