@@ -4,7 +4,6 @@ import useDebounce from "@/hooks/useDebounce";
 import { User } from "lucide-react";
 import React, { useEffect } from "react";
 import { USERNAME_REGEX } from "../../constants";
-import { serverCheckUsernameExists } from "../../../../lib/actions/auth";
 
 interface Props {
   username: string;
@@ -28,7 +27,23 @@ function ValidUsername({ username, setUsername, setUsernameValid }: Props) {
       }
 
       try {
-        const exists = await serverCheckUsernameExists(debounceUsername);
+        const res = await fetch(
+          `/api/auth/check-username?name=${encodeURIComponent(
+            debounceUsername.trim(),
+          )}`,
+        );
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.log("check-username status:", res.status);
+          console.log("check-username response:", text);
+          setUsernameValid(
+            "닉네임 확인 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          );
+          return;
+        }
+
+        const { exists } = await res.json();
 
         if (exists) {
           setUsernameValid("중복된 사용자명입니다.");
@@ -38,7 +53,7 @@ function ValidUsername({ username, setUsername, setUsernameValid }: Props) {
       } catch (error) {
         console.error("닉네임 확인 중 오류:", error);
         setUsernameValid(
-          "이메일 확인 중 오류가 발생했습니다. 관리자에게 문의해주세요.",
+          "닉네임 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
         );
       }
     };

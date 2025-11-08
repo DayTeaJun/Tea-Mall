@@ -397,12 +397,21 @@ export type Database = {
           },
         ];
       };
+      public_usernames: {
+        Row: {
+          user_name: string | null;
+        };
+        Insert: {
+          user_name?: string | null;
+        };
+        Update: {
+          user_name?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
-      increment_product_views: {
-        Args: { p_id: string };
-        Returns: number;
-      };
+      increment_product_views: { Args: { p_id: string }; Returns: number };
     };
     Enums: {
       [_ in never]: never;
