@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const supabaseAdmin = await createServerSupabaseAdminClient();
 
   const { data, error } = await supabaseAdmin
-    .from("user_table")
+    .from("public_usernames")
     .select("user_name")
     .eq("user_name", name)
     .maybeSingle();
