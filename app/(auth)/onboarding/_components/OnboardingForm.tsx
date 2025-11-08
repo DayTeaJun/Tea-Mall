@@ -12,7 +12,6 @@ import { ImgPreview } from "@/hooks/useImagePreview";
 import DaumPostcode from "@/components/common/AddressSearch";
 import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
 import PolicyForm from "../../signup/_components/PolicyForm";
-import { serverCheckUsernameExists } from "@/lib/actions/auth";
 
 interface Props {
   user: User;
@@ -64,7 +63,11 @@ export default function OnboardingForm({ user }: Props) {
       }
 
       try {
-        const res = await fetch(`/api/check-username?name=${debounceUsername}`);
+        const res = await fetch(
+          `/api/auth/check-username?name=${encodeURIComponent(
+            debounceUsername,
+          )}`,
+        );
         const { exists } = await res.json();
 
         if (exists) {
@@ -104,7 +107,7 @@ export default function OnboardingForm({ user }: Props) {
     mutate({
       id: user.id,
       email: user.email || "",
-      username,
+      username: username.trim().toLowerCase(),
       phone,
       address: address
         ? address + (detailAddress ? `, ${detailAddress}` : "")

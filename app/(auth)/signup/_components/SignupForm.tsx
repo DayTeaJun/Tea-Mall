@@ -28,7 +28,7 @@ function SignupForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    mutate({ email, password, username });
+    mutate({ email, password, username: username.trim().toLowerCase() });
   };
 
   const isFormValid =
