@@ -12,12 +12,19 @@ import { ImgPreview } from "@/hooks/useImagePreview";
 import DaumPostcode from "@/components/common/AddressSearch";
 import ImagePreviews from "@/app/(member)/mypage/profile/edit/_components/ImagePreview_Profile";
 import PolicyForm from "../../signup/_components/PolicyForm";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 
 interface Props {
   user: User;
 }
 
 export default function OnboardingForm({ user }: Props) {
+  const supabase = createBrowserSupabaseClient();
+  const router = useRouter();
+  const { setUser } = useAuthStore();
   const { mutate } = useSignUpOAuthMutation();
   const [username, setUsername] = useState("");
 
@@ -31,6 +38,13 @@ export default function OnboardingForm({ user }: Props) {
     terms: false,
     privacy: false,
   });
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    toast.success("가입이 취소되었습니다.");
+    router.refresh();
+  };
 
   const handleProfileImageChange = (file: File) => {
     onUpload(file);
@@ -219,7 +233,7 @@ export default function OnboardingForm({ user }: Props) {
 
         <PolicyForm agreements={agreements} setAgreements={setAgreements} />
 
-        <div className="pt-2 ml-auto">
+        <div className="pt-2 flex justify-between">
           <button
             type="submit"
             disabled={!isFormValid}
@@ -231,6 +245,15 @@ export default function OnboardingForm({ user }: Props) {
               }`}
           >
             저장하고 시작하기
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleLogout()}
+            className="font-bold transition-all duration-200 ease-in-out
+              px-4 py-2 rounded border hover:bg-gray-400 disabled:opacity-60 bg-gray-700 text-white cursor-pointer"
+          >
+            가입 취소
           </button>
         </div>
       </form>
