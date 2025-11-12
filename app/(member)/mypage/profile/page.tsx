@@ -17,7 +17,7 @@ export default function ProfilePage() {
 
   const { data, isLoading } = useMyProfileQuery(user?.id);
 
-  if (isLoading) {
+  if (!data || isLoading) {
     return (
       <section className="flex flex-col gap-4 animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-1/3" />

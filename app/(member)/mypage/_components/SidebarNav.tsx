@@ -4,7 +4,11 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, UserCog, Menu, ArrowLeft } from "lucide-react";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { UserType } from "@/types/user";
+
+interface Props {
+  user: UserType | null;
+}
 
 const menu = [
   { name: "내 정보", currentPage: "/mypage/profile", href: "/mypage/profile" },
@@ -29,10 +33,9 @@ const detailPage = [
   { href: "/mypage/profile/resetPassword" },
 ];
 
-export default function SidebarNav() {
+export default function SidebarNav({ user }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useAuthStore();
   const [open, setOpen] = useState(false);
 
   const toggle = () => setOpen((v) => !v);
