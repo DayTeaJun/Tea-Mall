@@ -116,7 +116,7 @@ export default function SidebarNav({ user }: Props) {
 
       <div className="hidden md:block">
         {user ? (
-          <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
+          <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 pr-2 w-fit font-bold">
             <User size={16} />
             <span className="text-green-600">{user.user_name}</span> 님
           </p>

@@ -104,12 +104,11 @@ export default function SidebarNav() {
       </div>
 
       <div className="hidden md:block">
+        <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 pr-2 w-fit font-bold">
+          <UserCog size={16} />
+          관리자 전용
+        </p>
         <ul className="flex flex-col gap-4 h-[50vh]">
-          <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 w-fit font-bold">
-            <UserCog size={16} />
-            관리자 전용
-          </p>
-
           {menu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 

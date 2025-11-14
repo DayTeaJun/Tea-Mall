@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Menu, ArrowLeft } from "lucide-react";
+import { Menu, ArrowLeft, ShieldCheck } from "lucide-react";
 
 const menu = [
   {
@@ -41,7 +41,7 @@ export default function SidebarPolicy() {
             </button>
 
             <p className="text-xs text-gray-500 w-fit font-bold">
-              <span className="text-green-600">이용 안내</span>
+              <span className="text-gray-500">이용 안내</span>
             </p>
           </div>
 
@@ -83,6 +83,10 @@ export default function SidebarPolicy() {
       </div>
 
       <div className="hidden md:block">
+        <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 pr-2 w-fit font-bold">
+          <ShieldCheck size={16} />
+          이용 안내
+        </p>
         <ul className="flex flex-col gap-4 md:h-[50vh]">
           {menu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
@@ -90,7 +94,7 @@ export default function SidebarPolicy() {
               <li key={href}>
                 <Link
                   href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 ${
+                  className={`block px-4 py-2 transition-colors duration-150 whitespace-normal break-keep ${
                     isActive
                       ? "bg-gray-800 text-white font-medium"
                       : "text-gray-700 hover:bg-gray-100"
