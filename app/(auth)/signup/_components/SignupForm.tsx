@@ -28,7 +28,25 @@ function SignupForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    mutate({ email, password, username: username.trim().toLowerCase() });
+    mutate(
+      { email, password, username: username.trim().toLowerCase() },
+      {
+        onError: (error: any) => {
+          console.log("signUp error:", error);
+
+          // 422 & user_already_exists 분기
+          if (
+            error?.status === 422 &&
+            (error?.code === "user_already_exists" ||
+              error?.message?.includes("already"))
+          ) {
+            setEmailValid(
+              "이미 가입된 이메일입니다. 로그인 또는 비밀번호 재설정을 이용해주세요.",
+            );
+          }
+        },
+      },
+    );
   };
 
   const isFormValid =
