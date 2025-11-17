@@ -109,7 +109,7 @@ export default function OrderListPage() {
           </li>
         </Dropdown>
       </div>
-      <p className="text-sm text-gray-500">
+      <p className="text-14 text-gray-500">
         <span className="font-bold">주문일 : </span>
         {new Date(order.created_at!).toLocaleString()}
       </p>
