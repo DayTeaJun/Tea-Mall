@@ -149,7 +149,7 @@ export default function CheckoutPage() {
                     className="text-sm underline text-gray-500 sm:ml-0 ml-auto"
                     onClick={() =>
                       router.push(
-                        `/mypage/profile/edit?from=checkout?itemIds=${itemIds}`,
+                        `/mypage/profile/edit?from=mypage/myCart/checkout?itemIds=${itemIds}`,
                       )
                     }
                   >

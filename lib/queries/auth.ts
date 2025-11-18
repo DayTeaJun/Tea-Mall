@@ -149,9 +149,8 @@ export function useUpdateMyProfileMutation(
         };
 
         if (from && from.includes("checkout")) {
-          router.push(`/mypage/myCart/${from}`);
-        }
-        if (from && from.includes("directCheckout")) {
+          router.push(`/${from}`);
+        } else if (from && from.includes("directCheckout")) {
           router.push(`/${from}`);
         } else {
           router.push("/mypage/profile");
