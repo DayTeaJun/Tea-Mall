@@ -2,7 +2,7 @@
 
 import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Modal from "@/components/common/Modal";
 import { LoaderCircle } from "lucide-react";
@@ -27,6 +27,7 @@ type SelectedItem = {
 
 export default function CheckoutPage() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const productIdFromParam = searchParams.get("productId") ?? "";
@@ -165,7 +166,26 @@ export default function CheckoutPage() {
                   className="border-b py-1 text-sm"
                 />
               )}
-              <p className="text-sm text-gray-700">휴대폰: {user?.phone}</p>
+              {user?.phone ? (
+                <p className="text-sm text-gray-700">전화번호: {user?.phone}</p>
+              ) : (
+                <div className="flex sm:flex-row sm:gap-0 gap-2 flex-col justify-between sm:items-center">
+                  <p className="text-sm text-gray-500">
+                    전화번호가 등록이 되지 않았습니다.
+                  </p>
+
+                  <button
+                    className="text-sm underline text-gray-500 sm:ml-0 ml-auto"
+                    onClick={() =>
+                      router.push(
+                        `/mypage/profile/edit?from=directCheckout?productId=${productIdFromParam}&size=${sizeParam}&quantity=${quantity}`,
+                      )
+                    }
+                  >
+                    전화번호 등록하기
+                  </button>
+                </div>
+              )}
             </div>
           </section>
 
