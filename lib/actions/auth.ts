@@ -26,7 +26,7 @@ export async function signUpUser(formData: SignUpFormData) {
   if (error) throw error;
 
   if (data.user) {
-    const { error: insertError } = await supabase.from("user_table").insert({
+    const { error: insertError } = await supabase.from("user_table").upsert({
       id: data.user.id,
       user_name: username,
       email: email,
