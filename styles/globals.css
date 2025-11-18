@@ -24,6 +24,18 @@ button {
   cursor: pointer;
 }
 
+input::placeholder {
+  color: #e5e7eb;
+}
+
+input::-webkit-input-placeholder {
+  color: #e5e7eb;
+}
+
+input:-ms-input-placeholder {
+  color: #e5e7eb;
+}
+
 .pagination {
   display: flex;
   justify-content: center;

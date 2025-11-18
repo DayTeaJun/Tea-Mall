@@ -11,15 +11,20 @@ import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import DaumPost from "../../../../../components/common/AddressSearch";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PasswordGate from "./_components/PasswordGate";
 
 export default function EditProfilePage() {
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+
   const { user } = useAuthStore();
   const { data, isLoading } = useMyProfileQuery(user?.id);
   const { mutate: updateProfile, isPending } = useUpdateMyProfileMutation(
     user?.id,
+    from || "",
   );
 
   const InitialPhone1 = data?.phone.split("-")[0];

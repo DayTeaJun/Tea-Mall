@@ -44,6 +44,18 @@ export default function CheckoutPage() {
   }, [isLoading, selectedCartItems, router]);
 
   const handlePayment = async () => {
+    if (!user?.phone) {
+      return toast.info("전화번호가 입력이 되지 않았습니다.");
+    }
+
+    if (!orderer) {
+      return toast.info("주문자가 입력이 되지 않았습니다.");
+    }
+
+    if (!detailAddress) {
+      return toast.info("배송지가 입력이 되지 않았습니다.");
+    }
+
     sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
     sessionStorage.setItem("request", request);
     sessionStorage.setItem("receiver", receiver);
@@ -125,7 +137,26 @@ export default function CheckoutPage() {
                   className="border-b py-1 text-sm"
                 />
               )}
-              <p className="text-sm text-gray-700">휴대폰: {user?.phone}</p>
+              {user?.phone ? (
+                <p className="text-sm text-gray-700">전화번호: {user?.phone}</p>
+              ) : (
+                <div className="flex sm:flex-row sm:gap-0 gap-2 flex-col justify-between sm:items-center">
+                  <p className="text-sm text-gray-500">
+                    전화번호가 등록이 되지 않았습니다.
+                  </p>
+
+                  <button
+                    className="text-sm underline text-gray-500 sm:ml-0 ml-auto"
+                    onClick={() =>
+                      router.push(
+                        `/mypage/profile/edit?from=checkout?itemIds=${itemIds}`,
+                      )
+                    }
+                  >
+                    전화번호 등록하기
+                  </button>
+                </div>
+              )}
             </div>
           </section>
 

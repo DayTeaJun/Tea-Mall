@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
+import { AuthUser, useAuthStore } from "../store/useAuthStore";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -126,15 +127,34 @@ export function useMyProfileQuery(userId: string | undefined) {
 }
 
 // 내 프로필 수정
-export function useUpdateMyProfileMutation(userId: string | undefined) {
+export function useUpdateMyProfileMutation(
+  userId: string | undefined,
+  from?: string,
+) {
   const router = useRouter();
+  const { user, setUser } = useAuthStore();
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: UserProfileType) => updateMyProfile(formData),
-    onSuccess: async () => {
+    onSuccess: async (_data, formData) => {
       await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
       toast.success("프로필 수정에 성공하였습니다.");
-      router.push("/mypage/profile");
+
+      if (user) {
+        const updatedUser: AuthUser = {
+          ...user,
+          user_name: formData.user_name ?? user.user_name,
+          phone: formData.phone ?? user.phone,
+          address: formData.address ?? user.address,
+        };
+
+        if (from && from.includes("checkout")) {
+          router.push(`/mypage/myCart/${from}`);
+        } else {
+          router.push("/mypage/profile");
+        }
+        setUser(updatedUser);
+      }
     },
     onError: (error) => {
       if (error && typeof error === "object" && "status" in error) {
