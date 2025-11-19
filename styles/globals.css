@@ -25,15 +25,15 @@ button {
 }
 
 input::placeholder {
-  color: #e5e7eb;
+  color: #b9b9b9;
 }
 
 input::-webkit-input-placeholder {
-  color: #e5e7eb;
+  color: #b9b9b9;
 }
 
 input:-ms-input-placeholder {
-  color: #e5e7eb;
+  color: #b9b9b9;
 }
 
 .pagination {
