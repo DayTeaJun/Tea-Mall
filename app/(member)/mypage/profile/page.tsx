@@ -52,7 +52,13 @@ export default function ProfilePage() {
   }
 
   const handleDelete = async () => {
+    if (user?.email === "testuser@tmall.com") {
+      toast.error("테스트 계정은 탈퇴할 수 없습니다.");
+      return;
+    }
+
     const withrawal = await withdrawalUser();
+
     if (withrawal) {
       toast.success("성공적으로 회원 탈퇴되었습니다.");
       router.push("/");
