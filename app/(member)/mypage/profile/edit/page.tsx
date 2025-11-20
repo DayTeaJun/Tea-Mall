@@ -125,6 +125,7 @@ export default function EditProfilePage() {
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             className="border-b py-1 text-sm w-40 pl-2"
+            readOnly={user?.email === "testuser@tmall.com"}
           />
         </div>
 
