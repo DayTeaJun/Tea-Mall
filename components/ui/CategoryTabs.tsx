@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 
 type CategoryTabsProps = {
   categories?: string[];
-  basePath?: string;
+  basePath?: string; // "/category"
   initial?: string;
 };
 
@@ -22,49 +22,54 @@ export default function CategoryTabs({
     "니트",
     "스포츠웨어",
   ],
-  basePath = "/search",
+  basePath = "/category",
   initial,
 }: CategoryTabsProps) {
-  const searchParams = useSearchParams();
   const pathname = usePathname() ?? "/";
 
-  const allowedPaths = ["/", "/search", "/products"];
-
-  const isAllowedPath = allowedPaths.some((p) =>
-    p === "/" ? pathname === "/" : pathname.startsWith(p),
+  const allowedPaths = ["/", "/category", "/products"];
+  const isAllowedPath = useMemo(
+    () =>
+      allowedPaths.some((p) =>
+        p === "/" ? pathname === "/" : pathname.startsWith(p),
+      ),
+    [pathname],
   );
 
-  const paramCategory = searchParams?.get("category") ?? undefined;
-  const query = searchParams?.get("query") ?? "";
-  const page = searchParams?.get("page") ?? "1";
+  const currentCategoryFromPath = useMemo(() => {
+    if (!pathname.startsWith(basePath)) return categories[0];
 
-  const defaultCategory =
-    pathname === basePath
-      ? paramCategory ?? initial ?? categories[0]
-      : categories[0];
+    if (pathname === basePath) return categories[0];
 
-  const [active, setActive] = useState<string>(defaultCategory);
+    const slug = pathname.slice(basePath.length + 1);
+
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  }, [pathname, basePath, categories]);
+
+  const defaultCategory = initial ?? currentCategoryFromPath;
+  const [active, setActive] = useState(defaultCategory);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
-    if (pathname !== basePath) {
+    if (!pathname.startsWith(basePath)) {
       setActive(categories[0]);
       return;
     }
-
-    if (paramCategory && paramCategory !== active) setActive(paramCategory);
-
-    if (paramCategory === null && active !== categories[0]) {
-      setActive(categories[0]);
-    }
-  }, [paramCategory, pathname]);
+    const next = currentCategoryFromPath ?? categories[0];
+    if (next !== active) setActive(next);
+  }, [pathname, currentCategoryFromPath, categories, basePath]);
 
   useEffect(() => {
     const container = containerRef.current;
     const activeEl = activeRef.current;
     if (!container || !activeEl) return;
+
     const containerRect = container.getBoundingClientRect();
     const activeRect = activeEl.getBoundingClientRect();
     const offset =
@@ -72,6 +77,7 @@ export default function CategoryTabs({
       containerRect.left -
       containerRect.width / 2 +
       activeRect.width / 2;
+
     container.scrollBy({ left: offset, behavior: "smooth" });
   }, [active]);
 
@@ -91,11 +97,14 @@ export default function CategoryTabs({
               const isActive = cat === active;
 
               const params = new URLSearchParams();
-              params.set("category", cat);
-              if (query) params.set("query", query);
-              if (page) params.set("page", page);
+              params.set("page", "1");
 
-              const href = `${basePath}?${params.toString()}`;
+              const href =
+                cat === categories[0]
+                  ? `${basePath}?${params.toString()}`
+                  : `${basePath}/${encodeURIComponent(
+                      cat,
+                    )}?${params.toString()}`;
 
               return (
                 <Link
