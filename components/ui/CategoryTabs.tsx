@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useSearchParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 type CategoryTabsProps = {
   categories?: string[];
@@ -27,7 +27,7 @@ export default function CategoryTabs({
 }: CategoryTabsProps) {
   const pathname = usePathname() ?? "/";
 
-  const allowedPaths = ["/", "/category", "/products"];
+  const allowedPaths = ["/", "/category", "/products", "/search"];
   const isAllowedPath = useMemo(
     () =>
       allowedPaths.some((p) =>

@@ -25,7 +25,7 @@ export default function ProductListView({
   const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentZeroBased = Math.max(0, Math.min(page - 1, pageCount - 1));
 
-  const handlePageChange = (selected) => {
+  const handlePageChange = (selected: { selected: number }) => {
     const newPage = selected.selected + 1;
 
     const base = category
@@ -64,8 +64,18 @@ export default function ProductListView({
           forcePage={currentZeroBased}
           pageRangeDisplayed={3}
           marginPagesDisplayed={1}
-          previousLabel={"이전"}
-          nextLabel={"다음"}
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
         />
       </div>
     </div>

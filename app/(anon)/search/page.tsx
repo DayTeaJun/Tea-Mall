@@ -15,7 +15,7 @@ export default function SearchPage() {
 
       {keyword && (
         <p className="text-center text-gray-500 mb-8">
-          <span className="font-semibold">"{keyword}"</span> 에 대한 검색
+          <span className="font-semibold">{`"${keyword}"`}</span> 에 대한 검색
           결과입니다.
         </p>
       )}
