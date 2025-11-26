@@ -6,6 +6,7 @@ import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
 import CategoryTabs from "../ui/CategoryTabs";
+import CategoryDropdown from "../ui/CategoryDropdown";
 
 async function Header({ user }: { user: UserType | null }) {
   return (
@@ -14,6 +15,7 @@ async function Header({ user }: { user: UserType | null }) {
         <div className="w-full bg-gray-100 px-4 sm:px-0">
           <div className="w-full max-w-7xl mx-auto flex items-center gap-4 h-10 justify-end sm:px-8">
             <h1 className="mr-auto text-green-600 text-[14px] sm:hidden">
+              <CategoryDropdown />
               <Link href="/" className="text-green-600 font-bold">
                 T-Mall
               </Link>
