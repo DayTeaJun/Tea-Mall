@@ -12,10 +12,10 @@ async function Header({ user }: { user: UserType | null }) {
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 bg-white z-50">
       <div className="w-full flex flex-col">
-        <div className="w-full bg-gray-100 px-4 sm:px-0">
+        <div className="w-full bg-gray-100 pr-4 sm:px-0">
           <div className="w-full max-w-7xl mx-auto flex items-center gap-4 h-10 justify-end sm:px-8">
+            <CategoryDropdown />
             <h1 className="mr-auto text-green-600 text-[14px] sm:hidden">
-              <CategoryDropdown />
               <Link href="/" className="text-green-600 font-bold">
                 T-Mall
               </Link>

@@ -37,16 +37,15 @@ export default function CategoryDropdown({
 
   return (
     <>
-      <div className="fixed inset-y-0 left-0 z-40 flex sm:hidden">
+      <div className="flex sm:hidden">
         <button
           type="button"
           onClick={toggle}
           aria-expanded={open}
           aria-label="카테고리 열기"
-          className="flex h-16 w-16 flex-col items-center justify-center gap-1 bg-blue-600 text-white shadow-md"
+          className="flex pl-4 h-full flex-col items-center justify-center gap-1"
         >
           <Menu className="h-5 w-5" />
-          <span className="text-[11px] leading-none">카테고리</span>
         </button>
       </div>
 
@@ -55,22 +54,22 @@ export default function CategoryDropdown({
           type="button"
           onClick={close}
           aria-label="카테고리 닫기"
-          className="fixed inset-0 z-30 bg-black/30 sm:hidden"
+          className="fixed inset-0 z-30 sm:hidden"
         />
       )}
 
       <div
-        className={`fixed left-0 top-0 z-40 h-full w-56 transform bg-white shadow-xl transition-transform duration-200 sm:hidden ${
+        className={`fixed left-0 top-[40px] bottom-0 z-40 h-full w-56 transform bg-white shadow-xl transition-transform duration-200 sm:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mt-16 border-t">
+        <div className="">
           <nav className="flex flex-col">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={cat.href}
-                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-gray-50 border-b"
                 onClick={close}
               >
                 <cat.Icon className="h-5 w-5 text-gray-500" />
