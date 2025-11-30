@@ -6,6 +6,7 @@ import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
 import CategoryTabs from "../ui/CategoryTabs";
+import CategoryDropdown_M from "../ui/CategoryDropdown_M";
 import CategoryDropdown from "../ui/CategoryDropdown";
 
 async function Header({ user }: { user: UserType | null }) {
@@ -14,7 +15,7 @@ async function Header({ user }: { user: UserType | null }) {
       <div className="w-full flex flex-col">
         <div className="w-full bg-gray-100 pr-4 sm:px-0">
           <div className="w-full max-w-7xl mx-auto flex items-center gap-4 h-10 justify-end sm:px-8">
-            <CategoryDropdown />
+            <CategoryDropdown_M />
             <h1 className="mr-auto text-green-600 text-[14px] sm:hidden">
               <Link href="/" className="text-green-600 font-bold">
                 T-Mall
@@ -55,11 +56,14 @@ async function Header({ user }: { user: UserType | null }) {
         </div>
 
         <div className="w-full max-w-7xl mx-auto py-2 px-4 sm:px-8 flex items-center h-14 justify-between bg-white">
-          <h1 className="text-green-600 text-2xl sm:block hidden">
-            <Link href="/" className="text-green-600 font-bold">
-              T-Mall
-            </Link>
-          </h1>
+          <div className="flex gap-5 items-center">
+            <h1 className="text-green-600 text-2xl sm:block hidden">
+              <Link href="/" className="text-green-600 font-bold">
+                T-Mall
+              </Link>
+            </h1>
+            <CategoryDropdown />
+          </div>
           <nav className="flex gap-4 items-center justify-between w-full sm:w-auto sm:ml-auto">
             <SearchInput />
 

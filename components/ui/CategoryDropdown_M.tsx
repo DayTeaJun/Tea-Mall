@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { Shirt, Sparkles } from "lucide-react";
+import { Menu, Shirt, Sparkles } from "lucide-react";
 
 type CategoryItem = {
   id: string;
@@ -27,7 +27,7 @@ interface CategoryDropdownProps {
   categories?: CategoryItem[];
 }
 
-export default function CategoryDropdown({
+export default function CategoryDropdown_M({
   categories = DEFAULT_CATEGORIES,
 }: CategoryDropdownProps) {
   const [open, setOpen] = useState(false);
@@ -37,15 +37,15 @@ export default function CategoryDropdown({
 
   return (
     <>
-      <div className="hidden sm:flex">
+      <div className="flex sm:hidden">
         <button
           type="button"
           onClick={toggle}
           aria-expanded={open}
           aria-label="카테고리 열기"
-          className="flex h-full flex-col items-center justify-center gap-1 font-bold px-4 py-2 hover:bg-gray-100"
+          className="flex pl-4 h-full flex-col items-center justify-center gap-1"
         >
-          카테고리
+          <Menu className="h-5 w-5" />
         </button>
       </div>
 
@@ -54,12 +54,12 @@ export default function CategoryDropdown({
           type="button"
           onClick={close}
           aria-label="카테고리 닫기"
-          className="fixed inset-0 z-30 hidden sm:block"
+          className="fixed inset-0 z-30 sm:hidden"
         />
       )}
 
       <div
-        className={`fixed left-0 top-[40px] bottom-0 z-40 h-full w-56 transform bg-white shadow-xl transition-transform duration-200 hidden sm:block ${
+        className={`fixed left-0 top-[40px] bottom-0 z-40 h-full w-56 transform bg-white shadow-xl transition-transform duration-200 sm:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
