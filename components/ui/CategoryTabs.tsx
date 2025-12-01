@@ -27,7 +27,7 @@ export default function CategoryTabs({
 }: CategoryTabsProps) {
   const pathname = usePathname() ?? "/";
 
-  const allowedPaths = ["/", "/category", "/products", "/search"];
+  const allowedPaths = ["/category", "/products", "/search"];
   const isAllowedPath = useMemo(
     () =>
       allowedPaths.some((p) =>
