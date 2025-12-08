@@ -7,8 +7,8 @@ type SubCategory = {
 
 type CategoryGroup = {
   id: string;
-  label: string; // 대 카테고리
-  children?: SubCategory[]; // 소 카테고리
+  label: string;
+  children?: SubCategory[];
 };
 
 const DEFAULT_CATEGORIES: CategoryGroup[] = [
@@ -62,18 +62,19 @@ export default function CategoryDropdown({
         카테고리
       </button>
 
+      {/* ✅ pointer-events-none 제거, invisible/visible로 교체 */}
       <div
         className="
-          pointer-events-none
           absolute left-1/2 top-full z-20 w-screen -translate-x-1/2
           border-t border-b bg-white shadow-md
-          opacity-0 -translate-y-1
+          opacity-0 invisible -translate-y-1
           transition-all duration-200
-          group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0
+          group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
         "
       >
         <nav className="mx-auto flex max-w-7xl items-stretch justify-between gap-6 px-6 py-3">
           {categories.map((cat) => (
+            // ✅ 각 카테고리도 relative + group/item 유지
             <div
               key={cat.id}
               className="
@@ -92,12 +93,11 @@ export default function CategoryDropdown({
               {cat.children && cat.children.length > 0 && (
                 <div
                   className="
-                    pointer-events-none
                     absolute left-1/2 top-full z-30 mt-2 w-40 -translate-x-1/2
                     rounded-md border bg-white py-2 shadow-lg
-                    opacity-0
+                    opacity-0 invisible
                     transition-all duration-150
-                    group-hover/item:pointer-events-auto group-hover/item:opacity-100
+                    group-hover/item:opacity-100 group-hover/item:visible
                   "
                 >
                   <ul className="flex flex-col gap-1">
