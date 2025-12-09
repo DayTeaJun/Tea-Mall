@@ -62,7 +62,6 @@ export default function CategoryDropdown({
         카테고리
       </button>
 
-      {/* ✅ pointer-events-none 제거, invisible/visible로 교체 */}
       <div
         className="
           absolute left-1/2 top-full z-20 w-screen -translate-x-1/2
@@ -74,12 +73,11 @@ export default function CategoryDropdown({
       >
         <nav className="mx-auto flex max-w-7xl items-stretch justify-between gap-6 px-6 py-3">
           {categories.map((cat) => (
-            // ✅ 각 카테고리도 relative + group/item 유지
             <div
               key={cat.id}
               className="
-                group/item
                 relative flex-1 text-center
+                flex flex-col items-center
               "
             >
               <button
@@ -91,29 +89,19 @@ export default function CategoryDropdown({
               </button>
 
               {cat.children && cat.children.length > 0 && (
-                <div
-                  className="
-                    absolute left-1/2 top-full z-30 mt-2 w-40 -translate-x-1/2
-                    rounded-md border bg-white py-2 shadow-lg
-                    opacity-0 invisible
-                    transition-all duration-150
-                    group-hover/item:opacity-100 group-hover/item:visible
-                  "
-                >
-                  <ul className="flex flex-col gap-1">
-                    {cat.children.map((sub) => (
-                      <li key={sub.id}>
-                        <button
-                          type="button"
-                          className="w-full px-3 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600"
-                          onClick={() => onSelect?.(sub.label)}
-                        >
-                          {sub.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {cat.children.map((sub) => (
+                    <li key={sub.id}>
+                      <button
+                        type="button"
+                        className="w-full px-1 text-sm text-gray-700 hover:text-green-600 hover:underline"
+                        onClick={() => onSelect?.(sub.label)}
+                      >
+                        {sub.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           ))}
