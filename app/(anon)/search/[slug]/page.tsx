@@ -13,7 +13,7 @@ export default function SearchBySlugPage() {
   const safePage = Number.isFinite(page) && page > 0 ? page : 1;
 
   return (
-    <div className="mt-8 py-8 max-w-7xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-2xl mb-4 text-center">{category} 카테고리</h1>
 
       <ProductListView category={category} page={safePage} />

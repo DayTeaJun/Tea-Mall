@@ -5,7 +5,6 @@ import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
-import CategoryTabs from "../ui/CategoryTabs";
 import CategoryDropdown_M from "../ui/CategoryDropdown_M";
 import CategoryDropdown from "../ui/CategoryDropdown";
 
@@ -73,7 +72,7 @@ async function Header({ user }: { user: UserType | null }) {
           </nav>
         </div>
 
-        <CategoryTabs basePath="/search" />
+        {/* <CategoryTabs basePath="/search" /> */}
       </div>
     </header>
   );
