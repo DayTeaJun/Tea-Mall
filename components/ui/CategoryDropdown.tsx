@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 type SubCategory = {
   id: string;
   label: string;
@@ -12,10 +14,7 @@ type CategoryGroup = {
 };
 
 const DEFAULT_CATEGORIES: CategoryGroup[] = [
-  {
-    id: "all",
-    label: "전체",
-  },
+  { id: "all", label: "전체" },
   {
     id: "top",
     label: "상의",
@@ -25,33 +24,26 @@ const DEFAULT_CATEGORIES: CategoryGroup[] = [
       { id: "knit", label: "니트" },
     ],
   },
-  {
-    id: "outer",
-    label: "아우터",
-  },
-  {
-    id: "skirt",
-    label: "스커트",
-  },
-  {
-    id: "dress",
-    label: "드레스",
-  },
-  {
-    id: "sportswear",
-    label: "스포츠웨어",
-  },
+  { id: "outer", label: "아우터" },
+  { id: "skirt", label: "스커트" },
+  { id: "dress", label: "드레스" },
+  { id: "sportswear", label: "스포츠웨어" },
 ];
 
 interface CategoryDropdownProps {
   categories?: CategoryGroup[];
-  onSelect?: (category: string) => void;
 }
 
 export default function CategoryDropdown({
   categories = DEFAULT_CATEGORIES,
-  onSelect,
 }: CategoryDropdownProps) {
+  const router = useRouter();
+
+  const goToSearch = (label: string) => {
+    const encoded = encodeURIComponent(label);
+    router.push(`/search/${encoded}?page=1`);
+  };
+
   return (
     <div className="hidden sm:inline-block group">
       <button
@@ -82,8 +74,8 @@ export default function CategoryDropdown({
             >
               <button
                 type="button"
-                className="text-sm font-medium text-gray-900 hover:text-green-600"
-                onClick={() => onSelect?.(cat.label)}
+                className="text-xl font-bold text-gray-900 hover:text-green-600"
+                onClick={() => goToSearch(cat.label)}
               >
                 {cat.label}
               </button>
@@ -95,7 +87,7 @@ export default function CategoryDropdown({
                       <button
                         type="button"
                         className="w-full px-1 text-sm text-gray-700 hover:text-green-600 hover:underline"
-                        onClick={() => onSelect?.(sub.label)}
+                        onClick={() => goToSearch(sub.label)}
                       >
                         {sub.label}
                       </button>
