@@ -52,7 +52,7 @@ export default function CheckoutPage() {
       return toast.info("주문자가 입력이 되지 않았습니다.");
     }
 
-    if (!detailAddress) {
+    if (!address && !detailAddress) {
       return toast.info("배송지가 입력이 되지 않았습니다.");
     }
 
