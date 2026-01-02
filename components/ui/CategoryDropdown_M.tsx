@@ -108,15 +108,22 @@ export default function CategoryDropdown_M({
 
             return (
               <div key={cat.id} className="border-b">
-                <button
-                  type="button"
-                  onClick={() =>
-                    hasChildren ? setExpanded(isOpen ? null : cat.id) : close()
-                  }
-                  className="flex w-full items-center px-4 py-3 text-sm text-gray-800"
-                >
-                  <span className="flex-1 text-left">{cat.label}</span>
-                </button>
+                {hasChildren ? (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(isOpen ? null : cat.id)}
+                    className="flex w-full items-center px-4 py-3 text-sm text-gray-800"
+                  >
+                    <span className="flex-1 text-left">{cat.label}</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={`/category/${cat.id}`}
+                    className="flex w-full items-center px-4 py-3 text-sm text-gray-800"
+                  >
+                    {cat.label}
+                  </Link>
+                )}
 
                 {hasChildren && isOpen && (
                   <div className="flex flex-col bg-gray-50">
