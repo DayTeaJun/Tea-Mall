@@ -5,6 +5,7 @@ import ProductCardSkeleton from "@/app/_components/ProductCardSkeleton";
 import { useSearchProductsQuery } from "@/lib/queries/products";
 import ReactPaginate from "react-paginate";
 import { useRouter } from "next/navigation";
+import { PackageSearch, ShoppingCart } from "lucide-react";
 
 export default function ProductListView({
   category = "",
@@ -40,7 +41,7 @@ export default function ProductListView({
   };
 
   return (
-    <div>
+    <div className="w-full min-h-screen flex flex-col justify-between">
       {isLoading ? (
         <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {Array.from({ length: 10 }).map((_, idx) => (
@@ -54,7 +55,23 @@ export default function ProductListView({
           ))}
         </section>
       ) : (
-        <p className="text-gray-500 mt-8">상품이 없습니다.</p>
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
+          <PackageSearch size={48} className="mb-4" />
+
+          <h3 className="text-lg font-semibold mb-2">상품이 없습니다</h3>
+
+          <p className="text-sm mb-6 text-gray-500">
+            다른 검색어나 카테고리를 선택해보세요.
+          </p>
+
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
+          >
+            <ShoppingCart size={16} />
+            홈으로 돌아가기
+          </button>
+        </div>
       )}
 
       <div className="mt-6 flex justify-center">
