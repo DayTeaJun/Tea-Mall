@@ -60,14 +60,32 @@ export default function ProductListPage() {
             <tbody className="text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="p-4">
-                    로딩 중...
+                  <td colSpan={6} className="py-16">
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <ShoppingBag className="w-10 h-10 mb-3 text-gray-400 animate-pulse" />
+                      <p className="text-sm">상품 목록을 불러오는 중입니다</p>
+                    </div>
                   </td>
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-gray-500">
-                    등록된 상품이 없습니다.
+                  <td colSpan={6} className="py-20">
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <ShoppingBag className="w-12 h-12 mb-4 text-gray-400" />
+                      <p className="text-base font-medium mb-1">
+                        등록된 상품이 없습니다
+                      </p>
+                      <p className="text-sm text-gray-400 mb-6">
+                        상품을 등록하면 이곳에서 관리할 수 있습니다.
+                      </p>
+                      <button
+                        onClick={() => router.push("/manage/regist")}
+                        className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
+                      >
+                        <ShoppingBag size={16} />
+                        상품 등록하기
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -153,10 +171,24 @@ export default function ProductListPage() {
 
       <div className="sm:hidden">
         {isLoading ? (
-          <div className="p-4 text-center">로딩 중...</div>
+          <div className="py-16 flex flex-col items-center justify-center text-gray-500">
+            <ShoppingBag className="w-10 h-10 mb-3 text-gray-400 animate-pulse" />
+            <p className="text-sm">상품 목록을 불러오는 중입니다</p>
+          </div>
         ) : products.length === 0 ? (
-          <div className="p-6 text-center text-gray-500 border rounded">
-            등록된 상품이 없습니다.
+          <div className="py-20 flex flex-col items-center justify-center text-center text-gray-500 border rounded">
+            <ShoppingBag className="w-12 h-12 mb-4 text-gray-400" />
+            <p className="text-base font-medium mb-1">등록된 상품이 없습니다</p>
+            <p className="text-sm text-gray-400 mb-6">
+              첫 상품을 등록해보세요.
+            </p>
+            <button
+              onClick={() => router.push("/manage/regist")}
+              className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm hover:bg-gray-100 transition"
+            >
+              <ShoppingBag size={16} />
+              상품 등록하기
+            </button>
           </div>
         ) : (
           <ul className="space-y-3">
