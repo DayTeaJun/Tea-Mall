@@ -21,7 +21,7 @@ function Footer() {
             </Link>
           </div>
         </div>
-        <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4 py-6 px-4">
+        <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4 p-2 sm:py-6 sm:px-4">
           <div className="text-center md:text-left">
             <p className="font-semibold text-lg text-gray-800">T-Mall</p>
             <p className="text-xs mt-1">스타일을 완성하는 당신의 패션 파트너</p>
