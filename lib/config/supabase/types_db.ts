@@ -83,6 +83,13 @@ export type Database = {
             foreignKeyName: "favorites_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
             referencedRelation: "user_table";
             referencedColumns: ["id"];
           },
@@ -172,6 +179,13 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
           {
             foreignKeyName: "orders_user_id_fkey";
             columns: ["user_id"];
@@ -325,6 +339,13 @@ export type Database = {
             foreignKeyName: "reviews_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
             referencedRelation: "user_table";
             referencedColumns: ["id"];
           },
@@ -392,10 +413,32 @@ export type Database = {
             foreignKeyName: "orders_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
             referencedRelation: "user_table";
             referencedColumns: ["id"];
           },
         ];
+      };
+      public_user_profile: {
+        Row: {
+          profile_image_url: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          profile_image_url?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          profile_image_url?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
       };
       public_usernames: {
         Row: {

@@ -15,9 +15,16 @@ export default async function CommentsSection({ productId }: Props) {
     .from("reviews")
     .select(
       `
-    id, user_name, rating, created_at, images, content, product_id, updated_at,
-    user_table ( profile_image_url )
-  `,
+  id,
+  user_name,
+  rating,
+  created_at,
+  images,
+  content,
+  product_id,
+  updated_at,
+  public_user_profile ( profile_image_url )
+`,
     )
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
@@ -43,9 +50,9 @@ export default async function CommentsSection({ productId }: Props) {
               >
                 <div className="flex gap-2 items-center">
                   <div className="rounded-full overflow-hidden">
-                    {comment?.user_table?.profile_image_url ? (
+                    {comment?.public_user_profile?.profile_image_url ? (
                       <Image
-                        src={comment.user_table.profile_image_url}
+                        src={comment?.public_user_profile?.profile_image_url}
                         alt={comment.user_name}
                         width={40}
                         height={40}
