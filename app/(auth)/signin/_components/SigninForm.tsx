@@ -98,12 +98,21 @@ function SigninForm() {
           </label>
         </div>
 
-        <Link
-          className="text-[14px] text-gray-500 hover:text-black"
-          href={"/find-password"}
-        >
-          비밀번호 찾기
-        </Link>
+        <div className="flex gap-2 items-center">
+          <Link
+            className="text-12 sm:text-[14px] text-gray-500 hover:text-black"
+            href={"/find-id"}
+          >
+            아이디 찾기
+          </Link>
+          <span>|</span>
+          <Link
+            className="text-12 sm:text-[14px] text-gray-500 hover:text-black"
+            href={"/find-password"}
+          >
+            비밀번호 찾기
+          </Link>
+        </div>
       </div>
     </form>
   );
