@@ -16,17 +16,27 @@ function FindIdForm() {
 
   const isFormValid = username.trim().length > 0 && phone.trim().length >= 10;
 
+  const formatPhone = (value: string) => {
+    if (value.length !== 11) return value;
+    return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid || isLoading) return;
 
     setIsLoading(true);
 
+    const formattedPhone = formatPhone(phone);
+
     try {
       const res = await fetch("/api/auth/find-id", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, phone }),
+        body: JSON.stringify({
+          username,
+          phone: formattedPhone,
+        }),
       });
 
       const data = await res.json();
