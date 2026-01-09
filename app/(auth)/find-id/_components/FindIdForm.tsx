@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
-type Step = "input" | "success" | "fail";
+type Step = "input" | "success";
 
 function FindIdForm() {
   const [username, setUsername] = useState("");
@@ -21,22 +22,27 @@ function FindIdForm() {
 
     setIsLoading(true);
 
-    const res = await fetch("/api/auth/find-id", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, phone }),
-    });
+    try {
+      const res = await fetch("/api/auth/find-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, phone }),
+      });
 
-    const data = await res.json();
-    setIsLoading(false);
+      const data = await res.json();
 
-    if (!res.ok) {
-      setStep("fail");
-      return;
+      if (!res.ok) {
+        toast.error("입력한 정보와 일치하는 계정이 없습니다.");
+        return;
+      }
+
+      setFoundId(data.maskedEmail);
+      setStep("success");
+    } catch {
+      toast.error("요청 처리 중 문제가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setFoundId(data.maskedEmail);
-    setStep("success");
   };
 
   if (step === "success" && foundId) {
@@ -53,25 +59,6 @@ function FindIdForm() {
         >
           로그인 페이지로 이동
         </Link>
-      </div>
-    );
-  }
-
-  if (step === "fail") {
-    return (
-      <div className="text-center p-6 flex flex-col items-center gap-3 mt-10">
-        <CircleX size={64} className="text-red-500" />
-        <p className="font-bold text-lg">아이디를 찾을 수 없습니다</p>
-        <p className="text-gray-500 text-sm">
-          입력한 정보와 일치하는 계정이 없습니다.
-        </p>
-
-        <button
-          onClick={() => setStep("input")}
-          className="mt-6 p-3 rounded-md bg-gray-200 font-bold"
-        >
-          다시 시도하기
-        </button>
       </div>
     );
   }
@@ -97,6 +84,7 @@ function FindIdForm() {
         <input
           type="tel"
           placeholder="휴대폰 번호 (숫자만 입력)"
+          value={phone}
           onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
           className="border p-3 rounded-md"
         />
@@ -108,7 +96,7 @@ function FindIdForm() {
             isFormValid ? "bg-green-600 text-white" : "bg-gray-300 text-white"
           }`}
         >
-          {isLoading ? "확인 중..." : "아이디 찾기"}
+          아이디 찾기
         </button>
       </form>
 
