@@ -57,15 +57,24 @@ function FindIdForm() {
 
   if (step === "success" && foundId) {
     return (
-      <div className="text-center p-6 flex flex-col items-center gap-3 mt-10">
-        <CircleCheck size={64} className="text-green-500" />
-        <p className="font-bold text-lg">아이디를 찾았습니다</p>
-        <p className="text-gray-600">가입된 아이디(이메일)</p>
-        <p className="font-bold text-xl text-green-600">{foundId}</p>
+      <div className="mt-14 flex flex-col items-center gap-6 px-4">
+        <p className="text-xl font-medium">아이디를 찾았습니다!</p>
+
+        <div className="relative w-full max-w-md border rounded-lg px-6 py-8 text-center">
+          {/* 라벨 */}
+          <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-sm font-bold text-gray-700">
+            가입된 아이디
+          </span>
+
+          {/* 아이디 */}
+          <p className="text-2xl font-extrabold text-green-600 break-all">
+            {foundId}
+          </p>
+        </div>
 
         <Link
           href="/signin"
-          className="mt-6 p-3 rounded-md bg-green-600 text-white font-bold"
+          className="mt-6 w-full max-w-md px-6 py-3 rounded-md bg-green-600 text-white font-bold text-center hover:bg-green-700 transition"
         >
           로그인 페이지로 이동
         </Link>
