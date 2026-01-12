@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 type Step = "input" | "success";
 
@@ -57,33 +57,45 @@ function FindIdForm() {
 
   if (step === "success" && foundId) {
     return (
-      <div className="mt-14 flex flex-col items-center gap-6 px-4">
-        <p className="text-xl font-medium">아이디를 찾았습니다!</p>
+      <div className="flex flex-col items-center px-4">
+        <Check size={60} className="text-green-600 my-4" />
 
-        <div className="relative w-full max-w-md border rounded-lg px-6 py-8 text-center">
-          {/* 라벨 */}
-          <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-sm font-bold text-gray-700">
-            가입된 아이디
-          </span>
+        <p className="text-12 sm:text-sm text-gray-600 text-center mb-10 leading-relaxed">
+          입력하신 정보와 일치하는 회원 정보를 확인했습니다.
+          <br />
+          아래는 가입 시 등록된 아이디(이메일)입니다.
+        </p>
 
-          {/* 아이디 */}
-          <p className="text-2xl font-extrabold text-green-600 break-all">
+        <div className="w-full text-center max-w-md border-t border-b py-8 mb-8">
+          <p className="text-sm text-gray-500 mb-2">연동된 이메일</p>
+          <p className="text-lg font-bold text-green-600 break-all">
             {foundId}
           </p>
         </div>
 
-        <Link
-          href="/signin"
-          className="mt-6 w-full max-w-md px-6 py-3 rounded-md bg-green-600 text-white font-bold text-center hover:bg-green-700 transition"
-        >
-          로그인 페이지로 이동
-        </Link>
+        <div className="flex gap-4 text-sm mb-10">
+          <Link href="/signin" className="text-gray-700">
+            로그인하기
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link href="/find-password" className="text-gray-700">
+            비밀번호를 찾으시나요?
+          </Link>
+        </div>
+
+        <ul className="text-xs text-gray-500 leading-relaxed max-w-md list-disc pl-4 space-y-1">
+          <li>
+            아이디는 개인정보 보호를 위해 아이디의 일부는 처리되어 표시됩니다.
+          </li>
+        </ul>
       </div>
     );
   }
 
   return (
     <>
+      <p className="text-[32px] font-bold">Find your ID</p>
+
       <p className="text-[13px] text-gray-500">
         사용자명과 휴대폰 번호를 입력해주세요.
       </p>
