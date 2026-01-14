@@ -3,13 +3,6 @@
 import { useEffect, useState } from "react";
 import CartBtn from "../../../../../components/common/buttons/CartBtn";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
@@ -84,40 +77,34 @@ export default function ProductPurchaseSection({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
+      <div className="flex flex-col gap-2">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           사이즈 선택
         </label>
-        <Select
+        <select
           value={selectedSize}
-          onValueChange={(value) => {
-            setSelectedSize(value);
+          onChange={(e) => {
+            setSelectedSize(e.target.value);
             setQuantity(1);
           }}
+          className="w-full border px-3 py-2 rounded"
         >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="사이즈 선택" />
-          </SelectTrigger>
-          <SelectContent>
-            {sizeOptions.map((size) => {
-              const stock = stockBySize[size] ?? 0;
-              const isDisabled = stock === 0;
+          {!selectedSize && (
+            <option value="" disabled>
+              사이즈 선택
+            </option>
+          )}
 
-              return (
-                <SelectItem
-                  key={size}
-                  value={size}
-                  disabled={isDisabled}
-                  className={
-                    isDisabled ? "text-gray-400 cursor-not-allowed" : ""
-                  }
-                >
-                  {size + ` (${stock}개 남음)`}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
+          {sizeOptions.map((size) => {
+            const stock = stockBySize[size] ?? 0;
+
+            return (
+              <option key={size} value={size} disabled={stock === 0}>
+                {size} ({stock}개 남음)
+              </option>
+            );
+          })}
+        </select>
       </div>
 
       <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row justify-between items-end">
@@ -127,12 +114,11 @@ export default function ProductPurchaseSection({
           </label>
 
           <input
-            type="text" // ← number 대신 text로
-            inputMode="numeric" // 모바일 키보드 숫자 모드
+            type="text"
+            inputMode="numeric"
             value={quantity}
             onChange={(e) => {
               const raw = e.target.value;
-              // 숫자만 허용 + 빈칸 허용
               if (/^\d*$/.test(raw)) {
                 setQuantity(raw === "" ? 0 : Number(raw));
               }
@@ -140,7 +126,7 @@ export default function ProductPurchaseSection({
             onBlur={() => {
               const val = Number(quantity);
               if (!Number.isFinite(val) || val < 1) {
-                setQuantity(0); // 최소 보정
+                setQuantity(0);
               } else {
                 setQuantity(val);
               }
