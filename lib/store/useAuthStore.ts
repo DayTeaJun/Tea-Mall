@@ -7,7 +7,10 @@ export type AuthUser = {
   level: number;
   phone: string;
   address: string;
-  provider: "email" | string;
+
+  app_metadata?: {
+    provider?: "email" | string;
+  };
 };
 
 interface AuthState {

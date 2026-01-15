@@ -16,7 +16,6 @@ import PasswordGate from "./_components/PasswordGate";
 
 export default function EditProfilePage() {
   const router = useRouter();
-
   const searchParams = useSearchParams();
   const from = searchParams.get("from");
 
@@ -26,6 +25,15 @@ export default function EditProfilePage() {
     user?.id,
     from || "",
   );
+
+  const isOAuthUser = (user?: AuthUser | null) => {
+    if (!user) return false;
+    const provider = user.app_metadata?.provider;
+    console.log("provider:", provider);
+    return provider && provider !== "email";
+  };
+
+  const isOAuth = isOAuthUser(user);
 
   const InitialPhone1 = data?.phone.split("-")[0];
   const InitialPhone2 = data?.phone.split("-")[1];
@@ -94,16 +102,11 @@ export default function EditProfilePage() {
     }
   };
 
-  const isOAuthUserFromStore = (user?: AuthUser | null) => {
-    if (!user) return false;
-    return user.provider !== "email";
-  };
-
-  const oauth = isOAuthUserFromStore(user);
-
-  if (!oauth && !isVerified) {
+  /* ---------------- PasswordGate 분기 (수정 핵심) ---------------- */
+  if (!isOAuth && !isVerified) {
     return <PasswordGate onVerified={() => setIsVerified(true)} />;
   }
+  /* -------------------------------------------------------------- */
 
   if (isLoading) return <div>로딩 중...</div>;
 
@@ -136,7 +139,7 @@ export default function EditProfilePage() {
               type="tel"
               maxLength={3}
               value={phone1}
-              onChange={(e) => setPhone1(e.target.value.replace(/\D/, ""))}
+              onChange={(e) => setPhone1(e.target.value.replace(/\D/g, ""))}
               className="border-b py-1 text-sm w-16 text-center"
               placeholder="010"
             />
@@ -145,7 +148,7 @@ export default function EditProfilePage() {
               type="tel"
               maxLength={4}
               value={phone2}
-              onChange={(e) => setPhone2(e.target.value.replace(/\D/, ""))}
+              onChange={(e) => setPhone2(e.target.value.replace(/\D/g, ""))}
               className="border-b py-1 text-sm w-20 text-center"
             />
             <span>-</span>
@@ -153,7 +156,7 @@ export default function EditProfilePage() {
               type="tel"
               maxLength={4}
               value={phone3}
-              onChange={(e) => setPhone3(e.target.value.replace(/\D/, ""))}
+              onChange={(e) => setPhone3(e.target.value.replace(/\D/g, ""))}
               className="border-b py-1 text-sm w-20 text-center"
             />
           </div>
