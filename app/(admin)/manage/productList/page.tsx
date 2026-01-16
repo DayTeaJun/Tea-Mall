@@ -6,7 +6,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
-import { ImageOff, ShoppingBag } from "lucide-react";
+import { ImageOff, Loader2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 export default function ProductListPage() {
@@ -57,20 +57,20 @@ export default function ProductListPage() {
                 <th className="border p-2 w-[120px]">관리</th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody className="text-sm relative">
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="py-16">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
-                      <ShoppingBag className="w-10 h-10 mb-3 text-gray-400 animate-pulse" />
+                <tr className="h-full">
+                  <td colSpan={6} className="h-full">
+                    <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
+                      <Loader2 className="w-10 h-10 mb-4 animate-spin text-gray-400" />
                       <p className="text-sm">상품 목록을 불러오는 중입니다</p>
                     </div>
                   </td>
                 </tr>
               ) : products.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-20">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
+                <tr className="h-full">
+                  <td colSpan={6} className="h-full">
+                    <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
                       <ShoppingBag className="w-12 h-12 mb-4 text-gray-400" />
                       <p className="text-base font-medium mb-1">
                         등록된 상품이 없습니다
@@ -104,7 +104,7 @@ export default function ProductListPage() {
                             src={product.image_url}
                             alt={product.name}
                             priority
-                            className="object-cover w-full h-full hover:scale-105 duration-200 transition-all"
+                            className="object-cover w-full h-full hover:scale-105 transition-all duration-200"
                           />
                         ) : (
                           <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
@@ -151,7 +151,7 @@ export default function ProductListPage() {
                           onClick={() =>
                             router.push(`/manage/edit/${product.id}`)
                           }
-                          className="border p-2 cursor-pointer hover:bg-gray-100 duration-200 transition-all"
+                          className="border p-2 hover:bg-gray-100 transition"
                         >
                           수정
                         </button>
@@ -169,14 +169,14 @@ export default function ProductListPage() {
         </div>
       </div>
 
-      <div className="sm:hidden">
+      <div className="sm:hidden min-h-[60vh] flex flex-col">
         {isLoading ? (
-          <div className="py-16 flex flex-col items-center justify-center text-gray-500">
-            <ShoppingBag className="w-10 h-10 mb-3 text-gray-400 animate-pulse" />
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
+            <Loader2 className="w-10 h-10 mb-4 animate-spin text-gray-400" />
             <p className="text-sm">상품 목록을 불러오는 중입니다</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center text-center text-gray-500 border rounded">
+          <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 border rounded">
             <ShoppingBag className="w-12 h-12 mb-4 text-gray-400" />
             <p className="text-base font-medium mb-1">등록된 상품이 없습니다</p>
             <p className="text-sm text-gray-400 mb-6">
@@ -230,7 +230,7 @@ export default function ProductListPage() {
 
                     <button
                       onClick={() => router.push(`/products/${product.id}`)}
-                      className="text-left mt-1 w-full flex-col flex gap-2"
+                      className="mt-1 w-full flex flex-col gap-2 text-left"
                     >
                       <p className="text-xs text-gray-500 truncate">
                         {user?.email?.split("@")[0]}
