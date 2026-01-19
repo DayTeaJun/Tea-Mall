@@ -31,7 +31,7 @@ function PolicyForm({
   };
 
   return (
-    <div className="flex flex-col mb-6 gap-6 font-medium">
+    <div className="flex flex-col my-6 gap-6 font-medium">
       <p className="text-[18px] flex gap-2 items-center">
         <span className="w-2 h-2 bg-green-600 rounded-full" />
         약관 동의
