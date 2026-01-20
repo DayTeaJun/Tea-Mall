@@ -12,11 +12,17 @@ import { Database } from "../config/supabase/types_db";
 export async function signUpUser(formData: SignUpFormData) {
   const supabase = await createServerSupabaseClient();
 
-  const { email, password, username } = formData;
+  const { email, password, username, phone } = formData;
 
-  if (!email || !password || !username) {
+  if (!email || !password || !username || !phone) {
     throw new Error("필수 입력값이 누락되었습니다.");
   }
+  const formatPhoneWithHyphen = (value: string) => {
+    if (value.length !== 11) return value;
+    return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
+  };
+
+  const formattedPhone = formatPhoneWithHyphen(phone.replace(/[^0-9]/g, ""));
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -29,7 +35,8 @@ export async function signUpUser(formData: SignUpFormData) {
     const { error: insertError } = await supabase.from("user_table").upsert({
       id: data.user.id,
       user_name: username,
-      email: email,
+      email,
+      phone: formattedPhone,
       level: 1,
     });
 
