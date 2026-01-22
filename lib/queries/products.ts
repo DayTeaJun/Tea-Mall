@@ -228,6 +228,7 @@ const getSearchProducts = async (
   query: string = "",
   page: number,
   limit: number,
+  sort: string = "accurate",
 ) => {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -235,7 +236,6 @@ const getSearchProducts = async (
   let queryBuilder = supabase
     .from("products")
     .select("*", { count: "exact" })
-    .range(from, to)
     .eq("deleted", false);
 
   if (category && category !== "전체") {
@@ -246,9 +246,34 @@ const getSearchProducts = async (
     queryBuilder = queryBuilder.ilike("name", `%${query}%`);
   }
 
-  const { data, count, error } = await queryBuilder.order("created_at", {
-    ascending: false,
-  });
+  // 정렬 처리
+  switch (sort) {
+    case "price_asc":
+      queryBuilder = queryBuilder.order("price", { ascending: true });
+      break;
+
+    case "price_desc":
+      queryBuilder = queryBuilder.order("price", { ascending: false });
+      break;
+
+    case "sales":
+      queryBuilder = queryBuilder.order("sales_count", { ascending: false });
+      break;
+
+    case "latest":
+      queryBuilder = queryBuilder.order("created_at", { ascending: false });
+      break;
+
+    case "accurate":
+    default:
+      // 기본값: 최신순 + id 보조 정렬
+      queryBuilder = queryBuilder
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false });
+      break;
+  }
+
+  const { data, count, error } = await queryBuilder.range(from, to);
 
   if (error) {
     throw new Error(error.message);
@@ -262,10 +287,11 @@ export const useSearchProductsQuery = (
   query: string = "",
   page: number,
   limit: number,
+  sort: string = "accurate",
 ) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["searchProducts", category, query, page, limit],
-    queryFn: () => getSearchProducts(category, query, page, limit),
+    queryKey: ["searchProducts", category, query, page, limit, sort],
+    queryFn: () => getSearchProducts(category, query, page, limit, sort),
   });
 
   return {
