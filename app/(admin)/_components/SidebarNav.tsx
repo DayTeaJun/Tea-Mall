@@ -7,6 +7,11 @@ import { useState } from "react";
 
 const menu = [
   {
+    name: "대시보드",
+    currentPage: "/manage/dashBoard",
+    href: "/manage/dashBoard",
+  },
+  {
     name: "등록 상품 관리",
     currentPage: "/manage/productList",
     href: "/manage/productList",
@@ -20,6 +25,11 @@ const menu = [
     name: "주문 상태 관리",
     currentPage: "/manage/orderList",
     href: "/manage/orderList?query=&page=1",
+  },
+  {
+    name: "고객 관리",
+    currentPage: "/manage/user",
+    href: "/manage/user",
   },
 ];
 
