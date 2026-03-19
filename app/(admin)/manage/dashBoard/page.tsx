@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import SalesLineChart from "./_components/SalesStatusChart";
+import CategoryPieChart from "./_components/CategoriStatusChart";
 
 function page() {
   return (
@@ -26,7 +27,7 @@ function page() {
             </div>
             <p className="text-17 font-bold">₩ 12,450,500</p>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-red-400" />
+              <TrendingUp className="w-4 h-4 text-red-200" />
               <p className="text-14 text-gray-400">
                 전일 대비 <span className="font-bold">+15%</span>
               </p>
@@ -42,7 +43,7 @@ function page() {
             </div>
             <p className="text-17 font-bold">40</p>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-red-400" />
+              <TrendingUp className="w-4 h-4 text-red-200" />
               <p className="text-14 text-gray-400">
                 전일 대비 <span className="font-bold">+8%</span>
               </p>
@@ -58,7 +59,7 @@ function page() {
             </div>
             <p className="text-17 font-bold">8</p>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-red-400" />
+              <TrendingUp className="w-4 h-4 text-red-200" />
               <p className="text-14 text-gray-400">
                 전일 대비 <span className="font-bold">+4%</span>
               </p>
@@ -74,7 +75,7 @@ function page() {
             </div>
             <p className="text-17 font-bold">4</p>
             <div className="flex items-center gap-2">
-              <TrendingDown className="w-4 h-4 text-red-400" />
+              <TrendingDown className="w-4 h-4 text-blue-200" />
               <p className="text-14 text-gray-400">
                 전일 대비 <span className="font-bold">-3%</span>
               </p>
@@ -90,10 +91,12 @@ function page() {
             </div>
           </div>
 
-          <div className="bg-white p-4 flex flex-col gap-2 rounded">
+          <div className="max-w-full bg-white p-4 flex flex-col gap-2 rounded">
             <p className="text-16 font-bold">카테고리별 판매 비율</p>
 
-            <div className="p-2 pt-4"></div>
+            <div className="p-2 pt-4 h-full">
+              <CategoryPieChart />
+            </div>
           </div>
         </section>
       </div>
