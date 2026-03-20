@@ -103,7 +103,7 @@ export default function SidebarNav({ user }: Props) {
           {user?.level === 3 && (
             <div className="border-b last:border-b-0 py-3">
               <Link
-                href="/manage/productList"
+                href="/manage/dashBoard"
                 className="text-xs text-gray-500 flex items-center gap-2 hover:text-red-400 px-1"
               >
                 <UserCog size={14} />
@@ -147,7 +147,7 @@ export default function SidebarNav({ user }: Props) {
         {user?.level === 3 && (
           <div className="mt-4 pt-4 border-t">
             <Link
-              href="/manage/productList"
+              href="/manage/dashBoard"
               className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
             >
               <UserCog size={14} />
