@@ -84,8 +84,14 @@ export default function CategoryPieChart() {
   };
 
   return (
-    <div className="w-full h-[300px]">
-      <Doughnut data={data} options={options} />
+    <div className="max-w-full bg-white p-4 flex flex-col gap-2 rounded">
+      <p className="text-16 font-bold">카테고리별 판매 비율</p>
+
+      <div className="p-2 pt-4 h-full">
+        <div className="w-full h-[300px]">
+          <Doughnut data={data} options={options} />
+        </div>
+      </div>
     </div>
   );
 }

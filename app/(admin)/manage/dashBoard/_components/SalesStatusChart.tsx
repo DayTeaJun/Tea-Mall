@@ -62,8 +62,13 @@ export default function SimpleLineChart() {
   };
 
   return (
-    <div className="w-full h-64">
-      <Line data={data} options={options} />
+    <div className="w-[70%] bg-white p-4 flex flex-col gap-2 rounded">
+      <p className="text-16 font-bold">주간 매출 추이</p>
+      <div className="p-2 pt-4">
+        <div className="w-full h-64">
+          <Line data={data} options={options} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -85,20 +85,9 @@ function page() {
         </section>
 
         <section className="w-full flex gap-4 p-4">
-          <div className="w-[70%] bg-white p-4 flex flex-col gap-2 rounded">
-            <p className="text-16 font-bold">주간 매출 추이</p>
-            <div className="p-2 pt-4">
-              <SalesLineChart />
-            </div>
-          </div>
+          <SalesLineChart />
 
-          <div className="max-w-full bg-white p-4 flex flex-col gap-2 rounded">
-            <p className="text-16 font-bold">카테고리별 판매 비율</p>
-
-            <div className="p-2 pt-4 h-full">
-              <CategoryPieChart />
-            </div>
-          </div>
+          <CategoryPieChart />
         </section>
 
         <section className="w-full gap-4 p-4">
