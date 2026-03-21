@@ -1,6 +1,15 @@
 "use client";
 
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  ChartData,
+  ChartOptions,
+  LegendItem,
+  TooltipItem,
+} from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -10,7 +19,7 @@ export default function CategoryPieChart() {
   const categorySales = [450000, 300000, 150000, 80000];
   const totalSum = categorySales.reduce((a, b) => a + b, 0);
 
-  const data = {
+  const data: ChartData<"doughnut"> = {
     labels,
     datasets: [
       {
@@ -24,7 +33,7 @@ export default function CategoryPieChart() {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
@@ -32,24 +41,27 @@ export default function CategoryPieChart() {
     },
     plugins: {
       legend: {
-        position: "bottom" as const,
+        position: "bottom",
         labels: {
           usePointStyle: true,
           padding: 20,
           font: { size: 12 },
-          generateLabels: (chart: any) => {
-            const data = chart.data;
-            if (data.labels.length && data.datasets.length) {
-              return data.labels.map((label: string, i: number) => {
-                const value = data.datasets[0].data[i];
+          generateLabels: (chart): LegendItem[] => {
+            const chartData = chart.data;
+            if (chartData.labels?.length && chartData.datasets.length) {
+              return chartData.labels.map((label, i): LegendItem => {
+                const dataset = chartData.datasets[0];
+                const value = dataset.data[i] as number;
                 const percentage = ((value / totalSum) * 100).toFixed(1);
+
                 return {
                   text: `${label} ${percentage}%`,
-                  fillStyle: data.datasets[0].backgroundColor[i],
-                  strokeStyle: data.datasets[0].borderColor,
-                  lineWidth: data.datasets[0].borderWidth,
+                  fillStyle: (dataset.backgroundColor as string[])[i],
+                  strokeStyle: dataset.borderColor as string,
+                  lineWidth: dataset.borderWidth as number,
                   pointStyle: "circle",
                   index: i,
+                  hidden: !chart.isDatasetVisible(0), // 범례 클릭 시 토글 상태 반영
                 };
               });
             }
@@ -59,16 +71,16 @@ export default function CategoryPieChart() {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<"doughnut">) => {
             const label = context.label || "";
-            const value = context.raw;
+            const value = context.raw as number;
             const percentage = ((value / totalSum) * 100).toFixed(1);
             return ` ${label}: ${value.toLocaleString()}원 (${percentage}%)`;
           },
         },
       },
     },
-    cutout: "75%", // 도넛 두께 조절 (80%보다 살짝 두껍게)
+    cutout: "75%",
   };
 
   return (

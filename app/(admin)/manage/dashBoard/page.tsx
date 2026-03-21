@@ -9,13 +9,14 @@ import {
 import React from "react";
 import SalesLineChart from "./_components/SalesStatusChart";
 import CategoryPieChart from "./_components/CategoriStatusChart";
+import LatestOrderLists from "./_components/LatestOrderLists";
 
 function page() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-4">
       <h2 className="text-xl font-bold">대시보드</h2>
 
-      <div className="w-full h-screen bg-gray-50">
+      <div className="w-full min-h-screen bg-gray-50">
         <section className="w-full grid grid-cols-4 gap-4 p-4">
           <div className="col-span-1 bg-white p-4 flex flex-col gap-1 rounded">
             <div className="flex items-center justify-between">
@@ -98,6 +99,10 @@ function page() {
               <CategoryPieChart />
             </div>
           </div>
+        </section>
+
+        <section className="w-full gap-4 p-4">
+          <LatestOrderLists />
         </section>
       </div>
     </div>
