@@ -7,6 +7,7 @@ import {
   PointElement,
   LineElement,
   Tooltip,
+  ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
@@ -37,7 +38,7 @@ export default function SimpleLineChart() {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -55,7 +56,7 @@ export default function SimpleLineChart() {
         },
         ticks: {
           stepSize: 100000,
-          callback: (value: any) => `${value.toLocaleString()}원`,
+          callback: (value) => `${value.toLocaleString()}원`,
         },
       },
     },
