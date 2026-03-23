@@ -1,7 +1,12 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 function LatestOrderLists() {
+  const router = useRouter();
+
   const mockOrders = [
     {
       id: "ORD-20260321-01",
@@ -59,7 +64,10 @@ function LatestOrderLists() {
     <div className="w-full bg-white p-6 flex flex-col gap-4 rounded">
       <div className="flex justify-between items-center">
         <p className="text-lg font-bold text-gray-800">최근 주문 목록</p>
-        <button className="group flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-all duration-300">
+        <button
+          onClick={() => router.push("/manage/orderList?query=&page=1")}
+          className="group flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-all duration-300"
+        >
           <span className="transition-all duration-300">전체 보기</span>
           <ArrowRight
             size={14}
@@ -102,7 +110,14 @@ function LatestOrderLists() {
                   </span>
                 </td>
                 <td className="py-4 px-2 text-center">
-                  <button className="text-xs px-3 py-1 border border-gray-200 rounded hover:bg-gray-200 transition-all">
+                  <button
+                    onClick={() =>
+                      router.push(
+                        `/manage/orderList/orderDetail?orderId=${order.id}`,
+                      )
+                    }
+                    className="text-xs px-3 py-1 border border-gray-200 rounded hover:bg-gray-200 transition-all"
+                  >
                     상세보기
                   </button>
                 </td>
