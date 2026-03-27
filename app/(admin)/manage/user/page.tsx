@@ -4,7 +4,7 @@ import { Search, X } from "lucide-react";
 import React, { useState } from "react";
 import UserList from "./_components/UserList";
 
-export default function UserPage() {
+export default function UserManageMentPage() {
   const [searchInput, setSearchInput] = useState("");
 
   return (

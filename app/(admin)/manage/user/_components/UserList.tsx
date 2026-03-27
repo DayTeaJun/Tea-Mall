@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import ReactPaginate from "react-paginate";
 import { MoreVertical, User } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface UserData {
   id: number;
@@ -26,6 +27,7 @@ const MOCK_USERS: UserData[] = Array.from({ length: 12 }, (_, i) => ({
 function UserList() {
   const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 5;
+  const router = useRouter();
 
   const endOffset = itemOffset + itemsPerPage;
   const currentItems = MOCK_USERS.slice(itemOffset, endOffset);
@@ -63,7 +65,10 @@ function UserList() {
                 key={user.id}
                 className="hover:bg-gray-50/50 transition-colors group"
               >
-                <td className="py-4 px-6">
+                <td
+                  onClick={() => router.push(`/manage/user/${user.id}`)}
+                  className="py-4 px-6 cursor-pointer group transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
                       {user.avatar ? (
@@ -79,7 +84,7 @@ function UserList() {
                         </div>
                       )}
                     </div>
-                    <span className="font-bold text-gray-800 truncate">
+                    <span className="font-bold text-gray-800 truncate group-hover:underline">
                       {user.name}
                     </span>
                   </div>
