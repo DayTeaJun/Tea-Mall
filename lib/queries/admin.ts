@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createProduct,
   deleteProduct,
+  getAllUsers,
   getMyProducts,
   updateProduct,
 } from "../actions/admin";
@@ -137,6 +138,24 @@ export const useMyProductsQuery = (userId: string, searchQuery: string) => {
     queryKey: ["manageProducts", searchQuery],
     queryFn: () => getMyProducts(userId, searchQuery),
     enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+  };
+};
+
+// 유저 전체 조회
+export const useAllUsersQuery = (
+  searchQuery: string,
+  page: number,
+  pageSize: number,
+) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["allUsers", searchQuery, page, pageSize],
+    queryFn: () => getAllUsers({ query: searchQuery, page, pageSize }),
+    enabled: true,
   });
 
   return {

@@ -269,7 +269,6 @@ export async function getMyProducts(userId: string, query: string) {
 }
 
 // 주문 배송상태 변경
-
 export async function updateDeliveryStatus(
   orderItemId: string,
   status: string,
@@ -283,4 +282,42 @@ export async function updateDeliveryStatus(
 
   if (error) throw new Error(error.message);
   return true;
+}
+
+//유저 전체 조회
+export async function getAllUsers({
+  query = "",
+  page = 0,
+  pageSize = 5,
+}: {
+  query?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const supabase = await createServerSupabaseClient();
+
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  let request = supabase
+    .from("user_table")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (query.trim()) {
+    request = request.or(`user_name.ilike.%${query}%,email.ilike.%${query}%`);
+  }
+
+  const { data, error, count } = await request;
+
+  if (error) {
+    console.error("Error fetching users:", error);
+    throw new Error("고객 목록을 불러오지 못했습니다.");
+  }
+
+  return {
+    users: data ?? [],
+    totalCount: count ?? 0,
+  };
 }
