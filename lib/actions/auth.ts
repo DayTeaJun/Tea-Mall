@@ -119,7 +119,9 @@ export async function getMyProfile(userId: string) {
 
   const { data, error } = await supabaseAdmin
     .from("user_table")
-    .select("id, email, user_name, level, phone, address, profile_image_url")
+    .select(
+      "id, email, user_name, level, phone, address, profile_image_url, created_at, updated_at",
+    )
     .eq("id", userId)
     .single();
 

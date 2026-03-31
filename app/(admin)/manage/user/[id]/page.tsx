@@ -1,4 +1,4 @@
-import React from "react";
+import UserDetailClient from "./_components/UserDetailClient";
 
 export default async function UserManageMentDetailPage({
   params,
@@ -8,9 +8,8 @@ export default async function UserManageMentDetailPage({
   const id = (await params).id;
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-xl font-bold">고객 관리</h2>
-      {id} page
+    <div className="max-w-7xl mx-auto p-6">
+      <UserDetailClient userId={id} />
     </div>
   );
 }

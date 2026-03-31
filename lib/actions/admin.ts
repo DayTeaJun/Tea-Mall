@@ -284,7 +284,7 @@ export async function updateDeliveryStatus(
   return true;
 }
 
-//유저 전체 조회
+// 유저 전체 조회
 export async function getAllUsers({
   query = "",
   page = 0,
