@@ -8,7 +8,7 @@ export default async function UserManageMentDetailPage({
   const id = (await params).id;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto flex flex-col gap-4">
       <UserDetailClient userId={id} />
     </div>
   );

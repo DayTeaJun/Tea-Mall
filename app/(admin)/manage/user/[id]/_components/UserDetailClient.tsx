@@ -41,20 +41,20 @@ export default function UserDetailClient({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-4">
+    <div className="w-full flex flex-col gap-2">
+      <div className="flex items-center gap-2">
         <Link
           href="/manage/user"
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <ArrowLeft size={20} />
         </Link>
-        <h2 className="text-2xl font-bold text-gray-800">고객 상세 정보</h2>
+        <h2 className="text-xl font-bold">고객 상세 정보</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1 flex flex-col gap-6">
-          <div className="bg-white border rounded-2xl p-8 flex flex-col items-center text-center shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 w-full min-h-full bg-gray-50">
+        <section className="md:col-span-1 flex flex-col gap-6 p-4">
+          <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
                 <Image
@@ -80,11 +80,11 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                   : "bg-gray-100 text-gray-600"
               }`}
             >
-              {(user.level ?? 0) >= 2 ? "VIP 고객" : "일반 고객"}
+              {(user.level ?? 0) >= 3 ? "관리자" : "일반 고객"}
             </span>
           </div>
 
-          <div className="bg-white border rounded-2xl p-6 shadow-sm">
+          <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
               <ShieldCheck size={18} className="text-blue-500" />
               계정 타임라인
@@ -108,17 +108,17 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="md:col-span-2 flex flex-col gap-6">
-          <div className="bg-white border rounded-2xl p-8 shadow-sm">
+        <div className="md:col-span-2 flex flex-col gap-6 p-4">
+          <div className="border border-gray-200 bg-white p-4 flex flex-col ">
             <h4 className="text-lg font-bold text-gray-800 mb-6 pb-2 border-b">
-              인적 사항
+              기본 정보
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-4">
               <InfoRow
                 icon={<UserIcon size={16} />}
-                label="성함"
+                label="이름"
                 value={user.user_name}
               />
               <InfoRow
@@ -153,7 +153,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               </div>
             </div>
 
-            <div className="mt-12 pt-6 border-t flex gap-3">
+            <div className="mt-12 pt-6 border-t flex justify-between gap-3">
               <button className="px-6 py-2.5 bg-black text-white rounded-lg font-bold text-sm hover:opacity-80 transition-all shadow-md active:scale-95">
                 회원 정보 수정
               </button>
