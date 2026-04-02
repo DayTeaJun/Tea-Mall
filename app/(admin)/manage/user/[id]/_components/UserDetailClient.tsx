@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useMyProfileQuery } from "@/lib/queries/auth";
+import UserOrderLists from "./UserOrderLists";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useMyProfileQuery(userId);
@@ -52,8 +53,8 @@ export default function UserDetailClient({ userId }: { userId: string }) {
         <h2 className="text-xl font-bold">고객 상세 정보</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 w-full min-h-full bg-gray-50">
-        <section className="md:col-span-1 flex flex-col gap-6 p-4">
+      <div className="grid grid-cols-3 gap-2 w-full min-h-full bg-gray-50">
+        <section className="col-span-1 flex flex-col gap-6 p-4">
           <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
@@ -84,38 +85,11 @@ export default function UserDetailClient({ userId }: { userId: string }) {
             </span>
           </div>
 
-          <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
-            <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <ShieldCheck size={18} className="text-blue-500" />
-              계정 타임라인
-            </h4>
-            <div className="space-y-4 text-sm text-gray-600">
-              <div className="flex justify-between">
-                <span>최초 가입일</span>
-                <span className="font-medium text-gray-900">
-                  {user.created_at
-                    ? new Date(user.created_at).toLocaleDateString()
-                    : "-"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>최근 수정일</span>
-                <span className="font-medium text-gray-900">
-                  {user.updated_at
-                    ? new Date(user.updated_at).toLocaleDateString()
-                    : "-"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="md:col-span-2 flex flex-col gap-6 p-4">
           <div className="border border-gray-200 bg-white p-4 flex flex-col ">
             <h4 className="text-lg font-bold text-gray-800 mb-6 pb-2 border-b">
               기본 정보
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-4">
+            <div className="flex flex-col gap-4">
               <InfoRow
                 icon={<UserIcon size={16} />}
                 label="이름"
@@ -153,7 +127,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               </div>
             </div>
 
-            <div className="mt-12 pt-6 border-t flex justify-between gap-3">
+            <div className="mt-12 pt-6 border-t flex flex-col gap-3">
               <button className="px-6 py-2.5 bg-black text-white rounded-lg font-bold text-sm hover:opacity-80 transition-all shadow-md active:scale-95">
                 회원 정보 수정
               </button>
@@ -162,7 +136,34 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               </button>
             </div>
           </div>
-        </div>
+
+          <div className="border border-gray-200 bg-white p-4 flex flex-col">
+            <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-blue-500" />
+              계정 타임라인
+            </h4>
+            <div className="space-y-4 text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>최초 가입일</span>
+                <span className="font-medium text-gray-900">
+                  {user.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>최근 수정일</span>
+                <span className="font-medium text-gray-900">
+                  {user.updated_at
+                    ? new Date(user.updated_at).toLocaleDateString()
+                    : "-"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <UserOrderLists />
       </div>
     </div>
   );
@@ -178,14 +179,14 @@ function InfoRow({
   value: string | null;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2 text-gray-400">
+    <div className="grid grid-cols-3 gap-1.5 items-center">
+      <div className="col-span-1 flex gap-2 text-gray-400">
         {icon}
         <span className="text-[11px] font-bold uppercase tracking-tight">
           {label}
         </span>
       </div>
-      <p className="text-[14px] font-medium text-gray-700 leading-relaxed">
+      <p className="col-span-2 text-[14px] font-medium text-gray-700 leading-relaxed">
         {value || "정보 없음"}
       </p>
     </div>
