@@ -53,8 +53,8 @@ export default function UserDetailClient({ userId }: { userId: string }) {
         <h2 className="text-xl font-bold">고객 상세 정보</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 w-full min-h-full bg-gray-50">
-        <section className="col-span-1 flex flex-col gap-6 p-4">
+      <div className="grid grid-cols-3 w-full min-h-full bg-gray-50">
+        <section className="col-span-1 flex flex-col gap-6 p-4 pr-2">
           <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
@@ -163,7 +163,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
           </div>
         </section>
 
-        <UserOrderLists />
+        <UserOrderLists userId={userId} />
       </div>
     </div>
   );
