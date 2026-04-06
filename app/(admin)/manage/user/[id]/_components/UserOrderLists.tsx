@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Package, Loader2, MoreVertical } from "lucide-react";
+import { Package, Loader2, MoreVertical, ChevronRight } from "lucide-react";
 import ReactPaginate from "react-paginate";
 import { useGetOrders } from "@/lib/queries/auth";
+import { useRouter } from "next/navigation";
 
 interface Product {
   name: string;
@@ -37,6 +38,7 @@ interface UserOrderListsProps {
 function UserOrderLists({ userId }: UserOrderListsProps) {
   const [page, setPage] = useState(1);
   const LIMIT = 10;
+  const router = useRouter();
 
   const { data, isLoading } = useGetOrders(userId, {}, page, LIMIT, 3);
 
@@ -70,7 +72,7 @@ function UserOrderLists({ userId }: UserOrderListsProps) {
                   <th className="py-3 px-4 font-bold text-center">주문일자</th>
                   <th className="py-3 px-4 font-bold text-center">결제금액</th>
                   <th className="py-3 px-4 font-bold text-center">배송상태</th>
-                  <th className="py-3 px-4 font-bold text-center">관리</th>
+                  <th className="py-3 px-4 font-bold text-center">주문 상세</th>
                 </tr>
               </thead>
               <tbody className="text-sm divide-y divide-gray-100">
@@ -129,8 +131,15 @@ function UserOrderLists({ userId }: UserOrderListsProps) {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <button className="p-2 hover:bg-gray-100 rounded-lg transition-all">
-                            <MoreVertical size={16} className="text-gray-400" />
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/manage/orderList/orderDetail?orderId=${order.id}`,
+                              )
+                            }
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+                          >
+                            <ChevronRight size={16} />
                           </button>
                         </td>
                       </tr>
