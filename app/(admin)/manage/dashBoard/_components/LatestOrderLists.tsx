@@ -1,49 +1,43 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { useGetOrders } from "@/lib/queries/auth";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { ArrowRight, Package } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
+import ReactPaginate from "react-paginate";
+
+interface Product {
+  name: string;
+  image_url: string | null;
+}
+interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  price: number;
+  size: string | null;
+  delivery_status: string | null;
+  products: Product | null;
+}
 
 function LatestOrderLists() {
+  const [page, setPage] = useState(1);
   const router = useRouter();
+  const { user } = useAuthStore();
+  const LIMIT = 5;
 
-  const mockOrders = [
-    {
-      id: "ORD-20260321-01",
-      customer: "김철수",
-      date: "2026-03-21",
-      price: 150000,
-      status: "배송중",
-    },
-    {
-      id: "ORD-20260320-05",
-      customer: "이영희",
-      date: "2026-03-20",
-      price: 45000,
-      status: "결제완료",
-    },
-    {
-      id: "ORD-20260320-02",
-      customer: "박민수",
-      date: "2026-03-20",
-      price: 89000,
-      status: "배송완료",
-    },
-    {
-      id: "ORD-20260319-11",
-      customer: "최지우",
-      date: "2026-03-19",
-      price: 12000,
-      status: "취소됨",
-    },
-    {
-      id: "ORD-20260318-07",
-      customer: "정우성",
-      date: "2026-03-18",
-      price: 210000,
-      status: "결제완료",
-    },
-  ];
+  const { data: orders, isLoading } = useGetOrders(
+    user?.id ?? "",
+    {},
+    page,
+    LIMIT,
+    3,
+  );
+
+  const totalCount = orders?.count ?? 0;
+  const pageCount = Math.ceil(totalCount / LIMIT);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -76,55 +70,109 @@ function LatestOrderLists() {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 text-gray-500 text-sm">
-              <th className="py-3 px-2 font-medium">주문번호</th>
-              <th className="py-3 px-2 font-medium">고객명</th>
-              <th className="py-3 px-2 font-medium">주문일자</th>
-              <th className="py-3 px-2 font-medium">결제금액</th>
-              <th className="py-3 px-2 font-medium text-center">상태</th>
-              <th className="py-3 px-2 font-medium text-center">관리</th>
+              <th className="py-3 px-2 font-medium w-[22%]">상품정보</th>
+              <th className="py-3 px-2 font-medium w-[13%]">고객명</th>
+              <th className="py-3 px-2 font-medium w-[30%]">주문번호</th>
+              <th className="py-3 px-2 font-medium w-[15%]">주문일자</th>
+              <th className="py-3 px-2 font-medium w-[10%]">결제금액</th>
+              <th className="py-3 px-2 font-medium text-center w-[10%]">
+                상태
+              </th>
             </tr>
           </thead>
           <tbody className="text-sm">
-            {mockOrders.map((order) => (
-              <tr
-                key={order.id}
-                className="border-b border-gray-50 last:border-none hover:bg-gray-50 transition-colors"
-              >
-                <td className="py-4 px-2 font-mono text-gray-600">
-                  {order.id}
-                </td>
-                <td className="py-4 px-2 font-semibold">{order.customer}</td>
-                <td className="py-4 px-2 text-gray-500">{order.date}</td>
-                <td className="py-4 px-2 font-medium">
-                  {order.price.toLocaleString()}원
-                </td>
-                <td className="py-4 px-2">
-                  <span
-                    className={`px-2 py-1 rounded-md text-12 font-medium flex justify-center ${getStatusStyle(order.status)}`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td className="py-4 px-2 text-center">
-                  <button
-                    onClick={() =>
-                      router.push(
-                        `/manage/orderList/orderDetail?orderId=${order.id}`,
-                      )
-                    }
-                    className="text-xs px-3 py-1 border border-gray-200 rounded hover:bg-gray-200 transition-all"
-                  >
-                    상세보기
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {orders?.data?.map((order) => {
+              const firstItem = order.order_items?.[0];
+              const itemCount = order.order_items?.length || 0;
+              const totalPrice = order.order_items?.reduce(
+                (acc: number, item: OrderItem) =>
+                  acc + item.price * item.quantity,
+                0,
+              );
+              return (
+                <tr
+                  key={order.id}
+                  onClick={() =>
+                    router.push(
+                      `/manage/orderList/orderDetail?orderId=${order.id}`,
+                    )
+                  }
+                  className="border-b border-gray-50 last:border-none hover:bg-gray-50 transition-colors cursor-pointer group"
+                >
+                  <td className="py-4 px-2 font-semibold">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 bg-white border border-gray-200 flex-shrink-0">
+                        {firstItem?.products?.image_url ? (
+                          <Image
+                            fill
+                            src={firstItem.products.image_url}
+                            alt="product"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <Package size={18} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-gray-900 truncate group-hover:underline">
+                          {firstItem?.products?.name || "상품 정보 없음"}
+                        </span>
+                        {itemCount > 1 && (
+                          <span className="text-[11px] text-gray-400 mt-0.5">
+                            외 {itemCount - 1}건의 상품
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-2 font-semibold">{order.user_name}</td>
+
+                  <td className="py-4 px-2 font-mono text-gray-600">
+                    {order.id}
+                  </td>
+
+                  <td className="py-4 text-gray-500 font-mono text-[13px]">
+                    {order.created_at &&
+                      new Date(order.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="py-4 px-2 font-medium">
+                    {totalPrice.toLocaleString()}원
+                  </td>
+                  <td className="py-4 px-2">
+                    <span
+                      className={`px-2 py-1 rounded-md text-12 font-medium flex justify-center ${getStatusStyle(firstItem?.delivery_status || "결제완료")}`}
+                    >
+                      {firstItem?.delivery_status || "결제완료"}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+
+        <div className="mt-8 flex justify-center border-t border-gray-100 pt-6">
+          <ReactPaginate
+            breakLabel="..."
+            nextLabel=">"
+            onPageChange={(e) => setPage(e.selected + 1)}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            previousLabel="<"
+            containerClassName="flex items-center gap-1"
+            pageLinkClassName="px-3 py-1 text-[13px] border border-gray-200 text-gray-600"
+            activeLinkClassName="bg-black text-white border-black font-bold cursor-pointer"
+            previousLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
+            nextLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
+            disabledLinkClassName="opacity-30 cursor-default"
+          />
+        </div>
       </div>
     </div>
   );
