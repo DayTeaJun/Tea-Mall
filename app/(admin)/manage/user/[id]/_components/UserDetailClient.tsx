@@ -8,10 +8,10 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
   User as UserIcon,
   ShieldCheck,
   Loader2,
+  Clock,
 } from "lucide-react";
 import { useMyProfileQuery } from "@/lib/queries/auth";
 import UserOrderLists from "./UserOrderLists";
@@ -105,10 +105,29 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                 label="연락처"
                 value={user.phone}
               />
+
               <InfoRow
-                icon={<Calendar size={16} />}
-                label="가입 상태"
-                value={user.created_at ? "정상" : "확인불가"}
+                icon={<ShieldCheck size={16} />}
+                label="계정 상태"
+                value={
+                  user.status === "active"
+                    ? "정상"
+                    : user.status === "suspended"
+                      ? "계정 정지"
+                      : user.status === "withdrawn"
+                        ? "탈퇴 계정"
+                        : "확인 불가"
+                }
+              />
+
+              <InfoRow
+                icon={<Clock size={16} />}
+                label="최근 접속일"
+                value={
+                  user.last_login_at
+                    ? new Date(user.last_login_at).toLocaleString("ko-KR")
+                    : "접속 기록 없음"
+                }
               />
             </div>
 

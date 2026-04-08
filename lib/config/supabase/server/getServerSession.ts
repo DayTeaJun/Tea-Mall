@@ -20,6 +20,12 @@ export async function getServerSession() {
     return { user: null };
   }
 
+  const now = new Date().toISOString();
+  await supabase
+    .from("user_table")
+    .update({ last_login_at: now })
+    .eq("id", userData.user.id);
+
   const { data: user_table } = await supabase
     .from("user_table")
     .select("*")

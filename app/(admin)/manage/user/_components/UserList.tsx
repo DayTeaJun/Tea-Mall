@@ -13,6 +13,7 @@ interface UserData {
   profile_image_url: string | null;
   level: number | null;
   updated_at: string | null;
+  last_login_at: string | null;
 }
 
 interface UserListProps {
@@ -100,14 +101,14 @@ function UserList({
                   </td>
                   <td className="py-4 px-6 text-center">
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold ${user.level && user.level >= 2 ? "bg-black text-white" : "bg-gray-100 text-gray-600"}`}
+                      className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold ${user.level && user.level >= 3 ? "bg-black text-white" : "bg-gray-100 text-gray-600"}`}
                     >
-                      {user.level && user.level >= 2 ? "VIP" : "일반"}
+                      {user.level && user.level >= 3 ? "관리자" : "일반"}
                     </span>
                   </td>
                   <td className="py-4 px-6 text-center text-gray-500 font-mono text-xs">
-                    {user.updated_at
-                      ? new Date(user.updated_at).toLocaleDateString()
+                    {user.last_login_at
+                      ? new Date(user.last_login_at).toLocaleDateString()
                       : "-"}
                   </td>
                   <td className="py-4 px-6 text-center">
