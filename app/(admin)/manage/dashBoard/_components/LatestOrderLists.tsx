@@ -2,11 +2,9 @@
 
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, LoaderCircle, Package, PackageX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import ReactPaginate from "react-paginate";
 
 interface Product {
   name: string;
@@ -23,21 +21,17 @@ interface OrderItem {
 }
 
 function LatestOrderLists() {
-  const [page, setPage] = useState(1);
   const router = useRouter();
   const { user } = useAuthStore();
-  const LIMIT = 5;
+  const LIMIT = 10;
 
   const { data: orders, isLoading } = useGetOrders(
     user?.id ?? "",
     {},
-    page,
+    1,
     LIMIT,
     3,
   );
-
-  const totalCount = orders?.count ?? 0;
-  const pageCount = Math.ceil(totalCount / LIMIT);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -70,7 +64,17 @@ function LatestOrderLists() {
         </button>
       </div>
 
-      <div className="">
+      {isLoading ? (
+        <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
+          <LoaderCircle size={48} className="animate-spin mb-4" />
+          <p className="text-sm">주문목록을 불러오는 중...</p>
+        </div>
+      ) : orders?.data?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-600">
+          <PackageX size={48} className="mb-4" />
+          <p>주문 내역이 없습니다.</p>
+        </div>
+      ) : (
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 text-gray-500 text-sm">
@@ -156,24 +160,7 @@ function LatestOrderLists() {
             })}
           </tbody>
         </table>
-
-        <div className="mt-8 flex justify-center border-t border-gray-100 pt-6">
-          <ReactPaginate
-            breakLabel="..."
-            nextLabel=">"
-            onPageChange={(e) => setPage(e.selected + 1)}
-            pageRangeDisplayed={3}
-            pageCount={pageCount}
-            previousLabel="<"
-            containerClassName="flex items-center gap-1"
-            pageLinkClassName="px-3 py-1 text-[13px] border border-gray-200 text-gray-600"
-            activeLinkClassName="bg-black text-white border-black font-bold cursor-pointer"
-            previousLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
-            nextLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
-            disabledLinkClassName="opacity-30 cursor-default"
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
