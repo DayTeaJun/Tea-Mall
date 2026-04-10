@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetDashboardStatus } from "@/lib/queries/admin";
+import { useGetDashboardStatusQuery } from "@/lib/queries/admin";
 import {
   HandCoins,
   ShoppingBag,
@@ -18,7 +18,7 @@ interface DashboardStats {
 }
 
 function SalesStatus() {
-  const { data, isLoading } = useGetDashboardStatus();
+  const { data, isLoading } = useGetDashboardStatusQuery();
   console.log(data);
 
   if (isLoading) {

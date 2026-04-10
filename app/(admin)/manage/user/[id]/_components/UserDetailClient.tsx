@@ -13,11 +13,11 @@ import {
   Loader2,
   Clock,
 } from "lucide-react";
-import { useMyProfileQuery } from "@/lib/queries/auth";
 import UserOrderLists from "./UserOrderLists";
+import { useGetProfileQuery } from "@/lib/queries/admin";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
-  const { data: user, isLoading, isError } = useMyProfileQuery(userId);
+  const { data: user, isLoading, isError } = useGetProfileQuery(userId);
 
   if (isLoading) {
     return (

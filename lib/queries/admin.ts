@@ -7,6 +7,7 @@ import {
   getAllUsers,
   getDashboardStatus,
   getMyProducts,
+  getUserProfile,
   updateProduct,
 } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -165,8 +166,23 @@ export const useAllUsersQuery = (
   };
 };
 
+// 유저 프로필 조회
+export function useGetProfileQuery(userId: string | undefined) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["userProfile", userId],
+    queryFn: () => getUserProfile(userId || ""),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 최근 24시간 주문 조회 대시보드
-export function useGetDashboardStatus() {
+export function useGetDashboardStatusQuery() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dashboardStatus"],
     queryFn: () => getDashboardStatus(),

@@ -343,6 +343,46 @@ export async function getAllUsers({
   };
 }
 
+// 유저 프로필 조회
+export async function getUserProfile(userId: string) {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+
+  if (!sessionUser) throw new Error("인증이 필요합니다.");
+
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", sessionUser.id)
+    .single();
+
+  if (!profile || profile.level !== 3) {
+    throw new Error("관리자 권한이 없습니다.");
+  }
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_SUPABASE_SERVICE_ROLE!,
+  );
+
+  const { data, error } = await supabaseAdmin
+    .from("user_table")
+    .select(
+      "id, email, user_name, level, phone, address, profile_image_url, created_at, updated_at, status, last_login_at",
+    )
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Supabase 에러", error);
+    throw new Error("프로필 조회 실패");
+  }
+
+  return data;
+}
+
 // 대시보드 통계 조회 (최근 24시간 주문, 재고 부족 상품, 신규 고객 수)
 export async function getDashboardStatus() {
   const supabase = await createServerSupabaseClient();
