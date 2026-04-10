@@ -3,6 +3,7 @@
 import { CreateProductType, ProductUpdateType } from "@/types/product";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
+import { createClient } from "@supabase/supabase-js";
 
 // 상품 등록
 export async function createProduct({
@@ -295,11 +296,31 @@ export async function getAllUsers({
   pageSize?: number;
 }) {
   const supabase = await createServerSupabaseClient();
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+
+  if (!sessionUser) throw new Error("인증이 필요합니다.");
+
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", sessionUser.id)
+    .single();
+
+  if (!profile || profile.level !== 3) {
+    throw new Error("관리자 권한이 없습니다.");
+  }
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_SUPABASE_SERVICE_ROLE!,
+  );
 
   const from = page * pageSize;
   const to = from + pageSize - 1;
 
-  let request = supabase
+  let request = supabaseAdmin
     .from("user_table")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
@@ -312,12 +333,76 @@ export async function getAllUsers({
   const { data, error, count } = await request;
 
   if (error) {
-    console.error("Error fetching users:", error);
-    throw new Error("고객 목록을 불러오지 못했습니다.");
+    console.error("조회 에러:", error);
+    throw new Error("목록을 불러오지 못했습니다.");
   }
 
   return {
     users: data ?? [],
     totalCount: count ?? 0,
+  };
+}
+
+// 대시보드 통계 조회 (최근 24시간 주문, 재고 부족 상품, 신규 고객 수)
+export async function getDashboardStatus() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+
+  if (!sessionUser) throw new Error("인증이 필요합니다.");
+
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", sessionUser.id)
+    .single();
+
+  if (!profile || profile.level !== 3) {
+    throw new Error("관리자 권한이 없습니다.");
+  }
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_SUPABASE_SERVICE_ROLE!,
+  );
+
+  const now = new Date();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: orders } = await supabaseAdmin
+    .from("orders_with_user_info")
+    .select("created_at, order_items(price, quantity)")
+    .eq("deleted", false);
+
+  const { count: lowStockCount } = await supabaseAdmin
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("deleted", false)
+    .lt("total_stock", 5);
+
+  const { count: newUserCount, error: userError } = await supabaseAdmin
+    .from("user_table")
+    .select("*", { count: "exact", head: true })
+    .gte("created_at", oneDayAgo);
+
+  if (userError) console.error("신규 유저 조회 에러:", userError);
+
+  if (!orders)
+    return { totalSales: 0, orderCount: 0, lowStockCount: 0, newUserCount: 0 };
+
+  const totalSales = orders.reduce((acc, order) => {
+    const orderSum = order.order_items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    return acc + orderSum;
+  }, 0);
+
+  return {
+    totalSales,
+    orderCount: orders.length,
+    lowStockCount: lowStockCount || 0,
+    newUserCount: newUserCount || 0,
   };
 }

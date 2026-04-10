@@ -5,6 +5,7 @@ import {
   createProduct,
   deleteProduct,
   getAllUsers,
+  getDashboardStatus,
   getMyProducts,
   updateProduct,
 } from "../actions/admin";
@@ -163,3 +164,17 @@ export const useAllUsersQuery = (
     isLoading,
   };
 };
+
+// 최근 24시간 주문 조회 대시보드
+export function useGetDashboardStatus() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["dashboardStatus"],
+    queryFn: () => getDashboardStatus(),
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
