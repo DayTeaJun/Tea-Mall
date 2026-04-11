@@ -1,6 +1,10 @@
 "use server";
 
-import { CreateProductType, ProductUpdateType } from "@/types/product";
+import {
+  CreateProductType,
+  OrderItem,
+  ProductUpdateType,
+} from "@/types/product";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
 import { createClient } from "@supabase/supabase-js";
@@ -445,4 +449,57 @@ export async function getDashboardStatus() {
     lowStockCount: lowStockCount || 0,
     newUserCount: newUserCount || 0,
   };
+}
+
+// 최근 7건 매출 조회
+export async function getWeeklySalesAction() {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+  if (!sessionUser) throw new Error("인증이 필요합니다.");
+
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", sessionUser.id)
+    .single();
+
+  if (!profile || profile.level !== 3) throw new Error("권한이 없습니다.");
+
+  const { data: orders, error } = await supabase
+    .from("orders_with_user_info")
+    .select("created_at, order_items(price, quantity)")
+    .eq("deleted", false)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) throw new Error(error.message);
+
+  const salesMap = new Map<string, number>();
+
+  orders?.forEach((order) => {
+    if (!order.created_at) return;
+
+    const dateKey = order.created_at.split("T")[0];
+    const orderTotal = order.order_items.reduce(
+      (acc: number, item: OrderItem) =>
+        acc + (item.price || 0) * (item.quantity || 0),
+      0,
+    );
+
+    salesMap.set(dateKey, (salesMap.get(dateKey) || 0) + orderTotal);
+  });
+
+  const sortedDates = Array.from(salesMap.keys()).sort().reverse();
+  const recent7Dates = sortedDates.slice(0, 7).reverse();
+
+  return recent7Dates.map((date) => {
+    const d = new Date(date);
+    return {
+      label: `${d.getMonth() + 1}/${d.getDate()}`,
+      value: salesMap.get(date) || 0,
+    };
+  });
 }

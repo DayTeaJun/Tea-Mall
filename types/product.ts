@@ -100,3 +100,8 @@ export interface CheckoutItem {
   quantity: number;
   options?: ItemOptions;
 }
+
+export interface OrderItem {
+  price: number | null;
+  quantity: number | null;
+}

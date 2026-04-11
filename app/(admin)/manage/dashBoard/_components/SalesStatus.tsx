@@ -19,7 +19,6 @@ interface DashboardStats {
 
 function SalesStatus() {
   const { data, isLoading } = useGetDashboardStatusQuery();
-  console.log(data);
 
   if (isLoading) {
     return (

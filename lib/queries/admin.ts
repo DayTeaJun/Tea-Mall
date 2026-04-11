@@ -8,6 +8,7 @@ import {
   getDashboardStatus,
   getMyProducts,
   getUserProfile,
+  getWeeklySalesAction,
   updateProduct,
 } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -186,6 +187,21 @@ export function useGetDashboardStatusQuery() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dashboardStatus"],
     queryFn: () => getDashboardStatus(),
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 최근 7일 매출 조회 대시보드
+export function useGetWeekSalesAction() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["weeklySales"],
+    queryFn: () => getWeeklySalesAction(),
+    staleTime: 1000 * 60 * 5,
   });
 
   return {

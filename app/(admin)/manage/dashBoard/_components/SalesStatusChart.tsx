@@ -1,5 +1,6 @@
 "use client";
 
+import { useGetWeekSalesAction } from "@/lib/queries/admin";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,21 +20,29 @@ ChartJS.register(
   Tooltip,
 );
 
-export default function SimpleLineChart() {
-  const labels = ["3/10", "3/11", "3/12", "3/13", "3/14", "3/15", "3/16"];
-  const mockSales = [150000, 230000, 180000, 290000, 200000, 350000, 410000];
+interface SalesDataItem {
+  label: string;
+  value: number;
+}
 
-  const data = {
+export default function SimpleLineChart() {
+  const { data: salesData, isLoading } = useGetWeekSalesAction();
+
+  const labels = salesData?.map((item: SalesDataItem) => item.label) || [];
+  const dataPoints = salesData?.map((item: SalesDataItem) => item.value) || [];
+
+  const chartData = {
     labels,
     datasets: [
       {
-        data: mockSales,
-        borderColor: "#000000", // 선 색상만 지정
-        borderWidth: 1, // 선 두께
-        tension: 0.3, // 0으로 설정하여 직선(꺾은선) 유지
-        pointRadius: 1, // 점 제거
-        pointHitRadius: 10, // 마우스 호버 인식 범위는 유지
-        fill: true, // 채우기 없음
+        label: "매출액",
+        data: dataPoints,
+        borderColor: "#000000",
+        borderWidth: 1.5,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: "#000000",
+        fill: false,
       },
     ],
   };
@@ -43,32 +52,47 @@ export default function SimpleLineChart() {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => `매출: ${context.parsed.y?.toLocaleString()}원`,
+        },
+      },
     },
     scales: {
       x: {
         grid: { display: false },
+        ticks: { color: "#64748b", font: { size: 12 } },
       },
       y: {
         beginAtZero: true,
-        suggestedMax: 400000,
-        grid: {
-          color: "#f1f5f9",
-        },
+        grid: { color: "#f1f5f9" },
         ticks: {
-          stepSize: 100000,
-          callback: (value) => `${value.toLocaleString()}원`,
+          color: "#64748b",
+          callback: (value) => `${Number(value).toLocaleString()}원`,
         },
       },
     },
   };
 
+  if (isLoading)
+    return <div className="w-full h-[388px] bg-white animate-pulse" />;
+
+  if (!salesData || salesData.length === 0) {
+    return (
+      <div className="w-full h-72 flex items-center justify-center text-slate-400">
+        최근 주문 데이터가 없습니다.
+      </div>
+    );
+  }
+
   return (
-    <div className="w-[70%] bg-white p-4 flex flex-col gap-2 rounded">
-      <p className="text-16 font-bold">주간 매출 추이</p>
-      <div className="p-2 pt-4">
-        <div className="w-full h-64">
-          <Line data={data} options={options} />
-        </div>
+    <div className="w-full bg-white p-4 flex flex-col gap-8">
+      <div className="flex justify-between items-center">
+        <p className="text-16 font-bold">최근 매출 추이</p>
+        <span className="text-xs text-slate-400">최근 7건 기준</span>
+      </div>
+      <div className="h-64">
+        <Line key={labels.length} data={chartData} options={options} />
       </div>
     </div>
   );
