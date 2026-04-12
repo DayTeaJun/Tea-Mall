@@ -503,3 +503,82 @@ export async function getWeeklySalesAction() {
     };
   });
 }
+
+interface CategoryStat {
+  label: string;
+  value: number;
+}
+
+// 카테고리별 매출 조회
+interface OrderItemJoin {
+  price: number | null;
+  quantity: number | null;
+  products: {
+    category: string | null;
+  } | null;
+}
+
+interface RawOrderData {
+  order_items: OrderItemJoin[];
+}
+
+interface CategoryStat {
+  label: string;
+  value: number;
+}
+
+export async function getCategorySalesAction(): Promise<CategoryStat[]> {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+  if (!sessionUser) throw new Error("인증이 필요합니다.");
+
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", sessionUser.id)
+    .single();
+
+  if (!profile || profile.level !== 3) throw new Error("권한이 없습니다.");
+
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      order_items (
+        price,
+        quantity,
+        products (
+          category
+        )
+      )
+    `,
+    )
+    .eq("deleted", false);
+
+  if (error) throw new Error(error.message);
+
+  // 3. 데이터 합산 (Map 사용)
+  const categoryMap = new Map<string, number>();
+
+  const typedOrders = orders as unknown as RawOrderData[];
+
+  typedOrders?.forEach((order) => {
+    order.order_items.forEach((item) => {
+      const category = item.products?.category || "미지정";
+      const itemTotal = (item.price || 0) * (item.quantity || 0);
+
+      categoryMap.set(category, (categoryMap.get(category) || 0) + itemTotal);
+    });
+  });
+
+  // 4. 결과 반환 (매출액 높은 순 정렬)
+  return Array.from(categoryMap.entries())
+    .map(([label, value]) => ({
+      label,
+      value,
+    }))
+    .sort((a, b) => b.value - a.value);
+}

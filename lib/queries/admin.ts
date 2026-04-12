@@ -5,6 +5,7 @@ import {
   createProduct,
   deleteProduct,
   getAllUsers,
+  getCategorySalesAction,
   getDashboardStatus,
   getMyProducts,
   getUserProfile,
@@ -201,6 +202,20 @@ export function useGetWeekSalesAction() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["weeklySales"],
     queryFn: () => getWeeklySalesAction(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+export function useGetCategorySales() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["categorySales"],
+    queryFn: () => getCategorySalesAction(),
     staleTime: 1000 * 60 * 5,
   });
 

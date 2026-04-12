@@ -1,5 +1,6 @@
 "use client";
 
+import { useGetCategorySales } from "@/lib/queries/admin";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -10,25 +11,39 @@ import {
   LegendItem,
   TooltipItem,
 } from "chart.js";
+import { Loader2 } from "lucide-react";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface CategoryDataItem {
+  label: string;
+  value: number;
+}
+
 export default function CategoryPieChart() {
-  const labels = ["의류", "전자기기", "뷰티", "식품"];
-  const categorySales = [450000, 300000, 150000, 80000];
-  const totalSum = categorySales.reduce((a, b) => a + b, 0);
+  const { data: salesData, isLoading } = useGetCategorySales();
+
+  // 데이터 추출
+  const labels = salesData?.map((item: CategoryDataItem) => item.label) || [];
+  const values = salesData?.map((item: CategoryDataItem) => item.value) || [];
+  const totalSum = values.reduce((a, b) => a + b, 0);
 
   const data: ChartData<"doughnut"> = {
     labels,
     datasets: [
       {
-        data: categorySales,
-        backgroundColor: ["#333333", "#666666", "#999999", "#cccccc"],
+        data: values,
+        backgroundColor: [
+          "#1e293b",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+        ],
         borderWidth: 2,
         borderColor: "#ffffff",
-        hoverOffset: 4,
-        hoverBackgroundColor: ["#444444", "#777777", "#aaaaaa", "#dddddd"],
+        hoverOffset: 8,
       },
     ],
   };
@@ -36,61 +51,64 @@ export default function CategoryPieChart() {
   const options: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
-    layout: {
-      padding: 20,
-    },
     plugins: {
       legend: {
         position: "bottom",
         labels: {
           usePointStyle: true,
           padding: 20,
-          font: { size: 12 },
           generateLabels: (chart): LegendItem[] => {
             const chartData = chart.data;
-            if (chartData.labels?.length && chartData.datasets.length) {
-              return chartData.labels.map((label, i): LegendItem => {
-                const dataset = chartData.datasets[0];
-                const value = dataset.data[i] as number;
-                const percentage = ((value / totalSum) * 100).toFixed(1);
-
+            return (
+              chartData.labels?.map((label, i): LegendItem => {
+                const val = chartData.datasets[0].data[i] as number;
+                const pct =
+                  totalSum > 0 ? ((val / totalSum) * 100).toFixed(1) : "0";
                 return {
-                  text: `${label} ${percentage}%`,
-                  fillStyle: (dataset.backgroundColor as string[])[i],
-                  strokeStyle: dataset.borderColor as string,
-                  lineWidth: dataset.borderWidth as number,
-                  pointStyle: "circle",
+                  text: `${label} (${pct}%)`,
+                  fillStyle: (
+                    chartData.datasets[0].backgroundColor as string[]
+                  )[i],
                   index: i,
-                  hidden: !chart.isDatasetVisible(0), // 범례 클릭 시 토글 상태 반영
+                  hidden: !chart.isDatasetVisible(0),
                 };
-              });
-            }
-            return [];
+              }) || []
+            );
           },
         },
       },
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<"doughnut">) => {
-            const label = context.label || "";
-            const value = context.raw as number;
-            const percentage = ((value / totalSum) * 100).toFixed(1);
-            return ` ${label}: ${value.toLocaleString()}원 (${percentage}%)`;
+            const val = context.raw as number;
+            const pct =
+              totalSum > 0 ? ((val / totalSum) * 100).toFixed(1) : "0";
+            return ` ${context.label}: ${val.toLocaleString()}원 (${pct}%)`;
           },
         },
       },
     },
-    cutout: "75%",
+    cutout: "70%",
   };
 
-  return (
-    <div className="max-w-full bg-white p-4 flex flex-col gap-2 rounded">
-      <p className="text-16 font-bold">카테고리별 판매 비율</p>
+  if (isLoading)
+    return (
+      <div className="w-[calc(30%-16px)] h-[344px] flex justify-center items-center bg-white">
+        <Loader2 className="animate-spin text-gray-300" size={32} />
+      </div>
+    );
 
-      <div className="p-2 pt-4 h-full">
-        <div className="w-full h-[300px]">
+  return (
+    <div className="w-[calc(30%-16px)] h-max-[344px] bg-white p-6 flex flex-col gap-4">
+      <p className="text-lg font-bold text-slate-800">카테고리별 판매 비율</p>
+      <div className="h-[250px]">
+        {salesData && salesData.length > 0 ? (
           <Doughnut data={data} options={options} />
-        </div>
+        ) : (
+          <div className="h-full flex items-center justify-center text-slate-400">
+            판매 데이터가 없습니다.
+          </div>
+        )}
       </div>
     </div>
   );

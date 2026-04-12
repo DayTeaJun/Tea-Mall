@@ -20,7 +20,7 @@ function page() {
           <CategoryPieChart />
         </section>
 
-        <section className="w-full gap-4 p-4">
+        <section className="w-full p-4">
           <LatestOrderLists />
         </section>
       </div>
