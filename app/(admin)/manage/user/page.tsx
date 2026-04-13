@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import UserList from "./_components/UserList";
 import useDebounce from "@/hooks/useDebounce"; // 방금 만든 훅 임포트
@@ -28,13 +28,13 @@ export default function UserPage() {
       <h2 className="text-xl font-bold">고객 관리</h2>
 
       <div className="flex items-center gap-2 relative w-full">
-        <div className="relative w-full">
+        <div className="relative w-[40%]">
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="고객 이름 또는 이메일 검색"
-            className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
+            className="w-full px-3 py-2 pr-10 border rounded text-sm"
           />
           {searchInput && (
             <button
@@ -44,9 +44,6 @@ export default function UserPage() {
               <X size={16} />
             </button>
           )}
-        </div>
-        <div className="p-2 text-black border rounded-md cursor-pointer">
-          <Search size={20} />
         </div>
       </div>
 
