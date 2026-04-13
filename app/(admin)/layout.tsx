@@ -12,11 +12,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <aside className="hidden md:block w-1/6 border-r pr-4 min-h-[calc(100vh-225px)]">
+      <aside className="hidden md:block w-1/6 border-r pr-4 min-h-[calc(100vh-225px)] md:flex-shrink-0">
         <SidebarNav />
       </aside>
 
-      <main className="flex-1 mt-4 md:mt-0">{children}</main>
+      <main className="flex-1 mt-4 md:mt-0 min-w-0 overflow-hidden">
+        {children}
+      </main>
     </div>
   );
 }

@@ -93,13 +93,13 @@ export default function CategoryPieChart() {
 
   if (isLoading)
     return (
-      <div className="w-[calc(30%-16px)] h-[344px] flex justify-center items-center bg-white">
+      <div className="w-[30%] h-[344px] flex justify-center items-center bg-white">
         <Loader2 className="animate-spin text-gray-300" size={32} />
       </div>
     );
 
   return (
-    <div className="w-[calc(30%-16px)] h-max-[344px] bg-white p-4 flex flex-col gap-4">
+    <div className="w-[30%] h-max-[344px] bg-white p-4 flex flex-col gap-4">
       <p className="text-[16px] font-bold text-slate-800">
         카테고리별 판매 비율
       </p>

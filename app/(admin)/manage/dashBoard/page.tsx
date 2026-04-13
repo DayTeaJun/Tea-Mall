@@ -6,7 +6,7 @@ import SalesStatus from "./_components/SalesStatus";
 
 function page() {
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <h2 className="text-xl font-bold">대시보드</h2>
 
       <div className="w-full min-h-screen bg-gray-50">
