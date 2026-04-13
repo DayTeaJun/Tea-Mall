@@ -49,9 +49,9 @@ function LatestOrderLists() {
   };
 
   return (
-    <div className="w-full bg-white p-6 flex flex-col gap-4 rounded">
+    <div className="w-full bg-white p-4 flex flex-col gap-4 rounded">
       <div className="flex justify-between items-center">
-        <p className="text-lg font-bold text-gray-800">최근 주문 목록</p>
+        <p className="text-[16px] font-bold text-gray-800">최근 주문 목록</p>
         <button
           onClick={() => router.push("/manage/orderList?query=&page=1")}
           className="group flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-all duration-300"

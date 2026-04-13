@@ -34,18 +34,18 @@ export default function UserPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="고객 이름 또는 이메일 검색"
-            className="w-full px-4 py-2 pr-10 border rounded-lg text-sm focus:ring-2 focus:ring-black outline-none transition-all shadow-sm"
+            className="w-full px-3 py-2 pr-10 border rounded-md text-sm"
           />
           {searchInput && (
             <button
               onClick={() => setSearchInput("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+              className="absolute right-[10px] top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X size={16} />
             </button>
           )}
         </div>
-        <div className="p-2 bg-black text-white rounded-lg shadow-md">
+        <div className="p-2 text-black border rounded-md cursor-pointer">
           <Search size={20} />
         </div>
       </div>
