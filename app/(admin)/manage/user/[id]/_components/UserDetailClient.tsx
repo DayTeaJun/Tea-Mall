@@ -12,12 +12,17 @@ import {
   ShieldCheck,
   Loader2,
   Clock,
+  UserCog,
 } from "lucide-react";
 import UserOrderLists from "./UserOrderLists";
-import { useGetProfileQuery } from "@/lib/queries/admin";
+import {
+  useGetProfileQuery,
+  usePatchUserActiveMutation,
+} from "@/lib/queries/admin";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useGetProfileQuery(userId);
+  const { mutate } = usePatchUserActiveMutation(userId);
 
   if (isLoading) {
     return (
@@ -96,6 +101,11 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                 value={user.user_name}
               />
               <InfoRow
+                icon={<UserCog size={16} />}
+                label="고유 ID"
+                value={user.id}
+              />
+              <InfoRow
                 icon={<Mail size={16} />}
                 label="이메일"
                 value={user.email}
@@ -107,8 +117,19 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               />
 
               <InfoRow
+                icon={<Clock size={16} />}
+                label="최근 접속일"
+                value={
+                  user.last_login_at
+                    ? new Date(user.last_login_at).toLocaleString("ko-KR")
+                    : "접속 기록 없음"
+                }
+              />
+
+              <InfoRow
                 icon={<ShieldCheck size={16} />}
                 label="계정 상태"
+                className={`${user.status === "active" ? "text-green-500" : user.status === "suspended" ? "text-red-500" : user.status === "withdrawn" ? "text-gray-500" : "text-gray-400"}`}
                 value={
                   user.status === "active"
                     ? "정상"
@@ -117,16 +138,6 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                       : user.status === "withdrawn"
                         ? "탈퇴 계정"
                         : "확인 불가"
-                }
-              />
-
-              <InfoRow
-                icon={<Clock size={16} />}
-                label="최근 접속일"
-                value={
-                  user.last_login_at
-                    ? new Date(user.last_login_at).toLocaleString("ko-KR")
-                    : "접속 기록 없음"
                 }
               />
             </div>
@@ -147,11 +158,15 @@ export default function UserDetailClient({ userId }: { userId: string }) {
             </div>
 
             <div className="mt-12 pt-6 border-t flex flex-col gap-3">
-              <button className="px-6 py-2.5 bg-black text-white rounded-lg font-bold text-sm hover:opacity-80 transition-all shadow-md active:scale-95">
-                회원 정보 수정
-              </button>
-              <button className="px-6 py-2.5 border border-red-100 text-red-500 rounded-lg font-bold text-sm hover:bg-red-50 transition-all">
-                계정 활동 제한
+              <button
+                className="px-6 py-2.5 border border-red-100 text-red-500 rounded-lg font-bold text-sm hover:bg-red-50 transition-all"
+                onClick={() =>
+                  mutate(user.status === "suspended" ? "active" : "suspended")
+                }
+              >
+                {user.status === "suspended"
+                  ? "계정 활동 제한 해제"
+                  : "계정 활동 제한"}
               </button>
             </div>
           </div>
@@ -190,10 +205,12 @@ export default function UserDetailClient({ userId }: { userId: string }) {
 
 function InfoRow({
   icon,
+  className,
   label,
   value,
 }: {
   icon: React.ReactNode;
+  className?: string;
   label: string;
   value: string | null;
 }) {
@@ -205,7 +222,9 @@ function InfoRow({
           {label}
         </span>
       </div>
-      <p className="col-span-2 text-[14px] font-medium text-gray-700 leading-relaxed">
+      <p
+        className={`${className} col-span-2 text-[14px] font-medium text-gray-700 leading-relaxed`}
+      >
         {value || "정보 없음"}
       </p>
     </div>

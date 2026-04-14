@@ -10,6 +10,7 @@ import {
   getMyProducts,
   getUserProfile,
   getWeeklySalesAction,
+  PatchUserActive,
   updateProduct,
 } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -180,6 +181,48 @@ export function useGetProfileQuery(userId: string | undefined) {
     data,
     isLoading,
     isError,
+  };
+}
+
+// 유저 계정 활동 제한 변경
+export function usePatchUserActiveMutation(userId: string) {
+  const { data, isError, isSuccess, mutate } = useMutation({
+    mutationFn: async (status: "active" | "suspended" | "withdrawn") =>
+      PatchUserActive(userId || "", status),
+
+    onSuccess: async (_, status) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["userProfile", userId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["allUsers"],
+        }),
+      ]);
+
+      if (status === "suspended") {
+        toast.success("유저 계정이 활동 제한되었습니다.");
+      } else if (status === "active") {
+        toast.success("유저 계정이 정상 상태로 복구되었습니다.");
+      } else {
+        toast.success("유저 계정 상태가 성공적으로 변경되었습니다.");
+      }
+    },
+
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("알 수 없는 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return {
+    data,
+    isError,
+    isSuccess,
+    mutate,
   };
 }
 
