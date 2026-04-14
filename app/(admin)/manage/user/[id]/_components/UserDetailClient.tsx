@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -19,10 +19,22 @@ import {
   useGetProfileQuery,
   usePatchUserActiveMutation,
 } from "@/lib/queries/admin";
+import { toast } from "sonner";
+import Modal from "@/components/common/Modal";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useGetProfileQuery(userId);
   const { mutate } = usePatchUserActiveMutation(userId);
+  const [isModal, setIsModal] = useState(false);
+
+  const handleUserActiveToggle = () => {
+    if (!user?.id) {
+      toast.error("유저 정보를 찾을 수 없습니다.");
+      return;
+    }
+    mutate(user.status === "suspended" ? "active" : "suspended");
+    setIsModal(false);
+  };
 
   if (isLoading) {
     return (
@@ -129,7 +141,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               <InfoRow
                 icon={<ShieldCheck size={16} />}
                 label="계정 상태"
-                className={`${user.status === "active" ? "text-green-500" : user.status === "suspended" ? "text-red-500" : user.status === "withdrawn" ? "text-gray-500" : "text-gray-400"}`}
+                className={`${user.status === "active" ? "" : user.status === "suspended" ? "text-red-500" : user.status === "withdrawn" ? "text-gray-500" : "text-gray-400"}`}
                 value={
                   user.status === "active"
                     ? "정상"
@@ -160,9 +172,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
             <div className="mt-12 pt-6 border-t flex flex-col gap-3">
               <button
                 className="px-6 py-2.5 border border-red-100 text-red-500 rounded-lg font-bold text-sm hover:bg-red-50 transition-all"
-                onClick={() =>
-                  mutate(user.status === "suspended" ? "active" : "suspended")
-                }
+                onClick={() => setIsModal(true)}
               >
                 {user.status === "suspended"
                   ? "계정 활동 제한 해제"
@@ -199,6 +209,32 @@ export default function UserDetailClient({ userId }: { userId: string }) {
 
         <UserOrderLists userId={userId} />
       </div>
+
+      <Modal
+        isOpen={isModal}
+        onClose={() => setIsModal(false)}
+        title={
+          user.status === "suspended" ? "계정 활동 제한 해제" : "계정 활동 제한"
+        }
+        description="(* 계정 활동 제한 시, 해당 유저는 로그인 및 서비스 이용이 불가능해집니다. 제한 해제 시 정상적으로 이용할 수 있습니다.)"
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal(false)}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleUserActiveToggle}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            {user.status === "suspended"
+              ? "계정 활동 제한 해제"
+              : "계정 활동 제한"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
