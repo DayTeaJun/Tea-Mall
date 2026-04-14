@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Package, Loader2, MoreVertical, ChevronRight } from "lucide-react";
+import { Package, Loader2, ChevronRight } from "lucide-react";
 import ReactPaginate from "react-paginate";
 import { useGetOrders } from "@/lib/queries/auth";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,7 @@ function UserOrderLists({ userId }: UserOrderListsProps) {
   const LIMIT = 10;
   const router = useRouter();
 
-  const { data, isLoading } = useGetOrders(userId, {}, page, LIMIT, 3);
+  const { data, isLoading } = useGetOrders(userId, {}, page, LIMIT, 1);
 
   if (isLoading) {
     return (
@@ -147,8 +147,15 @@ function UserOrderLists({ userId }: UserOrderListsProps) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={4} className="py-20 text-center text-gray-400">
-                      주문 내역이 존재하지 않습니다.
+                    <td colSpan={5}>
+                      <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-gray-400 bg-white">
+                        <div className="p-2 bg-gray-50 rounded-full mb-4">
+                          <Package size={30} className="text-gray-300" />
+                        </div>
+                        <p className="text-base font-medium text-gray-400">
+                          주문 내역이 존재하지 않습니다.
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -156,22 +163,24 @@ function UserOrderLists({ userId }: UserOrderListsProps) {
             </table>
           </div>
 
-          <div className="mt-8 flex justify-center border-t border-gray-100 pt-6">
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel=">"
-              onPageChange={(e) => setPage(e.selected + 1)}
-              pageRangeDisplayed={3}
-              pageCount={pageCount}
-              previousLabel="<"
-              containerClassName="flex items-center gap-1"
-              pageLinkClassName="px-3 py-1 text-[13px] border border-gray-200 text-gray-600"
-              activeLinkClassName="bg-black text-white border-black font-bold cursor-pointer"
-              previousLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
-              nextLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
-              disabledLinkClassName="opacity-30 cursor-default"
-            />
-          </div>
+          {pageCount > 1 && (
+            <div className="mt-8 flex justify-center border-t border-gray-100 pt-6">
+              <ReactPaginate
+                breakLabel="..."
+                nextLabel=">"
+                onPageChange={(e) => setPage(e.selected + 1)}
+                pageRangeDisplayed={3}
+                pageCount={pageCount}
+                previousLabel="<"
+                containerClassName="flex items-center gap-1"
+                pageLinkClassName="px-3 py-1 text-[13px] border border-gray-200 text-gray-600"
+                activeLinkClassName="bg-black text-white border-black font-bold cursor-pointer"
+                previousLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
+                nextLinkClassName="px-3 py-1 text-[13px] border border-gray-200"
+                disabledLinkClassName="opacity-30 cursor-default"
+              />
+            </div>
+          )}
         </div>
       </div>
     </section>
