@@ -33,7 +33,7 @@ export async function updateSession(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from("user_table")
-    .select("level, user_name")
+    .select("level, user_name, status")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -42,5 +42,6 @@ export async function updateSession(req: NextRequest) {
     isLoggedIn: true as const,
     level: profile?.level ?? null,
     username: profile?.user_name ?? null,
+    status: profile?.status ?? null,
   };
 }

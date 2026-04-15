@@ -17,10 +17,11 @@ const publicRoutes = ["/signin", "/signup"];
 
 // 권한 라우트
 const adminRoutes = ["/admin"];
-const sellerRoutes = ["/manage/productList", "/manage/regist"];
+const sellerRoutes = ["/manage"];
 
 // 온보딩/인증/정적 등 예외(리다이렉트 루프 방지)
-const onboardingSafePrefixes = [
+const safePrefixes = [
+  "/restricted",
   "/onboarding",
   "/auth",
   "/api",
@@ -29,9 +30,8 @@ const onboardingSafePrefixes = [
 ];
 
 export async function middleware(request: NextRequest) {
-  const { response, isLoggedIn, level, username } = await updateSession(
-    request,
-  );
+  const { response, isLoggedIn, level, username, status } =
+    await updateSession(request);
   const { pathname, search } = request.nextUrl;
 
   const isProtected = protectedRoutes.some((route) =>
@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route),
   );
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
-  const isSafe = onboardingSafePrefixes.some((p) => pathname.startsWith(p));
+  const isSafe = safePrefixes.some((p) => pathname.startsWith(p));
 
   // 0) 비로그인 + 보호 경로 → /signin
   if (!isLoggedIn && isProtected) {
@@ -63,6 +63,13 @@ export async function middleware(request: NextRequest) {
   if (isLoggedIn && isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  // 2-1) 로그인 + 정지된 계정 → /restricted
+  if (isLoggedIn && status === "suspended" && !isSafe) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/restricted";
     return NextResponse.redirect(url);
   }
 
