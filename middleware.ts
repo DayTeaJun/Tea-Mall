@@ -10,6 +10,7 @@ const protectedRoutes = [
   "/manage/orderList",
   "/productReview",
   "/directCheckout",
+  "/restricted",
 ];
 
 // 비로그인 전용
