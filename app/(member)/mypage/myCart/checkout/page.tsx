@@ -121,17 +121,26 @@ export default function CheckoutPage() {
                 onClick={() => setIsAddressModalOpen(true)}
                 className="text-sm underline text-gray-500"
               >
-                배송지 변경
+                {address || user?.address ? "배송지 변경" : "배송지 추가"}
               </button>
             </div>
             <div className="bg-white p-4 flex flex-col gap-2">
-              <p className="text-sm text-gray-700">
-                {address || user?.address}
-              </p>
+              {address || user?.address ? (
+                <p className="text-sm text-gray-700">
+                  {address || user?.address}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  배송지가 등록이 되지 않았습니다.{" "}
+                  <span className="text-[12px] text-gray-400">
+                    (위 배송지 추가를 통해 등록해주세요.)
+                  </span>
+                </p>
+              )}
               {isDetailAddressOpen && (
                 <input
                   type="text"
-                  placeholder="상세 주소 (선택)"
+                  placeholder="상세 주소"
                   value={detailAddress}
                   onChange={(e) => setDetailAddress(e.target.value)}
                   className="border-b py-1 text-sm"
@@ -263,7 +272,7 @@ export default function CheckoutPage() {
       </div>
 
       <Modal
-        title="배송지 변경"
+        title={address || user?.address ? "배송지 변경" : "배송지 추가"}
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         className="rounded-none"
