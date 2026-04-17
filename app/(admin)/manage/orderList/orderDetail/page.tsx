@@ -14,7 +14,7 @@ import { Dropdown } from "@/components/common/Dropdown";
 import { useDeleteOrderMutation, useGetOrderDetails } from "@/lib/queries/auth";
 import { OrderItemType } from "@/types/product";
 import { useState } from "react";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { updateDeliveryStatus } from "@/lib/actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";

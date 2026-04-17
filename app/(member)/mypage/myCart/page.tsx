@@ -1,6 +1,6 @@
 "use client";
 
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { Json } from "@/lib/config/supabase/types_db";
 import {
   useDeleteCartItemMutation,

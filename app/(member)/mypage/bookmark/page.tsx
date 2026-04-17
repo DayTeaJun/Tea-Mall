@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react"; // ← useEffect 추가
 import { toast } from "sonner";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import ReactPaginate from "react-paginate";
 
 type StockMap = Record<string, number>;

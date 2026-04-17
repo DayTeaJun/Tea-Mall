@@ -2,7 +2,7 @@
 
 import ReactPaginate from "react-paginate";
 import CartBtn from "@/components/common/buttons/CartBtn";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { useGetOrders, useUpdateCancelOrderItem } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import {

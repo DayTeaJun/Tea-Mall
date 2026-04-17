@@ -20,7 +20,7 @@ import {
   usePatchUserActiveMutation,
 } from "@/lib/queries/admin";
 import { toast } from "sonner";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useGetProfileQuery(userId);

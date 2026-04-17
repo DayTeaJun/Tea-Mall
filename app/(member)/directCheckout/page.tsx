@@ -4,7 +4,7 @@ import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";

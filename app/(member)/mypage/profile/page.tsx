@@ -1,6 +1,6 @@
 "use client";
 
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { withdrawalUser } from "@/lib/actions/auth";
 import { useMyProfileQuery } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";

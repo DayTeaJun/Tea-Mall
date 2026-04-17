@@ -19,7 +19,7 @@ import {
 } from "@/lib/queries/auth";
 import { OrderItemType } from "@/types/product";
 import { useState } from "react";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 export default function OrderListPage() {

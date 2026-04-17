@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import DaumPostcode from "../../../../../components/common/AddressSearch";
-import Modal from "@/components/common/Modal";
+import Modal from "@/components/common/Modals/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
