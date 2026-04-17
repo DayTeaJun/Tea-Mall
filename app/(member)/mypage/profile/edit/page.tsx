@@ -10,7 +10,6 @@ import { AuthUser, useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
-import DaumPost from "../../../../../components/common/AddressSearch";
 import { useRouter, useSearchParams } from "next/navigation";
 import PasswordGate from "./_components/PasswordGate";
 
@@ -47,12 +46,6 @@ export default function EditProfilePage() {
 
   const fullPhone = `${phone1}-${phone2}-${phone3}`;
 
-  const [address, setAddress] = useState(data?.address || "");
-  const [detailAddress, setDetailAddress] = useState("");
-
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
-
   const [profileImage, setProfileImage] = useState(
     data?.profile_image_url || "",
   );
@@ -86,9 +79,7 @@ export default function EditProfilePage() {
         id: user.id,
         phone: fullPhone,
         user_name: userName,
-        address: address
-          ? address + (detailAddress ? `, ${detailAddress}` : "")
-          : "",
+        address: data?.address ? data?.address : "",
         profile_image_url: imageUrl,
       });
     } catch (err) {
@@ -167,35 +158,17 @@ export default function EditProfilePage() {
             <label className="font-bold text-xl">기본 배송 주소</label>
             <button
               className="rounded border-gray-300 px-2 py-1 text-sm text-white hover:bg-gray-600 transition-colors bg-gray-500"
-              onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
+              onClick={() => router.push("/mypage/delivery")}
             >
-              {isAddressModalOpen ? "변경 취소" : "배송지 변경"}
+              배송지 관리
             </button>
           </div>
-          <p className={`text-sm ${address ? "text-black" : "text-gray-500"}`}>
-            {address || "등록된 주소 없음"}
+          <p
+            className={`text-sm ${data?.address ? "text-black" : "text-gray-500"}`}
+          >
+            {data?.address || "등록된 주소 없음"}
           </p>
-
-          {isDetailAddressOpen && (
-            <input
-              type="text"
-              placeholder="상세 주소 (선택)"
-              value={detailAddress}
-              onChange={(e) => setDetailAddress(e.target.value)}
-              className="border-b py-1 text-sm"
-            />
-          )}
         </div>
-
-        {isAddressModalOpen && (
-          <DaumPost
-            onComplete={(data) => {
-              setAddress(data.address);
-              setIsAddressModalOpen(false);
-              setIsDetailAddressOpen(true);
-            }}
-          />
-        )}
       </div>
 
       <div className="flex justify-end gap-2 mt-10">
