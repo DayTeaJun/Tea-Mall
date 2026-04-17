@@ -13,6 +13,11 @@ interface Props {
 const menu = [
   { name: "내 정보", currentPage: "/mypage/profile", href: "/mypage/profile" },
   {
+    name: "배송지 관리",
+    currentPage: "/mypage/delivery",
+    href: "/mypage/delivery",
+  },
+  {
     name: "찜 목록",
     currentPage: "/mypage/bookmark",
     href: "/mypage/bookmark",
