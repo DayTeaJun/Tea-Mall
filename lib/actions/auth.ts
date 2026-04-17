@@ -133,6 +133,24 @@ export async function getMyProfile(userId: string) {
   return data;
 }
 
+// 내 배송지 조회
+export async function getMyAddressList(userId: string) {
+  const supabaseAdmin = await createServerSupabaseClient();
+
+  const { data, error } = await supabaseAdmin
+    .from("delivery_addresses")
+    .select("*")
+    .eq("user_id", userId)
+    .order("is_default", { ascending: false });
+
+  if (error) {
+    console.error("Supabase 에러", error);
+    throw new Error("배송지 조회 실패");
+  }
+
+  return data;
+}
+
 // 내 프로필 수정
 export async function updateMyProfile({
   id,

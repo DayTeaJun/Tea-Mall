@@ -1,6 +1,3 @@
-Need to install the following packages:
-supabase@2.92.0
-Ok to proceed? (y) 
 export type Json =
   | string
   | number
@@ -51,6 +48,63 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_addresses: {
+        Row: {
+          address: string
+          address_name: string
+          created_at: string | null
+          delivery_instruction: string | null
+          detail_address: string | null
+          id: string
+          is_default: boolean | null
+          postal_code: string
+          receiver_name: string
+          receiver_phone: string
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          address_name: string
+          created_at?: string | null
+          delivery_instruction?: string | null
+          detail_address?: string | null
+          id?: string
+          is_default?: boolean | null
+          postal_code: string
+          receiver_name: string
+          receiver_phone: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          address_name?: string
+          created_at?: string | null
+          delivery_instruction?: string | null
+          detail_address?: string | null
+          id?: string
+          is_default?: boolean | null
+          postal_code?: string
+          receiver_name?: string
+          receiver_phone?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_user_profile"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "delivery_addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
             referencedColumns: ["id"]
           },
         ]

@@ -2,6 +2,7 @@
 
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
+  getMyAddressList,
   getMyProfile,
   signInUser,
   signUpOAuth,
@@ -116,6 +117,21 @@ export function useMyProfileQuery(userId: string | undefined) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["myProfile", userId],
     queryFn: () => getMyProfile(userId || ""),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 내 배송지 조회
+export function useGetAddressList(userId: string | undefined) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myAddressList", userId],
+    queryFn: () => getMyAddressList(userId || ""),
     enabled: !!userId,
   });
 
