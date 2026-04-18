@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useCallback, useEffect, useRef } from "react";
 
-interface DaumPostcodeData {
+export interface DaumPostcodeData {
   address: string;
   addressType: "R" | "J";
   bname: string;

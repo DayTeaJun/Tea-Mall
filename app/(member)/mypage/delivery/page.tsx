@@ -2,6 +2,7 @@
 
 import { useGetAddressList } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 interface AddressType {
@@ -19,6 +20,7 @@ interface AddressType {
 }
 
 export default function DeliveryPage() {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { data: addresses, isLoading } = useGetAddressList(user?.id);
 
@@ -131,7 +133,10 @@ export default function DeliveryPage() {
         <button className="px-4 py-2 border border-gray-300 text-sm text-gray-700 rounded hover:bg-gray-50">
           선택 주소록 삭제
         </button>
-        <button className="px-6 py-2 bg-slate-600 text-white text-sm font-medium rounded hover:bg-slate-700">
+        <button
+          onClick={() => router.push("/mypage/delivery/regist")}
+          className="px-6 py-2 bg-slate-600 text-white text-sm font-medium rounded hover:bg-slate-700"
+        >
           배송지등록
         </button>
       </div>

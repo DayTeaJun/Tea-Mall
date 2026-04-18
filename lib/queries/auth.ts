@@ -4,6 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   getMyAddressList,
   getMyProfile,
+  postDeliveryAddress,
   signInUser,
   signUpOAuth,
   signUpUser,
@@ -18,6 +19,7 @@ import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
 import { AuthUser, useAuthStore } from "../store/useAuthStore";
+import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -140,6 +142,38 @@ export function useGetAddressList(userId: string | undefined) {
     isLoading,
     isError,
   };
+}
+
+// 내 배송지 등록
+export function usePostDeliveryAddressMutation(userId: string) {
+  const router = useRouter();
+
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (formData: DeliveryAddressForm) =>
+      postDeliveryAddress(formData),
+    onSuccess: async () => {
+      toast.success("배송지가 등록되었습니다.");
+      router.push("/mypage/delivery");
+      await queryClient.invalidateQueries({
+        queryKey: ["myAddressList", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["userProfile", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending };
 }
 
 // 내 프로필 수정
