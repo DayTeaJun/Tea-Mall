@@ -4,6 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   getMyAddressList,
   getMyProfile,
+  postDefaultDeliveryAddress,
   postDeliveryAddress,
   signInUser,
   signUpOAuth,
@@ -142,6 +143,38 @@ export function useGetAddressList(userId: string | undefined) {
     isLoading,
     isError,
   };
+}
+
+// 내 배송지 기본 배송지로 설정
+export function usePostDefaultDeliveryAddressMutation(userId: string) {
+  const router = useRouter();
+
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (addressId: string) =>
+      postDefaultDeliveryAddress(addressId, userId),
+    onSuccess: async () => {
+      toast.success("기본 배송지로 적용되었습니다.");
+      router.push("/mypage/delivery");
+      await queryClient.invalidateQueries({
+        queryKey: ["myAddressList", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["userProfile", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending };
 }
 
 // 내 배송지 등록

@@ -152,6 +152,33 @@ export async function getMyAddressList(userId: string) {
   return data;
 }
 
+// 내 배송지 기본 배송지로 설정
+export async function postDefaultDeliveryAddress(
+  addressId: string,
+  userId: string,
+) {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error("인증되지 않은 사용자입니다.");
+  }
+
+  try {
+    await supabase
+      .from("delivery_addresses")
+      .update({ is_default: true })
+      .eq("user_id", userId)
+      .eq("id", addressId);
+  } catch (error) {
+    console.error("기본 배송지 설정 에러:", error);
+    throw new Error("기본 배송지 설정 중 오류가 발생했습니다.");
+  }
+}
+
 // 내 배송지 등록
 export async function postDeliveryAddress(formData: DeliveryAddressForm) {
   const supabase = await createServerSupabaseClient();
@@ -165,19 +192,12 @@ export async function postDeliveryAddress(formData: DeliveryAddressForm) {
   }
 
   try {
-    if (formData.is_default) {
-      await supabase
-        .from("delivery_addresses")
-        .update({ is_default: false })
-        .eq("user_id", user.id);
-    }
-
     const { data, error } = await supabase
       .from("delivery_addresses")
       .insert([
         {
           ...formData,
-          user_id: user.id, // 전달받은 ID 대신 세션 ID 사용 (보안)
+          user_id: user.id,
         },
       ])
       .select()

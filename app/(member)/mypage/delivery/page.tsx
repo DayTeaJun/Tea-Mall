@@ -1,6 +1,9 @@
 "use client";
 
-import { useGetAddressList } from "@/lib/queries/auth";
+import {
+  useGetAddressList,
+  usePostDefaultDeliveryAddressMutation,
+} from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -23,6 +26,9 @@ export default function DeliveryPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { data: addresses, isLoading } = useGetAddressList(user?.id);
+  const { mutate: setDefaultAddress } = usePostDefaultDeliveryAddressMutation(
+    user?.id || "",
+  );
 
   return (
     <section className="flex flex-col gap-2">
@@ -115,7 +121,10 @@ export default function DeliveryPage() {
                     {addr.address} {addr.detail_address}
                   </td>
                   <td className="py-4 px-2 space-x-1">
-                    <button className="px-3 py-1.5 bg-slate-700 text-white text-xs rounded hover:bg-slate-800">
+                    <button
+                      onClick={() => setDefaultAddress(addr.id)}
+                      className="px-3 py-1.5 bg-slate-700 text-white text-xs rounded hover:bg-slate-800"
+                    >
                       적용
                     </button>
                     <button className="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50">
