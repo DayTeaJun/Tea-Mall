@@ -2,6 +2,7 @@
 
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
+  delDeliveryAddress,
   getMyAddressList,
   getMyProfile,
   postDefaultDeliveryAddress,
@@ -187,6 +188,33 @@ export function usePostDeliveryAddressMutation(userId: string) {
     onSuccess: async () => {
       toast.success("배송지가 등록되었습니다.");
       router.push("/mypage/delivery");
+      await queryClient.invalidateQueries({
+        queryKey: ["myAddressList", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["userProfile", userId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { data, isError, mutate, isSuccess, isPending };
+}
+
+// 내 배송지 삭제
+export function useDelDeliveryAddressMutation(userId: string) {
+  const { data, isError, mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (addressId: string) => delDeliveryAddress(addressId),
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["myAddressList", userId],
       });

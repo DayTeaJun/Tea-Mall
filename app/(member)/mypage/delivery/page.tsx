@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  useDelDeliveryAddressMutation,
   useGetAddressList,
   usePostDefaultDeliveryAddressMutation,
 } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface AddressType {
   address: string;
@@ -29,6 +31,55 @@ export default function DeliveryPage() {
   const { mutate: setDefaultAddress } = usePostDefaultDeliveryAddressMutation(
     user?.id || "",
   );
+
+  const { mutate: deleteAddress } = useDelDeliveryAddressMutation(
+    user?.id || "",
+  );
+
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id],
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === addresses?.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(addresses?.map((addr) => addr.id) ?? []);
+    }
+  };
+
+  const handleDelSelectAddresses = () => {
+    if (selectedItems.length === 0) {
+      toast.error("삭제할 항목을 선택하세요.");
+      return;
+    }
+
+    const hasDefault = addresses
+      ?.filter((addr) => selectedItems.includes(addr.id))
+      .some((addr) => addr.is_default);
+
+    if (hasDefault) {
+      toast.error(
+        "기본 배송지는 삭제할 수 없습니다. 다른 주소를 기본으로 변경 후 삭제해주세요.",
+      );
+      return;
+    }
+
+    if (
+      confirm(`선택한 ${selectedItems.length}개의 배송지를 삭제하시겠습니까?`)
+    ) {
+      selectedItems.forEach((id) => deleteAddress(id));
+      setSelectedItems([]);
+    }
+
+    toast.success("선택한 배송지가 삭제되었습니다.");
+  };
 
   return (
     <section className="flex flex-col gap-2">
@@ -56,7 +107,16 @@ export default function DeliveryPage() {
           <thead>
             <tr className="bg-slate-50 border-b border-gray-200 text-gray-700">
               <th className="py-3 px-2 w-12">
-                <input type="checkbox" className="w-4 h-4" />
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 cursor-pointer"
+                  checked={
+                    addresses &&
+                    addresses?.length > 0 &&
+                    selectedItems.length === addresses?.length
+                  }
+                  onChange={toggleSelectAll}
+                />
               </th>
               <th className="py-3 px-2 font-medium border-x border-gray-200">
                 기본 설정
@@ -96,7 +156,12 @@ export default function DeliveryPage() {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="py-4 px-2">
-                    <input type="checkbox" className="w-4 h-4" />
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 cursor-pointer"
+                      checked={selectedItems.includes(addr.id)}
+                      onChange={() => toggleItemSelection(addr.id)}
+                    />
                   </td>
                   <td className="py-4 px-2 border-x border-gray-100">
                     <span
@@ -139,8 +204,11 @@ export default function DeliveryPage() {
       </div>
 
       <div className="flex justify-between items-center mt-6">
-        <button className="px-4 py-2 border border-gray-300 text-sm text-gray-700 rounded hover:bg-gray-50">
-          선택 주소록 삭제
+        <button
+          onClick={handleDelSelectAddresses}
+          className="px-4 py-2 border border-gray-300 text-sm text-gray-700 rounded hover:bg-gray-50 active:bg-gray-100 transition-colors"
+        >
+          선택 주소록 삭제 ({selectedItems.length})
         </button>
         <button
           onClick={() => router.push("/mypage/delivery/regist")}
