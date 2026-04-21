@@ -3,23 +3,20 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { usePostDeliveryAddressMutation } from "@/lib/queries/auth";
+import { usePatchDeliveryAddressMutation } from "@/lib/queries/auth";
 import DaumPostcode, {
   DaumPostcodeData,
 } from "@/components/common/AddressSearch";
+import { DeliveryAddressForm } from "../../../regist/page";
+import { toast } from "sonner";
 
-export interface DeliveryAddressForm {
-  address: string;
-  address_name: string;
-  delivery_instruction: string | null;
-  detail_address: string | null;
-  is_default: boolean | null;
-  postal_code: string;
-  receiver_name: string;
-  receiver_phone: string;
+interface EditDeliveryFormProps {
+  initialData?: DeliveryAddressForm & { id: string };
 }
 
-export default function DeliveryRegisterPage() {
+export default function EditDeliveryForm({
+  initialData,
+}: EditDeliveryFormProps) {
   const router = useRouter();
   const { user } = useAuthStore();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
@@ -29,17 +26,20 @@ export default function DeliveryRegisterPage() {
     return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
   };
 
-  const { mutate, isPending } = usePostDeliveryAddressMutation(user?.id || "");
+  const { mutate, isPending } = usePatchDeliveryAddressMutation(
+    user?.id || "",
+    initialData?.id || "",
+  );
 
   const [formData, setFormData] = useState<DeliveryAddressForm>({
-    address: "",
-    address_name: "",
-    delivery_instruction: "",
-    detail_address: "",
-    is_default: false,
-    postal_code: "",
-    receiver_name: "",
-    receiver_phone: "",
+    address: initialData?.address || "",
+    address_name: initialData?.address_name || "",
+    delivery_instruction: initialData?.delivery_instruction || "",
+    detail_address: initialData?.detail_address || "",
+    is_default: initialData?.is_default || false,
+    postal_code: initialData?.postal_code || "",
+    receiver_name: initialData?.receiver_name || "",
+    receiver_phone: initialData?.receiver_phone || "",
   });
 
   const handleAddressComplete = (data: DaumPostcodeData) => {
@@ -55,6 +55,12 @@ export default function DeliveryRegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (initialData?.is_default && !formData.is_default) {
+      toast.error(
+        "기본 배송지는 최소 1개 이상 설정해야 합니다. 다른 배송지를 기본으로 설정한 후 기본 배송지를 해제해주세요.",
+      );
+      return;
+    }
 
     mutate({
       ...formData,
@@ -66,7 +72,7 @@ export default function DeliveryRegisterPage() {
 
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="text-xl font-semibold mb-2">배송지 등록</h2>
+      <h2 className="text-xl font-semibold mb-2">배송지 수정</h2>
 
       <form
         onSubmit={handleSubmit}
@@ -235,7 +241,7 @@ export default function DeliveryRegisterPage() {
             className="px-10 py-2.5 bg-slate-800 text-white text-sm font-medium rounded-sm hover:bg-slate-900 disabled:bg-slate-500 flex items-center gap-2"
             disabled={isPending}
           >
-            {isPending ? "등록 중..." : "등록하기"}
+            {isPending ? "수정 중..." : "수정하기"}
           </button>
         </div>
       </form>

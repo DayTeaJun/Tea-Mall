@@ -215,6 +215,42 @@ export async function postDeliveryAddress(formData: DeliveryAddressForm) {
   }
 }
 
+// 내 배송지 수정
+export async function patchDeliveryAddress(
+  addressId: string,
+  formData: DeliveryAddressForm,
+) {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error("인증되지 않은 사용자입니다.");
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("delivery_addresses")
+      .update(formData)
+      .eq("id", addressId)
+      .eq("user_id", user.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("배송지 수정 에러:", error);
+      throw new Error("배송지 수정 중 오류가 발생했습니다.");
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error(err);
+    return { success: false, error: "서버 오류가 발생했습니다." };
+  }
+}
+
 // 내 배송지 삭제
 export async function delDeliveryAddress(addressId: string) {
   const supabase = await createServerSupabaseClient();

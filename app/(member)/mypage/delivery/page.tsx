@@ -196,7 +196,12 @@ export default function DeliveryPage() {
                     >
                       적용
                     </button>
-                    <button className="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50">
+                    <button
+                      onClick={() =>
+                        router.push(`/mypage/delivery/edit/${addr.id}`)
+                      }
+                      className="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
+                    >
                       수정
                     </button>
                   </td>
