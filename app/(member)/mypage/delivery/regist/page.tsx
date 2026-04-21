@@ -34,8 +34,8 @@ export default function DeliveryRegisterPage() {
   const [formData, setFormData] = useState<DeliveryAddressForm>({
     address: "",
     address_name: "",
-    delivery_instruction: null,
-    detail_address: null,
+    delivery_instruction: "",
+    detail_address: "",
     is_default: false,
     postal_code: "",
     receiver_name: "",

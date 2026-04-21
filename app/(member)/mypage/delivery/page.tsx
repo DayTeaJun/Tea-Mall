@@ -111,9 +111,11 @@ export default function DeliveryPage() {
                   type="checkbox"
                   className="w-4 h-4 cursor-pointer"
                   checked={
-                    addresses &&
-                    addresses?.length > 0 &&
-                    selectedItems.length === addresses?.length
+                    !!(
+                      addresses &&
+                      addresses.length > 0 &&
+                      selectedItems.length === addresses.length
+                    )
                   }
                   onChange={toggleSelectAll}
                 />
@@ -159,7 +161,9 @@ export default function DeliveryPage() {
                     <input
                       type="checkbox"
                       className="w-4 h-4 cursor-pointer"
-                      checked={selectedItems.includes(addr.id)}
+                      checked={
+                        addr.id ? selectedItems.includes(addr.id) : false
+                      }
                       onChange={() => toggleItemSelection(addr.id)}
                     />
                   </td>
