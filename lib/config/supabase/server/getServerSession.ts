@@ -28,8 +28,19 @@ export async function getServerSession() {
 
   const { data: user_table } = await supabase
     .from("user_table")
-    .select("*")
+    .select(
+      `
+    id, email, user_name, level, phone, profile_image_url, 
+    created_at, updated_at, status, last_login_at,
+    default_address: delivery_addresses(
+      address,
+      detail_address,
+      postal_code
+    )
+  `,
+    )
     .eq("id", userData.user.id)
+    .eq("delivery_addresses.is_default", true)
     .single();
 
   return {

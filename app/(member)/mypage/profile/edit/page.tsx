@@ -6,12 +6,13 @@ import {
   useMyProfileQuery,
   useUpdateMyProfileMutation,
 } from "@/lib/queries/auth";
-import { AuthUser, useAuthStore } from "@/lib/store/useAuthStore";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import PasswordGate from "./_components/PasswordGate";
+import { UserType } from "@/types/user";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function EditProfilePage() {
     from || "",
   );
 
-  const isOAuthUser = (user?: AuthUser | null) => {
+  const isOAuthUser = (user?: UserType | null) => {
     if (!user) return false;
     const provider = user.app_metadata?.provider;
     console.log("provider:", provider);
@@ -79,7 +80,6 @@ export default function EditProfilePage() {
         id: user.id,
         phone: fullPhone,
         user_name: userName,
-        address: data?.address ? data?.address : "",
         profile_image_url: imageUrl,
       });
     } catch (err) {
@@ -93,11 +93,9 @@ export default function EditProfilePage() {
     }
   };
 
-  /* ---------------- PasswordGate 분기 (수정 핵심) ---------------- */
   if (!isOAuth && !isVerified) {
     return <PasswordGate onVerified={() => setIsVerified(true)} />;
   }
-  /* -------------------------------------------------------------- */
 
   if (isLoading) return <div>로딩 중...</div>;
 
@@ -164,9 +162,17 @@ export default function EditProfilePage() {
             </button>
           </div>
           <p
-            className={`text-sm ${data?.address ? "text-black" : "text-gray-500"}`}
+            className={`text-sm ${user?.default_address?.[0] ? "text-black" : "text-gray-500"}`}
           >
-            {data?.address || "등록된 주소 없음"}
+            {user?.default_address?.[0] ? (
+              <>
+                ({user.default_address[0].postal_code}){" "}
+                {user.default_address[0].address}{" "}
+                {user.default_address[0].detail_address}
+              </>
+            ) : (
+              "등록된 주소 없음"
+            )}
           </p>
         </div>
       </div>

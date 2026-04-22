@@ -121,10 +121,19 @@ export async function getMyProfile(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_table")
     .select(
-      "id, email, user_name, level, phone, address, profile_image_url, created_at, updated_at, status, last_login_at",
+      `
+    id, email, user_name, level, phone, profile_image_url, 
+    created_at, updated_at, status, last_login_at,
+    default_address: delivery_addresses(
+      address,
+      detail_address,
+      postal_code
+    )
+  `,
     )
     .eq("id", userId)
-    .single();
+    .eq("delivery_addresses.is_default", true)
+    .maybeSingle();
 
   if (error) {
     console.error("Supabase 에러", error);
@@ -287,7 +296,6 @@ export async function updateMyProfile({
   id,
   user_name,
   phone,
-  address,
   profile_image_url,
 }: UserProfileType) {
   const bucket = process.env.NEXT_PUBLIC_STORAGE_USER_BUCKET;
@@ -327,7 +335,6 @@ export async function updateMyProfile({
     .update({
       user_name,
       phone,
-      address,
       profile_image_url,
     })
     .eq("id", id)

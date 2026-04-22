@@ -13,7 +13,12 @@ import {
   signUpUser,
   updateMyProfile,
 } from "@/lib/actions/auth";
-import { SignInFormData, SignUpFormData, UserProfileType } from "@/types/user";
+import {
+  SignInFormData,
+  SignUpFormData,
+  UserProfileType,
+  UserType,
+} from "@/types/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +26,7 @@ import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
-import { AuthUser, useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
 
 // 로그인
@@ -289,11 +294,10 @@ export function useUpdateMyProfileMutation(
       toast.success("프로필 수정에 성공하였습니다.");
 
       if (user) {
-        const updatedUser: AuthUser = {
+        const updatedUser: UserType = {
           ...user,
           user_name: formData.user_name ?? user.user_name,
           phone: formData.phone ?? user.phone,
-          address: formData.address ?? user.address,
         };
 
         if (from && from.includes("checkout")) {

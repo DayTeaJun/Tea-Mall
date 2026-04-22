@@ -1,12 +1,25 @@
+export interface DefaultAddressType {
+  address: string;
+  detail_address: string | null;
+  postal_code: string;
+}
+
 export interface UserType {
   id: string;
   email: string;
   user_name: string;
   level: number;
   profile_image_url?: string | null;
-  address: string;
-  phone: string;
-  provider: "email" | string;
+  phone?: string | null;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+  last_login_at?: string;
+  default_address?: DefaultAddressType[] | null;
+
+  app_metadata?: {
+    provider?: "email" | string;
+  };
 }
 
 export interface SignInFormData {
@@ -28,6 +41,5 @@ export interface UserProfileType {
   id: string;
   user_name: string;
   profile_image_url?: string | null;
-  address: string;
   phone: string;
 }
