@@ -121,12 +121,8 @@ export default function ProfilePage() {
 
         <div className="flex flex-col gap-2 mb-4">
           <p className="font-bold text-xl">기본 배송 주소</p>
-          {user?.default_address?.[0] ? (
-            <span>
-              ({user.default_address[0].postal_code}){" "}
-              {user.default_address[0].address}{" "}
-              {user.default_address[0].detail_address}
-            </span>
+          {user?.address ? (
+            <span>{user.address}</span>
           ) : (
             <span className="text-gray-400">등록된 주소가 없습니다.</span>
           )}

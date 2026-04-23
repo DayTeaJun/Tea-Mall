@@ -376,16 +376,10 @@ export async function getUserProfile(userId: string) {
     .select(
       `
     id, email, user_name, level, phone, profile_image_url, 
-    created_at, updated_at, status, last_login_at,
-    default_address: delivery_addresses(
-      address,
-      detail_address,
-      postal_code
-    )
+    created_at, updated_at, status, last_login_at, address
   `,
     )
     .eq("id", userId)
-    .eq("delivery_addresses.is_default", true)
     .maybeSingle();
 
   if (error) {

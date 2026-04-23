@@ -160,8 +160,6 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
     mutationFn: (addressId: string) =>
       postDefaultDeliveryAddress(addressId, userId),
     onSuccess: async () => {
-      toast.success("기본 배송지로 적용되었습니다.");
-      router.push("/mypage/delivery");
       await queryClient.invalidateQueries({
         queryKey: ["myAddressList", userId],
       });
@@ -170,6 +168,11 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
         queryKey: ["userProfile", userId],
       });
       await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+
+      toast.success("기본 배송지로 적용되었습니다.");
+
+      router.push("/mypage/delivery");
+      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -192,8 +195,6 @@ export function usePostDeliveryAddressMutation(userId: string) {
     mutationFn: (formData: DeliveryAddressForm) =>
       postDeliveryAddress(formData),
     onSuccess: async () => {
-      toast.success("배송지가 등록되었습니다.");
-      router.push("/mypage/delivery");
       await queryClient.invalidateQueries({
         queryKey: ["myAddressList", userId],
       });
@@ -202,6 +203,11 @@ export function usePostDeliveryAddressMutation(userId: string) {
         queryKey: ["userProfile", userId],
       });
       await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+
+      toast.success("배송지가 등록되었습니다.");
+
+      router.push("/mypage/delivery");
+      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -228,8 +234,6 @@ export function usePatchDeliveryAddressMutation(
       patchDeliveryAddress(addressId, formData),
 
     onSuccess: async () => {
-      toast.success("배송지가 수정되었습니다.");
-      router.push("/mypage/delivery");
       await queryClient.invalidateQueries({
         queryKey: ["myAddressList", userId],
       });
@@ -238,6 +242,11 @@ export function usePatchDeliveryAddressMutation(
         queryKey: ["userProfile", userId],
       });
       await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+
+      toast.success("배송지가 수정되었습니다.");
+
+      router.push("/mypage/delivery");
+      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {

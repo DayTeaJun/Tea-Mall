@@ -163,8 +163,8 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                   icon={<MapPin size={16} />}
                   label="주소지"
                   value={
-                    user?.default_address?.[0]
-                      ? `(${user.default_address[0].postal_code}) ${user.default_address[0].address} ${user.default_address[0].detail_address}`
+                    user?.address
+                      ? user.address
                       : "등록된 기본 배송지가 없습니다."
                   }
                 />

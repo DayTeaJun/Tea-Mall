@@ -162,17 +162,9 @@ export default function EditProfilePage() {
             </button>
           </div>
           <p
-            className={`text-sm ${user?.default_address?.[0] ? "text-black" : "text-gray-500"}`}
+            className={`text-sm ${user?.address ? "text-black" : "text-gray-500"}`}
           >
-            {user?.default_address?.[0] ? (
-              <>
-                ({user.default_address[0].postal_code}){" "}
-                {user.default_address[0].address}{" "}
-                {user.default_address[0].detail_address}
-              </>
-            ) : (
-              "등록된 주소 없음"
-            )}
+            {user?.address ? <span>{user.address}</span> : "등록된 주소 없음"}
           </p>
         </div>
       </div>

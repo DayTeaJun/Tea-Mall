@@ -16,6 +16,7 @@ export interface UserType {
   updated_at?: string;
   last_login_at?: string;
   default_address?: DefaultAddressType[] | null;
+  address?: string;
 
   app_metadata?: {
     provider?: "email" | string;
