@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProductAllCart } from "@/lib/queries/products";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import DaumPostcode from "../../../../../components/common/AddressSearch";
 import Modal from "@/components/common/Modals/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import AddressListModal from "@/components/common/Modals/AddressModal";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -31,11 +31,8 @@ export default function CheckoutPage() {
 
   const [orderer, setOrderer] = useState(user?.user_name ?? "");
   const [receiver, setReceiver] = useState(user?.user_name ?? "");
-  const [address, setAddress] = useState(user?.address ?? "");
   const [request, setRequest] = useState("");
-  const [detailAddress, setDetailAddress] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isDetailAddressOpen, setIsDetailAddressOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && selectedCartItems.length === 0) {
@@ -52,17 +49,14 @@ export default function CheckoutPage() {
       return toast.info("주문자가 입력이 되지 않았습니다.");
     }
 
-    if (!address && !detailAddress) {
-      return toast.info("배송지가 입력이 되지 않았습니다.");
+    if (!user?.address) {
+      return toast.info("배송지가 없습니다. 배송지를 추가해 주세요");
     }
 
     sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
     sessionStorage.setItem("request", request);
     sessionStorage.setItem("receiver", receiver);
-    sessionStorage.setItem(
-      "detailAddress",
-      address + (detailAddress ? `, ${detailAddress}` : ""),
-    );
+    sessionStorage.setItem("detailAddress", user.address);
 
     try {
       const tossPayments = await loadTossPayments(clientKey);
@@ -121,14 +115,12 @@ export default function CheckoutPage() {
                 onClick={() => setIsAddressModalOpen(true)}
                 className="text-sm underline text-gray-500"
               >
-                {address || user?.address ? "배송지 변경" : "배송지 추가"}
+                {user?.address ? "배송지 변경" : "배송지 추가"}
               </button>
             </div>
             <div className="bg-white p-4 flex flex-col gap-2">
-              {address || user?.address ? (
-                <p className="text-sm text-gray-700">
-                  {address || user?.address}
-                </p>
+              {user?.address ? (
+                <p className="text-sm text-gray-700">{user?.address}</p>
               ) : (
                 <p className="text-sm text-gray-500">
                   배송지가 등록이 되지 않았습니다.{" "}
@@ -137,15 +129,7 @@ export default function CheckoutPage() {
                   </span>
                 </p>
               )}
-              {isDetailAddressOpen && (
-                <input
-                  type="text"
-                  placeholder="상세 주소"
-                  value={detailAddress}
-                  onChange={(e) => setDetailAddress(e.target.value)}
-                  className="border-b py-1 text-sm"
-                />
-              )}
+
               {user?.phone ? (
                 <p className="text-sm text-gray-700">전화번호: {user?.phone}</p>
               ) : (
@@ -272,17 +256,14 @@ export default function CheckoutPage() {
       </div>
 
       <Modal
-        title={address || user?.address ? "배송지 변경" : "배송지 추가"}
+        title={user?.address ? "배송지 변경" : "배송지 추가"}
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         className="rounded-none"
       >
-        <DaumPostcode
-          onComplete={(data) => {
-            setAddress(data.address);
-            setIsAddressModalOpen(false);
-            setIsDetailAddressOpen(true);
-          }}
+        <AddressListModal
+          userId={user?.id}
+          onClose={() => setIsAddressModalOpen(false)}
         />
       </Modal>
     </div>

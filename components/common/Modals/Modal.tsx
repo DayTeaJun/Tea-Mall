@@ -23,11 +23,11 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-6 sm:pt-12"
+      className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-6 sm:pt-10"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-6 relative animate-fade-in ${className}`}
+        className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-4 relative animate-fade-in ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button

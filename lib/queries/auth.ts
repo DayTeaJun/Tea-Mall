@@ -171,7 +171,6 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
 
       toast.success("기본 배송지로 적용되었습니다.");
 
-      router.push("/mypage/delivery");
       router.refresh();
     },
     onError: (error) => {
