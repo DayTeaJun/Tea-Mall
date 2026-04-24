@@ -59,11 +59,13 @@ export const useCreateProductMutation = () => {
     mutationFn: async (productForm: CreateProductType) =>
       createProduct(productForm),
     onSuccess: async (data) => {
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-      await queryClient.invalidateQueries({ queryKey: ["products", data?.id] });
-      await queryClient.invalidateQueries({
-        queryKey: ["manageProducts"],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["products"] }),
+        queryClient.invalidateQueries({ queryKey: ["products", data?.id] }),
+        queryClient.invalidateQueries({
+          queryKey: ["manageProducts"],
+        }),
+      ]);
       toast.success("상품 등록이 완료되었습니다.");
       router.push("/manage/productList");
     },
@@ -85,13 +87,15 @@ export const useDeleteProductMutation = (productId: string) => {
     mutationFn: async (imagePath: string) =>
       deleteProduct({ productId, imagePath }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["products", productId],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["manageProducts"],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["products", productId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["manageProducts"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["products"] }),
+      ]);
       toast.success("상품 삭제가 완료되었습니다.");
     },
     onError: (error) => {
@@ -114,12 +118,14 @@ export const useUpdateProductMutation = (productId: string) => {
     mutationFn: async (product: ProductUpdateType) => updateProduct(product),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["products", productId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-      await queryClient.invalidateQueries({ queryKey: ["manageProducts"] });
-      await queryClient.invalidateQueries({ queryKey: ["cart_items"] });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["products", productId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["products"] }),
+        queryClient.invalidateQueries({ queryKey: ["manageProducts"] }),
+        queryClient.invalidateQueries({ queryKey: ["cart_items"] }),
+      ]);
 
       toast.success("상품이 성공적으로 수정되었습니다.");
       router.replace(`/products/${productId}`);

@@ -150,8 +150,8 @@ export const usePostMutation = (userId: string) => {
   const router = useRouter();
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: postCartItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["cart_items", userId],
       });
       router.refresh();
@@ -211,8 +211,8 @@ export const useDeleteCartItemMutation = (userId: string) => {
   const router = useRouter();
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: deleteCartItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["cart_items", userId],
       });
       toast.success("장바구니 상품이 삭제되었습니다.");
@@ -423,8 +423,8 @@ export const postFavorite = async (
 export const usePostFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => postFavorite(userId, productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
       toast.success("선택한 즐겨찾기가 추가되었습니다.");
@@ -450,8 +450,8 @@ export const deleteFavorite = async (userId: string, productId: string) => {
 export const useDeleteFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => deleteFavorite(userId, productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
       toast.success("선택한 즐겨찾기가 삭제되었습니다.");

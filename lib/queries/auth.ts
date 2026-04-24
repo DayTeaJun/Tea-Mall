@@ -160,14 +160,12 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
     mutationFn: (addressId: string) =>
       postDefaultDeliveryAddress(addressId, userId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["myAddressList", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
-      await queryClient.invalidateQueries({
-        queryKey: ["userProfile", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["myAddressList", userId] }),
+        queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile", userId] }),
+        queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
+      ]);
 
       toast.success("기본 배송지로 적용되었습니다.");
 
@@ -194,15 +192,16 @@ export function usePostDeliveryAddressMutation(userId: string) {
     mutationFn: (formData: DeliveryAddressForm) =>
       postDeliveryAddress(formData),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["myAddressList", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
-      await queryClient.invalidateQueries({
-        queryKey: ["userProfile", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
-
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["myAddressList", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["userProfile", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
+      ]);
       toast.success("배송지가 등록되었습니다.");
 
       router.push("/mypage/delivery");
@@ -233,14 +232,16 @@ export function usePatchDeliveryAddressMutation(
       patchDeliveryAddress(addressId, formData),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["myAddressList", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
-      await queryClient.invalidateQueries({
-        queryKey: ["userProfile", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["myAddressList", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["userProfile", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
+      ]);
 
       toast.success("배송지가 수정되었습니다.");
 
@@ -265,14 +266,16 @@ export function useDelDeliveryAddressMutation(userId: string) {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (addressId: string) => delDeliveryAddress(addressId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["myAddressList", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["myProfile", userId] });
-      await queryClient.invalidateQueries({
-        queryKey: ["userProfile", userId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["myAddressList", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["userProfile", userId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
+      ]);
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -532,9 +535,11 @@ export function useDeleteOrderMutation(
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => deleteOrder(orderId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orderDetails", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["orders", userId] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["orderDetails", orderId] }),
+        queryClient.invalidateQueries({ queryKey: ["orders", userId] }),
+      ]);
       toast.success("주문 내역이 삭제되었습니다.");
       if (manage) {
         router.replace("/manage/orderList");
@@ -572,11 +577,13 @@ async function updateCancelOrderItem(orderId: string) {
 export const useUpdateCancelOrderItem = (userId: string) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (orderId: string) => updateCancelOrderItem(orderId),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["orders", userId] });
-      queryClient.invalidateQueries({
-        queryKey: ["orderDetails", data?.order_id],
-      });
+    onSuccess: async (data) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["orders", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["orderDetails", data?.order_id],
+        }),
+      ]);
       toast.success("주문이 취소되었습니다.");
     },
     onError: (error) => {
