@@ -155,6 +155,25 @@ export async function getMyAddressList(userId: string) {
   return data;
 }
 
+export async function getMyDefaultAddress(userId: string) {
+  const supabaseAdmin = await createServerSupabaseClient();
+
+  const { data, error } = await supabaseAdmin
+    .from("delivery_addresses")
+    .select("*")
+    .eq("is_default", true)
+    .eq("user_id", userId)
+    .order("is_default", { ascending: false })
+    .single();
+
+  if (error) {
+    console.error("Supabase 에러", error);
+    throw new Error("기본 배송지 조회 실패");
+  }
+
+  return data;
+}
+
 // 내 배송지 기본 배송지로 설정
 export async function postDefaultDeliveryAddress(
   addressId: string,

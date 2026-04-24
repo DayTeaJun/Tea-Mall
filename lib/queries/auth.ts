@@ -4,6 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   delDeliveryAddress,
   getMyAddressList,
+  getMyDefaultAddress,
   getMyProfile,
   patchDeliveryAddress,
   postDefaultDeliveryAddress,
@@ -152,6 +153,21 @@ export function useGetAddressList(userId: string | undefined) {
   };
 }
 
+// 내 기본 배송지 조회
+export function useGetDefaultAddress(userId: string | undefined) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myDefaultAddress", userId],
+    queryFn: () => getMyDefaultAddress(userId || ""),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 내 배송지 기본 배송지로 설정
 export function usePostDefaultDeliveryAddressMutation(userId: string) {
   const router = useRouter();
@@ -162,6 +178,9 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["myAddressList", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["myDefaultAddress", userId],
+        }),
         queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
         queryClient.invalidateQueries({ queryKey: ["userProfile", userId] }),
         queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
@@ -197,6 +216,9 @@ export function usePostDeliveryAddressMutation(userId: string) {
           queryKey: ["myAddressList", userId],
         }),
         queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["myDefaultAddress", userId],
+        }),
         queryClient.invalidateQueries({
           queryKey: ["userProfile", userId],
         }),
@@ -238,6 +260,9 @@ export function usePatchDeliveryAddressMutation(
         }),
         queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
         queryClient.invalidateQueries({
+          queryKey: ["myDefaultAddress", userId],
+        }),
+        queryClient.invalidateQueries({
           queryKey: ["userProfile", userId],
         }),
         queryClient.invalidateQueries({ queryKey: ["allUsers"] }),
@@ -271,6 +296,9 @@ export function useDelDeliveryAddressMutation(userId: string) {
           queryKey: ["myAddressList", userId],
         }),
         queryClient.invalidateQueries({ queryKey: ["myProfile", userId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["myDefaultAddress", userId],
+        }),
         queryClient.invalidateQueries({
           queryKey: ["userProfile", userId],
         }),
