@@ -10,6 +10,7 @@ import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import AddressListModal from "@/components/common/Modals/AddressModal";
+import { useGetDefaultAddress } from "@/lib/queries/auth";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -18,6 +19,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const itemIds = searchParams.getAll("itemIds");
+
+  const { data: defaultAddress } = useGetDefaultAddress(user?.id || "");
 
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
   const selectedCartItems = useMemo(() => {
@@ -29,8 +32,6 @@ export default function CheckoutPage() {
     0,
   );
 
-  const [orderer, setOrderer] = useState(user?.user_name ?? "");
-  const [receiver, setReceiver] = useState(user?.user_name ?? "");
   const [request, setRequest] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
@@ -45,17 +46,17 @@ export default function CheckoutPage() {
       return toast.info("전화번호가 입력이 되지 않았습니다.");
     }
 
-    if (!orderer) {
-      return toast.info("주문자가 입력이 되지 않았습니다.");
-    }
-
     if (!user?.address) {
       return toast.info("배송지가 없습니다. 배송지를 추가해 주세요");
     }
 
+    if (!defaultAddress) {
+      return toast.info("기본 배송지가 설정이 되지않았습니다.");
+    }
+
     sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
     sessionStorage.setItem("request", request);
-    sessionStorage.setItem("receiver", receiver);
+    sessionStorage.setItem("receiver", defaultAddress?.receiver_name);
     sessionStorage.setItem("detailAddress", user.address);
 
     try {
@@ -76,7 +77,7 @@ export default function CheckoutPage() {
         }건`,
         successUrl: `${window.location.origin}/mypage/myCart/checkout/success`,
         failUrl: `${window.location.origin}/mypage/myCart/checkout/fail`,
-        customerName: orderer,
+        customerName: defaultAddress?.receiver_name ?? "",
         customerEmail: user?.email ?? "",
         customerMobilePhone:
           (user?.phone ?? "").replace(/-/g, "") ?? "01000000000",
@@ -109,7 +110,12 @@ export default function CheckoutPage() {
         <div className="flex flex-col gap-8 col-span-2">
           <section className="border rounded">
             <div className="flex justify-between items-center bg-gray-50 p-4">
-              <h2 className="font-bold text-lg">배송지</h2>
+              <h2 className="font-bold text-lg">
+                배송지
+                <span className="ml-2 pl-2 border-l-[3px] border-gray-200">
+                  {defaultAddress?.receiver_name}
+                </span>
+              </h2>
               <button
                 type="button"
                 onClick={() => setIsAddressModalOpen(true)}
@@ -150,7 +156,25 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               )}
+
+              <div className="flex gap-2 items-center mt-2">
+                {defaultAddress?.receiver_name && (
+                  <p className="text-sm text-gray-700">
+                    수령인: {defaultAddress?.receiver_name}
+                  </p>
+                )}
+              </div>
             </div>
+          </section>
+
+          <section>
+            <h2 className="font-bold text-lg mb-2">배송 요청사항</h2>
+            <input
+              value={request}
+              onChange={(e) => setRequest(e.target.value)}
+              className="w-full border rounded p-2"
+              placeholder="요청사항 입력 (선택)"
+            />
           </section>
 
           <p className="text-sm -mb-6">
@@ -185,39 +209,6 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-
-          <section className="flex flex-col gap-4">
-            <div>
-              <h2 className="font-bold text-lg mb-2">주문자</h2>
-              <input
-                type="text"
-                value={orderer}
-                onChange={(e) => setOrderer(e.target.value)}
-                className="w-full border rounded p-2"
-                placeholder="주문자 이름 입력"
-              />
-            </div>
-            <div>
-              <h2 className="font-bold text-lg mb-2">수령인</h2>
-              <input
-                type="text"
-                value={receiver}
-                onChange={(e) => setReceiver(e.target.value)}
-                className="w-full border rounded p-2"
-                placeholder="수령인 이름 입력 (선택)"
-              />
-            </div>
-          </section>
-
-          <section>
-            <h2 className="font-bold text-lg mb-2">배송 요청사항</h2>
-            <input
-              value={request}
-              onChange={(e) => setRequest(e.target.value)}
-              className="w-full border rounded p-2"
-              placeholder="요청사항 입력 (선택)"
-            />
-          </section>
 
           <section>
             <h2 className="font-bold text-lg mb-4">
