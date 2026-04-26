@@ -10,20 +10,6 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
-interface AddressType {
-  address: string;
-  address_name: string;
-  created_at: string | null;
-  delivery_instruction: string | null;
-  detail_address: string | null;
-  id: string;
-  is_default: boolean | null;
-  postal_code: string;
-  receiver_name: string;
-  receiver_phone: string;
-  user_id: string | null;
-}
-
 export default function DeliveryPage() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -82,27 +68,23 @@ export default function DeliveryPage() {
   };
 
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col gap-2 p-2 sm:p-0">
       <h2 className="text-xl font-semibold mb-2">배송지 관리</h2>
 
-      <div className="border-4 border-gray-200 p-5 rounded-sm mb-4 text-sm text-gray-600 leading-relaxed">
+      <div className="border-4 border-gray-200 p-4 sm:p-5 rounded-sm mb-4 text-[13px] sm:text-sm text-gray-600 leading-relaxed">
         <h2 className="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1">
           배송 주소록 유의사항
         </h2>
         <ul className="space-y-1">
           <li>
-            <span className="pr-2">-</span>
-            배송 주소록은 최대 <span className="font-semibold">10개</span>까지
+            - 배송 주소록은 최대 <span className="font-semibold">10개</span>까지
             등록할 수 있습니다.
           </li>
-          <li>
-            <span className="pr-2">-</span>기본 배송지 설정 시 해당 주소가 결제
-            시 최상단에 자동으로 노출됩니다.
-          </li>
+          <li>- 기본 배송지 설정 시 결제 시 최상단에 자동으로 노출됩니다.</li>
         </ul>
       </div>
 
-      <div className="overflow-x-auto border-t-2 border-slate-700">
+      <div className="hidden sm:block overflow-x-auto border-t-2 border-slate-700">
         <table className="w-full text-sm text-center border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-gray-200 text-gray-700">
@@ -112,8 +94,7 @@ export default function DeliveryPage() {
                   className="w-4 h-4 cursor-pointer"
                   checked={
                     !!(
-                      addresses &&
-                      addresses.length > 0 &&
+                      addresses?.length &&
                       selectedItems.length === addresses.length
                     )
                   }
@@ -138,52 +119,40 @@ export default function DeliveryPage() {
               <th className="py-3 px-2 font-medium">배송지관리</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="">
             {isLoading ? (
               <tr>
                 <td colSpan={7} className="py-10 text-gray-500">
-                  데이터를 불러오는 중입니다...
-                </td>
-              </tr>
-            ) : addresses?.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-10 text-gray-500">
-                  등록된 배송지가 없습니다.
+                  불러오는 중...
                 </td>
               </tr>
             ) : (
-              addresses?.map((addr: AddressType) => (
+              addresses?.map((addr) => (
                 <tr
                   key={addr.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-gray-50 transition-colors text-sm"
                 >
                   <td className="py-4 px-2">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 cursor-pointer"
-                      checked={
-                        addr.id ? selectedItems.includes(addr.id) : false
-                      }
+                      checked={selectedItems.includes(addr.id)}
                       onChange={() => toggleItemSelection(addr.id)}
+                      className="w-4 h-4"
                     />
                   </td>
                   <td className="py-4 px-2 border-x border-gray-100">
                     <span
-                      className={`px-3 py-1 rounded text-xs border ${addr.is_default ? "bg-slate-500 text-white border-slate-600" : "bg-white text-gray-500 border-gray-300"}`}
+                      className={`px-3 py-1 rounded text-[11px] border ${addr.is_default ? "bg-slate-500 text-white border-slate-600" : "bg-white text-gray-400 border-gray-200"}`}
                     >
                       {addr.is_default ? "기본" : "해제"}
                     </span>
                   </td>
-                  <td className="py-4 px-2 border-x border-gray-100 font-medium text-gray-800">
+                  <td className="py-4 px-2 font-medium text-gray-800">
                     {addr.address_name}
                   </td>
-                  <td className="py-4 px-2 border-x border-gray-100">
-                    {addr.receiver_name}
-                  </td>
-                  <td className="py-4 px-2 border-x border-gray-100">
-                    {addr.receiver_phone || "-"}
-                  </td>
-                  <td className="py-4 px-4 border-x border-gray-100 text-left">
+                  <td className="py-4 px-2">{addr.receiver_name}</td>
+                  <td className="py-4 px-2">{addr.receiver_phone || "-"}</td>
+                  <td className="py-4 px-4 text-left">
                     <span className="text-blue-600 font-mono">
                       ({addr.postal_code})
                     </span>{" "}
@@ -212,18 +181,86 @@ export default function DeliveryPage() {
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-6">
+      <div className="sm:hidden flex flex-col gap-3 border-t-2 border-slate-700 pt-3">
+        {isLoading ? (
+          <div className="py-10 text-center text-gray-500">
+            데이터를 불러오는 중입니다...
+          </div>
+        ) : addresses?.length === 0 ? (
+          <div className="py-10 text-center text-gray-500">
+            등록된 배송지가 없습니다.
+          </div>
+        ) : (
+          addresses?.map((addr) => (
+            <div
+              key={addr.id}
+              className="border border-gray-200 p-4 bg-white relative"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={selectedItems.includes(addr.id)}
+                    onChange={() => toggleItemSelection(addr.id)}
+                  />
+                  <h3 className="font-bold text-gray-900">
+                    {addr.address_name}
+                  </h3>
+                  {addr.is_default && (
+                    <span className="bg-slate-600 text-white text-[10px] px-2 py-0.5 rounded">
+                      기본
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-1 text-sm text-gray-600 mb-4">
+                <p className="font-medium text-gray-800">
+                  {addr.receiver_name} | {addr.receiver_phone || "-"}
+                </p>
+                <p className="text-gray-500">
+                  <span className="text-blue-600 font-mono text-xs">
+                    [{addr.postal_code}]
+                  </span>{" "}
+                  {addr.address} {addr.detail_address}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDefaultAddress(addr.id)}
+                  className={`flex-1 py-2 text-xs rounded border ${addr.is_default ? "bg-gray-100 text-gray-400 border-gray-200" : "bg-slate-700 text-white border-slate-700"}`}
+                  disabled={!!addr.is_default}
+                >
+                  {addr.is_default ? "기본 설정됨" : "기본 배송지로 설정"}
+                </button>
+                <button
+                  onClick={() =>
+                    router.push(`/mypage/delivery/edit/${addr.id}`)
+                  }
+                  className="px-4 py-2 border border-gray-300 text-gray-600 text-xs rounded"
+                >
+                  수정
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-3 sm:gap-0">
         <button
           onClick={handleDelSelectAddresses}
-          className="px-4 py-2 border border-gray-300 text-sm text-gray-700 rounded hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          className="w-full sm:w-auto px-4 py-3 sm:py-2 border border-gray-300 text-sm text-gray-700 rounded hover:bg-gray-50 active:bg-gray-100 transition-colors"
         >
           선택 주소록 삭제 ({selectedItems.length})
         </button>
         <button
           onClick={() => router.push("/mypage/delivery/regist")}
-          className="px-6 py-2 bg-slate-600 text-white text-sm font-medium rounded hover:bg-slate-700"
+          className="w-full sm:w-auto px-6 py-3 sm:py-2 bg-slate-600 text-white text-sm font-medium rounded hover:bg-slate-700 shadow-sm"
         >
-          배송지등록
+          새 배송지 등록
         </button>
       </div>
     </section>
