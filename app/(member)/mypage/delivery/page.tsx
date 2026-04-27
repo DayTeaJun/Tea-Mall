@@ -13,6 +13,7 @@ import { toast } from "sonner";
 export default function DeliveryPage() {
   const router = useRouter();
   const { user } = useAuthStore();
+
   const { data: addresses, isLoading } = useGetAddressList(user?.id);
   const { mutate: setDefaultAddress } = usePostDefaultDeliveryAddressMutation(
     user?.id || "",

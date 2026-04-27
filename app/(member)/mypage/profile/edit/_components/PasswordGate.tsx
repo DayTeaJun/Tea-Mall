@@ -7,8 +7,10 @@ import { toast } from "sonner";
 
 export default function PasswordGate({
   onVerified,
+  prevPage,
 }: {
   onVerified: () => void;
+  prevPage?: string;
 }) {
   const supabase = createBrowserSupabaseClient();
   const { user } = useAuthStore();
@@ -40,7 +42,9 @@ export default function PasswordGate({
     <div className="flex flex-col max-w-md">
       <h3 className="text-lg font-semibold mb-2">본인 확인</h3>
       <p className="text-sm text-gray-600 mb-4">
-        개인정보 보호를 위해 프로필 수정 전 비밀번호 확인이 필요합니다.
+        개인정보 보호를 위해{" "}
+        {`${prevPage === "delivery" ? "배송지" : "프로필"}`} 수정 전 비밀번호
+        확인이 필요합니다.
       </p>
       <input
         type="password"
