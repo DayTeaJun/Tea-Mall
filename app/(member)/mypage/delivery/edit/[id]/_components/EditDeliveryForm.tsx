@@ -227,7 +227,7 @@ export default function EditDeliveryForm({
           </tbody>
         </table>
 
-        <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-center gap-3">
+        <div className="p-6 bg-gray-50 border-t border-gray-200 flex sm:flex-row flex-col justify-center gap-3">
           <button
             type="button"
             onClick={() => router.back()}
@@ -238,7 +238,7 @@ export default function EditDeliveryForm({
           </button>
           <button
             type="submit"
-            className="px-10 py-2.5 bg-slate-800 text-white text-sm font-medium rounded-sm hover:bg-slate-900 disabled:bg-slate-500 flex items-center gap-2"
+            className="px-10 py-2.5 bg-slate-800 text-white text-sm font-medium rounded-sm hover:bg-slate-900 disabled:bg-slate-500"
             disabled={isPending}
           >
             {isPending ? "수정 중..." : "수정하기"}
