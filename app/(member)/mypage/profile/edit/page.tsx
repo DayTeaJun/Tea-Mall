@@ -11,8 +11,6 @@ import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import PasswordGate from "./_components/PasswordGate";
-import { UserType } from "@/types/user";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -25,15 +23,6 @@ export default function EditProfilePage() {
     user?.id,
     from || "",
   );
-
-  const isOAuthUser = (user?: UserType | null) => {
-    if (!user) return false;
-    const provider = user.app_metadata?.provider;
-    console.log("provider:", provider);
-    return provider && provider !== "email";
-  };
-
-  const isOAuth = isOAuthUser(user);
 
   const InitialPhone1 = data?.phone.split("-")[0];
   const InitialPhone2 = data?.phone.split("-")[1];
@@ -50,8 +39,6 @@ export default function EditProfilePage() {
   const [profileImage, setProfileImage] = useState(
     data?.profile_image_url || "",
   );
-
-  const [isVerified, setIsVerified] = useState(false);
 
   const { imageSrc, imgUrl, onUpload } = ImgPreview();
 
@@ -92,10 +79,6 @@ export default function EditProfilePage() {
       }
     }
   };
-
-  if (!isOAuth && !isVerified) {
-    return <PasswordGate onVerified={() => setIsVerified(true)} />;
-  }
 
   if (isLoading) return <div>로딩 중...</div>;
 

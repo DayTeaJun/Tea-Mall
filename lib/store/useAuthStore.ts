@@ -3,14 +3,39 @@ import { create } from "zustand";
 
 interface AuthState {
   user?: UserType | null;
-  isDeliveryVerified: boolean;
+  isVerified: boolean;
+  verifiedAt: number | null;
   setUser: (user: UserType | null) => void;
-  setDeliveryVerified: (verified: boolean) => void;
+  setVerified: (verified: boolean) => void;
+  getIsVerified: () => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: undefined,
-  isDeliveryVerified: false,
+  isVerified: false,
+  verifiedAt: null,
+
   setUser: (user) => set({ user }),
-  setDeliveryVerified: (verified) => set({ isDeliveryVerified: verified }),
+
+  setVerified: (verified) => {
+    set({
+      isVerified: verified,
+      verifiedAt: verified ? Date.now() : null,
+    });
+  },
+
+  getIsVerified: () => {
+    const { isVerified, verifiedAt } = get();
+    if (!isVerified || !verifiedAt) return false;
+
+    const currentTime = Date.now();
+    const isExpired = currentTime - verifiedAt > 5 * 60 * 1000;
+
+    if (isExpired) {
+      set({ isVerified: false, verifiedAt: null });
+      return false;
+    }
+
+    return true;
+  },
 }));

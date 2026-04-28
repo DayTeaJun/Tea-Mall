@@ -1,9 +1,9 @@
 "use client";
 
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import PasswordGate from "../profile/edit/_components/PasswordGate";
+import PasswordGate from "./_components/PasswordGate";
 
-export default function DeliveryLayout({
+export default function EditLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -15,12 +15,7 @@ export default function DeliveryLayout({
   const isAuthValid = getIsVerified();
 
   if (!isOAuth && !isAuthValid) {
-    return (
-      <PasswordGate
-        prevPage={"delivery"}
-        onVerified={() => setVerified(true)}
-      />
-    );
+    return <PasswordGate onVerified={() => setVerified(true)} />;
   }
 
   return <>{children}</>;
