@@ -102,28 +102,23 @@ export default function DeliveryPage() {
                   onChange={toggleSelectAll}
                 />
               </th>
-              <th className="py-3 px-2 font-medium border-x border-gray-200">
-                기본 설정
-              </th>
-              <th className="py-3 px-2 font-medium border-x border-gray-200">
+              <th className="py-3 px-2 font-medium border-gray-200 w-24">
                 배송지명
               </th>
-              <th className="py-3 px-2 font-medium border-x border-gray-200">
+              <th className="py-3 px-2 font-medium border-gray-200 w-20">
                 수령인
               </th>
-              <th className="py-3 px-2 font-medium border-x border-gray-200">
+              <th className="py-3 px-2 font-medium border-gray-200 w-32">
                 휴대전화
               </th>
-              <th className="py-3 px-2 font-medium border-x border-gray-200">
-                주소
-              </th>
-              <th className="py-3 px-2 font-medium">배송지관리</th>
+              <th className="py-3 px-2 font-medium border-gray-200">주소</th>
+              <th className="py-3 px-2 font-medium w-40">관리</th>
             </tr>
           </thead>
-          <tbody className="">
+          <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="py-10 text-gray-500">
+                <td colSpan={6} className="py-10 text-gray-500">
                   불러오는 중...
                 </td>
               </tr>
@@ -131,7 +126,7 @@ export default function DeliveryPage() {
               addresses?.map((addr) => (
                 <tr
                   key={addr.id}
-                  className="hover:bg-gray-50 transition-colors text-sm"
+                  className="hover:bg-gray-50 transition-colors text-sm border-b border-gray-100"
                 >
                   <td className="py-4 px-2">
                     <input
@@ -141,39 +136,51 @@ export default function DeliveryPage() {
                       className="w-4 h-4"
                     />
                   </td>
-                  <td className="py-4 px-2 border-x border-gray-100">
-                    <span
-                      className={`px-3 py-1 rounded text-[11px] border ${addr.is_default ? "bg-slate-500 text-white border-slate-600" : "bg-white text-gray-400 border-gray-200"}`}
-                    >
-                      {addr.is_default ? "기본" : "해제"}
-                    </span>
-                  </td>
                   <td className="py-4 px-2 font-medium text-gray-800">
-                    {addr.address_name}
+                    <div className="flex flex-col items-center gap-1">
+                      <span>{addr.address_name}</span>
+                      {addr.is_default && (
+                        <span className="text-[11px] px-1.5 py-0.5 border border-gray-200 text-gray-700 font-bold">
+                          기본 배송지
+                        </span>
+                      )}
+                    </div>
                   </td>
-                  <td className="py-4 px-2">{addr.receiver_name}</td>
-                  <td className="py-4 px-2">{addr.receiver_phone || "-"}</td>
-                  <td className="py-4 px-4 text-left">
-                    <span className="text-blue-600 font-mono">
-                      ({addr.postal_code})
-                    </span>{" "}
+                  <td className="py-4 px-2 text-gray-600">
+                    {addr.receiver_name}
+                  </td>
+                  <td className="py-4 px-2 text-gray-600">
+                    {addr.receiver_phone || "-"}
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="font-bold text-blue-600 mr-1">
+                      [{addr.postal_code}]{" "}
+                    </span>
                     {addr.address} {addr.detail_address}
                   </td>
-                  <td className="py-4 px-2 space-x-1">
-                    <button
-                      onClick={() => setDefaultAddress(addr.id)}
-                      className="px-3 py-1.5 bg-slate-700 text-white text-xs rounded hover:bg-slate-800"
-                    >
-                      적용
-                    </button>
-                    <button
-                      onClick={() =>
-                        router.push(`/mypage/delivery/edit/${addr.id}`)
-                      }
-                      className="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50"
-                    >
-                      수정
-                    </button>
+                  <td className="py-4 px-2">
+                    <div className="flex flex-col gap-1.5 items-center">
+                      {!addr.is_default ? (
+                        <button
+                          onClick={() => setDefaultAddress(addr.id)}
+                          className="w-28 py-1.5 bg-white border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50"
+                        >
+                          기본 배송지 설정
+                        </button>
+                      ) : (
+                        <div className="w-28 py-1.5 text-gray-700 text-xs">
+                          기본 주소지
+                        </div>
+                      )}
+                      <button
+                        onClick={() =>
+                          router.push(`/mypage/delivery/edit/${addr.id}`)
+                        }
+                        className="w-28 py-1.5 bg-slate-700 text-white text-xs rounded hover:bg-slate-800"
+                      >
+                        수정하기
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
