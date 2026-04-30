@@ -1,20 +1,32 @@
 "use client";
 
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useEffect, useState } from "react";
 import PasswordGate from "./_components/PasswordGate";
 
-export default function EditLayout({
+export default function DeliveryLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, getIsVerified, setVerified } = useAuthStore();
+  const { user, isVerified, setVerified, checkIsExpired } = useAuthStore();
+  const [isClient, setIsClient] = useState(false);
 
   const isOAuth = user?.app_metadata?.provider !== "email";
 
-  const isAuthValid = getIsVerified();
+  useEffect(() => {
+    setIsClient(true);
 
-  if (!isOAuth && !isAuthValid) {
+    if (!isOAuth && isVerified && checkIsExpired()) {
+      setVerified(false);
+    }
+  }, [isVerified, isOAuth, checkIsExpired, setVerified]);
+
+  if (!isClient) return null;
+
+  const needsVerification = !isOAuth && (!isVerified || checkIsExpired());
+
+  if (needsVerification) {
     return <PasswordGate onVerified={() => setVerified(true)} />;
   }
 

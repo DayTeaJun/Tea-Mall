@@ -7,7 +7,7 @@ interface AuthState {
   verifiedAt: number | null;
   setUser: (user: UserType | null) => void;
   setVerified: (verified: boolean) => void;
-  getIsVerified: () => boolean;
+  checkIsExpired: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -16,26 +16,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifiedAt: null,
 
   setUser: (user) => set({ user }),
-
-  setVerified: (verified) => {
+  setVerified: (verified) =>
     set({
       isVerified: verified,
       verifiedAt: verified ? Date.now() : null,
-    });
-  },
+    }),
 
-  getIsVerified: () => {
+  checkIsExpired: () => {
     const { isVerified, verifiedAt } = get();
-    if (!isVerified || !verifiedAt) return false;
+    if (!isVerified || !verifiedAt) return true;
 
-    const currentTime = Date.now();
-    const isExpired = currentTime - verifiedAt > 5 * 60 * 1000;
-
-    if (isExpired) {
-      set({ isVerified: false, verifiedAt: null });
-      return false;
-    }
-
-    return true;
+    const EXPIRE_TIME = 5 * 60 * 1000; // 5분
+    return Date.now() - verifiedAt > EXPIRE_TIME;
   },
 }));
