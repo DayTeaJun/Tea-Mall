@@ -1,14 +1,21 @@
 "use client";
 
-import Modal from "@/components/common/Modals/Modal";
-import { withdrawalUser } from "@/lib/actions/auth";
-import { useMyProfileQuery } from "@/lib/queries/auth";
-import { useAuthStore } from "@/lib/store/useAuthStore";
-import { UserRound } from "lucide-react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import {
+  User as UserIcon,
+  Mail,
+  Phone,
+  MapPin,
+  ShieldCheck,
+  Lock,
+} from "lucide-react";
 import { toast } from "sonner";
+import { useMyProfileQuery } from "@/lib/queries/auth";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { withdrawalUser } from "@/lib/actions/auth";
+import Modal from "@/components/common/Modals/Modal";
 
 export default function ProfilePage() {
   const [isModal, setIsModal] = useState(false);
@@ -19,35 +26,10 @@ export default function ProfilePage() {
 
   if (!data || isLoading) {
     return (
-      <section className="flex flex-col gap-4 animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/3" />
-        <div className="flex flex-col gap-6">
-          <div className="w-[100px] h-[100px] rounded-full bg-gray-300" />
-
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="h-5 bg-gray-200 rounded w-1/4" />
-            <div className="h-4 bg-gray-100 rounded w-2/3" />
-          </div>
-
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="h-5 bg-gray-200 rounded w-1/4" />
-            <div className="h-4 bg-gray-100 rounded w-1/2" />
-          </div>
-
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="h-5 bg-gray-200 rounded w-1/4" />
-            <div className="h-4 bg-gray-100 rounded w-3/4" />
-          </div>
-        </div>
-
-        <div className="flex justify-between mt-10">
-          <div className="w-28 h-8 bg-gray-300 rounded" />
-          <div className="flex gap-2">
-            <div className="w-36 h-8 bg-gray-200 rounded" />
-            <div className="w-24 h-8 bg-gray-300 rounded" />
-          </div>
-        </div>
-      </section>
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4 text-gray-400">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900" />
+        <p>프로필 정보를 불러오는 중입니다...</p>
+      </div>
     );
   }
 
@@ -56,7 +38,6 @@ export default function ProfilePage() {
       toast.error("테스트 계정은 비밀번호 재설정을 할 수 없습니다.");
       return;
     }
-
     router.push("/mypage/profile/resetPassword");
   };
 
@@ -74,83 +55,107 @@ export default function ProfilePage() {
     } else {
       toast.error("회원 탈퇴에 실패하였습니다. 관리자에게 문의 주세요");
     }
-
     setIsModal(false);
   };
 
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold mb-2">내 정보</h2>
-      <div className="flex flex-col gap-6">
-        <div className="flex justify-center items-center w-25 h-25 rounded-full overflow-hidden border">
-          {data?.profile_image_url ? (
-            <Image
-              src={data?.profile_image_url}
-              alt="프로필 이미지"
-              className="w-25 h-25 rounded-full object-cover"
-              width={100}
-              height={100}
-            />
-          ) : (
-            <UserRound
-              size={72}
-              className="text-gray-400 bg-gray-200 rounded-full p-2"
-            />
-          )}
-        </div>
+    <section className="w-full flex flex-col gap-4">
+      <h2 className="text-xl font-bold">내 정보 관리</h2>
 
-        <div className="flex flex-col gap-2 mb-4">
-          <p className="font-bold text-xl">이름</p>
-          <p>
-            {data?.user_name}{" "}
-            <span className="text-sm font-medium text-gray-400">
-              {" "}
-              - {data?.email}
+      <div className="grid grid-cols-1 md:grid-cols-3 bg-gray-50 overflow-hidden">
+        <section className="col-span-1 flex flex-col gap-6 p-4">
+          <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
+            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-sm bg-gray-100">
+              {data?.profile_image_url ? (
+                <Image
+                  fill
+                  src={data.profile_image_url}
+                  alt={data.user_name || "Profile"}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                  <UserIcon size={48} />
+                </div>
+              )}
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
+              {data.user_name || "이름 없음"}
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">{data.email}</p>
+            <span className="px-4 py-1 rounded-full text-xs font-bold bg-black text-white">
+              {(data.level ?? 0) >= 3 ? "관리자" : "일반 고객"}
             </span>
-          </p>
-        </div>
+          </div>
 
-        <div className="flex flex-col gap-2 mb-4">
-          <p className="font-bold text-xl">전화번호</p>
-          {data?.phone ? (
-            <span className="text-sm">{data.phone.split("-").join(" - ")}</span>
-          ) : (
-            <span className="text-gray-400">등록된 전화번호가 없습니다.</span>
-          )}
-        </div>
+          <div className="border border-gray-200 bg-white p-4 flex flex-col ">
+            <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
+              <ShieldCheck size={18} className="text-blue-500" />
+              계정 보안
+            </h4>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handlePasswordReset}
+                className="w-full py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+              >
+                <Lock size={14} /> 비밀번호 재설정
+              </button>
+            </div>
+          </div>
+        </section>
 
-        <div className="flex flex-col gap-2 mb-4">
-          <p className="font-bold text-xl">기본 배송 주소</p>
-          {user?.address ? (
-            <span>{user.address}</span>
-          ) : (
-            <span className="text-gray-400">등록된 주소가 없습니다.</span>
-          )}
-        </div>
-      </div>
+        <section className="col-span-2 flex flex-col gap-6 p-4 pl-0">
+          <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
+            <div className="flex justify-between items-center mb-6 pb-2 border-b">
+              <h4 className="text-lg font-bold text-gray-800">
+                상세 프로필 정보
+              </h4>
+              <button
+                onClick={() => router.push("/mypage/profile/edit")}
+                className="text-xs font-bold text-blue-600 hover:underline"
+              >
+                정보 수정하기
+              </button>
+            </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:mt-10 justify-between">
-        <button
-          onClick={() => router.push("/mypage/profile/edit")}
-          className="bg-green-700 text-white px-4 p-1 rounded"
-        >
-          내 정보 수정
-        </button>
+            <div className="flex flex-col gap-6 h-full justify-between">
+              <div className="grid grid-cols-1 gap-6">
+                <InfoRow
+                  icon={<UserIcon size={16} />}
+                  label="이름"
+                  value={data.user_name}
+                />
+                <InfoRow
+                  icon={<Mail size={16} />}
+                  label="이메일 주소"
+                  value={data.email}
+                />
+                <InfoRow
+                  icon={<Phone size={16} />}
+                  label="연락처"
+                  value={data.phone ? data.phone.split("-").join(" - ") : null}
+                />
+                <InfoRow
+                  icon={<MapPin size={16} />}
+                  label="기본 배송지"
+                  value={user?.address}
+                />
+              </div>
 
-        <div className="flex justify-between sm:justify-normal sm:gap-2">
-          <button
-            onClick={handlePasswordReset}
-            className="bg-gray-300 px-4 p-1 rounded"
-          >
-            비밀번호 재설정
-          </button>
-          <button
-            onClick={() => setIsModal(true)}
-            className="bg-red-500 text-white px-4 p-1 rounded"
-          >
-            회원탈퇴
-          </button>
-        </div>
+              <div className="mt-auto pt-6 flex justify-end items-center gap-4 border-t">
+                <span className="text-[11px] text-gray-400">
+                  더 이상 서비스를 이용하지 않으시나요?
+                </span>
+                <button
+                  onClick={() => setIsModal(true)}
+                  className="text-red-500 rounded-lg font-bold text-xs hover:underline"
+                >
+                  회원 탈퇴
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <Modal
@@ -175,5 +180,33 @@ export default function ProfilePage() {
         </div>
       </Modal>
     </section>
+  );
+}
+
+function InfoRow({
+  icon,
+  className,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  className?: string;
+  label: string;
+  value: string | null | undefined;
+}) {
+  return (
+    <div className="grid grid-cols-4 gap-1.5 items-start">
+      <div className="col-span-1 flex gap-2 text-gray-400 mt-1">
+        {icon}
+        <span className="text-[11px] font-bold uppercase tracking-tight">
+          {label}
+        </span>
+      </div>
+      <p
+        className={`${className} col-span-3 text-[14px] font-medium text-gray-700 leading-relaxed`}
+      >
+        {value || "등록된 정보가 없습니다."}
+      </p>
+    </div>
   );
 }
