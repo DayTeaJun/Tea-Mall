@@ -10,7 +10,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   User as UserIcon,
   Phone,
@@ -21,14 +21,11 @@ import {
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const from = searchParams.get("from");
 
   const { user } = useAuthStore();
   const { data, isLoading } = useMyProfileQuery(user?.id);
   const { mutate: updateProfile, isPending } = useUpdateMyProfileMutation(
     user?.id,
-    from || "",
   );
 
   const [userName, setUserName] = useState(data?.user_name || "");

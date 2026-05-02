@@ -319,10 +319,7 @@ export function useDelDeliveryAddressMutation(userId: string) {
 }
 
 // 내 프로필 수정
-export function useUpdateMyProfileMutation(
-  userId: string | undefined,
-  from?: string,
-) {
+export function useUpdateMyProfileMutation(userId: string | undefined) {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
 
@@ -339,30 +336,32 @@ export function useUpdateMyProfileMutation(
           phone: formData.phone ?? user.phone,
         };
 
-        if (from && from.includes("checkout")) {
-          router.push(`/${from}`);
-        } else if (from && from.includes("directCheckout")) {
-          router.push(`/${from}`);
-        } else {
-          router.push("/mypage/profile");
-        }
+        router.push("/mypage/profile");
         setUser(updatedUser);
       }
     },
     onError: (error) => {
-      if (error && typeof error === "object" && "status" in error) {
-        const status = (error as { status: number }).status;
-        const message = (error as { message: string }).message;
+      const errorMessage = error?.message || "";
 
+      if (
+        errorMessage.includes("중복") ||
+        errorMessage.includes("사용 중인 이름")
+      ) {
+        toast.error("이미 사용 중인 이름입니다. 다른 이름을 입력해 주세요.");
+        return;
+      }
+
+      if (error && typeof error === "object" && "status" in error) {
+        const status = error.status;
         if (status === 400) {
           toast.error("잘못된 정보입니다.");
         } else if (status === 500) {
-          toast.error("서버 에러입니다.");
+          toast.error("서버 에러가 발생했습니다.");
         } else {
-          toast.error(`알 수 없는 오류: ${message}`);
+          toast.error(`오류 발생: ${errorMessage}`);
         }
       } else {
-        toast.error("예상치 못한 오류가 발생했습니다.");
+        toast.error(errorMessage || "예상치 못한 오류가 발생했습니다.");
       }
     },
   });

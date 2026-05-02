@@ -356,6 +356,11 @@ export async function updateMyProfile({
 
   if (updateError) {
     console.error("프로필 업데이트 실패:", updateError.message);
+
+    if (updateError.code === "23505") {
+      throw new Error("이미 사용 중인 이름입니다. 다른 이름을 입력해 주세요.");
+    }
+
     throw new Error("프로필 업데이트 실패");
   }
 
