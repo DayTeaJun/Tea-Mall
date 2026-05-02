@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   uploadImageToStorageProfile,
   useMyProfileQuery,
@@ -11,6 +11,13 @@ import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  User as UserIcon,
+  Phone,
+  MapPin,
+  ShieldCheck,
+  ArrowLeft,
+} from "lucide-react";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -24,18 +31,10 @@ export default function EditProfilePage() {
     from || "",
   );
 
-  const InitialPhone1 = data?.phone.split("-")[0];
-  const InitialPhone2 = data?.phone.split("-")[1];
-  const InitialPhone3 = data?.phone.split("-")[2];
-
   const [userName, setUserName] = useState(data?.user_name || "");
-
-  const [phone1, setPhone1] = useState(InitialPhone1 || "");
-  const [phone2, setPhone2] = useState(InitialPhone2 || "");
-  const [phone3, setPhone3] = useState(InitialPhone3 || "");
-
-  const fullPhone = `${phone1}-${phone2}-${phone3}`;
-
+  const [phone1, setPhone1] = useState(data?.phone.split("-")[0] || "");
+  const [phone2, setPhone2] = useState(data?.phone.split("-")[1] || "");
+  const [phone3, setPhone3] = useState(data?.phone.split("-")[2] || "");
   const [profileImage, setProfileImage] = useState(
     data?.profile_image_url || "",
   );
@@ -52,7 +51,6 @@ export default function EditProfilePage() {
       toast.info("모든 필수 항목을 입력해 주세요.");
       return;
     }
-
     if (!phone1 || !phone2 || !phone3) {
       toast.info("전화번호를 전부 입력해 주세요.");
       return;
@@ -65,108 +63,160 @@ export default function EditProfilePage() {
 
       updateProfile({
         id: user.id,
-        phone: fullPhone,
+        phone: `${phone1}-${phone2}-${phone3}`,
         user_name: userName,
         profile_image_url: imageUrl,
       });
-    } catch (err) {
-      if (err instanceof Error) {
-        console.error("프로필 수정 실패:", err.message);
-        toast.error("등록 중 오류: " + err.message);
-      } else {
-        console.error("프로필 수정 실패:", err);
-        toast.error("알 수 없는 오류가 발생했습니다.");
-      }
+    } catch (error) {
+      toast.error("알 수 없는 오류가 발생했습니다.", error || "");
     }
   };
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoading)
+    return <div className="p-4 text-gray-400 text-center">로딩 중...</div>;
 
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold mb-2">회원정보 수정</h2>
+    <section className="w-full flex flex-col gap-4">
+      <h2 className="text-xl font-bold">회원정보 수정</h2>
 
-      <div className="flex flex-col gap-6">
-        <ImagePreviews
-          imageSrc={imageSrc || ""}
-          onUpload={handleProfileImageChange}
-          editImage={data?.profile_image_url || ""}
-        />
-
-        <div className="flex flex-col gap-2 mb-4">
-          <label className="font-bold text-xl">이름</label>
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            className="border-b py-1 text-sm w-40 pl-2"
-            readOnly={user?.email === "testuser@tmall.com"}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2 mb-4">
-          <label className="font-bold text-xl">전화번호</label>
-          <div className="flex items-center gap-2 font-bold">
-            <input
-              type="tel"
-              maxLength={3}
-              value={phone1}
-              onChange={(e) => setPhone1(e.target.value.replace(/\D/g, ""))}
-              className="border-b py-1 text-sm w-16 text-center"
-              placeholder="010"
+      <div className="grid grid-cols-1 md:grid-cols-3 bg-gray-50 overflow-hidden">
+        <section className="col-span-1 flex flex-col gap-6 p-4">
+          <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
+            <ImagePreviews
+              imageSrc={imageSrc || ""}
+              onUpload={handleProfileImageChange}
+              editImage={data?.profile_image_url || ""}
             />
-            <span>-</span>
-            <input
-              type="tel"
-              maxLength={4}
-              value={phone2}
-              onChange={(e) => setPhone2(e.target.value.replace(/\D/g, ""))}
-              className="border-b py-1 text-sm w-20 text-center"
-            />
-            <span>-</span>
-            <input
-              type="tel"
-              maxLength={4}
-              value={phone3}
-              onChange={(e) => setPhone3(e.target.value.replace(/\D/g, ""))}
-              className="border-b py-1 text-sm w-20 text-center"
-            />
+            <p className="mt-4 text-xs text-gray-400">
+              이미지를 클릭하여 프로필 사진을 변경하세요.
+            </p>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-2 mb-4">
-          <div className="flex gap-4 items-center">
-            <label className="font-bold text-xl">기본 배송 주소</label>
-            <button
-              className="rounded border-gray-300 px-2 py-1 text-sm text-white hover:bg-gray-600 transition-colors bg-gray-500"
-              onClick={() => router.push("/mypage/delivery")}
-            >
-              배송지 관리
-            </button>
+          <div className="border border-gray-200 bg-white p-4 flex flex-col">
+            <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2 text-sm">
+              <ShieldCheck size={16} className="text-blue-500" />
+              수정 시 주의사항
+            </h4>
+            <ul className="text-[11px] text-gray-500 space-y-2 list-disc pl-3">
+              <li>이름과 연락처는 실제 배송 시 사용됩니다.</li>
+              <li>테스트 계정은 이름 수정이 불가능할 수 있습니다.</li>
+            </ul>
           </div>
-          <p
-            className={`text-sm ${user?.address ? "text-black" : "text-gray-500"}`}
-          >
-            {user?.address ? <span>{user.address}</span> : "등록된 주소 없음"}
-          </p>
-        </div>
-      </div>
+        </section>
 
-      <div className="flex justify-end gap-2 mt-10">
-        <button
-          className="bg-red-500 text-white px-4 py-1 rounded"
-          onClick={() => router.push("/mypage/profile")}
-        >
-          취소
-        </button>
-        <button
-          className="bg-green-700 text-white px-4 py-1 rounded"
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
-          {isPending ? "저장 중..." : "저장"}
-        </button>
+        <section className="col-span-2 flex flex-col gap-6 p-4 pl-0">
+          <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
+            <div className="flex justify-between items-center mb-8 pb-2 border-b">
+              <h4 className="text-lg font-bold text-gray-800">
+                상세 정보 수정
+              </h4>
+            </div>
+
+            <div className="flex flex-col gap-8">
+              <EditRow icon={<UserIcon size={16} />} label="이름">
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="border-b border-gray-200 py-1 text-sm w-full max-w-[200px] focus:border-black outline-none transition-colors"
+                  readOnly={user?.email === "testuser@tmall.com"}
+                />
+              </EditRow>
+
+              <EditRow icon={<Phone size={16} />} label="연락처">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="tel"
+                    maxLength={3}
+                    value={phone1}
+                    onChange={(e) =>
+                      setPhone1(e.target.value.replace(/\D/g, ""))
+                    }
+                    className="border-b border-gray-200 py-1 text-sm w-12 text-center focus:border-black outline-none"
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input
+                    type="tel"
+                    maxLength={4}
+                    value={phone2}
+                    onChange={(e) =>
+                      setPhone2(e.target.value.replace(/\D/g, ""))
+                    }
+                    className="border-b border-gray-200 py-1 text-sm w-16 text-center focus:border-black outline-none"
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input
+                    type="tel"
+                    maxLength={4}
+                    value={phone3}
+                    onChange={(e) =>
+                      setPhone3(e.target.value.replace(/\D/g, ""))
+                    }
+                    className="border-b border-gray-200 py-1 text-sm w-16 text-center focus:border-black outline-none"
+                  />
+                </div>
+              </EditRow>
+
+              <EditRow icon={<MapPin size={16} />} label="기본 배송지">
+                <div className="flex flex-col gap-2 items-start">
+                  <p className="text-sm text-gray-700">
+                    {user?.address || "등록된 주소 없음"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/mypage/delivery")}
+                    className="flex gap-[2px] items-center text-[12px] font-bold text-blue-600 group"
+                  >
+                    <ArrowLeft
+                      size={12}
+                      className="group-hover:-translate-x-0.5 transition-all duration-300"
+                    />{" "}
+                    배송지 관리에서 변경하기
+                  </button>
+                </div>
+              </EditRow>
+            </div>
+
+            <div className="mt-auto pt-10 flex justify-end items-center gap-3 border-t">
+              <button
+                onClick={() => router.push("/mypage/profile")}
+                className="px-6 py-2 border border-gray-200 text-gray-500 font-bold text-xs hover:bg-gray-50 transition-all"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={isPending}
+                className="px-6 py-2 bg-black text-white font-bold text-xs hover:bg-gray-800 transition-all disabled:bg-gray-400"
+              >
+                {isPending ? "저장 중..." : "수정 완료"}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
+  );
+}
+
+function EditRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-4 gap-1.5 items-start">
+      <div className="col-span-1 flex gap-2 text-gray-400 mt-1">
+        {icon}
+        <span className="text-[11px] font-bold uppercase tracking-tight">
+          {label}
+        </span>
+      </div>
+      <div className="col-span-3">{children}</div>
+    </div>
   );
 }
