@@ -71,7 +71,9 @@ export default function CheckoutPage() {
     return sizeParam ? `${base} (${sizeParam})` : base;
   }, [selectedItem, sizeParam]);
 
-  const [request, setRequest] = useState("");
+  const [request, setRequest] = useState(
+    defaultAddress?.delivery_instruction || "",
+  );
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   const handlePayment = async () => {
@@ -152,7 +154,7 @@ export default function CheckoutPage() {
               <h2 className="font-bold text-lg">
                 배송지
                 <span className="ml-2 pl-2 border-l-[3px] border-gray-200">
-                  {defaultAddress?.receiver_name}
+                  {defaultAddress?.address_name}
                 </span>
               </h2>
               <button
