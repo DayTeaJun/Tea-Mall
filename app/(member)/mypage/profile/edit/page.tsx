@@ -77,9 +77,8 @@ export default function EditProfilePage() {
     <section className="w-full flex flex-col gap-4">
       <h2 className="text-xl font-bold">회원정보 수정</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 bg-gray-50 overflow-hidden">
-        {/* 왼쪽 섹션: 이미지 수정 및 안내 */}
-        <section className="col-span-1 flex flex-col gap-4 md:gap-6 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 bg-gray-50 overflow-hidden">
+        <section className="col-span-1 flex flex-col gap-4 sm:gap-6 p-4">
           <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
             <ImagePreviews
               imageSrc={imageSrc || ""}
@@ -103,8 +102,7 @@ export default function EditProfilePage() {
           </div>
         </section>
 
-        {/* 오른쪽 섹션: 입력 폼 */}
-        <section className="col-span-2 flex flex-col gap-6 p-4 md:pl-0">
+        <section className="col-span-2 flex flex-col gap-6 p-4 sm:pl-0">
           <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
             <div className="flex justify-between items-center mb-8 pb-2 border-b">
               <h4 className="text-lg font-bold text-gray-800">
@@ -113,7 +111,6 @@ export default function EditProfilePage() {
             </div>
 
             <div className="flex flex-col gap-8">
-              {/* 이름 수정 */}
               <EditRow icon={<UserIcon size={16} />} label="이름">
                 <input
                   type="text"
@@ -179,7 +176,7 @@ export default function EditProfilePage() {
               </EditRow>
             </div>
 
-            <div className="mt-12 md:mt-auto pt-6 flex justify-between sm:justify-end items-center gap-3 border-t">
+            <div className="mt-12 sm:mt-auto pt-6 flex justify-between sm:justify-end items-center gap-3 border-t">
               <button
                 type="button"
                 onClick={() => router.push("/mypage/profile")}
@@ -203,10 +200,6 @@ export default function EditProfilePage() {
   );
 }
 
-/**
- * 모바일에서는 상하 배치(flex-col),
- * md 이상(데스크톱)에서는 좌우 배치(grid)로 전환
- */
 function EditRow({
   icon,
   label,
@@ -217,14 +210,14 @@ function EditRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col md:grid md:grid-cols-4 gap-2 md:gap-1.5 items-start">
-      <div className="flex gap-2 text-gray-400 items-center md:mt-1">
+    <div className="flex flex-col sm:grid sm:grid-cols-4 gap-2 sm:gap-1.5 items-start">
+      <div className="flex gap-2 text-gray-400 items-center sm:mt-1">
         {icon}
         <span className="text-[11px] font-bold uppercase tracking-tight whitespace-nowrap">
           {label}
         </span>
       </div>
-      <div className="w-full md:col-span-3 pl-6 md:pl-0">{children}</div>
+      <div className="w-full sm:col-span-3 pl-6 sm:pl-0">{children}</div>
     </div>
   );
 }
