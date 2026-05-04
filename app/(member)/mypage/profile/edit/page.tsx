@@ -65,7 +65,8 @@ export default function EditProfilePage() {
         profile_image_url: imageUrl,
       });
     } catch (error) {
-      toast.error("알 수 없는 오류가 발생했습니다.", error || "");
+      console.error("프로필 업데이트 실패:", error);
+      toast.error("알 수 없는 오류가 발생했습니다.");
     }
   };
 
@@ -77,7 +78,8 @@ export default function EditProfilePage() {
       <h2 className="text-xl font-bold">회원정보 수정</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 bg-gray-50 overflow-hidden">
-        <section className="col-span-1 flex flex-col gap-6 p-4">
+        {/* 왼쪽 섹션: 이미지 수정 및 안내 */}
+        <section className="col-span-1 flex flex-col gap-4 md:gap-6 p-4">
           <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
             <ImagePreviews
               imageSrc={imageSrc || ""}
@@ -101,7 +103,8 @@ export default function EditProfilePage() {
           </div>
         </section>
 
-        <section className="col-span-2 flex flex-col gap-6 p-4 pl-0">
+        {/* 오른쪽 섹션: 입력 폼 */}
+        <section className="col-span-2 flex flex-col gap-6 p-4 md:pl-0">
           <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
             <div className="flex justify-between items-center mb-8 pb-2 border-b">
               <h4 className="text-lg font-bold text-gray-800">
@@ -110,13 +113,15 @@ export default function EditProfilePage() {
             </div>
 
             <div className="flex flex-col gap-8">
+              {/* 이름 수정 */}
               <EditRow icon={<UserIcon size={16} />} label="이름">
                 <input
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="border-b border-gray-200 py-1 text-sm w-full max-w-[200px] focus:border-black outline-none transition-colors"
+                  className="border-b border-gray-200 py-1 text-sm w-full max-w-[240px] focus:border-black outline-none transition-colors"
                   readOnly={user?.email === "testuser@tmall.com"}
+                  placeholder="이름을 입력하세요"
                 />
               </EditRow>
 
@@ -129,7 +134,7 @@ export default function EditProfilePage() {
                     onChange={(e) =>
                       setPhone1(e.target.value.replace(/\D/g, ""))
                     }
-                    className="border-b border-gray-200 py-1 text-sm w-12 text-center focus:border-black outline-none"
+                    className="border-b border-gray-200 py-1 text-sm sm:w-12 w-8 text-center focus:border-black outline-none"
                   />
                   <span className="text-gray-400">-</span>
                   <input
@@ -139,7 +144,7 @@ export default function EditProfilePage() {
                     onChange={(e) =>
                       setPhone2(e.target.value.replace(/\D/g, ""))
                     }
-                    className="border-b border-gray-200 py-1 text-sm w-16 text-center focus:border-black outline-none"
+                    className="border-b border-gray-200 py-1 text-sm sm:w-16 w-12 text-center focus:border-black outline-none"
                   />
                   <span className="text-gray-400">-</span>
                   <input
@@ -149,20 +154,20 @@ export default function EditProfilePage() {
                     onChange={(e) =>
                       setPhone3(e.target.value.replace(/\D/g, ""))
                     }
-                    className="border-b border-gray-200 py-1 text-sm w-16 text-center focus:border-black outline-none"
+                    className="border-b border-gray-200 py-1 text-sm sm:w-16 w-12 text-center focus:border-black outline-none"
                   />
                 </div>
               </EditRow>
 
               <EditRow icon={<MapPin size={16} />} label="기본 배송지">
                 <div className="flex flex-col gap-2 items-start">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 leading-relaxed">
                     {user?.address || "등록된 주소 없음"}
                   </p>
                   <button
                     type="button"
                     onClick={() => router.push("/mypage/delivery")}
-                    className="flex gap-[2px] items-center text-[12px] font-bold text-blue-600 group"
+                    className="flex gap-[2px] items-center text-[12px] font-bold text-blue-600 group hover:underline"
                   >
                     <ArrowLeft
                       size={12}
@@ -174,14 +179,16 @@ export default function EditProfilePage() {
               </EditRow>
             </div>
 
-            <div className="mt-auto pt-10 flex justify-end items-center gap-3 border-t">
+            <div className="mt-12 md:mt-auto pt-6 flex justify-between sm:justify-end items-center gap-3 border-t">
               <button
+                type="button"
                 onClick={() => router.push("/mypage/profile")}
                 className="px-6 py-2 border border-gray-200 text-gray-500 font-bold text-xs hover:bg-gray-50 transition-all"
               >
                 취소
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={isPending}
                 className="px-6 py-2 bg-black text-white font-bold text-xs hover:bg-gray-800 transition-all disabled:bg-gray-400"
@@ -196,6 +203,10 @@ export default function EditProfilePage() {
   );
 }
 
+/**
+ * 모바일에서는 상하 배치(flex-col),
+ * md 이상(데스크톱)에서는 좌우 배치(grid)로 전환
+ */
 function EditRow({
   icon,
   label,
@@ -206,14 +217,14 @@ function EditRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-4 gap-1.5 items-start">
-      <div className="col-span-1 flex gap-2 text-gray-400 mt-1">
+    <div className="flex flex-col md:grid md:grid-cols-4 gap-2 md:gap-1.5 items-start">
+      <div className="flex gap-2 text-gray-400 items-center md:mt-1">
         {icon}
-        <span className="text-[11px] font-bold uppercase tracking-tight">
+        <span className="text-[11px] font-bold uppercase tracking-tight whitespace-nowrap">
           {label}
         </span>
       </div>
-      <div className="col-span-3">{children}</div>
+      <div className="w-full md:col-span-3 pl-6 md:pl-0">{children}</div>
     </div>
   );
 }

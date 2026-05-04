@@ -16,6 +16,39 @@ import { useMyProfileQuery } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { withdrawalUser } from "@/lib/actions/auth";
 import Modal from "@/components/common/Modals/Modal";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
+// --- Types ---
+interface UserProfileData {
+  id: string;
+  user_name: string | null;
+  email: string;
+  phone: string | null;
+  profile_image_url: string | null;
+  level?: number;
+}
+
+interface AuthUser {
+  id: string;
+  email?: string;
+  address?: string;
+}
+
+interface ProfileDetailProps {
+  data: UserProfileData;
+  user: AuthUser | null;
+  router: AppRouterInstance;
+  onDelete: () => void;
+}
+
+interface InfoRowProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | null | undefined;
+  className?: string;
+}
+
+// --- Components ---
 
 export default function ProfilePage() {
   const [isModal, setIsModal] = useState(false);
@@ -48,7 +81,6 @@ export default function ProfilePage() {
     }
 
     const withrawal = await withdrawalUser();
-
     if (withrawal) {
       toast.success("성공적으로 회원 탈퇴되었습니다.");
       router.push("/");
@@ -62,8 +94,9 @@ export default function ProfilePage() {
     <section className="w-full flex flex-col gap-4">
       <h2 className="text-xl font-bold">내 정보 관리</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 bg-gray-50 overflow-hidden">
-        <section className="col-span-1 flex flex-col gap-6 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 bg-gray-50 overflow-hidden">
+        {/* 왼쪽 섹션 */}
+        <section className="col-span-1 flex flex-col gap-4 p-4">
           <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-sm bg-gray-100">
               {data?.profile_image_url ? (
@@ -88,7 +121,17 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="border border-gray-200 bg-white p-4 flex flex-col ">
+          {/* 모바일 뷰 상세 정보 */}
+          <div className="block sm:hidden">
+            <ProfileDetailSection
+              data={data as UserProfileData}
+              user={user as AuthUser}
+              router={router}
+              onDelete={() => setIsModal(true)}
+            />
+          </div>
+
+          <div className="border border-gray-200 bg-white p-4 flex flex-col">
             <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
               <ShieldCheck size={18} className="text-blue-500" />
               계정 보안
@@ -104,57 +147,14 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <section className="col-span-2 flex flex-col gap-6 p-4 pl-0">
-          <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
-            <div className="flex justify-between items-center mb-6 pb-2 border-b">
-              <h4 className="text-lg font-bold text-gray-800">
-                상세 프로필 정보
-              </h4>
-              <button
-                onClick={() => router.push("/mypage/profile/edit")}
-                className="text-xs font-bold text-blue-600 hover:underline"
-              >
-                정보 수정하기
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-6 h-full justify-between">
-              <div className="grid grid-cols-1 gap-6">
-                <InfoRow
-                  icon={<UserIcon size={16} />}
-                  label="이름"
-                  value={data.user_name}
-                />
-                <InfoRow
-                  icon={<Mail size={16} />}
-                  label="이메일 주소"
-                  value={data.email}
-                />
-                <InfoRow
-                  icon={<Phone size={16} />}
-                  label="연락처"
-                  value={data.phone ? data.phone.split("-").join(" - ") : null}
-                />
-                <InfoRow
-                  icon={<MapPin size={16} />}
-                  label="기본 배송지"
-                  value={user?.address}
-                />
-              </div>
-
-              <div className="mt-auto pt-6 flex justify-end items-center gap-4 border-t">
-                <span className="text-[11px] text-gray-400">
-                  더 이상 서비스를 이용하지 않으시나요?
-                </span>
-                <button
-                  onClick={() => setIsModal(true)}
-                  className="text-red-500 rounded-lg font-bold text-xs hover:underline"
-                >
-                  회원 탈퇴
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* 데스크톱 뷰 상세 정보 */}
+        <section className="hidden sm:flex col-span-2 flex-col gap-6 p-4 pl-0">
+          <ProfileDetailSection
+            data={data as UserProfileData}
+            user={user as AuthUser}
+            router={router}
+            onDelete={() => setIsModal(true)}
+          />
         </section>
       </div>
 
@@ -183,27 +183,76 @@ export default function ProfilePage() {
   );
 }
 
-function InfoRow({
-  icon,
-  className,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  className?: string;
-  label: string;
-  value: string | null | undefined;
-}) {
+function ProfileDetailSection({
+  data,
+  user,
+  router,
+  onDelete,
+}: ProfileDetailProps) {
   return (
-    <div className="grid grid-cols-4 gap-1.5 items-start">
-      <div className="col-span-1 flex gap-2 text-gray-400 mt-1">
+    <div className="border border-gray-200 bg-white p-6 flex flex-col h-full">
+      <div className="flex justify-between items-center mb-6 pb-2 border-b">
+        <h4 className="text-lg font-bold text-gray-800">상세 프로필 정보</h4>
+        <button
+          onClick={() => router.push("/mypage/profile/edit")}
+          className="text-xs font-bold text-blue-600 hover:underline"
+        >
+          정보 수정하기
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-6 h-full justify-between">
+        <div className="grid grid-cols-1 gap-6">
+          <InfoRow
+            icon={<UserIcon size={16} />}
+            label="이름"
+            value={data.user_name}
+          />
+          <InfoRow
+            icon={<Mail size={16} />}
+            label="이메일 주소"
+            value={data.email}
+          />
+          <InfoRow
+            icon={<Phone size={16} />}
+            label="연락처"
+            value={data.phone ? data.phone.split("-").join(" - ") : null}
+          />
+          <InfoRow
+            icon={<MapPin size={16} />}
+            label="기본 배송지"
+            value={user?.address}
+          />
+        </div>
+
+        <div className="mt-auto pt-6 flex sm:flex-row flex-col justify-between items-end sm:items-center gap-4 border-t">
+          <span className="text-[10px] sm:text-[11px] text-gray-400">
+            더 이상 서비스를 이용하지 않으시나요?
+          </span>
+          <button
+            onClick={onDelete}
+            className="text-red-500 font-bold text-xs hover:underline whitespace-nowrap"
+          >
+            회원 탈퇴
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({ icon, label, value, className }: InfoRowProps) {
+  return (
+    <div className="flex flex-col sm:grid sm:grid-cols-4 gap-1 sm:gap-1.5 items-start">
+      <div className="flex gap-2 text-gray-400 items-center sm:mt-1">
         {icon}
-        <span className="text-[11px] font-bold uppercase tracking-tight">
+        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-tight whitespace-nowrap">
           {label}
         </span>
       </div>
+
       <p
-        className={`${className} col-span-3 text-[14px] font-medium text-gray-700 leading-relaxed`}
+        className={`${className || ""} sm:col-span-3 text-[13px] sm:text-[14px] font-medium text-gray-700 leading-relaxed pl-6 sm:pl-0`}
       >
         {value || "등록된 정보가 없습니다."}
       </p>
