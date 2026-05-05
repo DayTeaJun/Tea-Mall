@@ -298,6 +298,7 @@ export type Database = {
           name: string;
           price: number;
           rating_map: Json | null;
+          sales_count: number | null;
           stock_by_size: Json | null;
           subcategory: string | null;
           tags: string[] | null;
@@ -319,6 +320,7 @@ export type Database = {
           name: string;
           price: number;
           rating_map?: Json | null;
+          sales_count?: number | null;
           stock_by_size?: Json | null;
           subcategory?: string | null;
           tags?: string[] | null;
@@ -340,6 +342,7 @@ export type Database = {
           name?: string;
           price?: number;
           rating_map?: Json | null;
+          sales_count?: number | null;
           stock_by_size?: Json | null;
           subcategory?: string | null;
           tags?: string[] | null;
