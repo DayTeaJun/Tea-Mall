@@ -57,7 +57,7 @@ export default function ProductListView({
           ))}
         </section>
       ) : products?.data.length ? (
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {products.data.map((product) => (
             <ProductCard key={product.id} products={product} />
           ))}
