@@ -23,7 +23,7 @@ export default function OrderList() {
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [recent6Months, setRecent6Months] = useState(true);
+  const [recent6Months, setRecent6Months] = useState(false);
 
   const keyword = searchParams.get("query") ?? "";
   const [searchInput, setSearchInput] = useState(keyword);
@@ -40,7 +40,7 @@ export default function OrderList() {
   };
 
   const handleSearchRefresh = () => {
-    setRecent6Months(true);
+    setRecent6Months(false);
     setSelectedYear(null);
     setSearchInput("");
     router.push("/mypage/orderList?query=&page=1");
@@ -140,7 +140,7 @@ export default function OrderList() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="w-full sm:w-auto overflow-x-scroll sm:overflow-x-auto sm:pb-0 pb-1">
+        <div className="sm:block hidden w-full sm:w-auto overflow-x-scroll sm:overflow-x-auto sm:pb-0 pb-1">
           <div className="flex gap-2 pb-2">
             <button
               type="button"

@@ -126,7 +126,7 @@ export default function AdminOrderList() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="w-full sm:w-auto overflow-x-scroll sm:overflow-x-auto sm:pb-0 pb-1">
+        <div className="hidden w-full sm:block sm:w-auto overflow-x-scroll sm:overflow-x-auto sm:pb-0 pb-1">
           <div className="flex gap-2 pb-2">
             <button
               type="button"
