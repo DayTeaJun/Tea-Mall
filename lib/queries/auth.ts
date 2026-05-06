@@ -246,6 +246,7 @@ export function usePostDeliveryAddressMutation(userId: string) {
 export function usePatchDeliveryAddressMutation(
   userId: string,
   addressId: string,
+  isModal: boolean = false,
 ) {
   const router = useRouter();
 
@@ -270,7 +271,9 @@ export function usePatchDeliveryAddressMutation(
 
       toast.success("배송지가 수정되었습니다.");
 
-      router.push("/mypage/delivery");
+      if (!isModal) {
+        router.push("/mypage/delivery");
+      }
       router.refresh();
     },
     onError: (error) => {
