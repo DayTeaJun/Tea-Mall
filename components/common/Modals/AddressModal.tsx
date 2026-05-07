@@ -5,6 +5,7 @@ import {
   usePostDefaultDeliveryAddressMutation,
 } from "@/lib/queries/auth";
 import EditDeliveryForm from "./EditDeliveryForm";
+import RegistDeliveryForm from "./RegistDeliveryForm";
 
 export interface DeliveryAddress {
   id: string;
@@ -27,6 +28,7 @@ interface Props {
 
 export default function AddressListModal({ userId, onClose }: Props) {
   const [editingAddr, setEditingAddr] = useState<DeliveryAddress | null>(null);
+  const [registingAddr, setRegistingAddr] = useState(false);
 
   const { data: addresses, isLoading } = useGetAddressList(userId);
   const { mutate: setDefaultAddress } = usePostDefaultDeliveryAddressMutation(
@@ -40,6 +42,10 @@ export default function AddressListModal({ userId, onClose }: Props) {
 
   const handleDeliveryEdit = (addr: DeliveryAddress) => {
     setEditingAddr(addr);
+  };
+
+  const handleDeliveryRegist = () => {
+    setRegistingAddr(true);
   };
 
   if (isLoading) {
@@ -57,6 +63,10 @@ export default function AddressListModal({ userId, onClose }: Props) {
         onCancel={() => setEditingAddr(null)}
       />
     );
+  }
+
+  if (registingAddr) {
+    return <RegistDeliveryForm onCancel={() => setRegistingAddr(false)} />;
   }
 
   return (
@@ -109,7 +119,7 @@ export default function AddressListModal({ userId, onClose }: Props) {
       <button
         type="button"
         className="flex gap-2 p-3 w-full border justify-center items-center border-dashed border-gray-300 hover:bg-gray-50 duration-200 mt-2"
-        onClick={() => alert("추가 기능은 별도 구현이 필요합니다.")}
+        onClick={handleDeliveryRegist}
       >
         <Plus size={18} /> 새 배송지 추가하기
       </button>

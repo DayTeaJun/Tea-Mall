@@ -204,7 +204,10 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
 }
 
 // 내 배송지 등록
-export function usePostDeliveryAddressMutation(userId: string) {
+export function usePostDeliveryAddressMutation(
+  userId: string,
+  isModal: boolean = false,
+) {
   const router = useRouter();
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
@@ -226,7 +229,9 @@ export function usePostDeliveryAddressMutation(userId: string) {
       ]);
       toast.success("배송지가 등록되었습니다.");
 
-      router.push("/mypage/delivery");
+      if (!isModal) {
+        router.push("/mypage/delivery");
+      }
       router.refresh();
     },
     onError: (error) => {
