@@ -1,7 +1,7 @@
 "use client";
 
 import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Modal from "@/components/common/Modals/Modal";
@@ -74,6 +74,13 @@ export default function CheckoutPage() {
   const [request, setRequest] = useState(
     defaultAddress?.delivery_instruction || "",
   );
+
+  useEffect(() => {
+    if (defaultAddress?.delivery_instruction) {
+      setRequest(defaultAddress?.delivery_instruction);
+    }
+  }, [defaultAddress?.delivery_instruction]);
+
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   const handlePayment = async () => {

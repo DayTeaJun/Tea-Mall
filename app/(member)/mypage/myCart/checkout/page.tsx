@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [request, setRequest] = useState(
     defaultAddress?.delivery_instruction || "",
   );
+
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   useEffect(() => {
@@ -42,6 +43,12 @@ export default function CheckoutPage() {
       router.replace("/not-found");
     }
   }, [isLoading, selectedCartItems, router]);
+
+  useEffect(() => {
+    if (defaultAddress?.delivery_instruction) {
+      setRequest(defaultAddress?.delivery_instruction);
+    }
+  }, [defaultAddress?.delivery_instruction]);
 
   const handlePayment = async () => {
     if (!user?.phone) {
