@@ -28,6 +28,11 @@ const menu = [
     currentPage: "/mypage/orderList",
     href: "/mypage/orderList?page=1",
   },
+  {
+    name: "리뷰 관리",
+    currentPage: "/mypage/review",
+    href: "/mypage/review",
+  },
 ];
 
 const detailPage = [

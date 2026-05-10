@@ -633,3 +633,30 @@ export const useUpdateCancelOrderItem = (userId: string) => {
 
   return { mutate, isPending };
 };
+
+// 리뷰 전체 조회
+export async function getReviews(userId: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export function useGetReviews(userId: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["reviews", userId],
+    queryFn: () => getReviews(userId),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
