@@ -4,7 +4,8 @@ import React from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Loader2, MessageSquare, Star } from "lucide-react";
 import Image from "next/image";
-import { useGetReviews } from "@/lib/queries/auth";
+import { useDelReview, useGetReviews } from "@/lib/queries/auth";
+import { useRouter } from "next/navigation";
 
 export interface Review {
   id: string;
@@ -19,8 +20,16 @@ export interface Review {
 }
 
 export default function MyReviewsPage() {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { data: reviews, isLoading, isError } = useGetReviews(user?.id || "");
+  const { mutate: deleteReview } = useDelReview(user?.id || "");
+
+  const handleDelReview = (reviewId: string) => {
+    if (confirm("정말로 리뷰를 삭제하시겠습니까?")) {
+      deleteReview(reviewId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -103,12 +112,19 @@ export default function MyReviewsPage() {
                 </div>
 
                 <div className="flex-[1] p-4 flex md:flex-col items-center justify-center gap-2">
-                  <button className="flex-1 md:w-full py-2 border border-gray-200 text-xs text-gray-600 hover:bg-white transition-colors">
+                  <button
+                    onClick={() =>
+                      router.push(`/productReview/${review.product_id}`)
+                    }
+                    type="button"
+                    className="flex-1 md:w-full py-2 border border-gray-200 text-xs text-gray-600 hover:bg-white transition-colors"
+                  >
                     수정
                   </button>
                   <button
+                    type="button"
                     className="flex-1 md:w-full py-2 border border-gray-200 text-xs text-red-500 hover:bg-red-50 transition-colors"
-                    onClick={() => confirm("정말 삭제하시겠습니까?")}
+                    onClick={() => handleDelReview(review.id)}
                   >
                     삭제
                   </button>

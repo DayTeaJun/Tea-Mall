@@ -635,7 +635,7 @@ export const useUpdateCancelOrderItem = (userId: string) => {
 };
 
 // 리뷰 전체 조회
-export async function getReviews(userId: string) {
+async function getReviews(userId: string) {
   const supabase = createBrowserSupabaseClient();
   const { data, error } = await supabase
     .from("reviews")
@@ -660,3 +660,36 @@ export function useGetReviews(userId: string) {
     isError,
   };
 }
+
+async function delReview(userId: string, reviewId: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .delete()
+    .eq("user_id", userId)
+    .eq("id", reviewId);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export const useDelReview = (userId: string) => {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (reviewId: string) => delReview(userId, reviewId),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews", userId] });
+      toast.success("리뷰가 삭제되었습니다.");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { mutate, isPending };
+};
