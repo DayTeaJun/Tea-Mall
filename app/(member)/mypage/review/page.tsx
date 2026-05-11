@@ -59,6 +59,7 @@ export default function MyReviewsPage() {
           <div className="flex-[2] p-4 text-center">리뷰 정보</div>
           <div className="flex-[4] p-4">내용</div>
           <div className="flex-[1] p-4 text-center">작성일</div>
+          <div className="flex-[1] p-4 text-center">수정일</div>
           <div className="flex-[1] p-4 text-center">관리</div>
         </div>
 
@@ -108,6 +109,12 @@ export default function MyReviewsPage() {
                 <div className="flex-[1] p-4 flex items-center justify-center text-xs text-gray-500 bg-gray-50/30 md:bg-transparent">
                   {review.created_at
                     ? new Date(review.created_at).toLocaleDateString()
+                    : "-"}
+                </div>
+
+                <div className="flex-[1] p-4 flex items-center justify-center text-xs text-gray-500 bg-gray-50/30 md:bg-transparent">
+                  {review.updated_at
+                    ? new Date(review.updated_at).toLocaleDateString()
                     : "-"}
                 </div>
 

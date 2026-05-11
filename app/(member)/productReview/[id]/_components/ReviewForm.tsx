@@ -1,6 +1,7 @@
 "use client";
 
 import DetailImagePreview from "@/app/(admin)/manage/regist/_components/DetailImagePreview";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
@@ -108,6 +109,8 @@ function ReviewForm({ product }: { product: ProductType }) {
       toast.error("상품 정보 업데이트 실패");
       return;
     }
+
+    queryClient.invalidateQueries({ queryKey: ["reviews", user.id] });
 
     toast.success("리뷰가 등록되었습니다.");
     router.push(`/products/${product.id}`);

@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import DetailImagePreview from "@/app/(admin)/manage/regist/_components/DetailImagePreview";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 function ReviewEditForm({
   product,
@@ -117,6 +118,7 @@ function ReviewEditForm({
         rating: ratingValue,
         content: reviewText,
         images: nextImages,
+        updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId)
       .eq("product_id", product.id);
@@ -125,6 +127,8 @@ function ReviewEditForm({
       toast.error("리뷰 수정 실패");
       return;
     }
+
+    queryClient.invalidateQueries({ queryKey: ["reviews", userId] });
 
     toast.success("리뷰가 수정되었습니다.");
     router.push(`/products/${product.id}`);
