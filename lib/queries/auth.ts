@@ -637,14 +637,28 @@ export const useUpdateCancelOrderItem = (userId: string) => {
 // 리뷰 전체 조회
 async function getReviews(userId: string) {
   const supabase = createBrowserSupabaseClient();
+
   const { data, error } = await supabase
     .from("reviews")
-    .select("*")
-    .eq("user_id", userId);
+    .select(
+      `
+      *,
+      products (
+        image_url,
+        name
+      )
+    `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return data;
+  return data.map((review) => ({
+    ...review,
+    product_image: review.products?.image_url,
+    product_name: review.products?.name,
+  }));
 }
 
 export function useGetReviews(userId: string) {
