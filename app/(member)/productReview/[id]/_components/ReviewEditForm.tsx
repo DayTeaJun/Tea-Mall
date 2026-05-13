@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { ProductType } from "@/types/product";
 import { toast } from "sonner";
@@ -22,20 +22,20 @@ function ReviewEditForm({
   const [reviewText, setReviewText] = useState("");
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
 
-  // 새로 추가하는 이미지(파일) & 미리보기
   const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
     useDetailImagePreview();
 
-  // 화면에서 유지하기로 선택된 기존 이미지(public URL)
   const [existingImages, setExistingImages] = useState<string[]>([]);
-  // 최초 로드된 원본 이미지(public URL) — 상품수정의 oldDetailImageIds와 유사한 스냅샷 역할
   const [originalImages, setOriginalImages] = useState<string[]>([]);
 
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+
   const supabase = createBrowserSupabaseClient();
   const BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET!;
 
-  // public URL → storage 경로로 변환
   const publicUrlToPath = (url: string) => {
     const marker = `/object/public/${BUCKET}/`;
     const idx = url.indexOf(marker);
@@ -64,7 +64,7 @@ function ReviewEditForm({
 
       const imgs: string[] = Array.isArray(review.images) ? review.images : [];
       setExistingImages(imgs);
-      setOriginalImages(imgs); // 스냅샷 확정 (이후 절대 변경하지 않음)
+      setOriginalImages(imgs);
     };
 
     fetchReview();
@@ -78,7 +78,6 @@ function ReviewEditForm({
       return;
     }
 
-    // 1) 새 파일 업로드
     const uploadedUrls: string[] = [];
     for (const file of detailFiles) {
       const filePath = `reviews/${userId}/${Date.now()}-${file.name}`;
@@ -95,10 +94,8 @@ function ReviewEditForm({
       uploadedUrls.push(urlData.publicUrl);
     }
 
-    // 2) 삭제 대상 계산: 원본 - 현재 유지 중인 기존 이미지
     const removed = originalImages.filter((u) => !existingImages.includes(u));
 
-    // 3) 스토리지에서 제거 (실패하더라도 저장 자체는 진행)
     if (removed.length > 0) {
       const deletePaths = removed
         .map(publicUrlToPath)
@@ -108,8 +105,6 @@ function ReviewEditForm({
       }
     }
 
-    // 4) DB 반영: "남겨둔 기존 + 새 업로드"
-    //    detailPreviews는 UI 전용이므로 DB에 절대 넣지 않음
     const nextImages = [...existingImages, ...uploadedUrls];
 
     const { error: updateError } = await supabase
@@ -131,7 +126,12 @@ function ReviewEditForm({
     queryClient.invalidateQueries({ queryKey: ["reviews", userId] });
 
     toast.success("리뷰가 수정되었습니다.");
-    router.push(`/products/${product.id}`);
+
+    if (from === "mypage") {
+      router.push("/mypage/review");
+    } else {
+      router.push(`/products/${product.id}`);
+    }
   };
 
   return (
@@ -174,16 +174,13 @@ function ReviewEditForm({
         placeholder="수정할 리뷰 내용을 입력해주세요."
       />
 
-      {/* 화면 표시용으로만 기존 + 새 미리보기 합쳐서 전달 */}
       <DetailImagePreview
         previews={[...existingImages, ...detailPreviews]}
         onUpload={detailOnUpload}
         onRemove={(index) => {
           if (index < existingImages.length) {
-            // 기존 이미지 제거 → existingImages에서만 제외 (스토리지 삭제는 저장 시 일괄)
             setExistingImages((prev) => prev.filter((_, i) => i !== index));
           } else {
-            // 새 이미지 제거
             removeDetailImage(index - existingImages.length);
           }
         }}

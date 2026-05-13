@@ -50,17 +50,8 @@ export default function MyReviewsPage() {
   }
 
   return (
-    <section className="max-w-4xl mx-auto p-4 md:p-6 bg-white">
-      <div className="mb-6 border-b-2 border-gray-900 pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">리뷰 관리</h1>
-        <p className="text-sm text-gray-500 mt-2">
-          작성하신 리뷰{" "}
-          <span className="text-blue-600 font-bold">
-            {reviews?.length || 0}
-          </span>
-          건이 있습니다.
-        </p>
-      </div>
+    <section className="max-w-7xl mx-auto">
+      <h1 className="text-xl font-bold text-gray-900">리뷰 관리</h1>
 
       <div className="flex border-b border-gray-200 mb-6">
         <button className="px-6 py-3 border-b-2 border-blue-600 text-blue-600 font-bold text-sm">
@@ -111,7 +102,9 @@ export default function MyReviewsPage() {
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <button
                     onClick={() =>
-                      router.push(`/productReview/${review.product_id}`)
+                      router.push(
+                        `/productReview/${review.product_id}?from=mypage`,
+                      )
                     }
                     className="hover:text-blue-600 px-2 py-1 border border-gray-300 bg-white"
                   >
