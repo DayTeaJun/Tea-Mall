@@ -5,8 +5,13 @@ import React, { useEffect, useState } from "react";
 import { EMAIL_REGEX } from "../../constants";
 import { useSignInMutation } from "@/lib/queries/auth";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 function SigninForm() {
+  const searchParams = useSearchParams();
+  const loginErrorMessage = searchParams.get("message");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { mutate, errorMessage } = useSignInMutation();
@@ -18,6 +23,9 @@ function SigninForm() {
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberEmail(true);
+    }
+    if (loginErrorMessage) {
+      toast.error(`${loginErrorMessage}`);
     }
   }, []);
 
