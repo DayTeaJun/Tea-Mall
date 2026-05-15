@@ -19,6 +19,13 @@ function Footer() {
             >
               개인정보 처리방침
             </Link>
+
+            <Link
+              href="/inquiry"
+              className="hover:underline text-sm text-gray-500 text-center"
+            >
+              고객센터
+            </Link>
           </div>
         </div>
         <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4 px-4 sm:px-8 py-2 sm:py-4">
