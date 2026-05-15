@@ -7,7 +7,7 @@ import ReactPaginate from "react-paginate";
 interface Props {
   currentPage: number;
   query: string;
-  pageCount: number; // 추가
+  pageCount: number;
 }
 
 function Pagination({ currentPage, query, pageCount }: Props) {

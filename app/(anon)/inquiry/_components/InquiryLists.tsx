@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import React from "react";
 import Pagination from "./Pagination";
+import SearchInput from "./SearchInput";
 
 interface InquiryType {
   admin_id: string | null;
@@ -44,8 +45,10 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
   const emptyRowsCount = LIMIT - currentLength;
 
   return (
-    <div>
-      <table className="w-full text-left border-collapse">
+    <div className="flex flex-col gap-4">
+      <SearchInput />
+
+      <table className="w-full text-left border-t border-gray-400">
         <thead>
           <tr className="border-b border-gray-00 text-gray-500 text-sm">
             <th className="py-3 px-2 font-medium w-[10%] text-center">No.</th>
@@ -90,7 +93,14 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
               );
             })}
 
-          {emptyRowsCount > 0 &&
+          {emptyRowsCount === 10 ? (
+            <tr className="w-full h-[530px]">
+              <td colSpan={4} className="text-center text-gray-500 py-4">
+                검색 결과가 없습니다.
+              </td>
+            </tr>
+          ) : (
+            emptyRowsCount > 0 &&
             Array.from({ length: emptyRowsCount }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[53px]">
                 <td className="py-4 px-2">&nbsp;</td>
@@ -98,13 +108,15 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
                 <td className="py-4 px-2">&nbsp;</td>
                 <td className="py-4 px-2">&nbsp;</td>
               </tr>
-            ))}
+            ))
+          )}
         </tbody>
       </table>
+
       <Pagination
         currentPage={page}
         query={query}
-        pageCount={(count || 0) / LIMIT}
+        pageCount={(count || 1) / LIMIT}
       />
     </div>
   );
