@@ -4,8 +4,9 @@ import React from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Loader2, MessageSquare, Star, Calendar, Package } from "lucide-react";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import ReactPaginate from "react-paginate";
 import { useDelReview, useGetReviews } from "@/lib/queries/auth";
-import { useRouter } from "next/navigation";
 
 export interface Review {
   id: string;
@@ -22,15 +23,36 @@ export interface Review {
 }
 
 export default function MyReviewsList() {
+  const LIMIT = 2;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const currentPage = Number(searchParams.get("page")) || 1;
+
   const { user } = useAuthStore();
-  const { data: reviews, isLoading, isError } = useGetReviews(user?.id || "");
+
+  const { data, isLoading, isError } = useGetReviews(
+    user?.id || "",
+    currentPage,
+    LIMIT,
+  );
   const { mutate: deleteReview } = useDelReview(user?.id || "");
 
   const handleDelReview = (reviewId: string) => {
     if (confirm("정말로 리뷰를 삭제하시겠습니까?")) {
       deleteReview(reviewId);
     }
+  };
+
+  const handlePageChange = (selected: { selected: number }) => {
+    const newPage = selected.selected + 1;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("page", newPage.toString());
+
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   if (isLoading) {
@@ -49,7 +71,11 @@ export default function MyReviewsList() {
     );
   }
 
-  if (!reviews || reviews.length === 0) {
+  const reviews = data?.reviews || [];
+  const totalCount = data?.count || 0;
+  const pageCount = Math.ceil(totalCount / LIMIT);
+
+  if (reviews.length === 0) {
     return (
       <div className="py-20 text-center border border-gray-200 bg-gray-50">
         <MessageSquare size={40} className="mx-auto text-gray-200 mb-2" />
@@ -62,7 +88,6 @@ export default function MyReviewsList() {
     <div className="space-y-8">
       {reviews.map((review: Review) => (
         <div key={review.id} className="border border-gray-200 rounded-sm">
-          {/* ...기존의 리뷰 카드 마크업 동일... */}
           <div className="p-4 flex items-center justify-between bg-gray-50 border-b border-gray-200">
             <div className="flex items-center gap-4">
               <div className="relative w-16 h-16 border border-gray-200 bg-white shrink-0">
@@ -139,6 +164,28 @@ export default function MyReviewsList() {
           </div>
         </div>
       ))}
+
+      <div className="mt-6 flex justify-center">
+        <ReactPaginate
+          onPageChange={handlePageChange}
+          pageRangeDisplayed={3}
+          pageCount={pageCount}
+          forcePage={currentPage - 1}
+          marginPagesDisplayed={1}
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+        />
+      </div>
     </div>
   );
 }

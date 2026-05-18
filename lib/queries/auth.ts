@@ -635,10 +635,27 @@ export const useUpdateCancelOrderItem = (userId: string) => {
 };
 
 // 리뷰 전체 조회
-async function getReviews(userId: string) {
+export function useGetReviews(userId: string, page: number, limit: number) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["reviews", userId, page],
+    queryFn: () => getReviews(userId, page, limit),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+async function getReviews(userId: string, page: number, limit: number) {
   const supabase = createBrowserSupabaseClient();
 
-  const { data, error } = await supabase
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, count, error } = await supabase
     .from("reviews")
     .select(
       `
@@ -648,30 +665,23 @@ async function getReviews(userId: string) {
         name
       )
     `,
+      { count: "exact" },
     )
     .eq("user_id", userId)
+    .range(from, to)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return data.map((review) => ({
+  const formattedReviews = data.map((review) => ({
     ...review,
     product_image: review.products?.image_url,
     product_name: review.products?.name,
   }));
-}
-
-export function useGetReviews(userId: string) {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["reviews", userId],
-    queryFn: () => getReviews(userId),
-    enabled: !!userId,
-  });
 
   return {
-    data,
-    isLoading,
-    isError,
+    reviews: formattedReviews,
+    count: count || 0,
   };
 }
 
