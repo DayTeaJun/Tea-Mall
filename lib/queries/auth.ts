@@ -685,6 +685,88 @@ async function getReviews(userId: string, page: number, limit: number) {
   };
 }
 
+// 작성가능한 리뷰 조회
+export async function getAvailableReviews(
+  userId: string,
+  page: number,
+  limit: number,
+) {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data: writtenReviews } = await supabase
+    .from("reviews")
+    .select("product_id")
+    .eq("user_id", userId);
+
+  const writtenProductIds = writtenReviews?.map((r) => r.product_id) || [];
+
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
+    .from("order_items")
+    .select(
+      `
+      *,
+      products (
+        id,
+        name,
+        image_url,
+        description
+      ),
+      orders!inner (
+        user_id
+      )
+    `,
+      { count: "exact" },
+    )
+    .eq("orders.user_id", userId)
+    .eq("delivery_status", "배송완료");
+
+  if (writtenProductIds.length > 0) {
+    query = query.not("product_id", "in", `(${writtenProductIds.join(",")})`);
+  }
+
+  const { data, count, error } = await query
+    .range(from, to)
+    .order("id", { ascending: false }); // order_items의 적절한 정렬 기준 설정
+
+  if (error) throw new Error(error.message);
+
+  const formattedItems = data.map((item: any) => ({
+    id: item.id,
+    product_id: item.product_id,
+    product_name: item.products?.name || "상품 정보 없음",
+    product_description: item.products?.description || "",
+    product_image: item.products?.image_url || null,
+    delivered_at: "배송완료",
+  }));
+
+  return {
+    items: formattedItems,
+    count: count || 0,
+  };
+}
+
+export function useGetAvailableReviews(
+  userId: string,
+  page: number,
+  limit: number,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["availableReviews", userId, page],
+    queryFn: () => getAvailableReviews(userId, page, limit),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 리뷰 삭제
 async function delReview(userId: string, reviewId: string) {
   const supabase = createBrowserSupabaseClient();
   const { data, error } = await supabase

@@ -1,7 +1,139 @@
+"use client";
+
 import React from "react";
+import Image from "next/image";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useGetAvailableReviews } from "@/lib/queries/auth"; // 파일 경로에 맞게 수정
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { Loader2, Package } from "lucide-react";
+import ReactPaginate from "react-paginate";
 
-function AvailableReviewsList() {
-  return <div>AvailableReviewsList</div>;
+export default function AvailableReviewsList() {
+  const LIMIT = 10;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { user } = useAuthStore();
+
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const { data, isLoading, isError } = useGetAvailableReviews(
+    user?.id || "",
+    currentPage,
+    LIMIT,
+  );
+
+  const handlePageChange = (selected: { selected: number }) => {
+    const newPage = selected.selected + 1;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="animate-spin text-blue-500" size={40} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-20 text-red-500 font-medium">
+        작성 가능한 리뷰를 불러오는 중 오류가 발생했습니다.
+      </div>
+    );
+  }
+
+  const items = data?.items || [];
+  const totalCount = data?.count || 0;
+  const pageCount = Math.ceil(totalCount / LIMIT);
+
+  if (items.length === 0) {
+    return (
+      <div className="py-20 text-center border border-gray-200 bg-gray-50">
+        <Package size={40} className="mx-auto text-gray-200 mb-2" />
+        <p className="text-gray-500 text-sm">작성 가능한 리뷰가 없습니다.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full">
+      <div className="divide-y divide-gray-200 border-b border-gray-200">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="py-6 flex items-start justify-between gap-4"
+          >
+            <div className="flex items-start gap-5 flex-1">
+              <div className="relative w-[120px] h-[120px] bg-gray-50 border border-gray-100 shrink-0 flex items-center justify-center">
+                {item.product_image ? (
+                  <Image
+                    src={item.product_image}
+                    alt={item.product_name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded-sm" />
+                )}
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                <h2 className="text-base font-bold text-gray-900 leading-snug">
+                  {item.product_name}
+                </h2>
+                <p className="text-sm text-gray-500 line-clamp-1">
+                  {item.product_description}
+                </p>
+                <div className="text-xs text-gray-400 pt-3">
+                  {item.delivered_at}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 shrink-0 w-[120px] self-center">
+              <button
+                onClick={() => router.push(`/productReview/${item.product_id}`)}
+                className="w-full py-2 border border-blue-500 text-blue-600 text-sm font-semibold rounded-sm hover:bg-blue-50/50 transition-colors text-center"
+              >
+                리뷰 작성하기
+              </button>
+              <button
+                onClick={() => alert("기능 준비 중")}
+                className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 tracking-wide"
+              >
+                숨기기
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {pageCount > 1 && (
+        <div className="mt-6 flex justify-center">
+          <ReactPaginate
+            onPageChange={handlePageChange}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            forcePage={currentPage - 1}
+            marginPagesDisplayed={1}
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+          />
+        </div>
+      )}
+    </div>
+  );
 }
-
-export default AvailableReviewsList;

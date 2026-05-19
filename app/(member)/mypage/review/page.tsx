@@ -13,7 +13,7 @@ export default function MyReviewsPage() {
     <section className="max-w-7xl mx-auto p-4">
       <h1 className="text-xl font-bold text-gray-900">리뷰 관리</h1>
 
-      <div className="flex border-b border-gray-200 mb-6">
+      <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab("written")}
           className={`px-6 py-3 border-b-2 text-sm font-bold transition-colors ${

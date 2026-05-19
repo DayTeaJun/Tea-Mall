@@ -85,7 +85,7 @@ export default function MyReviewsList() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 py-6">
       {reviews.map((review: Review) => (
         <div key={review.id} className="border border-gray-200 rounded-sm">
           <div className="p-4 flex items-center justify-between bg-gray-50 border-b border-gray-200">
@@ -137,7 +137,7 @@ export default function MyReviewsList() {
             </div>
           </div>
 
-          <div className="p-5">
+          <div className="p-5 ">
             <div className="flex items-center gap-2 mb-3">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
