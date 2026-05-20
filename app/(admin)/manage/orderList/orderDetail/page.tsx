@@ -26,12 +26,11 @@ export default function OrderListPage() {
   const router = useRouter();
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
   const { mutate: delOrderItemMutate } = useDeleteOrderMutation(
-    orderId || "",
     user?.id || "",
-    true,
+    "manage",
   );
 
-  const [isModal, setIsModal] = useState(false);
+  const [isModal, setIsModal] = useState({ isOpen: false, orderId: "" });
 
   const statusOptions = [
     "결제완료",
@@ -58,14 +57,14 @@ export default function OrderListPage() {
     return;
   }
 
-  const handleDelOrderItem = () => {
+  const handleDelOrderItem = (delOrderId: string) => {
     if (!orderId || !user?.id) {
       toast.error("주문 정보를 찾을 수 없습니다.");
       return;
     }
 
-    delOrderItemMutate();
-    setIsModal(false);
+    delOrderItemMutate(delOrderId);
+    setIsModal({ isOpen: false, orderId: "" });
   };
 
   if (isLoading) {
@@ -100,7 +99,7 @@ export default function OrderListPage() {
           <li className="hover:text-gray-800 w-full">
             <button
               onClick={() => {
-                setIsModal(true);
+                setIsModal({ isOpen: true, orderId: order.id });
               }}
               className="px-3 py-2 text-start w-full tracking-wide"
             >
@@ -212,20 +211,20 @@ export default function OrderListPage() {
       </div>
 
       <Modal
-        isOpen={isModal}
-        onClose={() => setIsModal(false)}
+        isOpen={isModal.isOpen}
+        onClose={() => setIsModal({ isOpen: false, orderId: "" })}
         title="주문내역을 삭제하시겠습니까?"
         description={`(* 해당 주문은 목록에서 숨겨지며, 삭제 후 2개월간 복구할 수 있습니다.)`}
       >
         <div className="flex justify-end gap-2">
           <button
-            onClick={() => setIsModal(false)}
+            onClick={() => setIsModal({ isOpen: false, orderId: "" })}
             className="px-4 py-2 text-gray-600 hover:underline"
           >
             취소
           </button>
           <button
-            onClick={handleDelOrderItem}
+            onClick={() => handleDelOrderItem(isModal.orderId)}
             className="px-4 py-2 bg-red-600 text-white rounded"
           >
             삭제

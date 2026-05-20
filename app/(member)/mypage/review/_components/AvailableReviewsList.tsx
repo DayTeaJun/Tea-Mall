@@ -1,12 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useGetAvailableReviews } from "@/lib/queries/auth"; // 파일 경로에 맞게 수정
+import {
+  useDeleteOrderMutation,
+  useGetAvailableReviews,
+} from "@/lib/queries/auth"; // 파일 경로에 맞게 수정
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Loader2, Package } from "lucide-react";
 import ReactPaginate from "react-paginate";
+import Modal from "@/components/common/Modals/Modal";
+import { toast } from "sonner";
 
 export default function AvailableReviewsList() {
   const LIMIT = 10;
@@ -14,6 +19,10 @@ export default function AvailableReviewsList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { user } = useAuthStore();
+
+  const { mutate: delOrderItemMutate } = useDeleteOrderMutation(user?.id || "");
+
+  const [isModal, setIsModal] = useState({ isOpen: false, orderId: "" });
 
   const currentPage = Number(searchParams.get("page")) || 1;
 
@@ -28,6 +37,16 @@ export default function AvailableReviewsList() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", newPage.toString());
     router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleDelOrderItem = (orderId: string) => {
+    if (!orderId || !user?.id) {
+      toast.error("주문 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    delOrderItemMutate(orderId);
+    setIsModal({ isOpen: false, orderId: "" });
   };
 
   if (isLoading) {
@@ -94,7 +113,7 @@ export default function AvailableReviewsList() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-2 shrink-0 w-[120px] self-center">
+            <div className="flex flex-col items-center gap-4 shrink-0 w-[120px] self-center">
               <button
                 onClick={() => router.push(`/productReview/${item.product_id}`)}
                 className="w-full py-2 border border-blue-500 text-blue-600 text-sm font-semibold rounded-sm hover:bg-blue-50/50 transition-colors text-center"
@@ -102,7 +121,7 @@ export default function AvailableReviewsList() {
                 리뷰 작성하기
               </button>
               <button
-                onClick={() => alert("기능 준비 중")}
+                onClick={() => setIsModal({ isOpen: true, orderId: item.id })}
                 className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 tracking-wide"
               >
                 숨기기
@@ -112,28 +131,48 @@ export default function AvailableReviewsList() {
         ))}
       </div>
 
-      {pageCount > 1 && (
-        <div className="mt-6 flex justify-center">
-          <ReactPaginate
-            onPageChange={handlePageChange}
-            pageRangeDisplayed={3}
-            pageCount={pageCount}
-            forcePage={currentPage - 1}
-            marginPagesDisplayed={1}
-            previousLabel={"<"}
-            nextLabel={">"}
-            breakLabel={"..."}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            pageClassName={"page-item"}
-            pageLinkClassName={"page-link"}
-            previousClassName={"page-item"}
-            previousLinkClassName={"page-link"}
-            nextClassName={"page-item"}
-            nextLinkClassName={"page-link"}
-          />
+      <div className="mt-6 flex justify-center">
+        <ReactPaginate
+          onPageChange={handlePageChange}
+          pageRangeDisplayed={3}
+          pageCount={pageCount}
+          forcePage={currentPage - 1}
+          marginPagesDisplayed={1}
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+        />
+      </div>
+
+      <Modal
+        isOpen={isModal.isOpen}
+        onClose={() => setIsModal({ isOpen: false, orderId: "" })}
+        title="주문내역을 삭제하시겠습니까?"
+        description={`(* 해당 주문은 목록에서 숨겨지며, 삭제 후 2개월간 복구할 수 있습니다.)`}
+      >
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsModal({ isOpen: false, orderId: "" })}
+            className="px-4 py-2 text-gray-600 hover:underline"
+          >
+            취소
+          </button>
+          <button
+            onClick={() => handleDelOrderItem(isModal.orderId)}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            삭제
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

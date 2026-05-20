@@ -391,7 +391,7 @@ export async function getUserProfile(userId: string) {
 }
 
 // 유저 계정 활동 제한 변경
-export async function PatchUserActive(
+export async function patchUserActive(
   userId: string,
   newStatus: "active" | "suspended" | "withdrawn",
 ) {

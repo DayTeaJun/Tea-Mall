@@ -561,22 +561,18 @@ export async function deleteOrder(orderId: string) {
   return true;
 }
 
-export function useDeleteOrderMutation(
-  orderId: string,
-  userId: string,
-  manage?: boolean,
-) {
+export function useDeleteOrderMutation(userId: string, page?: string) {
   const router = useRouter();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => deleteOrder(orderId),
-    onSuccess: async () => {
+    mutationFn: (orderId: string) => deleteOrder(orderId),
+    onSuccess: async (_, orderId) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["orderDetails", orderId] }),
         queryClient.invalidateQueries({ queryKey: ["orders", userId] }),
       ]);
       toast.success("주문 내역이 삭제되었습니다.");
-      if (manage) {
+      if (page === "manage") {
         router.replace("/manage/orderList");
       } else {
         router.replace("/mypage/orderList?page=1");

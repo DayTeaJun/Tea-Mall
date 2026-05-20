@@ -28,10 +28,7 @@ export default function OrderListPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
-  const { mutate: delOrderItemMutate } = useDeleteOrderMutation(
-    orderId || "",
-    user?.id || "",
-  );
+  const { mutate: delOrderItemMutate } = useDeleteOrderMutation(user?.id || "");
   const { mutate: cancelOrderItem } = useUpdateCancelOrderItem(user?.id ?? "");
 
   const [isModal, setIsModal] = useState(false);
@@ -74,7 +71,7 @@ export default function OrderListPage() {
       return;
     }
 
-    delOrderItemMutate();
+    delOrderItemMutate(orderId);
     setIsModal(false);
   };
 

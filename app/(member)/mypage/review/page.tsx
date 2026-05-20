@@ -10,8 +10,8 @@ export default function MyReviewsPage() {
   );
 
   return (
-    <section className="max-w-7xl mx-auto p-4">
-      <h1 className="text-xl font-bold text-gray-900">리뷰 관리</h1>
+    <section className="max-w-7xl mx-auto flex flex-col gap-4">
+      <h2 className="text-lg sm:text-xl font-bold">리뷰 관리</h2>
 
       <div className="flex border-b border-gray-200">
         <button

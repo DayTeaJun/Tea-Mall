@@ -10,7 +10,7 @@ import {
   getMyProducts,
   getUserProfile,
   getWeeklySalesAction,
-  PatchUserActive,
+  patchUserActive,
   updateProduct,
 } from "../actions/admin";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
@@ -194,7 +194,7 @@ export function useGetProfileQuery(userId: string | undefined) {
 export function usePatchUserActiveMutation(userId: string) {
   const { data, isError, isSuccess, mutate } = useMutation({
     mutationFn: async (status: "active" | "suspended" | "withdrawn") =>
-      PatchUserActive(userId || "", status),
+      patchUserActive(userId || "", status),
 
     onSuccess: async (_, status) => {
       await Promise.all([
