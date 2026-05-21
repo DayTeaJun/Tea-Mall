@@ -231,6 +231,7 @@ export type Database = {
         Row: {
           delivery_status: string | null
           id: string
+          is_hidden: boolean
           order_id: string
           price: number
           product_id: string
@@ -240,6 +241,7 @@ export type Database = {
         Insert: {
           delivery_status?: string | null
           id?: string
+          is_hidden?: boolean
           order_id: string
           price: number
           product_id: string
@@ -249,6 +251,7 @@ export type Database = {
         Update: {
           delivery_status?: string | null
           id?: string
+          is_hidden?: boolean
           order_id?: string
           price?: number
           product_id?: string

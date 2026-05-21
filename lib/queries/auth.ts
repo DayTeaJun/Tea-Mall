@@ -703,8 +703,11 @@ export async function getAvailableReviews(
     .from("order_items")
     .select(
       `
-      *,
-      products (
+      id,
+      product_id, 
+      delivery_status,
+      is_hidden,
+      products!inner (
         id,
         name,
         image_url,
@@ -717,30 +720,37 @@ export async function getAvailableReviews(
       { count: "exact" },
     )
     .eq("orders.user_id", userId)
-    .eq("delivery_status", "배송완료");
+    .eq("delivery_status", "배송완료")
+    .eq("is_hidden", false);
 
   if (writtenProductIds.length > 0) {
     query = query.not("product_id", "in", `(${writtenProductIds.join(",")})`);
   }
 
-  const { data, count, error } = await query
-    .range(from, to)
-    .order("id", { ascending: false }); // order_items의 적절한 정렬 기준 설정
+  const { data, count, error } = await query.range(from, to);
 
   if (error) throw new Error(error.message);
 
-  const formattedItems = data.map((item: any) => ({
-    id: item.id,
-    product_id: item.product_id,
-    product_name: item.products?.name || "상품 정보 없음",
-    product_description: item.products?.description || "",
-    product_image: item.products?.image_url || null,
-    delivered_at: "배송완료",
-  }));
+  const uniqueMap = new Map();
+
+  data?.forEach((item: any) => {
+    if (item.products && !uniqueMap.has(item.product_id)) {
+      uniqueMap.set(item.product_id, {
+        id: item.id,
+        product_id: item.product_id,
+        product_name: item.products.name || "상품 정보 없음",
+        product_description: item.products.description || "",
+        product_image: item.products.image_url || null,
+        delivered_at: "배송완료",
+      });
+    }
+  });
+
+  const formattedItems = Array.from(uniqueMap.values());
 
   return {
     items: formattedItems,
-    count: count || 0,
+    count: count || formattedItems.length,
   };
 }
 
@@ -795,3 +805,40 @@ export const useDelReview = (userId: string) => {
 
   return { mutate, isPending };
 };
+
+// 작성가능한 리뷰 숨기기
+export async function postHiddenReview(orderId: string) {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("order_items")
+    .update({ is_hidden: true })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export function usePostHiddenReview(userId: string, page?: number) {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (orderId: string) => postHiddenReview(orderId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["availableReviews", userId, page],
+        }),
+      ]);
+      toast.success("숨김 처리되었습니다.");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error("오류가 발생했습니다. 관리자에게 문의해주세요.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { mutate, isPending };
+}
