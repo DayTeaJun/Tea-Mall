@@ -733,7 +733,7 @@ export async function getAvailableReviews(
 
   const uniqueMap = new Map();
 
-  data?.forEach((item: any) => {
+  data?.forEach((item) => {
     if (item.products && !uniqueMap.has(item.product_id)) {
       uniqueMap.set(item.product_id, {
         id: item.id,
@@ -807,13 +807,13 @@ export const useDelReview = (userId: string) => {
 };
 
 // 작성가능한 리뷰 숨기기
-export async function postHiddenReview(orderId: string) {
+export async function postHiddenReview(orderItemId: string) {
   const supabase = createBrowserSupabaseClient();
 
   const { data, error } = await supabase
     .from("order_items")
     .update({ is_hidden: true })
-    .eq("id", orderId);
+    .eq("id", orderItemId);
 
   if (error) throw new Error(error.message);
   return data;
@@ -821,7 +821,7 @@ export async function postHiddenReview(orderId: string) {
 
 export function usePostHiddenReview(userId: string, page?: number) {
   const { mutate, isPending } = useMutation({
-    mutationFn: (orderId: string) => postHiddenReview(orderId),
+    mutationFn: (orderItemId: string) => postHiddenReview(orderItemId),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({

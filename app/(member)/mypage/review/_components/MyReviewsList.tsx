@@ -23,7 +23,7 @@ export interface Review {
 }
 
 export default function MyReviewsList() {
-  const LIMIT = 2;
+  const LIMIT = 5;
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();

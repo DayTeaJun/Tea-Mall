@@ -14,7 +14,7 @@ import Modal from "@/components/common/Modals/Modal";
 import { toast } from "sonner";
 
 export default function AvailableReviewsList() {
-  const LIMIT = 10;
+  const LIMIT = 5;
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -49,6 +49,7 @@ export default function AvailableReviewsList() {
     }
 
     delOrderItemMutate(orderId);
+    console.log("숨김 처리된 주문 ID:", orderId);
     setIsModal({ isOpen: false, orderId: "" });
   };
 
