@@ -533,6 +533,39 @@ export type Database = {
       }
     }
     Views: {
+      available_review_products: {
+        Row: {
+          order_item_id: string | null
+          product_description: string | null
+          product_id: string | null
+          product_image: string | null
+          product_name: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_user_profile"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders_with_user_info: {
         Row: {
           created_at: string | null

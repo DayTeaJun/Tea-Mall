@@ -689,68 +689,29 @@ export async function getAvailableReviews(
 ) {
   const supabase = createBrowserSupabaseClient();
 
-  const { data: writtenReviews } = await supabase
-    .from("reviews")
-    .select("product_id")
-    .eq("user_id", userId);
-
-  const writtenProductIds = writtenReviews?.map((r) => r.product_id) || [];
-
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let query = supabase
-    .from("order_items")
-    .select(
-      `
-      id,
-      product_id, 
-      delivery_status,
-      is_hidden,
-      products!inner (
-        id,
-        name,
-        image_url,
-        description
-      ),
-      orders!inner (
-        user_id
-      )
-    `,
-      { count: "exact" },
-    )
-    .eq("orders.user_id", userId)
-    .eq("delivery_status", "배송완료")
-    .eq("is_hidden", false);
-
-  if (writtenProductIds.length > 0) {
-    query = query.not("product_id", "in", `(${writtenProductIds.join(",")})`);
-  }
-
-  const { data, count, error } = await query.range(from, to);
+  const { data, count, error } = await supabase
+    .from("available_review_products")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .range(from, to);
 
   if (error) throw new Error(error.message);
 
-  const uniqueMap = new Map();
-
-  data?.forEach((item) => {
-    if (item.products && !uniqueMap.has(item.product_id)) {
-      uniqueMap.set(item.product_id, {
-        id: item.id,
-        product_id: item.product_id,
-        product_name: item.products.name || "상품 정보 없음",
-        product_description: item.products.description || "",
-        product_image: item.products.image_url || null,
-        delivered_at: "배송완료",
-      });
-    }
-  });
-
-  const formattedItems = Array.from(uniqueMap.values());
+  const formattedItems = (data || []).map((item) => ({
+    id: item.order_item_id,
+    product_id: item.product_id,
+    product_name: item.product_name,
+    product_description: item.product_description,
+    product_image: item.product_image,
+    delivered_at: "배송완료",
+  }));
 
   return {
     items: formattedItems,
-    count: count || formattedItems.length,
+    count: count || 0,
   };
 }
 
@@ -819,15 +780,13 @@ export async function postHiddenReview(orderItemId: string) {
   return data;
 }
 
-export function usePostHiddenReview(userId: string, page?: number) {
+export function usePostHiddenReview(userId: string, page: number) {
   const { mutate, isPending } = useMutation({
     mutationFn: (orderItemId: string) => postHiddenReview(orderItemId),
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["availableReviews", userId, page],
-        }),
-      ]);
+      await queryClient.invalidateQueries({
+        queryKey: ["availableReviews", userId, page],
+      });
       toast.success("숨김 처리되었습니다.");
     },
     onError: (error) => {

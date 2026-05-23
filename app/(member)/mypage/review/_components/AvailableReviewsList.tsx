@@ -95,7 +95,7 @@ export default function AvailableReviewsList() {
                 {item.product_image ? (
                   <Image
                     src={item.product_image}
-                    alt={item.product_name}
+                    alt={item.product_name || "상품 이미지"}
                     fill
                     className="object-cover"
                   />
@@ -125,7 +125,9 @@ export default function AvailableReviewsList() {
                 리뷰 작성하기
               </button>
               <button
-                onClick={() => setIsModal({ isOpen: true, orderId: item.id })}
+                onClick={() =>
+                  setIsModal({ isOpen: true, orderId: item.id || "" })
+                }
                 className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 tracking-wide"
               >
                 숨기기
