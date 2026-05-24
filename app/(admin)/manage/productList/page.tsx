@@ -8,6 +8,35 @@ import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
 import { ImageOff, Loader2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import { Json } from "@/lib/config/supabase/types_db";
+
+interface StockMapType {
+  [size: string]: number | string | null | undefined;
+}
+
+// 💡 올려주신 products 스키마를 반영한 인터페이스
+interface ProductType {
+  category: string | null;
+  color: string | null;
+  created_at: string | null;
+  deleted: boolean;
+  deleted_at: string | null;
+  description: string | null;
+  gender: string | null;
+  id: string;
+  image_url: string | null;
+  name: string;
+  price: number;
+  rating_map: Json | null;
+  sales_count: number | null;
+  stock_by_size: Json;
+  subcategory: string | null;
+  tags: string[] | null;
+  total_stock: number | null;
+  updated_at: string | null;
+  user_id: string | null;
+  views: number;
+}
 
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +48,27 @@ export default function ProductListPage() {
     user?.id || "",
     debounceQuery,
   );
+
+  const getAvailableStock = (
+    stockBySize: ProductType["stock_by_size"],
+  ): [string, number][] => {
+    if (!stockBySize) return [];
+
+    try {
+      const stockMap = (
+        typeof stockBySize === "string" ? JSON.parse(stockBySize) : stockBySize
+      ) as StockMapType;
+
+      if (!stockMap || typeof stockMap !== "object") return [];
+
+      return Object.entries(stockMap)
+        .map(([size, count]): [string, number] => [size, Number(count) || 0])
+        .filter((item) => item[1] > 0);
+    } catch (error) {
+      console.error("재고 데이터 파싱 오류:", error);
+      return [];
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -53,14 +103,15 @@ export default function ProductListPage() {
                   닉네임 / 상품번호 / 상품명 / 상품태그
                 </th>
                 <th className="border p-2 w-[120px]">판매가</th>
-                <th className="border p-2 w-[200px]">처리 날짜</th>
+                <th className="border p-2 w-[160px]">재고 상태</th>
+                <th className="border p-2 w-[150px]">처리 날짜</th>
                 <th className="border p-2 w-[120px]">관리</th>
               </tr>
             </thead>
             <tbody className="text-sm relative">
               {isLoading ? (
                 <tr className="h-full">
-                  <td colSpan={6} className="h-full">
+                  <td colSpan={7} className="h-full">
                     <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
                       <Loader2 className="w-10 h-10 mb-4 animate-spin text-gray-400" />
                       <p className="text-sm">상품 목록을 불러오는 중입니다</p>
@@ -69,7 +120,7 @@ export default function ProductListPage() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr className="h-full">
-                  <td colSpan={6} className="h-full">
+                  <td colSpan={7} className="h-full">
                     <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
                       <ShoppingBag className="w-12 h-12 mb-4 text-gray-400" />
                       <p className="text-base font-medium mb-1">
@@ -89,80 +140,106 @@ export default function ProductListPage() {
                   </td>
                 </tr>
               ) : (
-                products.map((product, index) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="border p-2">{products.length - index}</td>
-                    <td
-                      onClick={() => router.push(`/products/${product.id}`)}
-                      className="border p-2 cursor-pointer align-middle"
-                    >
-                      <div className="w-full aspect-square">
-                        {product.image_url ? (
-                          <Image
-                            width={200}
-                            height={200}
-                            src={product.image_url}
-                            alt={product.name}
-                            priority
-                            className="object-cover w-full h-full hover:scale-105 transition-all duration-200"
-                          />
-                        ) : (
-                          <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
-                            <ImageOff size={28} className="text-gray-400" />
-                            <p className="text-gray-500 text-xs">
-                              이미지가 없습니다.
-                            </p>
+                products.map((product, index) => {
+                  const validStocks = getAvailableStock(product.stock_by_size);
+
+                  return (
+                    <tr key={product.id} className="hover:bg-gray-50">
+                      <td className="border p-2">{products.length - index}</td>
+                      <td
+                        onClick={() => router.push(`/products/${product.id}`)}
+                        className="border p-2 cursor-pointer align-middle"
+                      >
+                        <div className="w-full aspect-square">
+                          {product.image_url ? (
+                            <Image
+                              width={200}
+                              height={200}
+                              src={product.image_url}
+                              alt={product.name}
+                              priority
+                              className="object-cover w-full h-full hover:scale-105 transition-all duration-200"
+                            />
+                          ) : (
+                            <div className="flex flex-col gap-2 items-center justify-center w-full h-full bg-gray-100">
+                              <ImageOff size={28} className="text-gray-400" />
+                              <p className="text-gray-500 text-xs">
+                                이미지가 없습니다.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td
+                        onClick={() => router.push(`/products/${product.id}`)}
+                        className="border p-2 text-left cursor-pointer"
+                      >
+                        <span className="text-gray-500 text-xs block">
+                          {user?.email?.split("@")[0]} | {product.id}
+                        </span>
+                        <span className="block my-2 border p-1">
+                          {product.name}
+                        </span>
+                        <span className="block border p-1 text-xs text-gray-700">
+                          {product.category}
+                        </span>
+                      </td>
+                      <td className="border p-2 font-medium">
+                        {new Intl.NumberFormat("ko-KR").format(product.price)}원
+                      </td>
+
+                      <td className="border p-2 text-center align-middle">
+                        {validStocks.length > 0 ? (
+                          <div className="flex flex-col gap-1 justify-center">
+                            {validStocks.map(([size, count]) => (
+                              <span
+                                key={size}
+                                className="text-gray-700 text-[11px]"
+                              >
+                                {size}: {Number(count)}
+                              </span>
+                            ))}
                           </div>
+                        ) : (
+                          <span className="text-red-500 font-medium text-xs">
+                            재고 없음
+                          </span>
                         )}
-                      </div>
-                    </td>
-                    <td
-                      onClick={() => router.push(`/products/${product.id}`)}
-                      className="border p-2 text-left cursor-pointer"
-                    >
-                      <span className="text-gray-500 text-xs block">
-                        {user?.email?.split("@")[0]} | {product.id}
-                      </span>
-                      <span className="block my-2 border p-1">
-                        {product.name}
-                      </span>
-                      <span className="block border p-1 text-xs text-gray-700">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="border p-2">
-                      {new Intl.NumberFormat("ko-KR").format(product.price)}원
-                    </td>
-                    <td className="border p-2 text-left leading-6">
-                      <span className="block">
-                        <span className="text-gray-500 mr-1">등록일</span>
-                        {product.created_at &&
-                          new Date(product.created_at).toLocaleDateString()}
-                      </span>
-                      <span className="block">
-                        <span className="text-gray-500 mr-1">갱신일</span>
-                        {product.updated_at &&
-                          new Date(product.updated_at).toLocaleDateString()}
-                      </span>
-                    </td>
-                    <td className="border p-2">
-                      <div className="flex flex-col gap-2">
-                        <button
-                          onClick={() =>
-                            router.push(`/manage/edit/${product.id}`)
-                          }
-                          className="border p-2 hover:bg-gray-100 transition"
-                        >
-                          수정
-                        </button>
-                        <ProductDelBtn
-                          productId={product.id}
-                          imageUrl={product.image_url || ""}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      <td className="border p-2 text-left text-xs leading-6">
+                        <div className="flex flex-col gap-1 items-center justify-center">
+                          <span className="block">
+                            <span className="text-gray-500 mr-1">등록일</span>
+                            {product.created_at &&
+                              new Date(product.created_at).toLocaleDateString()}
+                          </span>
+                          <span className="block">
+                            <span className="text-gray-500 mr-1">갱신일</span>
+                            {product.updated_at &&
+                              new Date(product.updated_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="border p-2">
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() =>
+                              router.push(`/manage/edit/${product.id}`)
+                            }
+                            className="border p-2 text-14 hover:bg-gray-100 transition"
+                          >
+                            수정
+                          </button>
+                          <ProductDelBtn
+                            productId={product.id}
+                            imageUrl={product.image_url || ""}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -192,89 +269,116 @@ export default function ProductListPage() {
           </div>
         ) : (
           <ul className="space-y-3">
-            {products.map((product, index) => (
-              <li
-                key={product.id}
-                className="border rounded-lg p-3 hover:bg-gray-50"
-              >
-                <div className="flex gap-3">
-                  <div
-                    className="w-24 min-w-24 aspect-square overflow-hidden rounded-md border cursor-pointer"
-                    onClick={() => router.push(`/products/${product.id}`)}
-                  >
-                    {product.image_url ? (
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-full object-cover"
-                        priority
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
-                        <ImageOff size={24} className="text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+            {products.map((product, index) => {
+              const validStocks = getAvailableStock(product.stock_by_size);
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        No. {products.length - index}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {new Intl.NumberFormat("ko-KR").format(product.price)}원
-                      </span>
-                    </div>
-
-                    <button
+              return (
+                <li
+                  key={product.id}
+                  className="border rounded-lg p-3 hover:bg-gray-50"
+                >
+                  <div className="flex gap-3">
+                    <div
+                      className="w-24 min-w-24 aspect-square overflow-hidden rounded-md border cursor-pointer"
                       onClick={() => router.push(`/products/${product.id}`)}
-                      className="mt-1 w-full flex flex-col gap-2 text-left"
                     >
-                      <p className="text-xs text-gray-500 truncate">
-                        {user?.email?.split("@")[0]}
-                      </p>
-                      <p className="text-[10px] text-gray-500 font-medium">
-                        ID: {product.id}
-                      </p>
-                      <p className="text-sm font-medium">{product.name}</p>
-                      <p className="text-xs text-gray-600 px-2 p-1 border rounded w-fit">
-                        {product.category}
-                      </p>
-                    </button>
-
-                    <div className="mt-2 flex flex-col text-[11px] text-gray-500">
-                      <span>
-                        등록{" "}
-                        {product.created_at &&
-                          new Date(product.created_at).toLocaleDateString()}
-                      </span>
-                      <span>
-                        갱신{" "}
-                        {product.updated_at &&
-                          new Date(product.updated_at).toLocaleDateString()}
-                      </span>
+                      {product.image_url ? (
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          width={200}
+                          height={200}
+                          className="w-full h-full object-cover"
+                          priority
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
+                          <ImageOff size={24} className="text-gray-400" />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          No. {products.length - index}
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900">
+                          {new Intl.NumberFormat("ko-KR").format(product.price)}
+                          원
+                        </span>
+                      </div>
+
                       <button
-                        onClick={() =>
-                          router.push(`/manage/edit/${product.id}`)
-                        }
-                        className="border rounded p-2 text-sm hover:bg-gray-100 active:scale-[0.99] transition"
+                        onClick={() => router.push(`/products/${product.id}`)}
+                        className="mt-1 w-full flex flex-col gap-1.5 text-left"
                       >
-                        수정
+                        <p className="text-xs text-gray-500 truncate">
+                          {user?.email?.split("@")[0]}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-medium">
+                          ID: {product.id}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-gray-600 px-2 py-0.5 border rounded w-fit bg-white">
+                          {product.category}
+                        </p>
                       </button>
-                      <ProductDelBtn
-                        productId={product.id}
-                        imageUrl={product.image_url || ""}
-                      />
+
+                      {/* 💡 모바일 재고 상태 */}
+                      <div className="mt-3 pt-2 border-t border-dashed border-gray-200">
+                        {validStocks.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {validStocks.map(([size, count]) => (
+                              <span
+                                key={size}
+                                className="bg-gray-50 text-gray-700 border border-gray-200 text-[11px] px-1.5 py-0.5 rounded-sm"
+                              >
+                                {size}: {Number(count)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-red-500 font-medium text-xs">
+                            재고 없음
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-2.5 flex flex-col text-[11px] text-gray-400 leading-4">
+                        <span>
+                          등록{" "}
+                          {product.created_at &&
+                            new Date(product.created_at).toLocaleDateString()}
+                        </span>
+                        <span>
+                          갱신{" "}
+                          {product.updated_at &&
+                            new Date(product.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() =>
+                            router.push(`/manage/edit/${product.id}`)
+                          }
+                          className="border rounded p-2 text-sm bg-white hover:bg-gray-100 active:scale-[0.99] transition"
+                        >
+                          수정
+                        </button>
+                        <ProductDelBtn
+                          productId={product.id}
+                          imageUrl={product.image_url || ""}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
