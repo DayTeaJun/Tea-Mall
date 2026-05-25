@@ -33,6 +33,44 @@ export function useProductAllToMainQuery() {
   };
 }
 
+// 추천 상품 조회
+export async function getRelatedProducts(
+  currentProductId: string,
+  category: string | null,
+): Promise<ProductType[]> {
+  if (!currentProductId || !category) return [];
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("deleted", false)
+    .eq("category", category)
+    .neq("id", currentProductId)
+    .gt("total_stock", 0)
+    .order("sales_count", { ascending: false })
+    .limit(8);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export function useRelatedProductsQuery(
+  currentProductId: string,
+  category: string | null,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["products", "related", currentProductId],
+    queryFn: () => getRelatedProducts(currentProductId, category),
+    enabled: !!currentProductId && !!category,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 상품 상세 조회
 export async function getProductDetail(
   id: string,

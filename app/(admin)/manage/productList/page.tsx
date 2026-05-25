@@ -14,7 +14,6 @@ interface StockMapType {
   [size: string]: number | string | null | undefined;
 }
 
-// 💡 올려주신 products 스키마를 반영한 인터페이스
 interface ProductType {
   category: string | null;
   color: string | null;

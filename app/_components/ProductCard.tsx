@@ -33,9 +33,9 @@ function ProductCard({
       key={products.id}
       href={`/products/${products.id}`}
       className={`
-        w-full h-fit hover:shadow-2xl transition-all duration-300
-        sm:p-4 pt-0 group
-        flex ${recommend ? "flex-col" : "flex-row"} gap-3 sm:block
+        w-full h-fit transition-all duration-300
+        pt-0 group
+        flex ${recommend ? "flex-col sm:p-0" : "flex-row sm:p-4"} gap-3 sm:block
       `}
     >
       <div

@@ -3,17 +3,28 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useProductAllToMainQuery } from "@/lib/queries/products";
+import { useRelatedProductsQuery } from "@/lib/queries/products"; // 💡 새로 만든 훅 임포트
 import ProductCard from "@/app/_components/ProductCard";
 
-export default function RecommendProductsCarousel() {
+interface RecommendProductsCarouselProps {
+  currentProductId: string;
+  category: string | null;
+}
+
+export default function RecommendProductsCarousel({
+  currentProductId,
+  category,
+}: RecommendProductsCarouselProps) {
   const carouselRef = React.useRef<HTMLDivElement>(null);
-  const { data: products, isLoading } = useProductAllToMainQuery();
+
+  const { data: products, isLoading } = useRelatedProductsQuery(
+    currentProductId,
+    category,
+  );
 
   const scroll = (direction: "left" | "right") => {
     const el = carouselRef.current;
     if (!el) return;
-    // 한 화면(컨테이너 폭) 단위로 이동 → 끊김 없이 정렬
     const delta = el.clientWidth;
     el.scrollBy({
       left: direction === "left" ? -delta : delta,
@@ -21,10 +32,12 @@ export default function RecommendProductsCarousel() {
     });
   };
 
+  if (!isLoading && (!products || products.length === 0)) return null;
+
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="flex justify-between items-center px-2">
-        <h2 className="text-[20px] font-semibold">추천 상품</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-[20px] font-semibold">연관 추천 상품</h2>
         <div className="flex gap-2">
           <Button variant="ghost" size="icon" onClick={() => scroll("left")}>
             <ChevronLeft />

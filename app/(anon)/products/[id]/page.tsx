@@ -11,7 +11,6 @@ import Image from "next/image";
 import ProductDetail from "./_components/ProductView";
 import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 
-// 메타 태그 생성
 export async function generateMetadata({
   params,
 }: {
@@ -57,7 +56,6 @@ export async function generateMetadata({
   };
 }
 
-// 정적 경로 생성 SSG
 export async function generateStaticParams() {
   const { data: products } = await publicSupabase
     .from("products")
@@ -152,15 +150,12 @@ export default async function ProductDetailPage({
             </div>
 
             <div className="text-sm text-gray-600 mb-2">
-              {/* 카테고리 */}
               {product.category && (
                 <>
-                  {/* PC */}
                   <span className="hidden sm:inline">
                     카테고리: {product.category}
                   </span>
 
-                  {/* 모바일 */}
                   <div className="sm:hidden w-full flex items-center mb-1">
                     <span className="block basis-1/2 text-left">카테고리</span>
                     <span className="block basis-1/2 px-3 py-2 rounded bg-gray-100 text-gray-800 text-center">
@@ -170,15 +165,12 @@ export default async function ProductDetailPage({
                 </>
               )}
 
-              {/* 서브카테고리 */}
               {product.subcategory && (
                 <>
-                  {/* PC */}
                   <span className="hidden sm:inline ml-2">
                     · 서브 카테고리: {product.subcategory}
                   </span>
 
-                  {/* 모바일 */}
                   <div className="sm:hidden w-full flex items-center mb-1">
                     <span className="block basis-1/2 text-left">
                       서브카테고리
@@ -190,15 +182,12 @@ export default async function ProductDetailPage({
                 </>
               )}
 
-              {/* 성별 */}
               {product.gender && (
                 <>
-                  {/* PC */}
                   <span className="hidden sm:inline ml-2">
                     · 성별: {product.gender}
                   </span>
 
-                  {/* 모바일 */}
                   <div className="sm:hidden w-full flex items-center mb-1">
                     <span className="block basis-1/2 text-left">성별</span>
                     <span className="block basis-1/2 px-3 py-2 rounded bg-gray-100 text-gray-800 text-center">
@@ -208,15 +197,12 @@ export default async function ProductDetailPage({
                 </>
               )}
 
-              {/* 색상 */}
               {product.color && (
                 <>
-                  {/* PC */}
                   <span className="hidden sm:inline ml-2">
                     · 색상: {product.color}
                   </span>
 
-                  {/* 모바일 */}
                   <div className="sm:hidden w-full flex items-center mb-1">
                     <span className="block basis-1/2 text-left">색상</span>
                     <span className="block basis-1/2 px-3 py-2 rounded bg-gray-100 text-gray-800 text-center">
@@ -301,7 +287,10 @@ export default async function ProductDetailPage({
 
       <CommentsSection productId={id} />
 
-      <RecommendProductsCarousel />
+      <RecommendProductsCarousel
+        currentProductId={id}
+        category={product.category}
+      />
 
       <ProductDetail productId={id} />
     </main>
