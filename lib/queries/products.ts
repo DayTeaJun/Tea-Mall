@@ -14,7 +14,8 @@ export async function getProductAllToMain(): Promise<ProductType[]> {
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("deleted", false);
+    .eq("deleted", false)
+    .gt("total_stock", 0);
 
   if (error) throw error;
   return data ?? [];
