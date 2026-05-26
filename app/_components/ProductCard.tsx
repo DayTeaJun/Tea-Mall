@@ -51,7 +51,7 @@ function ProductCard({
             fill
             src={products.image_url}
             alt={products.name}
-            className="object-cover w-full h-full group-hover:scale-105 duration-200 transition-all"
+            className={`${isSoldOut ? "grayscale" : "group-hover:scale-105"} object-cover w-full h-full duration-200 transition-all`}
             onError={() => setImageError(true)}
             priority={recommend}
           />
@@ -63,18 +63,11 @@ function ProductCard({
         )}
 
         {isSoldOut && (
-          <span
-            className="
-              absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-              flex items-center justify-center
-              px-2 py-1
-              bg-black/85 group-hover:bg-black/50
-              text-white text-[14px] sm:text-[16px] font-bold tracking-wider
-              shadow transition-all duration-300
-            "
-          >
-            SOLD OUT
-          </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center pb-6">
+            <span className="text-white text-[13px] sm:text-[14px] font-medium tracking-[0.15em] border-b border-white/40 pb-1 uppercase">
+              Out of Stock
+            </span>
+          </div>
         )}
       </div>
 
