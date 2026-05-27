@@ -1,24 +1,28 @@
 import { Json } from "@/lib/config/supabase/types_db";
 
 export interface ProductType {
+  category: string | null;
+  color: string | null;
+  created_at: string | null;
+  deleted: boolean;
+  deleted_at: string | null;
+  description: string | null;
+  gender: string | null;
   id: string;
+  image_url: string | null;
   name: string;
   price: number;
-  image_url: string | null;
-  description: string | null;
-  user_id: string | null;
-  tags: string[] | null;
-  category: string | null;
-  subcategory: string | null;
-  gender: string | null;
-  color: string | null;
+  rating_map: Json | null;
+  sales_count: number | null;
   stock_by_size: Json | null;
+  subcategory: string | null;
+  tags: string[] | null;
   total_stock: number | null;
-  rating_map?: Json | null;
-  created_at: string | null;
   updated_at: string | null;
-  deleted?: boolean;
-  deleted_at?: string | null;
+  user_id: string | null;
+  views: number;
+
+  favorite_count?: number;
 }
 
 export interface ProductUpdateType extends ProductType {

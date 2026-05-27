@@ -4,7 +4,15 @@ import { ProductType } from "@/types/product";
 import { Heart, ImageOff, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  getFavorite,
+  useDeleteFavoriteMutation,
+  usePostFavoriteMutation,
+} from "@/lib/queries/products";
 
 function ProductCard({
   products,
@@ -14,6 +22,18 @@ function ProductCard({
   recommend?: boolean;
 }) {
   const [imageError, setImageError] = useState(false);
+  const { user } = useAuthStore();
+  const router = useRouter();
+
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [favCount, setFavCount] = useState<number>(
+    products.favorite_count ?? 0,
+  );
+
+  const { mutate: addFavoriteMutate } = usePostFavoriteMutation(user?.id ?? "");
+  const { mutate: delFavoriteMutate } = useDeleteFavoriteMutation(
+    user?.id ?? "",
+  );
 
   const ratings = Object.values(products.rating_map ?? {}) as number[];
   const isSoldOut = (products.total_stock ?? 0) <= 0;
@@ -26,6 +46,44 @@ function ProductCard({
       : 0;
 
   const reviewCount = ratings.length;
+
+  useEffect(() => {
+    const fetchFavoriteStatus = async () => {
+      if (!user?.id) {
+        setIsFavorited(false);
+        return;
+      }
+      try {
+        const favorite = await getFavorite(user.id, products.id);
+        setIsFavorited(!!favorite);
+      } catch (error) {
+        console.error("찜 상태 로드 오류:", error);
+      }
+    };
+
+    fetchFavoriteStatus();
+  }, [user?.id, products.id]);
+
+  const handleBookmark = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    if (isFavorited) {
+      delFavoriteMutate(products.id);
+      setIsFavorited(false);
+      setFavCount((prev) => Math.max(0, prev - 1));
+    } else {
+      addFavoriteMutate(products.id);
+      setIsFavorited(true);
+      setFavCount((prev) => prev + 1);
+    }
+
+    router.refresh();
+  };
 
   return (
     <Link
@@ -64,20 +122,23 @@ function ProductCard({
 
         <button
           type="button"
-          className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform"
-          onClick={(e) => {
-            e.preventDefault();
-          }}
+          onClick={handleBookmark}
+          title="즐겨찾기"
+          className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-white hover:scale-110 transition-transform z-10"
         >
           <Heart
             size={20}
             strokeWidth={1.5}
-            className="text-white fill-black/5"
+            className={`transition-colors duration-200 ${
+              isFavorited
+                ? "text-red-500 fill-red-500"
+                : "text-white fill-black/5"
+            }`}
           />
         </button>
 
         {isSoldOut && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center pt-20">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center pt-20 pointer-events-none">
             <span className="text-white text-[20px] sm:text-[14px] font-medium tracking-[0.15em] border-b border-white/40 pb-1 uppercase">
               Out of Stock
             </span>
@@ -86,7 +147,7 @@ function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col pt-2.5 px-0.5">
-        <h3 className="text-[13px] sm:text-[14px] font-normal text-[#111111] line-clamp-2 min-h-[38px] leading-tight tracking-tight group-hover:text-gray-600 transition-colors">
+        <h3 className="text-[13px] sm:text-[14px] pb-2 font-normal text-[#111111] line-clamp-2 leading-tight tracking-tight group-hover:text-gray-600 transition-colors">
           {products.name}
         </h3>
 
@@ -98,7 +159,7 @@ function ProductCard({
           <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-400 font-medium">
             <span className="flex items-center gap-0.5 text-gray-500">
               <Heart size={11} className="fill-gray-400 text-gray-400" />
-              1.2천
+              {favCount}
             </span>
 
             {reviewCount > 0 && (

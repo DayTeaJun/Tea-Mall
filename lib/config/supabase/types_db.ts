@@ -620,6 +620,32 @@ export type Database = {
         }
         Relationships: []
       }
+      v_products_with_favorites: {
+        Row: {
+          category: string | null
+          color: string | null
+          created_at: string | null
+          deleted: boolean | null
+          deleted_at: string | null
+          description: string | null
+          favorite_count: number | null
+          gender: string | null
+          id: string | null
+          image_url: string | null
+          name: string | null
+          price: number | null
+          rating_map: Json | null
+          sales_count: number | null
+          stock_by_size: Json | null
+          subcategory: string | null
+          tags: string[] | null
+          total_stock: number | null
+          updated_at: string | null
+          user_id: string | null
+          views: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       increment_product_views: { Args: { p_id: string }; Returns: number }

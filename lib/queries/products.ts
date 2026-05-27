@@ -10,15 +10,16 @@ import { useRouter } from "next/navigation";
 const supabase = createBrowserSupabaseClient();
 
 // 상품 전체 조회 (메인 페이지용)
-export async function getProductAllToMain(): Promise<ProductType[]> {
+export async function getProductAllToMain() {
   const { data, error } = await supabase
-    .from("products")
+    .from("v_products_with_favorites")
     .select("*")
     .eq("deleted", false)
     .gt("total_stock", 0);
 
   if (error) throw error;
-  return data ?? [];
+
+  return (data ?? []) as unknown as ProductType[];
 }
 
 export function useProductAllToMainQuery() {
@@ -466,7 +467,7 @@ export const usePostFavoriteMutation = (userId: string) => {
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
-      toast.success("선택한 즐겨찾기가 추가되었습니다.");
+      toast.success("상품을 찜했습니다.");
     },
   });
   return { data, isError, mutate, isSuccess, isPending };
@@ -493,7 +494,7 @@ export const useDeleteFavoriteMutation = (userId: string) => {
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
-      toast.success("선택한 즐겨찾기가 삭제되었습니다.");
+      toast.success("찜 목록에서 제외되었습니다.");
     },
   });
   return { data, isError, mutate, isSuccess, isPending };
