@@ -44,7 +44,11 @@ function SearchInput() {
         </div>
       </div>
 
-      <button className="bg-black text-white rounded px-4 py-2 text-sm">
+      <button
+        type="button"
+        onClick={() => router.push("/inquiry/create")}
+        className="bg-black text-white rounded px-4 py-2 text-sm"
+      >
         문의하기
       </button>
     </div>
