@@ -801,3 +801,65 @@ export function usePostHiddenReview(userId: string, page: number) {
 
   return { mutate, isPending };
 }
+
+export interface InquiryPostType {
+  title: string;
+  content: string;
+  guest_name: string | null;
+  phone_number: string | null;
+  email: string | null;
+  password?: string | null;
+  is_public: boolean;
+  is_privacy_agreed: boolean;
+  user_id: string | null;
+  status: string;
+  inquiry_type: string;
+}
+
+// 문의등록
+export const postInquiry = async (inquiryData: InquiryPostType) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("inquiries")
+    .insert([
+      {
+        title: inquiryData.title,
+        content: inquiryData.content,
+        guest_name: inquiryData.guest_name,
+        phone_number: inquiryData.phone_number,
+        email: inquiryData.email,
+        password: inquiryData.password || null,
+        is_public: inquiryData.is_public,
+        is_privacy_agreed: inquiryData.is_privacy_agreed,
+        user_id: inquiryData.user_id || null,
+        status: "PENDING",
+        inquiry_type: inquiryData.inquiry_type,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const usePostInquiryMutation = () => {
+  return useMutation({
+    mutationFn: (newInquiry: InquiryPostType) => postInquiry(newInquiry),
+    onSuccess: () => {
+      toast.success("문의가 성공적으로 등록되었습니다.");
+
+      queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+    },
+    onError: (error) => {
+      console.error("문의 등록 실패:", error);
+      toast.error(
+        `등록에 실패했습니다: ${error.message || "다시 시도해주세요."}`,
+      );
+    },
+  });
+};

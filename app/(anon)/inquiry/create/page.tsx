@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import PrivacyModal from "../../policy/_components/PrivacyModal";
-import { Lock, FileText, User, Phone } from "lucide-react";
+import { Lock, FileText, User, Phone, KeyRound } from "lucide-react";
+import { usePostInquiryMutation } from "@/lib/queries/auth";
+import { toast } from "sonner";
 
 interface InquiryType {
   content: string;
@@ -21,6 +23,7 @@ interface InquiryType {
 export default function DeliveryRegisterPage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { mutate: postInquiryMutate } = usePostInquiryMutation();
 
   const [formData, setFormData] = useState<InquiryType>({
     title: "",
@@ -36,6 +39,62 @@ export default function DeliveryRegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.title.trim()) {
+      toast.warning("문의 제목을 입력해주세요.");
+      return;
+    }
+
+    if (!formData.guest_name?.trim()) {
+      toast.warning("문의자 이름을 입력해주세요.");
+      return;
+    }
+
+    if (!formData.phone_number?.trim()) {
+      toast.warning("휴대전화 번호를 입력해주세요.");
+      return;
+    }
+
+    if (!formData.user_id && !formData.password?.trim()) {
+      toast.warning("비회원 비밀번호 4자리를 입력해주세요.");
+      return;
+    }
+
+    if (!formData.user_id && formData.password?.trim().length !== 4) {
+      toast.warning("비밀번호는 숫자 4자리로 입력해주세요.");
+      return;
+    }
+
+    if (!formData.content.trim()) {
+      toast.warning("문의 내용을 입력해주세요.");
+      return;
+    }
+
+    if (!formData.is_privacy_agreed) {
+      toast.warning("개인정보 수집 및 이용 방침에 동의하셔야 합니다.");
+      return;
+    }
+
+    postInquiryMutate(
+      {
+        title: formData.title,
+        content: formData.content,
+        guest_name: formData.guest_name,
+        phone_number: formData.phone_number,
+        email: formData.email,
+        password: formData.user_id ? null : formData.password,
+        is_public: !!formData.is_public,
+        is_privacy_agreed: !!formData.is_privacy_agreed,
+        user_id: formData.user_id || null,
+        status: "PENDING",
+        inquiry_type: "DELIVERY",
+      },
+      {
+        onSuccess: () => {
+          router.push("/cs/inquiry");
+        },
+      },
+    );
   };
 
   return (
@@ -62,7 +121,6 @@ export default function DeliveryRegisterPage() {
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
-            required
           />
         </div>
 
@@ -79,7 +137,6 @@ export default function DeliveryRegisterPage() {
             onChange={(e) =>
               setFormData({ ...formData, guest_name: e.target.value })
             }
-            required
           />
         </div>
 
@@ -96,7 +153,6 @@ export default function DeliveryRegisterPage() {
             onChange={(e) =>
               setFormData({ ...formData, phone_number: e.target.value })
             }
-            required
           />
         </div>
 
@@ -111,9 +167,27 @@ export default function DeliveryRegisterPage() {
             onChange={(e) =>
               setFormData({ ...formData, content: e.target.value })
             }
-            required
           />
         </div>
+
+        {!formData.user_id && (
+          <div className="flex flex-col gap-2 w-full sm:w-1/2">
+            <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+              <KeyRound size={14} className="text-gray-400" />
+              비회원 비밀번호 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              maxLength={4}
+              placeholder="비밀번호 숫자 4자리를 입력해주세요."
+              className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+              value={formData.password || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-4 pt-2 px-0.5">
           <label className="flex items-start gap-3 cursor-pointer group">
@@ -131,7 +205,9 @@ export default function DeliveryRegisterPage() {
                 저장하기
               </span>
               <span className="text-[11px] text-gray-400 mt-0.5 leading-normal">
-                해당 글은 관리자와 작성자 본인만 확인할 수 있습니다.
+                {formData.user_id
+                  ? "체크 시 관리자와 작성자 본인만 내용을 확인할 수 있습니다."
+                  : "체크 시 타인에게 노출되지 않으며, 비회원 조회 시 설정한 비밀번호가 한 번 더 필요합니다."}
               </span>
             </div>
           </label>
@@ -148,7 +224,6 @@ export default function DeliveryRegisterPage() {
                     is_privacy_agreed: e.target.checked,
                   })
                 }
-                required
               />
               <span className="text-[13px] text-[#111111] font-medium">
                 [필수] 개인정보 수집 및 이용 방침 동의
