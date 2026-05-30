@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import PrivacyModal from "../../policy/_components/PrivacyModal";
+import { Lock, FileText, User, Phone } from "lucide-react";
 
 interface InquiryType {
   content: string;
@@ -20,11 +21,6 @@ interface InquiryType {
 export default function DeliveryRegisterPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-
-  const formatPhone = (value: string) => {
-    if (value.length !== 11) return value;
-    return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
-  };
 
   const [formData, setFormData] = useState<InquiryType>({
     title: "",
@@ -43,151 +39,137 @@ export default function DeliveryRegisterPage() {
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-xl font-semibold mb-2">문의 등록</h2>
+    <section className="w-full bg-white">
+      <div className="border-b border-gray-900 pb-4 mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#111111]">
+          1:1 문의 등록
+        </h2>
+        <p className="text-xs sm:text-sm text-gray-400 mt-1.5">
+          구매하신 상품이나 서비스에 대해 문의 주시면 신속하게 답변드리겠습니다.
+        </p>
+      </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="w-full border border-gray-200 bg-white overflow-hidden"
-      >
-        <table className="w-full text-sm">
-          <tbody className="divide-y divide-gray-200">
-            <tr className="flex flex-col md:table-row w-full">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                문의 제목
-              </th>
-              <td className="p-4">
-                <input
-                  type="text"
-                  className="w-full md:w-full border border-gray-300 p-2 rounded-sm focus:outline-slate-500"
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  required
-                  //   disabled={isPending}
-                />
-              </td>
-            </tr>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+            <FileText size={14} className="text-gray-400" />
+            문의 제목 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="제목을 입력해주세요."
+            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+            required
+          />
+        </div>
 
-            <tr className="flex flex-col md:table-row">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                문의자
-              </th>
-              <td className="p-4">
-                <input
-                  type="text"
-                  className="w-full md:w-64 border border-gray-300 p-2 rounded-sm focus:outline-slate-500"
-                  value={formData.guest_name || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, guest_name: e.target.value })
-                  }
-                  required
-                  //   disabled={isPending}
-                />
-              </td>
-            </tr>
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+            <User size={14} className="text-gray-400" />
+            문의자 이름 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="이름을 입력해주세요."
+            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+            value={formData.guest_name || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, guest_name: e.target.value })
+            }
+            required
+          />
+        </div>
 
-            <tr className="flex flex-col md:table-row">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                휴대전화
-              </th>
-              <td className="p-4">
-                <input
-                  type="tel"
-                  className="w-full md:w-64 border border-gray-300 p-2 rounded-sm focus:outline-slate-500"
-                  value={formData.phone_number || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone_number: e.target.value })
-                  }
-                  required
-                  //   disabled={isPending}
-                />
-              </td>
-            </tr>
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+            <Phone size={14} className="text-gray-400" />
+            휴대전화 번호 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            placeholder="숫자만 입력해주세요."
+            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+            value={formData.phone_number || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, phone_number: e.target.value })
+            }
+            required
+          />
+        </div>
 
-            <tr className="flex flex-col md:table-row">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                문의 내용
-              </th>
-              <td className="p-4">
-                <textarea
-                  className="w-full border border-gray-300 p-2 rounded-sm focus:outline-slate-500 h-40 resize-none"
-                  placeholder="문의 내용을 입력해주세요."
-                  value={formData.content || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      content: e.target.value,
-                    })
-                  }
-                  //   disabled={isPending}
-                />
-              </td>
-            </tr>
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111]">
+            문의 내용 <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            className="w-full border border-gray-200 p-3 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all h-44 resize-none leading-relaxed"
+            placeholder="문의하실 내용을 상세히 적어주세요. 개인정보가 포함되지 않도록 유의해주세요."
+            value={formData.content || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
+            }
+            required
+          />
+        </div>
 
-            <tr className="flex flex-col md:table-row">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                비밀글
-              </th>
-              <td className="p-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-slate-700 focus:ring-slate-500"
-                    checked={!!formData.is_public}
-                    onChange={(e) =>
-                      setFormData({ ...formData, is_public: e.target.checked })
-                    }
-                    // disabled={isPending}
-                  />
-                  <span className="text-gray-600">비밀글 저장</span>
-                </label>
-              </td>
-            </tr>
+        <div className="flex flex-col gap-4 pt-2 px-0.5">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              className="mt-0.5 w-4 h-4 border-gray-300 rounded-sm focus:ring-0 cursor-pointer accent-black shrink-0"
+              checked={!!formData.is_public}
+              onChange={(e) =>
+                setFormData({ ...formData, is_public: e.target.checked })
+              }
+            />
+            <div className="flex flex-col select-none">
+              <span className="text-[13px] font-medium text-[#111111] flex items-center gap-1">
+                <Lock size={13} className="text-gray-400" /> 비밀글로 문의
+                저장하기
+              </span>
+              <span className="text-[11px] text-gray-400 mt-0.5 leading-normal">
+                해당 글은 관리자와 작성자 본인만 확인할 수 있습니다.
+              </span>
+            </div>
+          </label>
 
-            <tr className="flex flex-col md:table-row">
-              <th className="md:w-44 bg-gray-50 p-4 text-left font-medium text-gray-700 border-r border-gray-200">
-                개인정보 처리방침 동의
-              </th>
-              <td className="p-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-slate-700 focus:ring-slate-500"
-                    checked={!!formData.is_privacy_agreed}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        is_privacy_agreed: e.target.checked,
-                      })
-                    }
-                    // disabled={isPending}
-                  />
-                  <span className="text-gray-600">
-                    개인정보 처리방침에 동의합니다
-                  </span>
-                  <PrivacyModal />
-                </label>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <div className="flex items-center gap-3 w-full">
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="w-4 h-4 border-gray-300 rounded-sm focus:ring-0 cursor-pointer accent-black shrink-0"
+                checked={!!formData.is_privacy_agreed}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    is_privacy_agreed: e.target.checked,
+                  })
+                }
+                required
+              />
+              <span className="text-[13px] text-[#111111] font-medium">
+                [필수] 개인정보 수집 및 이용 방침 동의
+              </span>
+            </label>
+            <PrivacyModal />
+          </div>
+        </div>
 
-        <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+        <div className="flex items-center ml-auto gap-2.5 pt-6 mt-2 w-full sm:border-0 border-t border-gray-200 sm:w-1/2">
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-6 sm:px-10 py-2.5 border border-gray-300 bg-white text-gray-700 text-sm hover:bg-gray-100 disabled:opacity-50"
-            // disabled={isPending}
+            className="w-1/2 py-3 border border-gray-200 bg-white text-[#555555] text-sm font-medium rounded-sm hover:bg-gray-50 hover:text-black transition-colors"
           >
             취소
           </button>
           <button
             type="submit"
-            className="px-6 sm:px-10 py-2.5 bg-slate-800 text-white text-sm font-medium hover:bg-slate-900 disabled:bg-slate-500 flex items-center gap-2"
-            // disabled={isPending}
+            className="w-1/2 py-3 bg-[#111111] text-white text-sm font-medium rounded-sm hover:bg-[#222222] transition-colors shadow-sm"
           >
-            {/* {isPending ? "등록 중..." : "등록하기"} */}
             등록하기
           </button>
         </div>
