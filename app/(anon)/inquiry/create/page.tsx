@@ -4,7 +4,14 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import PrivacyModal from "../../policy/_components/PrivacyModal";
-import { Lock, FileText, User, Phone, KeyRound } from "lucide-react";
+import {
+  Lock,
+  FileText,
+  User,
+  Phone,
+  KeyRound,
+  HelpCircle,
+} from "lucide-react";
 import { usePostInquiryMutation } from "@/lib/queries/auth";
 import { toast } from "sonner";
 
@@ -18,7 +25,17 @@ interface InquiryType {
   phone_number: string | null;
   title: string;
   user_id: string | null;
+  inquiry_type: string;
 }
+
+const INQUIRY_OPTIONS = [
+  { value: "DELIVERY", label: "배송 문의" },
+  { value: "PRODUCT", label: "상품 문의" },
+  { value: "CANCEL", label: "취소/반품/교환 문의" },
+  { value: "ORDER", label: "주문/결제 문의" },
+  { value: "AUTH", label: "계정 복구 문의" },
+  { value: "OTHER", label: "기타 문의" },
+];
 
 export default function DeliveryRegisterPage() {
   const router = useRouter();
@@ -35,10 +52,16 @@ export default function DeliveryRegisterPage() {
     password: "",
     phone_number: user?.phone || "",
     user_id: user?.id || "",
+    inquiry_type: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.inquiry_type) {
+      toast.warning("문의 유형을 선택해주세요.");
+      return;
+    }
 
     if (!formData.title.trim()) {
       toast.warning("문의 제목을 입력해주세요.");
@@ -87,7 +110,7 @@ export default function DeliveryRegisterPage() {
         is_privacy_agreed: !!formData.is_privacy_agreed,
         user_id: formData.user_id || null,
         status: "PENDING",
-        inquiry_type: "DELIVERY",
+        inquiry_type: formData.inquiry_type,
       },
       {
         onSuccess: () => {
@@ -111,6 +134,37 @@ export default function DeliveryRegisterPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+            <HelpCircle size={14} className="text-gray-400" />
+            문의 유형 <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <select
+              value={formData.inquiry_type}
+              onChange={(e) =>
+                setFormData({ ...formData, inquiry_type: e.target.value })
+              }
+              className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm bg-white focus:outline-none focus:border-black focus:ring-0 transition-all text-[#111111] appearance-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+                backgroundPosition: "right 12px center",
+                backgroundSize: "16px",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              <option value="" disabled className="text-gray-300">
+                문의 유형을 선택해주세요.
+              </option>
+              {INQUIRY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
             <FileText size={14} className="text-gray-400" />
             문의 제목 <span className="text-red-500">*</span>
           </label>
@@ -118,6 +172,7 @@ export default function DeliveryRegisterPage() {
             type="text"
             placeholder="제목을 입력해주세요."
             className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+            value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
@@ -156,20 +211,6 @@ export default function DeliveryRegisterPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-[13px] font-semibold text-[#111111]">
-            문의 내용 <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            className="w-full border border-gray-200 p-3 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all h-44 resize-none leading-relaxed"
-            placeholder="문의하실 내용을 상세히 적어주세요. 개인정보가 포함되지 않도록 유의해주세요."
-            value={formData.content || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
-            }
-          />
-        </div>
-
         {!formData.user_id && (
           <div className="flex flex-col gap-2 w-full sm:w-1/2">
             <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
@@ -188,6 +229,20 @@ export default function DeliveryRegisterPage() {
             />
           </div>
         )}
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[13px] font-semibold text-[#111111]">
+            문의 내용 <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            className="w-full border border-gray-200 p-3 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all h-44 resize-none leading-relaxed"
+            placeholder="문의하실 내용을 상세히 적어주세요. 개인정보가 포함되지 않도록 유의해주세요."
+            value={formData.content || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
+            }
+          />
+        </div>
 
         <div className="flex flex-col gap-4 pt-2 px-0.5">
           <label className="flex items-start gap-3 cursor-pointer group">
