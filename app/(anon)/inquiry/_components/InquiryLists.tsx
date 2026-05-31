@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
+import { Lock } from "lucide-react"; // 💡 비밀글 아이콘 표시용 추가
 
 interface InquiryType {
   admin_id: string | null;
@@ -22,6 +23,14 @@ interface InquiryType {
   updated_at: string | null;
   user_id: string | null;
 }
+
+const INQUIRY_TYPE_MAP: Record<string, string> = {
+  DELIVERY: "배송",
+  PRODUCT: "상품",
+  CANCEL: "취소/반품",
+  ORDER: "주문/결제",
+  OTHER: "기타",
+};
 
 async function InquiryLists({ query, page }: { query: string; page: number }) {
   const supabase = await createServerSupabaseClient();
@@ -48,15 +57,18 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
     <div className="flex flex-col gap-4">
       <SearchInput />
 
-      <table className="w-full text-left border-t border-gray-400">
+      <table className="w-full text-left border-t border-gray-400 table-fixed">
         <thead>
-          <tr className="border-b border-gray-00 text-gray-500 text-sm">
-            <th className="py-3 px-2 font-medium w-[10%] text-center">No.</th>
-            <th className="py-3 px-2 font-medium w-[50%]">제목</th>
-            <th className="py-3 px-2 font-medium w-[20%] text-center">
+          <tr className="border-b border-gray-100 text-gray-500 text-sm">
+            <th className="py-3 px-2 font-medium w-[8%] text-center">No.</th>
+            <th className="py-3 px-2 font-medium w-[15%] text-center">
+              문의유형
+            </th>
+            <th className="py-3 px-2 font-medium w-[47%]">제목</th>
+            <th className="py-3 px-2 font-medium w-[15%] text-center">
               작성자
             </th>
-            <th className="py-3 px-2 font-medium w-[20%] text-center">
+            <th className="py-3 px-2 font-medium w-[15%] text-center">
               문의상태
             </th>
           </tr>
@@ -64,27 +76,45 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
         <tbody className="text-sm">
           {inqueries?.length !== 0 &&
             inqueries?.map((inquiry: InquiryType, index: number) => {
+              const inquiryTypeLabel =
+                INQUIRY_TYPE_MAP[inquiry.inquiry_type] || inquiry.inquiry_type;
+
               return (
                 <tr
                   key={inquiry.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
                 >
-                  <td className="py-4 px-2 font-semibold text-center">
-                    {index + 1}
+                  {/* 번호 */}
+                  <td className="py-4 px-2 font-semibold text-center text-gray-400">
+                    {(count || 0) - (page - 1) * LIMIT - index}
                   </td>
-                  <td className="py-4 px-2 font-semibold">{inquiry.title}</td>
 
-                  <td className="py-4 px-2 text-gray-600 text-center">
+                  {/* 💡 문의유형 데이터 행 */}
+                  <td className="py-4 px-2 text-center text-gray-600 font-medium">
+                    <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
+                      {inquiryTypeLabel}
+                    </span>
+                  </td>
+
+                  <td className="py-4 px-2 font-medium text-gray-900">
+                    <div className="flex items-center gap-1.5 truncate">
+                      {inquiry.title}
+                      {!inquiry.is_public && (
+                        <Lock size={13} className="text-gray-400 shrink-0" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-2 text-gray-600 text-center truncate">
                     {inquiry.guest_name}
                   </td>
 
-                  <td className="py-4 px-2 text-gray-600 text-center">
+                  <td className="py-4 px-2 text-center">
                     {inquiry.status === "ANSWERED" ? (
-                      <span className="text-green-600 font-semibold">
+                      <span className="text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-sm text-xs">
                         답변완료
                       </span>
                     ) : (
-                      <span className="text-gray-500 font-semibold">
+                      <span className="text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded-sm text-xs">
                         답변대기
                       </span>
                     )}
@@ -95,7 +125,7 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
 
           {emptyRowsCount === 10 ? (
             <tr className="w-full h-[530px]">
-              <td colSpan={4} className="text-center text-gray-500 py-4">
+              <td colSpan={5} className="text-center text-gray-500 py-4">
                 검색 결과가 없습니다.
               </td>
             </tr>
@@ -103,10 +133,9 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
             emptyRowsCount > 0 &&
             Array.from({ length: emptyRowsCount }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[53px]">
-                <td className="py-4 px-2">&nbsp;</td>
-                <td className="py-4 px-2">&nbsp;</td>
-                <td className="py-4 px-2">&nbsp;</td>
-                <td className="py-4 px-2">&nbsp;</td>
+                <td colSpan={5} className="py-4 px-2">
+                  &nbsp;
+                </td>
               </tr>
             ))
           )}
@@ -116,7 +145,7 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
       <Pagination
         currentPage={page}
         query={query}
-        pageCount={(count || 1) / LIMIT}
+        pageCount={Math.ceil((count || 1) / LIMIT)}
       />
     </div>
   );
