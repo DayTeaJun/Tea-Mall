@@ -42,6 +42,11 @@ export default function DeliveryRegisterPage() {
   const { user } = useAuthStore();
   const { mutate: postInquiryMutate } = usePostInquiryMutation();
 
+  const formatPhone = (value: string) => {
+    if (value.length !== 11) return value;
+    return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
+  };
+
   const [formData, setFormData] = useState<InquiryType>({
     title: "",
     content: "",
@@ -103,7 +108,7 @@ export default function DeliveryRegisterPage() {
         title: formData.title,
         content: formData.content,
         guest_name: formData.guest_name,
-        phone_number: formData.phone_number,
+        phone_number: formatPhone(formData.phone_number),
         email: formData.email,
         password: formData.user_id ? null : formData.password,
         is_public: !!formData.is_public,
