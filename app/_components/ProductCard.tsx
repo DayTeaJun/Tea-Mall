@@ -89,17 +89,9 @@ function ProductCard({
     <Link
       key={products.id}
       href={`/products/${products.id}`}
-      className={`
-        group flex w-full flex-col bg-white transition-all duration-300
-        ${recommend ? "p-0" : "p-2 sm:p-3"}
-      `}
+      className="group flex w-full flex-col bg-white transition-all duration-300"
     >
-      <div
-        className="
-          relative flex aspect-[1/1] w-full items-center justify-center
-          overflow-hidden bg-[#f4f4f4] rounded-sm
-        "
-      >
+      <div className="relative flex aspect-[1/1] w-full items-center justify-center overflow-hidden bg-[#f4f4f4] rounded-sm">
         {!imageError && products.image_url ? (
           <Image
             fill

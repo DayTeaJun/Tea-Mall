@@ -1,6 +1,6 @@
 export default function ProductCardSkeleton() {
   return (
-    <div className="flex w-full flex-col bg-white transition-all duration-300 p-2 sm:p-3">
+    <div className="flex w-full flex-col bg-white transition-all duration-300">
       <div className="relative flex aspect-[1/1] w-full items-center justify-center overflow-hidden bg-[#f4f4f4] rounded-sm animate-pulse" />
 
       <div className="flex flex-1 flex-col pt-2.5 px-0.5">
