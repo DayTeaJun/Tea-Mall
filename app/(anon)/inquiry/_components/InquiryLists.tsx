@@ -136,7 +136,7 @@ async function InquiryLists({
                   <td className="py-4 px-2 font-medium text-gray-900">
                     <div className="flex items-center gap-1.5 truncate">
                       {inquiry.title}
-                      {!inquiry.is_public && (
+                      {inquiry.is_public && (
                         <Lock size={13} className="text-gray-400 shrink-0" />
                       )}
                     </div>
