@@ -8,11 +8,12 @@ async function page(props: { searchParams: SearchParams }) {
 
   const query = (searchParams.query as string) || "";
   const page = Number(searchParams.page) || 1;
+  const type = (searchParams.type as string) || "all";
 
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">고객센터</h1>
-      <InquiryLists page={page} query={query} />
+      <InquiryLists page={page} query={query} type={type} />
     </div>
   );
 }

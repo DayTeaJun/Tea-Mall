@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
-import { Lock } from "lucide-react"; // 💡 비밀글 아이콘 표시용 추가
+import { Lock } from "lucide-react";
 
 interface InquiryType {
   admin_id: string | null;
@@ -33,15 +33,33 @@ const INQUIRY_TYPE_MAP: Record<string, string> = {
   AUTH: "계정",
 };
 
-async function InquiryLists({ query, page }: { query: string; page: number }) {
+async function InquiryLists({
+  query,
+  page,
+  type,
+}: {
+  query: string;
+  page: number;
+  type: string;
+}) {
   const supabase = await createServerSupabaseClient();
 
   const LIMIT = 10;
 
   let inquiryQuery = supabase.from("inquiries").select("*", { count: "exact" });
 
-  if (query) {
-    inquiryQuery = inquiryQuery.ilike("title", `%${query}%`);
+  if (query && query.trim() !== "") {
+    const searchTarget = `%${query.trim()}%`;
+
+    if (type === "title") {
+      inquiryQuery = inquiryQuery.ilike("title", searchTarget);
+    } else if (type === "author") {
+      inquiryQuery = inquiryQuery.ilike("guest_name", searchTarget);
+    } else {
+      inquiryQuery = inquiryQuery.or(
+        `title.ilike.${searchTarget},guest_name.ilike.${searchTarget}`,
+      );
+    }
   }
 
   const from = (page - 1) * LIMIT;
