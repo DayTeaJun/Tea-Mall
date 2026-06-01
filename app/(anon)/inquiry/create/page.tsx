@@ -114,7 +114,7 @@ export default function DeliveryRegisterPage() {
       },
       {
         onSuccess: () => {
-          router.push("/cs/inquiry");
+          router.push("/inquiry");
         },
       },
     );

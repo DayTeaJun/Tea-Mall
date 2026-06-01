@@ -30,6 +30,7 @@ const INQUIRY_TYPE_MAP: Record<string, string> = {
   CANCEL: "취소/반품",
   ORDER: "주문/결제",
   OTHER: "기타",
+  AUTH: "계정",
 };
 
 async function InquiryLists({ query, page }: { query: string; page: number }) {
@@ -52,6 +53,26 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
 
   const currentLength = inqueries?.length || 0;
   const emptyRowsCount = LIMIT - currentLength;
+
+  const maskName = (name: string | null) => {
+    if (!name) return "";
+    const trimmed = name.trim();
+
+    if (trimmed.length <= 1) {
+      return trimmed;
+    }
+
+    if (trimmed.length === 2) {
+      return trimmed[0] + "*";
+    }
+
+    const first = trimmed[0];
+    const last = trimmed[trimmed.length - 1];
+    const maskLength = trimmed.length - 2;
+    const middle = "*".repeat(maskLength);
+
+    return `${first}${middle}${last}`;
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,12 +105,10 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
                   key={inquiry.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
                 >
-                  {/* 번호 */}
                   <td className="py-4 px-2 font-semibold text-center text-gray-400">
                     {(count || 0) - (page - 1) * LIMIT - index}
                   </td>
 
-                  {/* 💡 문의유형 데이터 행 */}
                   <td className="py-4 px-2 text-center text-gray-600 font-medium">
                     <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
                       {inquiryTypeLabel}
@@ -105,7 +124,7 @@ async function InquiryLists({ query, page }: { query: string; page: number }) {
                     </div>
                   </td>
                   <td className="py-4 px-2 text-gray-600 text-center truncate">
-                    {inquiry.guest_name}
+                    {maskName(inquiry.guest_name)}
                   </td>
 
                   <td className="py-4 px-2 text-center">
