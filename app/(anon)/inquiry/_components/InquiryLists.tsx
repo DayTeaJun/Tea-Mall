@@ -3,6 +3,7 @@ import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
 import { Lock } from "lucide-react";
+import Link from "next/link"; // ✨ Next.js Link 컴포넌트 추가
 
 interface InquiryType {
   admin_id: string | null;
@@ -118,43 +119,66 @@ async function InquiryLists({
               const inquiryTypeLabel =
                 INQUIRY_TYPE_MAP[inquiry.inquiry_type] || inquiry.inquiry_type;
 
+              // 💡 공통 이동 경로 선언
+              const detailUrl = `/inquiry/${inquiry.id}`;
+
               return (
                 <tr
                   key={inquiry.id}
-                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
+                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
                 >
-                  <td className="py-4 px-2 font-semibold text-center text-gray-400">
-                    {(count || 0) - (page - 1) * LIMIT - index}
+                  {/* 번호 */}
+                  <td className="p-0 text-center text-gray-400">
+                    <Link
+                      href={detailUrl}
+                      className="block py-4 px-2 font-semibold"
+                    >
+                      {(count || 0) - (page - 1) * LIMIT - index}
+                    </Link>
                   </td>
 
-                  <td className="py-4 px-2 text-center text-gray-600 font-medium">
-                    <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
-                      {inquiryTypeLabel}
-                    </span>
+                  {/* 문의유형 */}
+                  <td className="p-0 text-center text-gray-600 font-medium">
+                    <Link href={detailUrl} className="block py-4 px-2">
+                      <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
+                        {inquiryTypeLabel}
+                      </span>
+                    </Link>
                   </td>
 
-                  <td className="py-4 px-2 font-medium text-gray-900">
-                    <div className="flex items-center gap-1.5 truncate">
-                      {inquiry.title}
-                      {inquiry.is_public && (
-                        <Lock size={13} className="text-gray-400 shrink-0" />
+                  {/* 제목 */}
+                  <td className="p-0 font-medium text-gray-900">
+                    <Link href={detailUrl} className="block py-4 px-2">
+                      <div className="flex items-center gap-1.5 truncate">
+                        {inquiry.title}
+                        {/* 🔒 버그 수정: 공개글이 아닐 때(!is_public) 자물쇠가 노출되어야 합니다. */}
+                        {!inquiry.is_public && (
+                          <Lock size={13} className="text-gray-400 shrink-0" />
+                        )}
+                      </div>
+                    </Link>
+                  </td>
+
+                  {/* 작성자 */}
+                  <td className="p-0 text-gray-600 text-center truncate">
+                    <Link href={detailUrl} className="block py-4 px-2">
+                      {maskName(inquiry.guest_name)}
+                    </Link>
+                  </td>
+
+                  {/* 문의상태 */}
+                  <td className="p-0 text-center">
+                    <Link href={detailUrl} className="block py-4 px-2">
+                      {inquiry.status === "ANSWERED" ? (
+                        <span className="text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-sm text-xs">
+                          답변완료
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded-sm text-xs">
+                          답변대기
+                        </span>
                       )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-2 text-gray-600 text-center truncate">
-                    {maskName(inquiry.guest_name)}
-                  </td>
-
-                  <td className="py-4 px-2 text-center">
-                    {inquiry.status === "ANSWERED" ? (
-                      <span className="text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-sm text-xs">
-                        답변완료
-                      </span>
-                    ) : (
-                      <span className="text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded-sm text-xs">
-                        답변대기
-                      </span>
-                    )}
+                    </Link>
                   </td>
                 </tr>
               );
