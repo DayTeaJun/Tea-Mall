@@ -3,7 +3,7 @@ import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
 import { Lock } from "lucide-react";
-import Link from "next/link"; // ✨ Next.js Link 컴포넌트 추가
+import Link from "next/link";
 
 interface InquiryType {
   admin_id: string | null;
@@ -45,8 +45,13 @@ async function InquiryLists({
 }) {
   const supabase = await createServerSupabaseClient();
 
-  const LIMIT = 10;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userLevel = user?.user_metadata?.level ?? 1;
+  const currentUserId = user?.id ?? null;
 
+  const LIMIT = 10;
   let inquiryQuery = supabase.from("inquiries").select("*", { count: "exact" });
 
   if (query && query.trim() !== "") {
@@ -76,20 +81,12 @@ async function InquiryLists({
   const maskName = (name: string | null) => {
     if (!name) return "";
     const trimmed = name.trim();
-
-    if (trimmed.length <= 1) {
-      return trimmed;
-    }
-
-    if (trimmed.length === 2) {
-      return trimmed[0] + "*";
-    }
-
+    if (trimmed.length <= 1) return trimmed;
+    if (trimmed.length === 2) return trimmed[0] + "*";
     const first = trimmed[0];
     const last = trimmed[trimmed.length - 1];
     const maskLength = trimmed.length - 2;
     const middle = "*".repeat(maskLength);
-
     return `${first}${middle}${last}`;
   };
 
@@ -119,15 +116,23 @@ async function InquiryLists({
               const inquiryTypeLabel =
                 INQUIRY_TYPE_MAP[inquiry.inquiry_type] || inquiry.inquiry_type;
 
-              // 💡 공통 이동 경로 선언
-              const detailUrl = `/inquiry/${inquiry.id}`;
+              let detailUrl = `/inquiry/${inquiry.id}`;
+
+              if (inquiry.is_public === false) {
+                const isMaster = Number(userLevel) === 3;
+                const isOwnPost =
+                  currentUserId && currentUserId === inquiry.user_id;
+
+                if (!isMaster && !isOwnPost) {
+                  detailUrl = `/inquiry/${inquiry.id}/password`;
+                }
+              }
 
               return (
                 <tr
                   key={inquiry.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
                 >
-                  {/* 번호 */}
                   <td className="p-0 text-center text-gray-400">
                     <Link
                       href={detailUrl}
@@ -137,7 +142,6 @@ async function InquiryLists({
                     </Link>
                   </td>
 
-                  {/* 문의유형 */}
                   <td className="p-0 text-center text-gray-600 font-medium">
                     <Link href={detailUrl} className="block py-4 px-2">
                       <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
@@ -146,27 +150,23 @@ async function InquiryLists({
                     </Link>
                   </td>
 
-                  {/* 제목 */}
                   <td className="p-0 font-medium text-gray-900">
                     <Link href={detailUrl} className="block py-4 px-2">
                       <div className="flex items-center gap-1.5 truncate">
                         {inquiry.title}
-                        {/* 🔒 버그 수정: 공개글이 아닐 때(!is_public) 자물쇠가 노출되어야 합니다. */}
-                        {!inquiry.is_public && (
+                        {inquiry.is_public === false && (
                           <Lock size={13} className="text-gray-400 shrink-0" />
                         )}
                       </div>
                     </Link>
                   </td>
 
-                  {/* 작성자 */}
                   <td className="p-0 text-gray-600 text-center truncate">
                     <Link href={detailUrl} className="block py-4 px-2">
                       {maskName(inquiry.guest_name)}
                     </Link>
                   </td>
 
-                  {/* 문의상태 */}
                   <td className="p-0 text-center">
                     <Link href={detailUrl} className="block py-4 px-2">
                       {inquiry.status === "ANSWERED" ? (

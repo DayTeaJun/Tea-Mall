@@ -53,7 +53,7 @@ export default function DeliveryRegisterPage() {
     email: user?.email || "",
     guest_name: user?.user_name || "",
     is_privacy_agreed: false,
-    is_public: false,
+    is_public: true,
     password: "",
     phone_number: user?.phone || "",
     user_id: user?.id || "",
@@ -254,7 +254,7 @@ export default function DeliveryRegisterPage() {
             <input
               type="checkbox"
               className="mt-0.5 w-4 h-4 border-gray-300 rounded-sm focus:ring-0 cursor-pointer accent-black shrink-0"
-              checked={!!formData.is_public}
+              checked={!formData.is_public}
               onChange={(e) =>
                 setFormData({ ...formData, is_public: e.target.checked })
               }
