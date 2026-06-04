@@ -2,8 +2,7 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
-import { Lock } from "lucide-react";
-import Link from "next/link";
+import InquiryRow from "./InquiryRow"; // 💡 신규 생성한 행 컴포넌트 로드
 
 interface InquiryType {
   admin_id: string | null;
@@ -115,72 +114,18 @@ async function InquiryLists({
             inqueries?.map((inquiry: InquiryType, index: number) => {
               const inquiryTypeLabel =
                 INQUIRY_TYPE_MAP[inquiry.inquiry_type] || inquiry.inquiry_type;
-
-              let detailUrl = `/inquiry/${inquiry.id}`;
-
-              if (inquiry.is_public === false) {
-                const isMaster = Number(userLevel) === 3;
-                const isOwnPost =
-                  currentUserId && currentUserId === inquiry.user_id;
-
-                if (!isMaster && !isOwnPost) {
-                  detailUrl = `/inquiry/${inquiry.id}/password`;
-                }
-              }
+              const displayIndex = (count || 0) - (page - 1) * LIMIT - index;
 
               return (
-                <tr
+                <InquiryRow
                   key={inquiry.id}
-                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
-                >
-                  <td className="p-0 text-center text-gray-400">
-                    <Link
-                      href={detailUrl}
-                      className="block py-4 px-2 font-semibold"
-                    >
-                      {(count || 0) - (page - 1) * LIMIT - index}
-                    </Link>
-                  </td>
-
-                  <td className="p-0 text-center text-gray-600 font-medium">
-                    <Link href={detailUrl} className="block py-4 px-2">
-                      <span className="bg-gray-100 px-2 py-1 rounded-sm text-xs text-gray-700">
-                        {inquiryTypeLabel}
-                      </span>
-                    </Link>
-                  </td>
-
-                  <td className="p-0 font-medium text-gray-900">
-                    <Link href={detailUrl} className="block py-4 px-2">
-                      <div className="flex items-center gap-1.5 truncate">
-                        {inquiry.title}
-                        {inquiry.is_public === false && (
-                          <Lock size={13} className="text-gray-400 shrink-0" />
-                        )}
-                      </div>
-                    </Link>
-                  </td>
-
-                  <td className="p-0 text-gray-600 text-center truncate">
-                    <Link href={detailUrl} className="block py-4 px-2">
-                      {maskName(inquiry.guest_name)}
-                    </Link>
-                  </td>
-
-                  <td className="p-0 text-center">
-                    <Link href={detailUrl} className="block py-4 px-2">
-                      {inquiry.status === "ANSWERED" ? (
-                        <span className="text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-sm text-xs">
-                          답변완료
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded-sm text-xs">
-                          답변대기
-                        </span>
-                      )}
-                    </Link>
-                  </td>
-                </tr>
+                  inquiry={inquiry}
+                  displayIndex={displayIndex}
+                  inquiryTypeLabel={inquiryTypeLabel}
+                  maskName={maskName}
+                  userLevel={userLevel}
+                  currentUserId={currentUserId}
+                />
               );
             })}
 
