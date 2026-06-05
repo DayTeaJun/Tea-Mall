@@ -77,18 +77,6 @@ async function InquiryLists({
   const currentLength = inqueries?.length || 0;
   const emptyRowsCount = LIMIT - currentLength;
 
-  const maskName = (name: string | null) => {
-    if (!name) return "";
-    const trimmed = name.trim();
-    if (trimmed.length <= 1) return trimmed;
-    if (trimmed.length === 2) return trimmed[0] + "*";
-    const first = trimmed[0];
-    const last = trimmed[trimmed.length - 1];
-    const maskLength = trimmed.length - 2;
-    const middle = "*".repeat(maskLength);
-    return `${first}${middle}${last}`;
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <SearchInput />
@@ -122,7 +110,6 @@ async function InquiryLists({
                   inquiry={inquiry}
                   displayIndex={displayIndex}
                   inquiryTypeLabel={inquiryTypeLabel}
-                  maskName={maskName}
                   userLevel={userLevel}
                   currentUserId={currentUserId}
                 />
