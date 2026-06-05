@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
-import InquiryRow from "./InquiryRow"; // 💡 신규 생성한 행 컴포넌트 로드
+import InquiryRow from "./InquiryRow";
 
 interface InquiryType {
   admin_id: string | null;
@@ -47,8 +47,21 @@ async function InquiryLists({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const userLevel = user?.user_metadata?.level ?? 1;
   const currentUserId = user?.id ?? null;
+
+  let userLevel = 1;
+
+  if (currentUserId) {
+    const { data: userData } = await supabase
+      .from("user_table")
+      .select("level")
+      .eq("id", currentUserId)
+      .single();
+
+    if (userData?.level) {
+      userLevel = userData.level;
+    }
+  }
 
   const LIMIT = 10;
   let inquiryQuery = supabase.from("inquiries").select("*", { count: "exact" });

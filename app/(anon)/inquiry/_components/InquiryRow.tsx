@@ -36,6 +36,7 @@ export default function InquiryRow({
   const [passwordInput, setPasswordInput] = useState("");
 
   const isMaster = Number(userLevel) === 3;
+  console.log("userLevel:", userLevel, "isMaster:", isMaster);
   const isOwnPost = currentUserId && currentUserId === inquiry.user_id;
   const isSecret = inquiry.is_public === false;
 
