@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
+import {
+  usePostInquiryCommentMutation,
+  useUpdateInquiryCommentMutation,
+  useDeleteInquiryCommentMutation,
+} from "@/lib/queries/auth";
 
 interface CommentSectionProps {
   inquiry: {
@@ -17,43 +21,60 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ inquiry }: CommentSectionProps) {
-  const router = useRouter();
   const { user } = useAuthStore();
-
   const isAdmin = user?.level === 3;
 
   const [comment, setComment] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(inquiry.answer_content || "");
 
-  const handleSendComment = async () => {
+  const { mutate: postComment, isPending: isPosting } =
+    usePostInquiryCommentMutation();
+  const { mutate: updateComment, isPending: isUpdating } =
+    useUpdateInquiryCommentMutation();
+  const { mutate: deleteComment, isPending: isDeleting } =
+    useDeleteInquiryCommentMutation();
+
+  const handleSendComment = () => {
     if (!comment.trim()) {
       toast.warning("답변 내용을 입력해주세요.");
       return;
     }
+    if (!user?.id) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
 
-    toast.success("답변이 등록되었습니다.");
-    setComment("");
-    router.refresh();
+    postComment(
+      { userId: user.id, inquiryId: inquiry.id, comment },
+      {
+        onSuccess: () => setComment(""),
+      },
+    );
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = () => {
     if (!editContent.trim()) {
       toast.warning("내용을 입력해주세요.");
       return;
     }
 
-    setIsEditing(false);
-    toast.success("답변이 수정되었습니다.");
-    router.refresh();
+    updateComment(
+      { inquiryId: inquiry.id, comment: editContent },
+      {
+        onSuccess: () => setIsEditing(false),
+      },
+    );
   };
 
-  const handleDeleteComment = async () => {
+  const handleDeleteComment = () => {
     if (confirm("답변을 삭제하시겠습니까?")) {
-      toast.success("답변이 삭제되었습니다.");
-      setEditContent("");
-      setIsEditing(false);
-      router.refresh();
+      deleteComment(inquiry.id, {
+        onSuccess: () => {
+          setEditContent("");
+          setIsEditing(false);
+        },
+      });
     }
   };
 
@@ -70,7 +91,7 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
           <div className="flex justify-between">
             <div className="flex items-center gap-2">
               <User size={12} className="text-gray-600" />
-              <p className="text-sm font-semibold text-gray-700">최고관리자</p>
+              <p className="text-sm font-semibold text-gray-700">관리자</p>
               <p className="ml-2 text-xs text-gray-400">
                 {inquiry.answered_at
                   ? new Date(inquiry.answered_at).toLocaleDateString()
@@ -84,10 +105,11 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
                   <>
                     <button
                       onClick={handleSaveEdit}
-                      className="hover:font-bold hover:text-black"
+                      disabled={isUpdating}
+                      className="hover:font-bold hover:text-black disabled:text-gray-300"
                       type="button"
                     >
-                      저장
+                      {isUpdating ? "저장 중..." : "저장"}
                     </button>
                     <p className="text-gray-200">|</p>
                     <button
@@ -95,7 +117,8 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
                         setIsEditing(false);
                         setEditContent(inquiry.answer_content || "");
                       }}
-                      className="hover:font-bold hover:text-black"
+                      disabled={isUpdating}
+                      className="hover:font-bold hover:text-black disabled:text-gray-300"
                       type="button"
                     >
                       취소
@@ -104,7 +127,10 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
                 ) : (
                   <>
                     <button
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => {
+                        setEditContent(inquiry.answer_content || "");
+                        setIsEditing(true);
+                      }}
                       className="hover:font-bold hover:text-black"
                       type="button"
                     >
@@ -113,10 +139,11 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
                     <p className="text-gray-200">|</p>
                     <button
                       onClick={handleDeleteComment}
-                      className="hover:font-bold hover:text-red-600"
+                      disabled={isDeleting}
+                      className="hover:font-bold hover:text-red-600 disabled:text-gray-300"
                       type="button"
                     >
-                      삭제
+                      {isDeleting ? "삭제 중..." : "삭제"}
                     </button>
                   </>
                 )}
@@ -129,10 +156,11 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
               spellCheck={false}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="border p-4 border-solid border-gray-200 text-sm w-full h-[180px] outline-none resize-none leading-7 rounded-sm focus:border-black"
+              disabled={isUpdating}
+              className="border p-4 border-solid border-gray-200 text-sm w-full min-h-[180px] outline-none resize-none leading-7 focus:border-black disabled:bg-gray-50"
             />
           ) : (
-            <div className="bg-[#f9f8f9] p-5 rounded-sm border border-gray-50">
+            <div className="bg-[#f9f8f9] p-4 border border-gray-50">
               <p className="text-base whitespace-pre-wrap leading-8 text-[#555555] font-medium">
                 {inquiry.answer_content}
               </p>
@@ -160,14 +188,16 @@ export default function CommentSection({ inquiry }: CommentSectionProps) {
               value={comment}
               placeholder="답변을 작성해주세요."
               onChange={(e) => setComment(e.target.value)}
-              className="p-3 text-sm w-full h-[120px] outline-none resize-none leading-6 text-gray-800"
+              disabled={isPosting}
+              className="p-3 text-sm w-full h-[120px] outline-none resize-none leading-6 text-gray-800 disabled:bg-gray-50"
             />
             <button
               type="button"
               onClick={handleSendComment}
-              className="w-[100px] h-[120px] font-bold text-white text-sm bg-[#222]/80 hover:bg-[#111] duration-200 transition-all flex justify-center items-center shrink-0"
+              disabled={isPosting}
+              className="w-[100px] h-[120px] font-bold text-white text-sm bg-[#222]/80 hover:bg-[#111] duration-200 transition-all flex justify-center items-center shrink-0 disabled:bg-gray-400"
             >
-              등록
+              {isPosting ? "등록 중" : "등록"}
             </button>
           </div>
         </div>

@@ -863,3 +863,147 @@ export const usePostInquiryMutation = () => {
     },
   });
 };
+
+export const postInquiryComment = async (
+  userId: string,
+  inquiryId: number,
+  comment: string,
+) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("inquiries")
+    .update({
+      answer_content: comment.trim(),
+      answered_at: new Date().toISOString(),
+      admin_id: userId || null,
+      status: "ANSWERED",
+    })
+    .eq("id", inquiryId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const usePostInquiryCommentMutation = () => {
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({
+      userId,
+      inquiryId,
+      comment,
+    }: {
+      userId: string;
+      inquiryId: number;
+      comment: string;
+    }) => postInquiryComment(userId, inquiryId, comment),
+    onSuccess: async () => {
+      toast.success("답변이 성공적으로 등록되었습니다.");
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      router.refresh();
+    },
+    onError: (error) => {
+      console.error("답변 등록 실패:", error);
+      toast.error(
+        `등록에 실패했습니다: ${error.message || "다시 시도해주세요."}`,
+      );
+    },
+  });
+
+  return { mutate, isPending };
+};
+
+// 문의 답변 수정
+export const updateInquiryComment = async (
+  inquiryId: number,
+  comment: string,
+) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("inquiries")
+    .update({
+      answer_content: comment.trim(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", inquiryId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const useUpdateInquiryCommentMutation = () => {
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({
+      inquiryId,
+      comment,
+    }: {
+      inquiryId: number;
+      comment: string;
+    }) => updateInquiryComment(inquiryId, comment),
+    onSuccess: async () => {
+      toast.success("답변이 수정되었습니다.");
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      router.refresh();
+    },
+    onError: (error) => {
+      console.error("답변 수정 실패:", error);
+      toast.error(
+        `수정에 실패했습니다: ${error.message || "다시 시도해주세요."}`,
+      );
+    },
+  });
+
+  return { mutate, isPending };
+};
+
+// 답변 삭제
+export const deleteInquiryComment = async (inquiryId: number) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("inquiries")
+    .update({
+      answer_content: null,
+      answered_at: null,
+      admin_id: null,
+      status: "WAITING",
+    })
+    .eq("id", inquiryId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const useDeleteInquiryCommentMutation = () => {
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (inquiryId: number) => deleteInquiryComment(inquiryId),
+    onSuccess: async () => {
+      toast.success("답변이 삭제되었습니다.");
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      router.refresh();
+    },
+    onError: (error) => {
+      console.error("답변 삭제 실패:", error);
+      toast.error(
+        `삭제에 실패했습니다: ${error.message || "다시 시도해주세요."}`,
+      );
+    },
+  });
+
+  return { mutate, isPending };
+};
