@@ -9,6 +9,7 @@ import {
   FileText,
   User,
   Phone,
+  Mail,
   KeyRound,
   HelpCircle,
 } from "lucide-react";
@@ -83,6 +84,14 @@ export default function DeliveryRegisterPage() {
       return;
     }
 
+    if (
+      !formData.email ||
+      (formData.email?.trim() && !/\S+@\S+\.\S+/.test(formData.email))
+    ) {
+      toast.warning("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
     if (!formData.user_id && !formData.password?.trim()) {
       toast.warning("비회원 비밀번호 4자리를 입력해주세요.");
       return;
@@ -126,7 +135,7 @@ export default function DeliveryRegisterPage() {
   };
 
   return (
-    <section className="w-full bg-white">
+    <section className="w-full">
       <div className="border-b border-gray-900 pb-4 mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#111111]">
           1:1 문의 등록
@@ -136,7 +145,7 @@ export default function DeliveryRegisterPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
             <HelpCircle size={14} className="text-gray-400" />
@@ -184,56 +193,81 @@ export default function DeliveryRegisterPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
-            <User size={14} className="text-gray-400" />
-            문의자 이름 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="이름을 입력해주세요."
-            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
-            value={formData.guest_name || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, guest_name: e.target.value })
-            }
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
-            <Phone size={14} className="text-gray-400" />
-            휴대전화 번호 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="tel"
-            placeholder="숫자만 입력해주세요."
-            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
-            value={formData.phone_number || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, phone_number: e.target.value })
-            }
-          />
-        </div>
-
-        {!formData.user_id && (
-          <div className="flex flex-col gap-2 w-full sm:w-1/2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-2 sm:col-span-2">
             <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
-              <KeyRound size={14} className="text-gray-400" />
-              비회원 비밀번호 <span className="text-red-500">*</span>
+              <User size={14} className="text-gray-400" />
+              문의자 이름 <span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
-              maxLength={4}
-              placeholder="비밀번호 숫자 4자리를 입력해주세요."
+              type="text"
+              placeholder="이름을 입력해주세요."
               className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
-              value={formData.password || ""}
+              value={formData.guest_name || ""}
               onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
+                setFormData({ ...formData, guest_name: e.target.value })
               }
             />
           </div>
-        )}
+
+          <div className="flex flex-col gap-2 sm:col-span-1">
+            <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+              <Phone size={14} className="text-gray-400" />
+              휴대전화 번호 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              placeholder="숫자만 입력해주세요."
+              className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+              value={formData.phone_number || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, phone_number: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div
+            className={`flex flex-col gap-2 ${!formData.user_id ? "sm:col-span-2" : "sm:col-span-3"}`}
+          >
+            <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+              <Mail size={14} className="text-gray-400" />
+              이메일 주소 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              placeholder="example@domain.com"
+              disabled={!!formData.user_id}
+              className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all disabled:bg-gray-50 disabled:text-gray-400"
+              value={formData.email || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+          </div>
+
+          {!formData.user_id ? (
+            <div className="flex flex-col gap-2 sm:col-span-1">
+              <label className="text-[13px] font-semibold text-[#111111] flex items-center gap-1.5">
+                <KeyRound size={14} className="text-gray-400" />
+                비회원 비밀번호 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                maxLength={4}
+                placeholder="비밀번호 숫자 4자리"
+                className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm placeholder-gray-300 focus:outline-none focus:border-black focus:ring-0 transition-all"
+                value={formData.password || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+            </div>
+          ) : (
+            <div className="hidden sm:block" />
+          )}
+        </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-[13px] font-semibold text-[#111111]">
@@ -256,7 +290,7 @@ export default function DeliveryRegisterPage() {
               className="mt-0.5 w-4 h-4 border-gray-300 rounded-sm focus:ring-0 cursor-pointer accent-black shrink-0"
               checked={!formData.is_public}
               onChange={(e) =>
-                setFormData({ ...formData, is_public: e.target.checked })
+                setFormData({ ...formData, is_public: !e.target.checked })
               }
             />
             <div className="flex flex-col select-none">
@@ -293,7 +327,7 @@ export default function DeliveryRegisterPage() {
           </div>
         </div>
 
-        <div className="flex items-center ml-auto gap-2.5 pt-6 mt-2 w-full sm:border-0 border-t border-gray-200 sm:w-1/2">
+        <div className="flex items-center ml-auto gap-2.5 pt-4 mt-2 w-full sm:border-0 border-t border-gray-200 sm:w-1/2">
           <button
             type="button"
             onClick={() => router.back()}
