@@ -3,6 +3,7 @@
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   delDeliveryAddress,
+  getInquiryDetail,
   getMyAddressList,
   getMyDefaultAddress,
   getMyProfile,
@@ -1007,3 +1008,18 @@ export const useDeleteInquiryCommentMutation = () => {
 
   return { mutate, isPending };
 };
+
+// 고객센터 문의 상세 조회
+export function useGetInquiryDetail(inquiryId: number) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["inquiries", inquiryId],
+    queryFn: () => getInquiryDetail(inquiryId),
+    enabled: !!inquiryId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}

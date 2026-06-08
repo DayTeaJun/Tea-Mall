@@ -389,3 +389,16 @@ export const withdrawalUser = async () => {
 
   return { success: true };
 };
+
+// 고객센터 문의 상세 조회
+export const getInquiryDetail = async (inquiryId: number) => {
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("inquiries")
+    .select("*")
+    .eq("id", inquiryId)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+};

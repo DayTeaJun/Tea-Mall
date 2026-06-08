@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useInquiryStore } from "@/lib/store/useInquiryStore";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import CommentSection from "./CommentSection";
+import { useGetInquiryDetail } from "@/lib/queries/auth";
 
 interface InquiryDetailClientProps {
   inquiryId: number;
@@ -25,7 +24,6 @@ const INQUIRY_TYPE_MAP: Record<string, string> = {
 export default function InquiryDetailComponent({
   inquiryId,
 }: InquiryDetailClientProps) {
-  const supabase = createBrowserSupabaseClient();
   const { user } = useAuthStore();
   const { verifiedInquiryIds } = useInquiryStore();
 
@@ -40,20 +38,8 @@ export default function InquiryDetailComponent({
   const {
     data: inquiry,
     isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["inquiry", inquiryId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("inquiries")
-        .select("*")
-        .eq("id", inquiryId)
-        .single();
-
-      if (error) throw new Error(error.message);
-      return data;
-    },
-  });
+    isError: error,
+  } = useGetInquiryDetail(inquiryId);
 
   if (isLoading)
     return (
