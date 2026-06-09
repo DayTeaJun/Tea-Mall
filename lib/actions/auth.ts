@@ -391,7 +391,11 @@ export const withdrawalUser = async () => {
 };
 
 // 문의 삭제
-export async function deleteInquiry(inquiryId: number, guestPassword?: string) {
+export async function deleteInquiry(
+  inquiryId: number,
+  guestPassword?: string,
+  isAdmin: boolean = false,
+) {
   const supabase = await createServerSupabaseClient();
 
   const { data: original, error: fetchError } = await supabase
@@ -406,21 +410,23 @@ export async function deleteInquiry(inquiryId: number, guestPassword?: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdmin = user?.user_metadata?.level === 3;
+  const isSystemAdmin = isAdmin;
   const isMemberPost = !!original.user_id;
 
   if (isMemberPost) {
     if (!user) throw new Error("로그인이 필요합니다.");
     const isOwner = original.user_id === user.id;
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isSystemAdmin) {
       throw new Error("본인이 작성한 글만 삭제할 수 있습니다.");
     }
   } else {
-    if (!guestPassword?.trim()) {
-      throw new Error("비회원 글 삭제를 위해 비밀번호가 필요합니다.");
-    }
-    if (original.password !== guestPassword.trim() && !isAdmin) {
-      throw new Error("비밀번호가 일치하지 않습니다.");
+    if (!isSystemAdmin) {
+      if (!guestPassword?.trim()) {
+        throw new Error("비회원 글 삭제를 위해 비밀번호가 필요합니다.");
+      }
+      if (original.password !== guestPassword.trim()) {
+        throw new Error("비밀번호가 일치하지 않습니다.");
+      }
     }
   }
 

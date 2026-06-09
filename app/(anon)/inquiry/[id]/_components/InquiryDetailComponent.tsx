@@ -49,7 +49,7 @@ export default function InquiryDetailComponent({
 
   const { mutate: handleDeleteInquiry, isPending: isDeleting } = useMutation({
     mutationFn: (guestPassword?: string) => {
-      return deleteInquiry(inquiryId, guestPassword);
+      return deleteInquiry(inquiryId, guestPassword, isAdmin);
     },
     onSuccess: () => {
       toast.success("문의글이 정상적으로 삭제되었습니다.");
@@ -88,7 +88,7 @@ export default function InquiryDetailComponent({
   const handleConfirmDelete = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (inquiry.user_id) {
+    if (inquiry.user_id || isAdmin) {
       handleDeleteInquiry(undefined);
     } else {
       if (!deletePassword.trim()) {
@@ -229,7 +229,7 @@ export default function InquiryDetailComponent({
             </h3>
 
             <p className="text-xs text-gray-400 text-center mb-5 leading-relaxed">
-              {inquiry.user_id
+              {isAdmin || inquiry.user_id
                 ? "정말 이 문의글을 영구히 삭제하시겠습니까?"
                 : "비회원 글 삭제를 위해\n설정하셨던 비밀번호 4자리를 입력해주세요."}
             </p>
@@ -238,7 +238,7 @@ export default function InquiryDetailComponent({
               onSubmit={handleConfirmDelete}
               className="w-full flex flex-col gap-3"
             >
-              {!inquiry.user_id && (
+              {!inquiry.user_id && !isAdmin && (
                 <input
                   type="password"
                   maxLength={4}
