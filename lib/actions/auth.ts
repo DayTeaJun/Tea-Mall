@@ -389,3 +389,47 @@ export const withdrawalUser = async () => {
 
   return { success: true };
 };
+
+// 문의 삭제
+export async function deleteInquiry(inquiryId: number, guestPassword?: string) {
+  const supabase = await createServerSupabaseClient();
+
+  const { data: original, error: fetchError } = await supabase
+    .from("inquiries")
+    .select("user_id, password")
+    .eq("id", inquiryId)
+    .single();
+
+  if (fetchError || !original) throw new Error("존재하지 않는 게시글입니다.");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAdmin = user?.user_metadata?.level === 3;
+  const isMemberPost = !!original.user_id;
+
+  if (isMemberPost) {
+    if (!user) throw new Error("로그인이 필요합니다.");
+    const isOwner = original.user_id === user.id;
+    if (!isOwner && !isAdmin) {
+      throw new Error("본인이 작성한 글만 삭제할 수 있습니다.");
+    }
+  } else {
+    if (!guestPassword?.trim()) {
+      throw new Error("비회원 글 삭제를 위해 비밀번호가 필요합니다.");
+    }
+    if (original.password !== guestPassword.trim() && !isAdmin) {
+      throw new Error("비밀번호가 일치하지 않습니다.");
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("inquiries")
+    .delete()
+    .eq("id", inquiryId);
+
+  if (deleteError) throw deleteError;
+
+  return { success: true };
+}

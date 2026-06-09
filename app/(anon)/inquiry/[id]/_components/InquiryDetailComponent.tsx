@@ -2,11 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useInquiryStore } from "@/lib/store/useInquiryStore";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import CommentSection from "./CommentSection";
 import { useGetInquiryDetail } from "@/lib/queries/auth";
+import { deleteInquiry } from "@/lib/actions/auth";
 
 interface InquiryDetailClientProps {
   inquiryId: number;
@@ -24,6 +27,7 @@ const INQUIRY_TYPE_MAP: Record<string, string> = {
 export default function InquiryDetailComponent({
   inquiryId,
 }: InquiryDetailClientProps) {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { verifiedInquiryIds } = useInquiryStore();
 
@@ -41,9 +45,25 @@ export default function InquiryDetailComponent({
     isError: error,
   } = useGetInquiryDetail(inquiryId);
 
+  const { mutate: handleDeleteInquiry, isPending: isDeleting } = useMutation({
+    mutationFn: (guestPassword?: string) => {
+      return deleteInquiry(inquiryId, guestPassword);
+    },
+    onSuccess: () => {
+      toast.success("문의글이 정상적으로 삭제되었습니다.");
+      router.push("/inquiry");
+      router.refresh();
+    },
+    onError: (err) => {
+      toast.error(err.message || "삭제 처리 중 오류가 발생했습니다.");
+    },
+  });
+
   if (isLoading)
     return (
-      <div className="py-20 text-center text-gray-400 text-sm animate-pulse"></div>
+      <div className="py-20 text-center text-gray-400 text-sm animate-pulse">
+        문의 내용을 불러오는 중...
+      </div>
     );
 
   if (error || !inquiry)
@@ -61,6 +81,23 @@ export default function InquiryDetailComponent({
 
   const isOwner = !!(user?.id && inquiry.user_id === user.id);
   const isSecret = !inquiry.is_public;
+
+  const onClickDelete = () => {
+    if (inquiry.user_id) {
+      if (confirm("정말 이 문의글을 삭제하시겠습니까?")) {
+        handleDeleteInquiry(undefined);
+      }
+    } else {
+      const pw = prompt("비회원 비밀번호 4자리를 입력해주세요.");
+      if (pw === null) return; // 취소 클릭 시 중단
+
+      if (pw.trim().length !== 4 || /[^0-9]/.test(pw.trim())) {
+        toast.warning("비밀번호 숫자 4자리를 정확히 입력해주세요.");
+        return;
+      }
+      handleDeleteInquiry(pw.trim());
+    }
+  };
 
   if (isSecret && !isAdmin && !isOwner && !isVerified) {
     const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -100,7 +137,7 @@ export default function InquiryDetailComponent({
             onChange={(e) =>
               setInputPassword(e.target.value.replace(/[^0-9]/g, ""))
             }
-            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm text-center tracking-widest font-mono text-base focus:outline-none focus:border-black"
+            className="w-full border border-gray-200 px-3 py-2.5 text-sm rounded-sm text-center tracking-widest font-mono focus:outline-none focus:border-black"
             autoFocus
           />
           <button
@@ -145,12 +182,25 @@ export default function InquiryDetailComponent({
                 : ""}
             </p>
           </div>
-          <Link
-            href="/inquiry"
-            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 transition-colors font-medium rounded-sm"
-          >
-            목록보기
-          </Link>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/inquiry"
+              className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 transition-colors font-medium rounded-sm"
+            >
+              목록보기
+            </Link>
+
+            {(isOwner || isAdmin || !inquiry.user_id) && (
+              <button
+                onClick={onClickDelete}
+                disabled={isDeleting}
+                className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 transition-colors font-medium rounded-sm disabled:opacity-50"
+              >
+                {isDeleting ? "삭제 중..." : "삭제하기"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
