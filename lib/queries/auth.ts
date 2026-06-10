@@ -3,6 +3,7 @@
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   delDeliveryAddress,
+  deleteInquiry,
   getMyAddressList,
   getMyDefaultAddress,
   getMyProfile,
@@ -1035,3 +1036,32 @@ export function useGetInquiryDetail(inquiryId: number) {
     isError,
   };
 }
+
+// 문의 삭제
+interface DeleteVariables {
+  inquiryId: number;
+  guestPassword?: string;
+}
+
+export const useDeleteInquiry = (isAdmin: boolean) => {
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({ inquiryId, guestPassword }: DeleteVariables) =>
+      deleteInquiry(inquiryId, guestPassword, isAdmin),
+
+    onSuccess: async () => {
+      toast.success("문의가 삭제되었습니다.");
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      router.refresh();
+    },
+    onError: (error) => {
+      console.error("문의 삭제 실패:", error);
+      toast.error(
+        `삭제에 실패했습니다: ${error.message || "다시 시도해주세요."}`,
+      );
+    },
+  });
+
+  return { mutate, isPending };
+};

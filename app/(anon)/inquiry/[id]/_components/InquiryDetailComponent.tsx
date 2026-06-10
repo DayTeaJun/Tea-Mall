@@ -2,14 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useInquiryStore } from "@/lib/store/useInquiryStore";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import CommentSection from "./CommentSection";
-import { useGetInquiryDetail } from "@/lib/queries/auth";
-import { deleteInquiry } from "@/lib/actions/auth";
+import { useDeleteInquiry, useGetInquiryDetail } from "@/lib/queries/auth";
 
 interface InquiryDetailClientProps {
   inquiryId: number;
@@ -27,7 +24,6 @@ const INQUIRY_TYPE_MAP: Record<string, string> = {
 export default function InquiryDetailComponent({
   inquiryId,
 }: InquiryDetailClientProps) {
-  const router = useRouter();
   const { user } = useAuthStore();
   const { verifiedInquiryIds } = useInquiryStore();
 
@@ -47,20 +43,8 @@ export default function InquiryDetailComponent({
     isError: error,
   } = useGetInquiryDetail(inquiryId);
 
-  const { mutate: handleDeleteInquiry, isPending: isDeleting } = useMutation({
-    mutationFn: (guestPassword?: string) => {
-      return deleteInquiry(inquiryId, guestPassword, isAdmin);
-    },
-    onSuccess: () => {
-      toast.success("문의글이 정상적으로 삭제되었습니다.");
-      setIsDeleteModalOpen(false);
-      router.push("/inquiry");
-      router.refresh();
-    },
-    onError: (err) => {
-      toast.error(err.message || "삭제 처리 중 오류가 발생했습니다.");
-    },
-  });
+  const { mutate: handleDeleteInquiry, isPending: isDeleting } =
+    useDeleteInquiry(isAdmin);
 
   if (isLoading)
     return (
@@ -89,7 +73,7 @@ export default function InquiryDetailComponent({
     e.preventDefault();
 
     if (inquiry.user_id || isAdmin) {
-      handleDeleteInquiry(undefined);
+      handleDeleteInquiry({ inquiryId });
     } else {
       if (!deletePassword.trim()) {
         toast.warning("비밀번호를 입력해주세요.");
@@ -99,7 +83,11 @@ export default function InquiryDetailComponent({
         toast.warning("비밀번호 숫자 4자리를 입력해주세요.");
         return;
       }
-      handleDeleteInquiry(deletePassword.trim());
+
+      handleDeleteInquiry({
+        inquiryId,
+        guestPassword: deletePassword.trim(),
+      });
     }
   };
 
