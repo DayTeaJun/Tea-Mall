@@ -14,7 +14,10 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { usePostInquiryMutation } from "@/lib/queries/auth";
+import { uploadImageToStorage } from "@/lib/queries/admin";
+import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
+import DetailImagePreview from "./_components/DetailImagePreview";
 
 interface InquiryType {
   content: string;
@@ -43,6 +46,11 @@ export default function DeliveryRegisterPage() {
   const { user } = useAuthStore();
   const { mutate: postInquiryMutate } = usePostInquiryMutation();
 
+  const [uploading, setUploading] = useState(false);
+
+  const { detailFiles, detailPreviews, detailOnUpload, removeDetailImage } =
+    useDetailImagePreview();
+
   const formatPhone = (value: string) => {
     if (value.length !== 11) return value;
     return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
@@ -61,29 +69,25 @@ export default function DeliveryRegisterPage() {
     inquiry_type: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.inquiry_type) {
       toast.warning("문의 유형을 선택해주세요.");
       return;
     }
-
     if (!formData.title.trim()) {
       toast.warning("문의 제목을 입력해주세요.");
       return;
     }
-
     if (!formData.guest_name?.trim()) {
       toast.warning("문의자 이름을 입력해주세요.");
       return;
     }
-
     if (!formData.phone_number?.trim()) {
       toast.warning("휴대전화 번호를 입력해주세요.");
       return;
     }
-
     if (
       !formData.email ||
       (formData.email?.trim() && !/\S+@\S+\.\S+/.test(formData.email))
@@ -91,29 +95,32 @@ export default function DeliveryRegisterPage() {
       toast.warning("올바른 이메일 형식을 입력해주세요.");
       return;
     }
-
     if (!formData.user_id && !formData.password?.trim()) {
       toast.warning("비회원 비밀번호 4자리를 입력해주세요.");
       return;
     }
-
     if (!formData.user_id && formData.password?.trim().length !== 4) {
       toast.warning("비밀번호는 숫자 4자리로 입력해주세요.");
       return;
     }
-
     if (!formData.content.trim()) {
       toast.warning("문의 내용을 입력해주세요.");
       return;
     }
-
     if (!formData.is_privacy_agreed) {
       toast.warning("개인정보 수집 및 이용 방침에 동의하셔야 합니다.");
       return;
     }
 
-    postInquiryMutate(
-      {
+    try {
+      setUploading(true);
+
+      const uploaderId = user?.id || "guest";
+      const uploadedImageUrls = await Promise.all(
+        detailFiles.map((file) => uploadImageToStorage(uploaderId, file)),
+      );
+
+      postInquiryMutate({
         title: formData.title,
         content: formData.content,
         guest_name: formData.guest_name,
@@ -125,13 +132,14 @@ export default function DeliveryRegisterPage() {
         user_id: formData.user_id || null,
         status: "PENDING",
         inquiry_type: formData.inquiry_type,
-      },
-      {
-        onSuccess: () => {
-          router.push("/inquiry");
-        },
-      },
-    );
+        image_urls: uploadedImageUrls,
+      });
+    } catch (err) {
+      console.error("이미지 업로드 오류:", err);
+      toast.error("이미지 서버 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -283,6 +291,12 @@ export default function DeliveryRegisterPage() {
           />
         </div>
 
+        <DetailImagePreview
+          previews={detailPreviews}
+          onUpload={detailOnUpload}
+          onRemove={removeDetailImage}
+        />
+
         <div className="flex flex-col gap-4 pt-2 px-0.5">
           <label className="flex items-start gap-3 cursor-pointer group">
             <input
@@ -330,16 +344,18 @@ export default function DeliveryRegisterPage() {
         <div className="flex items-center ml-auto gap-2.5 pt-4 mt-2 w-full sm:border-0 border-t border-gray-200 sm:w-1/2">
           <button
             type="button"
+            disabled={uploading}
             onClick={() => router.back()}
-            className="w-1/2 py-3 border border-gray-200 bg-white text-[#555555] text-sm font-medium rounded-sm hover:bg-gray-50 hover:text-black transition-colors"
+            className="w-1/2 py-3 border border-gray-200 bg-white text-[#555555] text-sm font-medium rounded-sm hover:bg-gray-50 hover:text-black transition-colors disabled:opacity-50"
           >
             취소
           </button>
           <button
             type="submit"
-            className="w-1/2 py-3 bg-[#111111] text-white text-sm font-medium rounded-sm hover:bg-[#222222] transition-colors shadow-sm"
+            disabled={uploading}
+            className="w-1/2 py-3 bg-[#111111] text-white text-sm font-medium rounded-sm hover:bg-[#222222] transition-colors shadow-sm disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
-            등록하기
+            {uploading ? "업로드 중..." : "등록하기"}
           </button>
         </div>
       </form>

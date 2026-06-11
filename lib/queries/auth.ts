@@ -815,6 +815,7 @@ export interface InquiryPostType {
   user_id: string | null;
   status: string;
   inquiry_type: string;
+  image_urls: string[] | null;
 }
 
 // 문의등록
