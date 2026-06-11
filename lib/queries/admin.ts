@@ -19,22 +19,25 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CreateProductType, ProductUpdateType } from "@/types/product";
 
-// 상품 이미지 업로드
+// 이미지 업로드
 export const uploadImageToStorage = async (
   userId: string,
   file: File,
+  bucketName: string = "product-images",
 ): Promise<string> => {
   const supabase = createBrowserSupabaseClient();
-  const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const fileName = `${userId}/${uuidv4()}-${file.name}`;
 
-  if (!bucket || !projectUrl) {
-    throw new Error("env 설정 안했음");
+  const fileName = `${userId}/${uuidv4()}-${file.name.replace(/\s+/g, "_")}`;
+
+  if (!projectUrl) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL 환경 변수가 설정되지 않았습니다.",
+    );
   }
 
   const { data, error: uploadError } = await supabase.storage
-    .from(bucket)
+    .from(bucketName)
     .upload(fileName, file, {
       cacheControl: "3600",
       upsert: false,
@@ -43,10 +46,10 @@ export const uploadImageToStorage = async (
 
   if (uploadError || !data?.path) {
     console.error("이미지 업로드 실패:", uploadError?.message);
-    throw new Error("이미지 업로드에 실패했습니다.");
+    throw new Error(`이미지 업로드에 실패했습니다: ${uploadError?.message}`);
   }
 
-  const publicUrl = `${projectUrl}/storage/v1/object/public/${bucket}/${data.path}`;
+  const publicUrl = `${projectUrl}/storage/v1/object/public/${bucketName}/${data.path}`;
   return publicUrl;
 };
 
