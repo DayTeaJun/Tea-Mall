@@ -117,23 +117,32 @@ export default function DeliveryRegisterPage() {
 
       const uploaderId = user?.id || "guest";
       const uploadedImageUrls = await Promise.all(
-        detailFiles.map((file) => uploadImageToStorage(uploaderId, file)),
+        detailFiles.map((file) =>
+          uploadImageToStorage(uploaderId, file, "inquiry-images"),
+        ),
       );
 
-      postInquiryMutate({
-        title: formData.title,
-        content: formData.content,
-        guest_name: formData.guest_name,
-        phone_number: formatPhone(formData.phone_number),
-        email: formData.email,
-        password: formData.user_id ? null : formData.password,
-        is_public: !!formData.is_public,
-        is_privacy_agreed: !!formData.is_privacy_agreed,
-        user_id: formData.user_id || null,
-        status: "PENDING",
-        inquiry_type: formData.inquiry_type,
-        image_urls: uploadedImageUrls,
-      });
+      postInquiryMutate(
+        {
+          title: formData.title,
+          content: formData.content,
+          guest_name: formData.guest_name,
+          phone_number: formatPhone(formData.phone_number),
+          email: formData.email,
+          password: formData.user_id ? null : formData.password,
+          is_public: !!formData.is_public,
+          is_privacy_agreed: !!formData.is_privacy_agreed,
+          user_id: formData.user_id || null,
+          status: "PENDING",
+          inquiry_type: formData.inquiry_type,
+          image_urls: uploadedImageUrls,
+        },
+        {
+          onSuccess: () => {
+            router.push("/inquiry");
+          },
+        },
+      );
     } catch (err) {
       console.error("이미지 업로드 오류:", err);
       toast.error("이미지 서버 업로드 중 오류가 발생했습니다.");
