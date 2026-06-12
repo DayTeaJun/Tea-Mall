@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: hostname,
+        pathname: "/storage/v1/object/public/inquiry-images/**",
+      },
+      {
+        protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
     ],

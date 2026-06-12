@@ -115,12 +115,16 @@ export default function DeliveryRegisterPage() {
     try {
       setUploading(true);
 
+      console.log("1. 업로드 직전 파일 배열:", detailFiles);
+
       const uploaderId = user?.id || "guest";
       const uploadedImageUrls = await Promise.all(
         detailFiles.map((file) =>
           uploadImageToStorage(uploaderId, file, "inquiry-images"),
         ),
       );
+
+      console.log("2. 스토리지에서 받아온 주소 배열:", uploadedImageUrls);
 
       postInquiryMutate(
         {

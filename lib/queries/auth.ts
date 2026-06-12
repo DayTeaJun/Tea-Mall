@@ -837,6 +837,7 @@ export const postInquiry = async (inquiryData: InquiryPostType) => {
         user_id: inquiryData.user_id || null,
         status: "PENDING",
         inquiry_type: inquiryData.inquiry_type,
+        image_urls: inquiryData.image_urls,
       },
     ])
     .select()
