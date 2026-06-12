@@ -201,10 +201,40 @@ export default function InquiryDetailComponent({
         </div>
       </div>
 
-      <div className="border-solid border-gray-100 min-h-[200px] py-6">
+      {/* 문의 본문 구역 */}
+      <div className="border-b border-solid border-gray-100 min-h-[180px] py-6 flex flex-col gap-6">
         <p className="text-base sm:text-lg whitespace-pre-wrap leading-8 text-gray-800">
           {inquiry.content}
         </p>
+
+        {/* 업로드된 이미지 리스트 미리보기 */}
+        {inquiry.image_urls && inquiry.image_urls.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-semibold text-gray-400 mb-2.5">
+              첨부파일 ({inquiry.image_urls.length})
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {inquiry.image_urls.map((url: string, index: number) => (
+                <a
+                  key={index}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-sm overflow-hidden group bg-gray-50 cursor-zoom-in hover:border-gray-400 transition-colors"
+                >
+                  <img
+                    src={url}
+                    alt={`첨부 이미지 ${index + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <CommentSection inquiry={inquiry} />

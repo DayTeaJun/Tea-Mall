@@ -1046,16 +1046,16 @@ interface DeleteVariables {
 
 export const useDeleteInquiry = (isAdmin: boolean) => {
   const router = useRouter();
-
   const { mutate, isPending } = useMutation({
     mutationFn: ({ inquiryId, guestPassword }: DeleteVariables) =>
       deleteInquiry(inquiryId, guestPassword, isAdmin),
 
     onSuccess: async () => {
       toast.success("문의가 삭제되었습니다.");
+      router.replace("/inquiry");
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      router.refresh();
     },
+
     onError: (error) => {
       console.error("문의 삭제 실패:", error);
       toast.error(
