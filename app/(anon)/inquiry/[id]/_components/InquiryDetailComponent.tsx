@@ -46,8 +46,6 @@ export default function InquiryDetailComponent({
     isError: error,
   } = useGetInquiryDetail(inquiryId);
 
-  console.log("문의 상세 데이터:", inquiry);
-
   const { mutate: handleDeleteInquiry, isPending: isDeleting } =
     useDeleteInquiry(isAdmin);
 

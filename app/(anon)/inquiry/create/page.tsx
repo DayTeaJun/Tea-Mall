@@ -124,8 +124,6 @@ export default function DeliveryRegisterPage() {
         ),
       );
 
-      console.log("2. 스토리지에서 받아온 주소 배열:", uploadedImageUrls);
-
       postInquiryMutate(
         {
           title: formData.title,

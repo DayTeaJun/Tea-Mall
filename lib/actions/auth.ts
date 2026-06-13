@@ -400,7 +400,7 @@ export async function deleteInquiry(
 
   const { data: original, error: fetchError } = await supabase
     .from("inquiries")
-    .select("user_id, password")
+    .select("user_id, password, image_urls")
     .eq("id", inquiryId)
     .single();
 
@@ -427,6 +427,29 @@ export async function deleteInquiry(
       if (original.password !== guestPassword.trim()) {
         throw new Error("비밀번호가 일치하지 않습니다.");
       }
+    }
+  }
+
+  if (original.image_urls && original.image_urls.length > 0) {
+    try {
+      const pathsToDelete = original.image_urls
+        .map((url: string) => {
+          const parts = url.split("/inquiry-images/");
+          return parts.length > 1 ? decodeURIComponent(parts[1]) : null;
+        })
+        .filter((path): path is string => !!path);
+
+      if (pathsToDelete.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from("inquiry-images")
+          .remove(pathsToDelete);
+
+        if (storageError) {
+          console.error("스토리지 파일 삭제 실패:", storageError.message);
+        }
+      }
+    } catch (storageErr) {
+      console.error("스토리지 파싱 및 삭제 중 오류:", storageErr);
     }
   }
 
