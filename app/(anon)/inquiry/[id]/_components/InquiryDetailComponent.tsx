@@ -28,6 +28,8 @@ export default function InquiryDetailComponent({
   const { user } = useAuthStore();
   const { verifiedInquiryIds } = useInquiryStore();
 
+  const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
+
   const [inputPassword, setInputPassword] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -213,15 +215,14 @@ export default function InquiryDetailComponent({
       {inquiry.image_urls && inquiry.image_urls.length > 0 && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-gray-400 mb-2.5">
-            첨부파일 ({inquiry.image_urls.length})
+            첨부 이미지 ({inquiry.image_urls.length})
           </p>
           <div className="flex flex-wrap gap-3">
             {inquiry.image_urls.map((url: string, index: number) => (
-              <a
+              <button
                 key={index}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
+                type="button"
+                onClick={() => setActiveImageUrl(url)}
                 className="relative w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-sm overflow-hidden group bg-gray-50 cursor-zoom-in hover:border-gray-400 transition-colors"
               >
                 <Image
@@ -234,7 +235,7 @@ export default function InquiryDetailComponent({
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
-              </a>
+              </button>
             ))}
           </div>
         </div>
@@ -291,6 +292,53 @@ export default function InquiryDetailComponent({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {activeImageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 sm:p-6 animate-fadeIn"
+          onClick={() => setActiveImageUrl(null)}
+        >
+          <div
+            className="relative flex flex-col w-full sm:max-w-xl max-w-2xl h-[80vh] sm:h-[60vh] bg-[#fcfcfc] border border-gray-200 rounded-sm shadow-2xl overflow-hidden cursor-default animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-solid border-gray-100 select-none">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-gray-700 tracking-tight">
+                  첨부 이미지 원본 보기
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveImageUrl(null)}
+                className="text-xs text-gray-400 hover:text-black font-medium transition-colors px-2 py-1 rounded-sm hover:bg-gray-50"
+              >
+                창 닫기 ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-6 bg-gray-50/50 flex items-center justify-center group">
+              <div className="relative w-full h-full max-h-[70vh] flex items-center justify-center">
+                <Image
+                  fill
+                  src={activeImageUrl}
+                  alt="첨부 이미지 원본 확대"
+                  sizes="(max-w-768px) 100vw, 42rem"
+                  priority
+                  className="object-contain transition-transform duration-300"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 py-2 bg-white border-t border-solid border-gray-100 flex justify-end">
+              <p className="text-[10px] font-mono text-gray-300 uppercase tracking-widest">
+                Inquiry Attachment Viewer
+              </p>
+            </div>
           </div>
         </div>
       )}
