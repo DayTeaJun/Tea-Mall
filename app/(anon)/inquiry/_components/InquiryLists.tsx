@@ -3,6 +3,7 @@ import React from "react";
 import Pagination from "./Pagination";
 import SearchInput from "./SearchInput";
 import InquiryRow from "./InquiryRow";
+import Createbtn from "./Createbtn";
 
 interface InquiryType {
   admin_id: string | null;
@@ -92,7 +93,13 @@ async function InquiryLists({
 
   return (
     <div className="flex flex-col gap-4">
-      <SearchInput />
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <SearchInput />
+
+        <div className="sm:block hidden">
+          <Createbtn />
+        </div>
+      </div>
 
       <table className="w-full text-left border-t border-gray-400 table-fixed sm:table hidden">
         <thead>
@@ -156,7 +163,7 @@ async function InquiryLists({
                   inquiryTypeLabel={inquiryTypeLabel}
                   userLevel={userLevel}
                   currentUserId={currentUserId}
-                  isMobileContainer={true} // 💡 모바일 모드 명시
+                  isMobileContainer={true}
                 />
               );
             })
@@ -168,6 +175,10 @@ async function InquiryLists({
           검색 결과가 없습니다.
         </div>
       )}
+
+      <div className="block sm:hidden fixed bottom-6 right-6 z-50">
+        <Createbtn />
+      </div>
 
       <Pagination
         currentPage={page}

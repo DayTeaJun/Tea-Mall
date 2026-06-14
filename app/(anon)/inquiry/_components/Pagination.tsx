@@ -23,7 +23,7 @@ function Pagination({ currentPage, query, pageCount }: Props) {
   };
 
   return (
-    <div className="mt-6 flex justify-center">
+    <div className="flex justify-center">
       <ReactPaginate
         onPageChange={handlePageChange}
         pageRangeDisplayed={3}
