@@ -94,7 +94,7 @@ async function InquiryLists({
     <div className="flex flex-col gap-4">
       <SearchInput />
 
-      <table className="w-full text-left border-t border-gray-400 table-fixed">
+      <table className="w-full text-left border-t border-gray-400 table-fixed sm:table hidden">
         <thead>
           <tr className="border-b border-gray-100 text-gray-500 text-sm">
             <th className="py-3 px-2 font-medium w-[8%] text-center">No.</th>
@@ -129,24 +129,45 @@ async function InquiryLists({
               );
             })}
 
-          {emptyRowsCount === 10 ? (
-            <tr className="w-full h-[530px]">
-              <td colSpan={5} className="text-center text-gray-500 py-4">
-                검색 결과가 없습니다.
-              </td>
-            </tr>
-          ) : (
-            emptyRowsCount > 0 &&
+          {emptyRowsCount > 0 &&
+            emptyRowsCount !== 10 &&
             Array.from({ length: emptyRowsCount }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[53px]">
                 <td colSpan={5} className="py-4 px-2">
                   &nbsp;
                 </td>
               </tr>
-            ))
-          )}
+            ))}
         </tbody>
       </table>
+
+      <div className="block sm:hidden border-t border-gray-400 divide-y divide-gray-100 text-sm">
+        {inqueries?.length !== 0
+          ? inqueries?.map((inquiry: InquiryType, index: number) => {
+              const inquiryTypeLabel =
+                INQUIRY_TYPE_MAP[inquiry.inquiry_type] || inquiry.inquiry_type;
+              const displayIndex = (count || 0) - (page - 1) * LIMIT - index;
+
+              return (
+                <InquiryRow
+                  key={inquiry.id}
+                  inquiry={inquiry}
+                  displayIndex={displayIndex}
+                  inquiryTypeLabel={inquiryTypeLabel}
+                  userLevel={userLevel}
+                  currentUserId={currentUserId}
+                  isMobileContainer={true} // 💡 모바일 모드 명시
+                />
+              );
+            })
+          : null}
+      </div>
+
+      {emptyRowsCount === 10 && (
+        <div className="w-full h-[350px] sm:h-[530px] flex items-center justify-center text-center text-gray-500 text-sm">
+          검색 결과가 없습니다.
+        </div>
+      )}
 
       <Pagination
         currentPage={page}

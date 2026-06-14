@@ -21,8 +21,9 @@ interface InquiryRowProps {
   inquiry: InquiryType;
   displayIndex: number;
   inquiryTypeLabel: string;
-  userLevel: number | string | null | undefined;
+  userLevel: string | number;
   currentUserId: string | null;
+  isMobileContainer?: boolean;
 }
 
 export default function InquiryRow({
@@ -31,6 +32,7 @@ export default function InquiryRow({
   inquiryTypeLabel,
   userLevel,
   currentUserId,
+  isMobileContainer = false,
 }: InquiryRowProps) {
   const { addVerifiedId } = useInquiryStore();
   const router = useRouter();
@@ -47,7 +49,6 @@ export default function InquiryRow({
     const trimmed = name.trim();
     if (trimmed.length <= 1) return trimmed;
     if (trimmed.length === 2) return `${trimmed[0]}*`;
-
     return `${trimmed[0]}${"*".repeat(trimmed.length - 2)}${trimmed[trimmed.length - 1]}`;
   };
 
@@ -61,7 +62,6 @@ export default function InquiryRow({
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!passwordInput.trim()) {
       toast.warning("비밀번호를 입력해주세요.");
       return;
@@ -81,6 +81,109 @@ export default function InquiryRow({
     setIsModalOpen(false);
     setPasswordInput("");
   };
+
+  const renderPasswordModal = () => {
+    if (!isModalOpen) return null;
+    return (
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          closeModal();
+        }}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 cursor-default"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white p-6 rounded-sm shadow-xl w-[calc(100%-2rem)] max-w-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-150 text-left"
+        >
+          <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <Lock size={18} className="text-gray-700" />
+            비밀인증
+          </h3>
+          <p className="text-xs text-gray-400 mb-5 leading-normal whitespace-pre-wrap">
+            {
+              "이 글은 비공개 문의입니다.\n작성 시 설정한 비밀번호 4자리를 입력해주세요."
+            }
+          </p>
+
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
+            <input
+              type="password"
+              maxLength={4}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="비밀번호 입력"
+              value={passwordInput}
+              onChange={(e) =>
+                setPasswordInput(e.target.value.replace(/[^0-9]/g, ""))
+              }
+              className="w-full border border-gray-200 p-2.5 text-sm outline-none focus:border-black rounded-sm text-black text-center tracking-widest font-mono"
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end text-sm font-medium pt-1">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-4 py-2 border border-gray-200 text-gray-500 rounded-sm hover:bg-gray-50 hover:text-black transition-colors"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors shadow-sm"
+              >
+                확인
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  if (isMobileContainer) {
+    return (
+      <div
+        onClick={handleRowClick}
+        className="py-4 px-2 flex flex-col gap-1.5 active:bg-gray-50 cursor-pointer bg-white"
+      >
+        <div className="flex items-center justify-between text-xs text-gray-400 font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="bg-gray-100 px-1.5 py-0.5 rounded-xs text-[10px] text-gray-600 font-sans">
+              {inquiryTypeLabel}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 text-gray-900 font-medium text-sm w-full">
+          <span className="truncate flex-1 min-w-0">{inquiry.title}</span>
+
+          <div className="flex items-center gap-2 shrink-0 select-none">
+            {inquiry.status === "ANSWERED" ? (
+              <span className="text-green-600 font-semibold text-[12px] bg-green-50 px-1.5 py-0.5 rounded-xs">
+                답변완료
+              </span>
+            ) : (
+              <span className="text-gray-400 font-semibold text-[12px] bg-gray-50 px-1.5 py-0.5 rounded-xs">
+                답변대기
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="text-xs text-gray-400 flex gap-2 items-center">
+          <span>{maskName(inquiry.guest_name)}</span>
+          {isSecret && (
+            <>
+              {"|"} <Lock size={12} className="text-gray-400 shrink-0" />
+            </>
+          )}
+        </div>
+
+        {renderPasswordModal()}
+      </div>
+    );
+  }
 
   return (
     <tr
@@ -116,65 +219,7 @@ export default function InquiryRow({
             답변대기
           </span>
         )}
-
-        {isModalOpen && (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              closeModal();
-            }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 cursor-default"
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white p-6 rounded-sm shadow-xl w-[calc(100%-2rem)] max-w-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-150 text-left"
-            >
-              <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                <Lock size={18} className="text-gray-700" />
-                비밀인증
-              </h3>
-              <p className="text-xs text-gray-400 mb-5 leading-normal whitespace-pre-wrap">
-                {
-                  "이 글은 비공개 문의입니다.\n작성 시 설정한 비밀번호 4자리를 입력해주세요."
-                }
-              </p>
-
-              <form
-                onSubmit={handlePasswordSubmit}
-                className="flex flex-col gap-4"
-              >
-                <input
-                  type="password"
-                  maxLength={4}
-                  inputMode="numeric"
-                  pattern="[0-4]*"
-                  placeholder="비밀번호 입력"
-                  value={passwordInput}
-                  onChange={(e) =>
-                    setPasswordInput(e.target.value.replace(/[^0-9]/g, ""))
-                  }
-                  className="w-full border border-gray-200 p-2.5 text-sm outline-none focus:border-black rounded-sm text-black text-center tracking-widest font-mono"
-                  autoFocus
-                />
-                <div className="flex gap-2 justify-end text-sm font-medium pt-1">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="px-4 py-2 border border-gray-200 text-gray-500 rounded-sm hover:bg-gray-50 hover:text-black transition-colors"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors shadow-sm"
-                  >
-                    확인
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        {renderPasswordModal()}
       </td>
     </tr>
   );
