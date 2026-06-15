@@ -20,7 +20,7 @@ export default function RestrictedPage() {
         </p>
 
         <Link
-          href="mailto:support@yourdomain.com"
+          href="/inquiry"
           className="flex items-center justify-center gap-2 w-full py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
         >
           <Mail size={18} />

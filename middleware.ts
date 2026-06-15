@@ -23,6 +23,7 @@ const sellerRoutes = ["/manage"];
 // 온보딩/인증/정적 등 예외(리다이렉트 루프 방지)
 const safePrefixes = [
   "/restricted",
+  "/inquiry",
   "/onboarding",
   "/auth",
   "/api",
