@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import CommentSection from "./CommentSection";
 import { useDeleteInquiry, useGetInquiryDetail } from "@/lib/queries/auth";
 import Image from "next/image";
+import { LockKeyhole } from "lucide-react";
 
 interface InquiryDetailClientProps {
   inquiryId: number;
@@ -100,6 +101,34 @@ export default function InquiryDetailComponent({
   };
 
   if (isSecret && !isAdmin && !isOwner && !isVerified) {
+    const hasPassword = inquiry.password && inquiry.password.trim() !== "";
+
+    if (!hasPassword) {
+      return (
+        <div className="max-w-md mx-auto my-20 p-8 border border-gray-100 rounded-sm bg-white shadow-sm flex flex-col items-center text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-50 rounded-full mb-5">
+            <LockKeyhole size={30} className="text-gray-400" />
+          </div>
+
+          <h3 className="text-lg font-bold text-gray-900 mb-2">
+            비공개 문의글입니다
+          </h3>
+          <p className="text-xs text-gray-400 mb-6 leading-relaxed whitespace-pre-wrap">
+            {
+              "이 글은 작성자와 관리자만 확인할 수 있는\n회원 비공개 문의사항입니다."
+            }
+          </p>
+
+          <Link
+            href="/inquiry"
+            className="w-full py-2.5 bg-black text-white text-sm font-medium rounded-sm hover:bg-gray-800 transition-colors shadow-sm text-center"
+          >
+            목록으로 돌아가기
+          </Link>
+        </div>
+      );
+    }
+
     const handlePasswordSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 

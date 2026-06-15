@@ -53,11 +53,21 @@ export default function InquiryRow({
   };
 
   const handleRowClick = () => {
-    if (isSecret && !isMaster && !isOwnPost) {
-      setIsModalOpen(true);
-    } else {
+    if (isMaster || isOwnPost) {
       router.push(`/inquiry/${inquiry.id}`);
+      return;
     }
+
+    if (isSecret) {
+      if (inquiry.password && inquiry.password.trim() !== "") {
+        setIsModalOpen(true);
+      } else {
+        toast.warning("회원 비밀글은 작성자와 관리자만 확인 가능합니다.");
+      }
+      return;
+    }
+
+    router.push(`/inquiry/${inquiry.id}`);
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
