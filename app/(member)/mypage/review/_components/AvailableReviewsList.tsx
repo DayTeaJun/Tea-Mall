@@ -88,10 +88,10 @@ export default function AvailableReviewsList() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="py-6 flex items-start justify-between gap-4"
+            className="py-5 sm:py-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4"
           >
-            <div className="flex items-start gap-5 flex-1">
-              <div className="relative w-[120px] h-[120px] bg-gray-50 border border-gray-100 shrink-0 flex items-center justify-center">
+            <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
+              <div className="relative w-20 h-20 sm:w-[120px] sm:h-[120px] bg-gray-50 border border-gray-100 shrink-0 flex items-center justify-center">
                 {item.product_image ? (
                   <Image
                     src={item.product_image}
@@ -100,27 +100,27 @@ export default function AvailableReviewsList() {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-gray-200 rounded-sm" />
+                  <div className="w-10 h-10 bg-gray-200 rounded-sm" />
                 )}
               </div>
 
-              <div className="space-y-1.5 pt-1">
-                <h2 className="text-base font-bold text-gray-900 leading-snug">
+              <div className="space-y-1 pt-0.5 flex-1 min-w-0">
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 leading-snug truncate">
                   {item.product_name}
                 </h2>
-                <p className="text-sm text-gray-500 line-clamp-1">
+                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 sm:line-clamp-1">
                   {item.product_description}
                 </p>
-                <div className="text-xs text-gray-400 pt-3">
+                <div className="text-[11px] sm:text-xs text-gray-400 pt-1.5 sm:pt-3">
                   {item.delivered_at}
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-4 shrink-0 w-[120px] self-center">
+            <div className="flex flex-row-reverse sm:flex-col items-center justify-between sm:justify-center gap-3 sm:gap-4 shrink-0 w-full sm:w-[120px] pt-3 sm:pt-0 border-t border-dashed border-gray-100 sm:border-none self-stretch sm:self-center">
               <button
                 onClick={() => router.push(`/productReview/${item.product_id}`)}
-                className="w-full py-2 border border-blue-500 text-blue-600 text-sm font-semibold rounded-sm hover:bg-blue-50/50 transition-colors text-center"
+                className="flex-1 sm:flex-none w-full py-2 border border-blue-500 text-blue-600 text-xs sm:text-sm font-semibold rounded-sm hover:bg-blue-50/50 transition-colors text-center"
               >
                 리뷰 작성하기
               </button>
@@ -128,7 +128,7 @@ export default function AvailableReviewsList() {
                 onClick={() =>
                   setIsModal({ isOpen: true, orderId: item.id || "" })
                 }
-                className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 tracking-wide"
+                className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 tracking-wide px-2 py-1"
               >
                 숨기기
               </button>
@@ -137,7 +137,7 @@ export default function AvailableReviewsList() {
         ))}
       </div>
 
-      <div className="mt-6 flex justify-center">
+      <div className="mt-6 flex justify-center text-xs sm:text-sm">
         <ReactPaginate
           onPageChange={handlePageChange}
           pageRangeDisplayed={3}

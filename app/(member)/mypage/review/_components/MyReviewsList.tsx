@@ -85,12 +85,12 @@ export default function MyReviewsList() {
   }
 
   return (
-    <div className="space-y-8 py-6">
+    <div className="space-y-6 py-4 sm:py-6">
       {reviews.map((review: Review) => (
         <div key={review.id} className="border border-gray-200 rounded-sm">
-          <div className="p-4 flex items-center justify-between bg-gray-50 border-b border-gray-200">
-            <div className="flex items-center gap-4">
-              <div className="relative w-16 h-16 border border-gray-200 bg-white shrink-0">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 border-b border-gray-200 gap-3">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 border border-gray-200 bg-white shrink-0">
                 {review.product_image ? (
                   <Image
                     src={review.product_image}
@@ -100,50 +100,51 @@ export default function MyReviewsList() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <Package size={20} />
+                    <Package size={18} />
                   </div>
                 )}
               </div>
-              <div className="space-y-1">
+              <div className="space-y-0.5 flex-1 min-w-0">
                 <button
                   onClick={() => router.push(`/products/${review.product_id}`)}
-                  className="text-sm font-bold text-gray-800 hover:underline line-clamp-1 text-left"
+                  className="text-xs sm:text-sm font-bold text-gray-800 hover:underline line-clamp-1 text-left w-full"
                 >
                   {review.product_name || "상품 정보 없음"}
                 </button>
-                <div className="flex items-center gap-3 text-xs text-gray-400">
+                <div className="flex items-center gap-3 text-[11px] sm:text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <Calendar size={12} /> {review.created_at?.split("T")[0]}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+
+            <div className="flex items-center justify-end gap-2 text-xs sm:text-sm text-gray-500 border-t border-gray-100 pt-2 sm:pt-0 sm:border-none">
               <button
                 onClick={() =>
                   router.push(`/productReview/${review.product_id}?from=mypage`)
                 }
-                className="hover:text-blue-600 px-2 py-1 border border-gray-300 bg-white"
+                className="hover:text-blue-600 px-2 py-1 border border-gray-300 bg-white rounded-xs"
               >
                 수정
               </button>
-              <span className="text-gray-300">|</span>
+              <span className="text-gray-300 hidden sm:inline">|</span>
               <button
                 onClick={() => handleDelReview(review.id)}
-                className="hover:text-red-500 px-2 py-1 border border-gray-300 bg-white"
+                className="hover:text-red-500 px-2 py-1 border border-gray-300 bg-white rounded-xs"
               >
                 삭제
               </button>
             </div>
           </div>
 
-          <div className="p-5 ">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-2.5">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    size={18}
+                    size={16}
                     className={
                       i < review.rating
                         ? "text-orange-500 fill-orange-500"
@@ -153,12 +154,12 @@ export default function MyReviewsList() {
                 ))}
               </div>
               {review.updated_at && review.updated_at !== review.created_at && (
-                <span className="text-[11px] text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-sm font-medium">
+                <span className="text-[10px] sm:text-[11px] text-blue-500 bg-blue-50 Bash-1.5 py-0.5 rounded-sm font-medium">
                   수정됨
                 </span>
               )}
             </div>
-            <div className="text-[15px] text-gray-800 leading-relaxed mb-6 min-h-[50px]">
+            <div className="text-sm sm:text-[15px] text-gray-800 leading-relaxed min-h-[40px] whitespace-pre-wrap">
               {review.content}
             </div>
           </div>

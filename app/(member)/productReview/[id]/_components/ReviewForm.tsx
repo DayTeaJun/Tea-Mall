@@ -144,7 +144,6 @@ function ReviewForm({ product }: { product: ProductType }) {
                 ★
               </span>
             ))}
-            <p className="text-gray-400">(* 필수)</p>
           </div>
         </div>
       </div>

@@ -11,12 +11,12 @@ export default function MyReviewsPage() {
 
   return (
     <section className="max-w-7xl mx-auto flex flex-col gap-4">
-      <h2 className="text-lg sm:text-xl font-bold">리뷰 관리</h2>
+      <h2 className="text-base sm:text-xl font-bold pt-4 sm:pt-0">리뷰 관리</h2>
 
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab("written")}
-          className={`px-6 py-3 border-b-2 text-sm font-bold transition-colors ${
+          className={`flex-1 sm:flex-none text-center px-4 sm:px-6 py-3 border-b-2 text-xs sm:text-sm font-bold transition-colors ${
             activeTab === "written"
               ? "border-blue-600 text-blue-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
@@ -26,7 +26,7 @@ export default function MyReviewsPage() {
         </button>
         <button
           onClick={() => setActiveTab("available")}
-          className={`px-6 py-3 border-b-2 text-sm font-bold transition-colors ${
+          className={`flex-1 sm:flex-none text-center px-4 sm:px-6 py-3 border-b-2 text-xs sm:text-sm font-bold transition-colors ${
             activeTab === "available"
               ? "border-blue-600 text-blue-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
