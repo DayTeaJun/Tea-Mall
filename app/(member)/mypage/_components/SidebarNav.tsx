@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { User, UserCog, Menu, ArrowLeft } from "lucide-react";
+import { User, UserCog, Menu } from "lucide-react";
 import { UserType } from "@/types/user";
 
 interface Props {
@@ -35,16 +35,7 @@ const menu = [
   },
 ];
 
-const detailPage = [
-  { href: "/mypage/profile/edit" },
-  {
-    href: "/mypage/orderList/orderDetail",
-  },
-  { href: "/mypage/profile/resetPassword" },
-];
-
 export default function SidebarNav({ user }: Props) {
-  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -74,16 +65,6 @@ export default function SidebarNav({ user }: Props) {
               <div className="h-[6px] mt-2" />
             )}
           </div>
-
-          {detailPage.some(({ href }) => pathname.startsWith(href)) && (
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="text-gray-600"
-            >
-              <ArrowLeft size={18} />
-            </button>
-          )}
         </div>
 
         <ul
