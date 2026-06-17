@@ -70,8 +70,8 @@ export default function UserDetailClient({ userId }: { userId: string }) {
         <h2 className="text-xl font-bold">고객 상세 정보</h2>
       </div>
 
-      <div className="grid grid-cols-3 w-full min-h-full bg-gray-50">
-        <section className="col-span-1 flex flex-col gap-6 p-4 pr-2">
+      <div className="flex flex-col sm:grid grid-cols-3 w-full min-h-full bg-gray-50">
+        <section className="col-span-1 flex flex-col gap-6 p-4 sm:pr-2">
           <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
@@ -119,7 +119,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
               />
               <InfoRow
                 icon={<Mail size={16} />}
-                label="이메일"
+                label="이메일 주소"
                 value={user.email}
               />
               <InfoRow
@@ -253,17 +253,18 @@ function InfoRow({
   value: string | null;
 }) {
   return (
-    <div className="grid grid-cols-3 gap-1.5 items-center">
-      <div className="col-span-1 flex gap-2 text-gray-400">
+    <div className="flex flex-col gap-1 items-start">
+      <div className="flex gap-2 text-gray-400 items-center sm:mt-1 shrink-1">
         {icon}
-        <span className="text-[11px] font-bold uppercase tracking-tight">
+        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-tight whitespace-nowrap">
           {label}
         </span>
       </div>
+
       <p
-        className={`${className} col-span-2 text-[14px] font-medium text-gray-700 leading-relaxed`}
+        className={`${className || ""} text-[13px] sm:text-[14px] font-medium text-gray-700 leading-relaxed pl-6`}
       >
-        {value || "정보 없음"}
+        {value || "등록된 정보가 없습니다."}
       </p>
     </div>
   );
