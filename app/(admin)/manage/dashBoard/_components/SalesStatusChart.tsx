@@ -77,7 +77,7 @@ export default function SimpleLineChart() {
 
   if (isLoading)
     return (
-      <div className="w-[calc(70%-16px)] h-[344px] flex justify-center items-center bg-white">
+      <div className="w-full sm:w-[calc(70%-16px)] h-[344px] flex justify-center items-center bg-white">
         <Loader2 className="animate-spin text-gray-300" size={32} />
       </div>
     );

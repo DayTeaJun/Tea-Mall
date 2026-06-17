@@ -22,7 +22,7 @@ function SalesStatus() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[110px] col-span-4 flex justify-center items-center bg-white border border-gray-100">
+      <div className="min-h-[520px] sm:min-h-[110px] col-span-4 flex justify-center items-center bg-white border border-gray-100">
         <Loader2 className="animate-spin text-gray-300" size={32} />
       </div>
     );
@@ -82,7 +82,6 @@ function SalesStatus() {
         </div>
       </div>
 
-      {/* 재고 부족 상품 */}
       <div className="col-span-1 bg-white p-4 flex flex-col gap-1 rounded border border-gray-100">
         <div className="flex items-center justify-between">
           <p className="text-[13px] text-gray-400">재고 부족</p>

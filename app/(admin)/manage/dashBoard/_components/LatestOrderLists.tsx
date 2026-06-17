@@ -2,7 +2,7 @@
 
 import { useGetOrders } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { ArrowRight, LoaderCircle, Package, PackageX } from "lucide-react";
+import { ArrowRight, Loader2, Package, PackageX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -48,8 +48,16 @@ function LatestOrderLists() {
     }
   };
 
+  if (!user?.id || isLoading) {
+    return (
+      <div className="w-full min-h-[60vh] bg-white border border-gray-100 flex flex-col items-center justify-center py-20 text-gray-600">
+        <Loader2 className="animate-spin text-gray-300" size={32} />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full bg-white p-2 sm:p-4 flex flex-col gap-4 rounded">
+    <div className="w-full bg-white p-2 sm:p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <p className="text-[16px] font-bold text-gray-800 p-2 sm:p-0">
           최근 주문 목록
@@ -66,12 +74,7 @@ function LatestOrderLists() {
         </button>
       </div>
 
-      {isLoading ? (
-        <div className="w-full h-full flex flex-col items-center justify-center py-20 text-gray-600">
-          <LoaderCircle size={48} className="animate-spin mb-4" />
-          <p className="text-sm">주문목록을 불러오는 중...</p>
-        </div>
-      ) : orders?.data?.length === 0 ? (
+      {orders?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-600">
           <PackageX size={48} className="mb-4" />
           <p>주문 내역이 없습니다.</p>
@@ -148,7 +151,7 @@ function LatestOrderLists() {
                       </div>
 
                       <span
-                        className={`inline-flex w-fit items-center text-[11px] font-bold text-blue-600 my-0.5 ${getStatusStyle(firstItem?.delivery_status || "결제완료")}`}
+                        className={`inline-flex w-fit items-center text-[11px] font-bold my-0.5 ${getStatusStyle(firstItem?.delivery_status || "결제완료")}`}
                       >
                         {firstItem?.delivery_status ?? "결제완료"}
                       </span>
@@ -241,11 +244,9 @@ function LatestOrderLists() {
                     <td className="py-4 px-2 font-semibold">
                       {order.user_name}
                     </td>
-
                     <td className="py-4 px-2 font-mono text-gray-600">
                       {order.id}
                     </td>
-
                     <td className="py-4 text-gray-500 font-mono text-[13px]">
                       {order.created_at &&
                         new Date(order.created_at).toLocaleDateString()}
