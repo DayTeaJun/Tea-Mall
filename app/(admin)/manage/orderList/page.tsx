@@ -179,7 +179,10 @@ export default function AdminOrderList() {
         </div>
       ) : (
         orders?.data?.map((order) => (
-          <div key={order.id} className="border rounded-md p-3 sm:p-4 bg-white">
+          <div
+            key={order.id}
+            className="border rounded-md p-3 sm:p-4 bg-white "
+          >
             <div className="flex flex-col sm:flex-row items-start sm:justify-between sm:items-center gap-1 sm:gap-2 mb-2">
               <div className="flex flex-col gap-1">
                 <p className="font-semibold text-[14px] sm:text-[16px]">
