@@ -84,14 +84,14 @@ export default function SimpleLineChart() {
 
   if (!salesData || salesData.length === 0) {
     return (
-      <div className="w-[calc(70%-16px)] h-[344px] flex items-center justify-center text-slate-400">
+      <div className="w-full sm:w-[calc(70%-16px)] h-[344px] flex items-center justify-center text-slate-400">
         최근 주문 데이터가 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="w-[calc(70%-16px)] bg-white p-4 flex flex-col gap-8">
+    <div className="w-full sm:w-[calc(70%-16px)] bg-white p-4 flex flex-col gap-8">
       <div className="flex justify-between items-center">
         <p className="text-16 font-bold">최근 매출 추이</p>
         <span className="text-xs text-slate-400">최근 7건 기준</span>
