@@ -28,7 +28,7 @@ export default function UserPage() {
       <h2 className="text-xl font-bold">고객 관리</h2>
 
       <div className="flex items-center gap-2 relative w-full">
-        <div className="relative w-[40%]">
+        <div className="relative w-full sm:w-[40%]">
           <input
             type="text"
             value={searchInput}
