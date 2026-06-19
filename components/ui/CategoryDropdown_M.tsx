@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, ChevronDownIcon } from "lucide-react";
 
 type SubCategory = {
   id: string;
@@ -104,21 +104,29 @@ export default function CategoryDropdown_M({
         <nav className="flex flex-col">
           {categories.map((cat) => {
             const hasChildren = !!cat.children?.length;
-            const isOpen = expanded === cat.id;
+            const isOpen = expanded === cat.label;
 
             return (
               <div key={cat.id} className="border-b">
                 {hasChildren ? (
-                  <button
-                    type="button"
-                    onClick={() => setExpanded(isOpen ? null : cat.id)}
-                    className="flex w-full items-center px-4 py-3 text-sm text-gray-800"
-                  >
-                    <span className="flex-1 text-left">{cat.label}</span>
-                  </button>
+                  <div className="flex w-full items-center justify-between px-4 py-3 text-sm text-gray-800">
+                    <Link
+                      className="flex-1 text-left"
+                      href={`/category?type=${encodeURIComponent(cat.label)}&page=1`}
+                    >
+                      <span>{cat.label}</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(isOpen ? null : cat.label)}
+                    >
+                      <ChevronDownIcon size={16} className="shrink-0" />
+                    </button>
+                  </div>
                 ) : (
                   <Link
-                    href={`/category/${cat.id}`}
+                    href={`/category?type=${encodeURIComponent(cat.label)}&page=1`}
                     className="flex w-full items-center px-4 py-3 text-sm text-gray-800"
                   >
                     {cat.label}
@@ -130,7 +138,7 @@ export default function CategoryDropdown_M({
                     {cat.children!.map((sub) => (
                       <Link
                         key={sub.id}
-                        href={`/category/${sub.id}`}
+                        href={`/category?type=${encodeURIComponent(sub.label)}&page=1`}
                         onClick={close}
                         className="px-6 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >

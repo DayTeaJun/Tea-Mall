@@ -66,7 +66,7 @@ export default function CategoryDropdown({
 
   const goToSearch = (label: string) => {
     const encoded = encodeURIComponent(label);
-    router.push(`/search/${encoded}?page=1`);
+    router.push(`/category?type=${encoded}&page=1`);
   };
 
   return (
