@@ -71,8 +71,6 @@ async function Header({ user }: { user: UserType | null }) {
             </div>
           </nav>
         </div>
-
-        {/* <CategoryTabs basePath="/search" /> */}
       </div>
     </header>
   );
