@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -75,11 +74,15 @@ export default function UserDetailClient({ userId }: { userId: string }) {
           <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
-                <Image
-                  fill
-                  src={user.profile_image_url}
+                <img
+                  src={user.profile_image_url || "/user.png"}
                   alt={user.user_name || "Profile"}
-                  className="object-cover"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = "/user.png";
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">

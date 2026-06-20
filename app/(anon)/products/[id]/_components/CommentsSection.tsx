@@ -51,11 +51,18 @@ export default async function CommentsSection({ productId }: Props) {
                 <div className="flex gap-2 items-center">
                   <div className="rounded-full overflow-hidden">
                     {comment?.public_user_profile?.profile_image_url ? (
-                      <Image
-                        src={comment?.public_user_profile?.profile_image_url}
-                        alt={comment.user_name}
-                        width={40}
-                        height={40}
+                      <img
+                        src={
+                          comment?.public_user_profile?.profile_image_url ||
+                          "/user.png"
+                        }
+                        alt={comment.user_name || "Profile"}
+                        className="w-10 h-10 object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = "/user.png";
+                        }}
                       />
                     ) : (
                       <div className="w-10 h-10 bg-gray-200 flex items-center justify-center text-gray-300">

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   User as UserIcon,
@@ -100,11 +99,15 @@ export default function ProfilePage() {
           <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-sm bg-gray-100">
               {data?.profile_image_url ? (
-                <Image
-                  fill
-                  src={data.profile_image_url}
+                <img
+                  src={data.profile_image_url || "/user.png"}
                   alt={data.user_name || "Profile"}
                   className="object-cover"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = "/user.png";
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
