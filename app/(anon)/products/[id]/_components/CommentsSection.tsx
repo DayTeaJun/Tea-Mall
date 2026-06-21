@@ -51,16 +51,15 @@ export default async function CommentsSection({ productId }: Props) {
                 <div className="flex gap-2 items-center">
                   <div className="rounded-full overflow-hidden">
                     {comment?.public_user_profile?.profile_image_url ? (
-                      <img
-                        src={
-                          comment?.public_user_profile?.profile_image_url ||
-                          "/user.png"
-                        }
+                      <Image
+                        fill
+                        src={comment.public_user_profile.profile_image_url}
                         alt={comment.user_name || "Profile"}
-                        className="w-10 h-10 object-cover"
+                        className="object-cover"
                         onError={(e) => {
-                          const target = e.currentTarget;
+                          const target = e.currentTarget as HTMLImageElement;
                           target.onerror = null;
+                          target.setAttribute("data-unoptimized", "true");
                           target.src = "/user.png";
                         }}
                       />

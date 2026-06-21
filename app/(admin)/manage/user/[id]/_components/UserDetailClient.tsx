@@ -20,6 +20,7 @@ import {
 } from "@/lib/queries/admin";
 import { toast } from "sonner";
 import Modal from "@/components/common/Modals/Modal";
+import Image from "next/image";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useGetProfileQuery(userId);
@@ -74,13 +75,15 @@ export default function UserDetailClient({ userId }: { userId: string }) {
           <div className="border border-gray-200 bg-white p-4 flex flex-col items-center text-center ">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-md bg-gray-100">
               {user.profile_image_url ? (
-                <img
-                  src={user.profile_image_url || "/user.png"}
+                <Image
+                  fill
+                  src={user.profile_image_url}
                   alt={user.user_name || "Profile"}
-                  className="w-full h-full object-cover"
+                  className="object-cover"
                   onError={(e) => {
-                    const target = e.currentTarget;
+                    const target = e.currentTarget as HTMLImageElement;
                     target.onerror = null;
+                    target.setAttribute("data-unoptimized", "true");
                     target.src = "/user.png";
                   }}
                 />

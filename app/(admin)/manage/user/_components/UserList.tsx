@@ -4,6 +4,7 @@ import React from "react";
 import ReactPaginate from "react-paginate";
 import { User, Loader2, User2Icon, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface UserData {
   id: string;
@@ -77,13 +78,16 @@ function UserList({
                       <div className="flex items-center gap-4">
                         <div className="relative flex-shrink-0 w-11 h-11 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
                           {user.profile_image_url ? (
-                            <img
-                              src={user.profile_image_url || "/user.png"}
+                            <Image
+                              fill
+                              src={user.profile_image_url}
                               alt={user.user_name || "Profile"}
-                              className="w-full h-full object-cover"
+                              className="object-cover"
                               onError={(e) => {
-                                const target = e.currentTarget;
+                                const target =
+                                  e.currentTarget as HTMLImageElement;
                                 target.onerror = null;
+                                target.setAttribute("data-unoptimized", "true");
                                 target.src = "/user.png";
                               }}
                             />

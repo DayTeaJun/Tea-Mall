@@ -16,6 +16,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { withdrawalUser } from "@/lib/actions/auth";
 import Modal from "@/components/common/Modals/Modal";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import Image from "next/image";
 
 // --- Types ---
 interface UserProfileData {
@@ -99,13 +100,15 @@ export default function ProfilePage() {
           <div className="border border-gray-200 bg-white p-6 flex flex-col items-center text-center">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 mb-4 shadow-sm bg-gray-100">
               {data?.profile_image_url ? (
-                <img
-                  src={data.profile_image_url || "/user.png"}
+                <Image
+                  fill
+                  src={data.profile_image_url}
                   alt={data.user_name || "Profile"}
                   className="object-cover"
                   onError={(e) => {
-                    const target = e.currentTarget;
+                    const target = e.currentTarget as HTMLImageElement;
                     target.onerror = null;
+                    target.setAttribute("data-unoptimized", "true");
                     target.src = "/user.png";
                   }}
                 />
