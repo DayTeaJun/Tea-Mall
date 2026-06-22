@@ -211,7 +211,7 @@ export default function ResetPasswordForm() {
           id="password"
           placeholder="비밀번호"
           className="border-none outline-0 px-2 w-full"
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
@@ -236,7 +236,7 @@ export default function ResetPasswordForm() {
           id="passwordConfirm"
           placeholder="비밀번호 확인"
           className="border-none outline-0 px-2 w-full"
-          type="password"
+          type={showConfirmPassword ? "text" : "password"}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />

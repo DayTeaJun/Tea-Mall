@@ -54,7 +54,7 @@ function ValidPassword({
           id="password"
           placeholder="비밀번호"
           className="border-none outline-0 px-2 w-full"
-          type={showPassword ? "password" : "text"}
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -80,7 +80,7 @@ function ValidPassword({
           id="confirmPassword"
           placeholder="비밀번호 확인"
           className="border-none outline-0 px-2 w-full"
-          type={showConfirmPassword ? "password" : "text"}
+          type={showConfirmPassword ? "text" : "password"}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
