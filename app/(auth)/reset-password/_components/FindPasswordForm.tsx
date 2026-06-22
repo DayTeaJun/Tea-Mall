@@ -173,7 +173,18 @@ export default function ResetPasswordForm() {
     setIsLoading(false);
 
     if (error) {
-      toast.error("비밀번호 변경 실패: " + error.message);
+      if (error.message?.includes("Auth session missing")) {
+        toast.error(
+          "인증 세션이 만료되었습니다.\n 다시 로그인 후 시도해 주세요.",
+        );
+      } else if (
+        error.message?.includes(
+          "New password should be different from the old password.",
+        )
+      ) {
+        toast.error("새 비밀번호는 이전 비밀번호와 달라야 합니다.");
+      }
+      console.error("비밀번호 변경 실패:", error);
     } else {
       toast.success("비밀번호가 변경되었습니다.");
       router.replace("/signin");

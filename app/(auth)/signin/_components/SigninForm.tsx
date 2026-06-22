@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { EMAIL_REGEX } from "../../constants";
 import { useSignInMutation } from "@/lib/queries/auth";
@@ -14,6 +14,9 @@ function SigninForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const { mutate, errorMessage } = useSignInMutation();
 
   const [rememberEmail, setRememberEmail] = useState(false);
@@ -70,10 +73,21 @@ function SigninForm() {
           id="password"
           placeholder="비밀번호"
           className="border-none outline-0 px-2 w-full"
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="p-3"
+        >
+          {showPassword ? (
+            <Eye size={20} className="text-gray-400" />
+          ) : (
+            <EyeOff size={20} className="text-gray-400" />
+          )}
+        </button>
       </div>
 
       <p className={`h-5 text-[12px] my-2 ${errorMessage && "text-red-500"}`}>
