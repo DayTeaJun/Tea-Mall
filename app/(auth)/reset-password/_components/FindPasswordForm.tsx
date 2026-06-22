@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
-import { Lock, LockKeyhole } from "lucide-react";
+import { Eye, EyeOff, Lock, LockKeyhole } from "lucide-react";
 
 function parseHashParams(hash: string) {
   const h = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -24,6 +24,10 @@ export default function ResetPasswordForm() {
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [isRecovery, setIsRecovery] = useState(false);
@@ -211,6 +215,17 @@ export default function ResetPasswordForm() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="p-3"
+        >
+          {showPassword ? (
+            <Eye size={20} className="text-gray-400" />
+          ) : (
+            <EyeOff size={20} className="text-gray-400" />
+          )}
+        </button>
       </div>
 
       <div className="flex gap-2 items-center border border-gray-100">
@@ -225,6 +240,19 @@ export default function ResetPasswordForm() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
+        <button
+          type="button"
+          onClick={() => {
+            setShowConfirmPassword((prev: boolean) => !prev);
+          }}
+          className="p-3"
+        >
+          {showConfirmPassword ? (
+            <Eye size={20} className="text-gray-400" />
+          ) : (
+            <EyeOff size={20} className="text-gray-400" />
+          )}
+        </button>
       </div>
 
       <button
