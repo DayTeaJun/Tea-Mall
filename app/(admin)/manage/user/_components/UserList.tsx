@@ -80,16 +80,9 @@ function UserList({
                           {user.profile_image_url ? (
                             <Image
                               fill
-                              src={user.profile_image_url}
+                              src={user.profile_image_url || "/user.png"}
                               alt={user.user_name || "Profile"}
                               className="object-cover"
-                              onError={(e) => {
-                                const target =
-                                  e.currentTarget as HTMLImageElement;
-                                target.onerror = null;
-                                target.setAttribute("data-unoptimized", "true");
-                                target.src = "/user.png";
-                              }}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -145,15 +138,11 @@ function UserList({
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="relative w-11 h-11 rounded-lg bg-gray-50 border border-gray-200 overflow-hidden shrink-0">
                         {user.profile_image_url ? (
-                          <img
-                            src={user.profile_image_url || "/user.png"}
+                          <Image
+                            fill
+                            src={user.profile_image_url}
                             alt={user.user_name || "Profile"}
                             className="w-full h-full object-cover p-4"
-                            onError={(e) => {
-                              const target = e.currentTarget;
-                              target.onerror = null;
-                              target.src = "/user.png";
-                            }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">

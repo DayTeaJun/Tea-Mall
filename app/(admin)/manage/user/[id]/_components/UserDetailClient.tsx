@@ -80,12 +80,6 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                   src={user.profile_image_url}
                   alt={user.user_name || "Profile"}
                   className="object-cover"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    target.onerror = null;
-                    target.setAttribute("data-unoptimized", "true");
-                    target.src = "/user.png";
-                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
