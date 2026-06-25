@@ -43,7 +43,7 @@ function FindPasswordForm() {
 
   if (step === "sent") {
     return (
-      <div className="text-center p-4 flex flex-col items-center gap-2 mt-10">
+      <div className="text-center p-4 flex flex-col items-center gap-2">
         <CircleCheck size={60} className="text-green-500 mb-2" />
         <p className="font-bold text-lg">
           비밀번호 재설정 이메일이 전송되었습니다.
@@ -72,8 +72,11 @@ function FindPasswordForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col p-5 max-w-[500px] w-full"
+        className="flex flex-col p-5 max-w-[500px] w-full pt-10"
       >
+        <p className="text-[13px] text-gray-600 pb-2">
+          이메일을 입력하면 비밀번호 재설정 링크가 전송됩니다.
+        </p>
         <ValidEmail
           email={email}
           setEmail={setEmail}
@@ -104,7 +107,7 @@ function FindPasswordForm() {
       </form>
 
       <Link href="/signin" className="text-[14px] cursor-pointer underline">
-        Cancel
+        Back To Login
       </Link>
     </>
   );

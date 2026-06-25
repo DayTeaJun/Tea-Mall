@@ -4,7 +4,7 @@ import AuthUIForm from "./_components/GoogleLogin";
 
 function LoginPage() {
   return (
-    <section className="w-full h-full flex flex-col items-center justify-center py-5">
+    <>
       <p className="text-[32px] font-bold">Login</p>
       <SigninForm />
 
@@ -13,7 +13,7 @@ function LoginPage() {
       </Link>
 
       <AuthUIForm />
-    </section>
+    </>
   );
 }
 
