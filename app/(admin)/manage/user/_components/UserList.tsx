@@ -142,7 +142,7 @@ function UserList({
                             fill
                             src={user.profile_image_url}
                             alt={user.user_name || "Profile"}
-                            className="w-full h-full object-cover p-4"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">
