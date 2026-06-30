@@ -3,7 +3,17 @@
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useEffect } from "react";
 
-export default function ProductDetail({ productId }: { productId: string }) {
+interface ProductDetailProps {
+  productId: string;
+  productImg: string;
+  productName: string;
+}
+
+export default function ProductDetail({
+  productId,
+  productImg,
+  productName,
+}: ProductDetailProps) {
   const supabase = createBrowserSupabaseClient();
 
   useEffect(() => {
@@ -17,8 +27,33 @@ export default function ProductDetail({ productId }: { productId: string }) {
       else console.log("현재 조회수:", data);
     };
 
+    const updateRecentProducts = () => {
+      const saved = localStorage.getItem("recent_products");
+      let currentList = saved ? JSON.parse(saved) : [];
+
+      currentList = currentList.filter(
+        (item: { id: string }) => item.id !== productId,
+      );
+
+      const newItem = {
+        id: productId,
+        src: productImg,
+        alt: productName,
+      };
+      currentList.unshift(newItem);
+
+      if (currentList.length > 6) {
+        currentList = currentList.slice(0, 6);
+      }
+
+      localStorage.setItem("recent_products", JSON.stringify(currentList));
+
+      window.dispatchEvent(new Event("recentProductsUpdated"));
+    };
+
     incrementViews();
-  }, [productId]);
+    updateRecentProducts();
+  }, [productId, productImg, productName]);
 
   return <></>;
 }

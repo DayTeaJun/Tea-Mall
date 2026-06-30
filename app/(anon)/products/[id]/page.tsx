@@ -292,7 +292,11 @@ export default async function ProductDetailPage({
         category={product.category}
       />
 
-      <ProductDetail productId={id} />
+      <ProductDetail
+        productId={id}
+        productImg={product.image_url || ""}
+        productName={product.name}
+      />
     </main>
   );
 }

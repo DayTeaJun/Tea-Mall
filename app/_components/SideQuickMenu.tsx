@@ -1,28 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useProductAllCart } from "@/lib/queries/products";
 
-const recentProducts = [
-  { id: 1, src: "/main_1.jpg", alt: "상품 1" },
-  { id: 2, src: "/main_2.jpg", alt: "상품 2" },
-  { id: 3, src: "/main_3.jpg", alt: "상품 3" },
-  { id: 4, src: "/main_1.jpg", alt: "상품 4" },
-  { id: 5, src: "/main_2.jpg", alt: "상품 5" },
-];
+interface RecentProduct {
+  id: string | number;
+  src: string;
+  alt: string;
+}
 
 export default function SideQuickMenu() {
   const { user } = useAuthStore();
-
-  const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(recentProducts.length / 3) || 1;
   const { data: cartItems } = useProductAllCart(user?.id ?? "");
 
+  const [recentProducts, setRecentProducts] = useState<RecentProduct[]>([]);
+  const [page, setPage] = useState(1);
   const itemsPerPage = 3;
+
+  useEffect(() => {
+    const loadRecentProducts = () => {
+      const saved = localStorage.getItem("recent_products");
+      if (saved) {
+        try {
+          setRecentProducts(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    loadRecentProducts();
+
+    window.addEventListener("recentProductsUpdated", loadRecentProducts);
+    return () => {
+      window.removeEventListener("recentProductsUpdated", loadRecentProducts);
+    };
+  }, []);
+
+  const totalPages = Math.ceil(recentProducts.length / itemsPerPage) || 1;
   const currentItems = recentProducts.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage,
@@ -51,7 +70,7 @@ export default function SideQuickMenu() {
         </div>
       </div>
 
-      <div className="p-2 flex flex-col gap-2 min-h-[260px] justify-start bg-white">
+      <div className="p-2 flex flex-col gap-2 min-h-[362px] justify-start bg-white">
         {currentItems.length > 0 ? (
           currentItems.map((prod) => (
             <Link
@@ -69,7 +88,7 @@ export default function SideQuickMenu() {
             </Link>
           ))
         ) : (
-          <div className="text-gray-400 py-12">없음</div>
+          <div className="text-gray-400 py-24 text-center">없음</div>
         )}
       </div>
 
