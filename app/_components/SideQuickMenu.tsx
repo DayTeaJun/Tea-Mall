@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useProductAllCart } from "@/lib/queries/products";
 
 const recentProducts = [
   { id: 1, src: "/main_1.jpg", alt: "상품 1" },
@@ -14,8 +16,11 @@ const recentProducts = [
 ];
 
 export default function SideQuickMenu() {
+  const { user } = useAuthStore();
+
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(recentProducts.length / 3) || 1;
+  const { data: cartItems } = useProductAllCart(user?.id ?? "");
 
   const itemsPerPage = 3;
   const currentItems = recentProducts.slice(
@@ -31,7 +36,9 @@ export default function SideQuickMenu() {
       >
         <div className="flex justify-between items-center font-medium">
           <span>장바구니</span>
-          <span className="text-[#00d2ff] font-bold">0</span>
+          <span className="text-[#00d2ff] font-bold">
+            {cartItems?.length || 0}
+          </span>
         </div>
       </Link>
 
