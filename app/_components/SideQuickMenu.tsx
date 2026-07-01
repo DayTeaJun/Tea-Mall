@@ -1,45 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useProductAllCart } from "@/lib/queries/products";
-
-interface RecentProduct {
-  id: string | number;
-  src: string;
-  alt: string;
-}
+import { useRecentProductsStore } from "@/lib/store/useRecentProductsStore";
 
 export default function SideQuickMenu() {
   const { user } = useAuthStore();
   const { data: cartItems } = useProductAllCart(user?.id ?? "");
 
-  const [recentProducts, setRecentProducts] = useState<RecentProduct[]>([]);
+  const { recentProducts } = useRecentProductsStore();
+
   const [page, setPage] = useState(1);
   const itemsPerPage = 3;
-
-  useEffect(() => {
-    const loadRecentProducts = () => {
-      const saved = localStorage.getItem("recent_products");
-      if (saved) {
-        try {
-          setRecentProducts(JSON.parse(saved));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    loadRecentProducts();
-
-    window.addEventListener("recentProductsUpdated", loadRecentProducts);
-    return () => {
-      window.removeEventListener("recentProductsUpdated", loadRecentProducts);
-    };
-  }, []);
 
   const totalPages = Math.ceil(recentProducts.length / itemsPerPage) || 1;
   const currentItems = recentProducts.slice(
@@ -48,7 +24,7 @@ export default function SideQuickMenu() {
   );
 
   return (
-    <div className="w-32 border border-gray-300 bg-white text-center text-xs select-none">
+    <div className="w-32 border border-gray-300 bg-white text-center text-xs select-none shadow-sm">
       <Link
         href="/mypage/myCart"
         className="block bg-[#343a40] text-white py-2.5 px-3 border-b border-[#495057] hover:bg-[#212529] transition-colors"
