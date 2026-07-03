@@ -10,6 +10,7 @@ import { publicSupabase } from "@/lib/config/supabase/publicClient";
 import Image from "next/image";
 import ProductDetail from "./_components/ProductView";
 import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
+import ProductTabs from "./_components/ProductTabs";
 
 export async function generateMetadata({
   params,
@@ -270,7 +271,9 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      <div className="mt-10">
+      <ProductTabs />
+
+      <div id="product-detail-section" className="mt-10 scroll-mt-[146px]">
         {detailImages &&
           detailImages.map((image) => (
             <div key={image.sort_order} className="mb-4 w-full">

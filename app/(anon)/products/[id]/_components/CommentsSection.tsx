@@ -30,7 +30,10 @@ export default async function CommentsSection({ productId }: Props) {
     .order("created_at", { ascending: false });
 
   return (
-    <section className="border-t">
+    <section
+      id="product-comments-section"
+      className="border-t scroll-mt-[146px]"
+    >
       <div className="flex justify-between items-center">
         <h2 className="text-[20px] font-semibold my-4">상품 리뷰</h2>
         <CommentBtn productId={productId} />
