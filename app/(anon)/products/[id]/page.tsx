@@ -11,6 +11,7 @@ import Image from "next/image";
 import ProductDetail from "./_components/ProductView";
 import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 import ProductTabs from "./_components/ProductTabs";
+import ProductInquiry from "./_components/ProductInquiry";
 
 export async function generateMetadata({
   params,
@@ -289,6 +290,8 @@ export default async function ProductDetailPage({
       </div>
 
       <CommentsSection productId={id} />
+
+      <ProductInquiry />
 
       <RecommendProductsCarousel
         currentProductId={id}

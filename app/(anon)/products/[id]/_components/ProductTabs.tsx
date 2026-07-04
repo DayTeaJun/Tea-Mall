@@ -15,15 +15,15 @@ export default function ProductTabs() {
 
     const element = document.getElementById(targetId);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      element.scrollIntoView({ block: "start" });
     }
   };
 
   const tabClass = (tab: "detail" | "comments" | "qa") => `
-    w-1/3 border p-3 text-center text-16 font-medium transition-colors
+    w-1/3 border box-border p-3 text-center text-16 font-medium transition-colors
     ${
       activeTab === tab
-        ? "border-b-0 font-bold"
+        ? "border-b-transparent font-bold"
         : "border-gray-200 text-gray-500 hover:text-gray-800 bg-gray-50"
     }
   `;
@@ -49,7 +49,7 @@ export default function ProductTabs() {
         className={tabClass("qa")}
         onClick={() => handleTabClick("qa", "product-qa-section")}
       >
-        Q&A
+        상품문의
       </button>
     </div>
   );
