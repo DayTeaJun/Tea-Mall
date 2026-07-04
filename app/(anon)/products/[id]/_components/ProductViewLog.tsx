@@ -4,17 +4,17 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useRecentProductsStore } from "@/lib/store/useRecentProductsStore";
 import { useEffect } from "react";
 
-interface ProductDetailProps {
+interface ProductViewLogProps {
   productId: string;
   productImg: string;
   productName: string;
 }
 
-export default function ProductDetail({
+export default function ProductViewLog({
   productId,
   productImg,
   productName,
-}: ProductDetailProps) {
+}: ProductViewLogProps) {
   const supabase = createBrowserSupabaseClient();
   const { addProduct } = useRecentProductsStore();
 

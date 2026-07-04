@@ -8,10 +8,10 @@ import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
 import CommentsSection from "./_components/CommentsSection";
 import { publicSupabase } from "@/lib/config/supabase/publicClient";
 import Image from "next/image";
-import ProductDetail from "./_components/ProductView";
 import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 import ProductTabs from "./_components/ProductTabs";
 import ProductInquiry from "./_components/ProductInquiry";
+import ProductViewLog from "./_components/ProductViewLog";
 
 export async function generateMetadata({
   params,
@@ -298,7 +298,7 @@ export default async function ProductDetailPage({
         category={product.category}
       />
 
-      <ProductDetail
+      <ProductViewLog
         productId={id}
         productImg={product.image_url || ""}
         productName={product.name}
