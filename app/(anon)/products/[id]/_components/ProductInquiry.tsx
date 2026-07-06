@@ -1,22 +1,18 @@
 import { MailQuestion } from "lucide-react";
 import React from "react";
+import InquiryBtn from "./InquiryBtn";
 
-function ProductInquiry() {
+function ProductInquiry({ productId }: { productId: string }) {
   return (
     <div
       className="min-h-20 border-b scroll-mt-[146px]"
       id="product-qa-section"
     >
-      <div className="flex flex-col gap-6 border-4 border-gray-100 p-4 sm:p-5 rounded mb-6 text-[13px] sm:text-sm text-gray-600 leading-relaxed">
+      <div className="flex flex-col gap-6 border border-gray-200 p-4 sm:p-5 mb-6 text-[13px] sm:text-sm text-gray-600 leading-relaxed">
         <div className="flex justify-between items-center -mb-2">
           <h2 className="text-[20px] font-semibold">상품 문의</h2>
 
-          <button
-            type="button"
-            className="border-2 border-gray-200 py-1 px-3 font-medium text-black hover:bg-gray-50 transition-colors"
-          >
-            문의하기
-          </button>
+          <InquiryBtn productId={productId} />
         </div>
 
         <ul className="space-y-1.5 list-none pl-0">

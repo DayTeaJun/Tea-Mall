@@ -365,6 +365,81 @@ export type Database = {
           },
         ];
       };
+      product_inquiry: {
+        Row: {
+          admin_id: string | null;
+          answer_content: string | null;
+          answered_at: string | null;
+          content: string;
+          created_at: string;
+          id: number;
+          product_id: string;
+          updated_at: string;
+          user_id: string;
+          user_name: string;
+        };
+        Insert: {
+          admin_id?: string | null;
+          answer_content?: string | null;
+          answered_at?: string | null;
+          content: string;
+          created_at?: string;
+          id?: number;
+          product_id: string;
+          updated_at?: string;
+          user_id: string;
+          user_name: string;
+        };
+        Update: {
+          admin_id?: string | null;
+          answer_content?: string | null;
+          answered_at?: string | null;
+          content?: string;
+          created_at?: string;
+          id?: number;
+          product_id?: string;
+          updated_at?: string;
+          user_id?: string;
+          user_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "fk_product_inquiry_admin";
+            columns: ["admin_id"];
+            isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_admin";
+            columns: ["admin_id"];
+            isOneToOne: false;
+            referencedRelation: "user_table";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_product";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_user";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "public_user_profile";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_user";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "user_table";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       products: {
         Row: {
           category: string | null;

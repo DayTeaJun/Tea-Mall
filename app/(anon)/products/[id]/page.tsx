@@ -291,7 +291,7 @@ export default async function ProductDetailPage({
 
       <CommentsSection productId={id} />
 
-      <ProductInquiry />
+      <ProductInquiry productId={id} />
 
       <RecommendProductsCarousel
         currentProductId={id}
