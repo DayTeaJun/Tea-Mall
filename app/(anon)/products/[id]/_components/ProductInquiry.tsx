@@ -1,9 +1,10 @@
-import { MailQuestion, CornerDownRight } from "lucide-react";
+import { CornerDownRight, MailQuestion } from "lucide-react";
 import React from "react";
 import InquiryBtn from "./InquiryBtn";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
+import ProductInquiryAnswer from "./ProductInquiryAnswer";
 
-const formatDate = (dateString: string) => {
+export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -93,7 +94,7 @@ async function ProductInquiry({ productId }: { productId: string }) {
                     </p>
                   </div>
 
-                  {inquiry.answer_content && (
+                  {inquiry.answer_content ? (
                     <div className="bg-gray-50/50 p-4 rounded-sm border-t border-gray-100 flex gap-2 items-start mt-1">
                       <CornerDownRight
                         size={16}
@@ -119,6 +120,12 @@ async function ProductInquiry({ productId }: { productId: string }) {
                         </p>
                       </div>
                     </div>
+                  ) : (
+                    <ProductInquiryAnswer
+                      inquiry_id={inquiry.id}
+                      answer_content={inquiry.answer_content}
+                      answered_at={inquiry.answered_at}
+                    />
                   )}
                 </div>
               ))}
