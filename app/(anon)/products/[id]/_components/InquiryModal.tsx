@@ -5,6 +5,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface InquiryModalProps {
   user: UserType;
@@ -19,6 +20,7 @@ export default function InquiryModal({
   onClose,
   productId,
 }: InquiryModalProps) {
+  const router = useRouter();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,6 +49,7 @@ export default function InquiryModal({
       toast.success("문의가 정상적으로 등록되었습니다.");
       setContent("");
       onClose();
+      router.refresh();
     } catch (err) {
       console.error(err);
       toast.error("문의 등록에 실패했습니다.");

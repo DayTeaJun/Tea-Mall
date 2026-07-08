@@ -1,37 +1,22 @@
 "use client";
 
+import React, { useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import InquiryModal from "./InquiryModal";
 
-function InquiryBtn({ productId }: { productId: string }) {
+interface Props {
+  productId: string;
+  initialHasInquiry: boolean;
+  myInquiryId: number | null;
+}
+
+function InquiryBtn({ productId, initialHasInquiry, myInquiryId }: Props) {
   const { user } = useAuthStore();
-  const [hasInquiry, setHasInquiry] = useState<boolean | null>(null);
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const checkInquiryAndEligibility = async () => {
-      if (!user?.id) return;
-
-      const supabase = createBrowserSupabaseClient();
-
-      const productInquiry = supabase
-        .from("product_inquiry")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("product_id", productId);
-
-      const { count: inquiryCount, error: inquiryErr } = await productInquiry;
-
-      setHasInquiry(!inquiryErr && (inquiryCount ?? 0) > 0);
-    };
-
-    checkInquiryAndEligibility();
-  }, [user?.id, productId]);
-
-  const label = hasInquiry ? "문의 삭제하기" : "문의 작성하기";
 
   const handleInquiryClick = async () => {
     if (!user) {
@@ -39,7 +24,22 @@ function InquiryBtn({ productId }: { productId: string }) {
       return;
     }
 
-    if (!hasInquiry) {
+    if (initialHasInquiry && myInquiryId) {
+      if (!confirm("작성하신 상품 문의를 삭제하시겠습니까?")) return;
+
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase
+        .from("product_inquiry")
+        .delete()
+        .eq("id", myInquiryId);
+
+      if (error) {
+        toast.error("문의 삭제에 실패했습니다.");
+      } else {
+        toast.success("문의가 삭제되었습니다.");
+        router.refresh();
+      }
+    } else {
       setIsModalOpen(true);
     }
   };
@@ -49,10 +49,11 @@ function InquiryBtn({ productId }: { productId: string }) {
       <button
         onClick={handleInquiryClick}
         type="button"
-        className="border-2 border-gray-200 py-1 px-3 font-medium text-black hover:bg-gray-50 transition-colors"
+        className="border-2 border-gray-200 py-1 px-3 font-medium text-black hover:bg-gray-50 transition-colors text-xs sm:text-sm"
       >
-        {label}
+        {initialHasInquiry ? "문의 삭제하기" : "문의 작성하기"}
       </button>
+
       {user && isModalOpen && (
         <InquiryModal
           user={user}

@@ -18,11 +18,17 @@ export const formatDate = (dateString: string) => {
 async function ProductInquiry({ productId }: { productId: string }) {
   const supabase = await createServerSupabaseClient();
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const userId = session?.user?.id || null;
+
   const { data: inquiries } = await supabase
     .from("product_inquiry")
     .select(
       `
     id,
+    user_id,
     user_name,
     created_at,
     content,
@@ -34,6 +40,10 @@ async function ProductInquiry({ productId }: { productId: string }) {
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
 
+  const myInquiry = inquiries?.find((inquiry) => inquiry.user_id === userId);
+  const hasInquiry = !!myInquiry;
+  const myInquiryId = myInquiry?.id || null;
+
   return (
     <div
       className="min-h-20 border-b scroll-mt-[146px] w-full"
@@ -43,7 +53,11 @@ async function ProductInquiry({ productId }: { productId: string }) {
         <div className="flex justify-between items-center -mb-2">
           <h2 className="text-[20px] font-semibold text-gray-800">상품 문의</h2>
 
-          <InquiryBtn productId={productId} />
+          <InquiryBtn
+            productId={productId}
+            initialHasInquiry={hasInquiry}
+            myInquiryId={myInquiryId}
+          />
         </div>
 
         <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-5">
