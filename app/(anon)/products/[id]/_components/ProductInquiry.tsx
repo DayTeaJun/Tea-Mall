@@ -1,8 +1,9 @@
 import { CornerDownRight, MailQuestion } from "lucide-react";
 import React from "react";
-import InquiryBtn from "./InquiryBtn";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import ProductInquiryAnswer from "./ProductInquiryAnswer";
+import InquiryDelBtn from "./InquiryDelBtn";
+import InquiryPostBtn from "./InquiryPostBtn";
 
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -53,11 +54,7 @@ async function ProductInquiry({ productId }: { productId: string }) {
         <div className="flex justify-between items-center -mb-2">
           <h2 className="text-[20px] font-semibold text-gray-800">상품 문의</h2>
 
-          <InquiryBtn
-            productId={productId}
-            initialHasInquiry={hasInquiry}
-            myInquiryId={myInquiryId}
-          />
+          {!hasInquiry && <InquiryPostBtn productId={productId} />}
         </div>
 
         <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-5">
@@ -101,7 +98,13 @@ async function ProductInquiry({ productId }: { productId: string }) {
                           {inquiry.user_name}
                         </span>
                       </div>
-                      <span>{formatDate(inquiry.created_at)}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{formatDate(inquiry.created_at)}</span>
+                        <InquiryDelBtn
+                          productId={productId}
+                          myInquiryId={myInquiryId}
+                        />
+                      </div>
                     </div>
                     <p className="text-gray-900 font-medium whitespace-pre-line pl-1 text-[13px] sm:text-sm">
                       {inquiry.content}
@@ -112,17 +115,17 @@ async function ProductInquiry({ productId }: { productId: string }) {
                     <div className="bg-gray-50/50 p-4 rounded-sm border-t border-gray-100 flex gap-2 items-start mt-1">
                       <CornerDownRight
                         size={16}
-                        className="text-blue-500 shrink-0 mt-0.5"
+                        className="text-green-500 shrink-0 mt-0.5"
                       />
 
                       <div className="flex flex-col gap-1.5 w-full">
                         <div className="flex justify-between items-center text-xs text-gray-400">
-                          <div className="flex items-center gap-1.5">
-                            <span className="bg-blue-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[11px]">
+                          <div className="flex items-center gap-2">
+                            <span className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[11px]">
                               답변
                             </span>
-                            <span className="font-bold text-blue-700">
-                              [판매자 답변]
+                            <span className="font-bold text-green-700">
+                              판매자
                             </span>
                           </div>
                           {inquiry.answered_at && (
