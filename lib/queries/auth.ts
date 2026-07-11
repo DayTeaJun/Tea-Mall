@@ -803,6 +803,84 @@ export function usePostHiddenReview(userId: string, page: number) {
   return { mutate, isPending };
 }
 
+// 상품 문의 내역 전체 조회
+export function useGetInquiries(userId: string, page: number, limit: number) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["inquiries", userId, page],
+    queryFn: () => getInquiries(userId, page, limit),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 내 상품 문의 조회
+async function getInquiries(userId: string, page: number, limit: number) {
+  const supabase = createBrowserSupabaseClient();
+
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, count, error } = await supabase
+    .from("product_inquiry")
+    .select(
+      `
+      *,
+      products (
+        image_url,
+        name
+      )
+    `,
+      { count: "exact" },
+    )
+    .eq("user_id", userId)
+    .range(from, to)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  const formattedInquiries = (data || []).map((inquiry) => ({
+    ...inquiry,
+    product_image: inquiry.products?.image_url || null,
+    product_name: inquiry.products?.name || "상품 정보 없음",
+  }));
+
+  return {
+    inquiries: formattedInquiries,
+    count: count || 0,
+  };
+}
+
+// 내 상품 문의 내역 삭제
+export function useDelInquiry(userId: string) {
+  return useMutation({
+    mutationFn: (inquiryId: number) => deleteInquiry(inquiryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inquiries", userId] });
+    },
+    onError: (error) => {
+      alert(`문의 삭제에 실패했습니다: ${error.message}`);
+    },
+  });
+}
+
+async function deleteInquiry(inquiryId: number) {
+  const supabase = createBrowserSupabaseClient();
+
+  const { error } = await supabase
+    .from("product_inquiry")
+    .delete()
+    .eq("id", inquiryId);
+
+  if (error) throw new Error(error.message);
+
+  return inquiryId;
+}
+
 export interface InquiryPostType {
   title: string;
   content: string;
