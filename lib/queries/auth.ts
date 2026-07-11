@@ -803,23 +803,12 @@ export function usePostHiddenReview(userId: string, page: number) {
   return { mutate, isPending };
 }
 
-// 상품 문의 내역 전체 조회
-export function useGetInquiries(userId: string, page: number, limit: number) {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["inquiries", userId, page],
-    queryFn: () => getInquiries(userId, page, limit),
-    enabled: !!userId,
-  });
-
-  return {
-    data,
-    isLoading,
-    isError,
-  };
-}
-
-// 내 상품 문의 조회
-async function getInquiries(userId: string, page: number, limit: number) {
+// 내 상품 문의 내역 조회
+async function getProductInquiries(
+  userId: string,
+  page: number,
+  limit: number,
+) {
   const supabase = createBrowserSupabaseClient();
 
   const from = (page - 1) * limit;
@@ -855,20 +844,26 @@ async function getInquiries(userId: string, page: number, limit: number) {
   };
 }
 
-// 내 상품 문의 내역 삭제
-export function useDelInquiry(userId: string) {
-  return useMutation({
-    mutationFn: (inquiryId: number) => deleteInquiry(inquiryId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["inquiries", userId] });
-    },
-    onError: (error) => {
-      alert(`문의 삭제에 실패했습니다: ${error.message}`);
-    },
+export function useGetProductInquiries(
+  userId: string,
+  page: number,
+  limit: number,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["productInquiries", userId, page],
+    queryFn: () => getProductInquiries(userId, page, limit),
+    enabled: !!userId,
   });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
 }
 
-async function deleteInquiry(inquiryId: number) {
+// 내 상품 문의 삭제
+async function deleteProductInquiry(inquiryId: number) {
   const supabase = createBrowserSupabaseClient();
 
   const { error } = await supabase
@@ -879,6 +874,18 @@ async function deleteInquiry(inquiryId: number) {
   if (error) throw new Error(error.message);
 
   return inquiryId;
+}
+
+export function useDelProductInquiry(userId: string) {
+  return useMutation({
+    mutationFn: (inquiryId: number) => deleteProductInquiry(inquiryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["productInquiries", userId] });
+    },
+    onError: (error) => {
+      alert(`상품 문의 삭제에 실패했습니다: ${error.message}`);
+    },
+  });
 }
 
 export interface InquiryPostType {

@@ -33,6 +33,11 @@ const menu = [
     currentPage: "/mypage/review",
     href: "/mypage/review",
   },
+  {
+    name: "문의 내역",
+    currentPage: "/mypage/inquiry",
+    href: "/mypage/inquiry",
+  },
 ];
 
 export default function SidebarNav({ user }: Props) {

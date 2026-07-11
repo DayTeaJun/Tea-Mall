@@ -13,24 +13,27 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ReactPaginate from "react-paginate";
 import {
-  useDelInquiry,
-  useGetInquiries,
-} from "../../../../../lib/queries/auth";
+  useDelProductInquiry,
+  useGetProductInquiries,
+} from "@/lib/queries/auth";
 
-export interface Inquiry {
-  id: string;
-  content: string;
-  user_name: string;
+export interface ProductInquiry {
+  id: number; //
   user_id: string;
+  user_name: string;
   product_id: string;
-  created_at: string | null;
+  content: string;
+  admin_id: string | null;
   answer_content: string | null;
   answered_at: string | null;
+  created_at: string;
+  updated_at: string;
+
   product_image?: string | null;
   product_name?: string | null;
 }
 
-export default function MyInquiriesList() {
+export default function ProductInquiriesList() {
   const LIMIT = 5;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,15 +42,14 @@ export default function MyInquiriesList() {
   const currentPage = Number(searchParams.get("page")) || 1;
   const { user } = useAuthStore();
 
-  // 💡 문의 내역을 가져오고 삭제하는 훅 연동
-  const { data, isLoading, isError } = useGetInquiries(
+  const { data, isLoading, isError } = useGetProductInquiries(
     user?.id || "",
     currentPage,
     LIMIT,
   );
-  const { mutate: deleteInquiry } = useDelInquiry(user?.id || "");
+  const { mutate: deleteInquiry } = useDelProductInquiry(user?.id || "");
 
-  const handleDelInquiry = (inquiryId: string) => {
+  const handleDelInquiry = (inquiryId: number) => {
     if (confirm("정말로 문의를 삭제하시겠습니까?")) {
       deleteInquiry(inquiryId);
     }
@@ -91,7 +93,7 @@ export default function MyInquiriesList() {
 
   return (
     <div className="space-y-6 py-4 sm:py-6 w-full">
-      {inquiries.map((inquiry: Inquiry) => (
+      {inquiries.map((inquiry: ProductInquiry) => (
         <div
           key={inquiry.id}
           className="border border-gray-300 bg-gray-50/80 rounded-md shadow-xs overflow-hidden"
