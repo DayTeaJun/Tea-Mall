@@ -85,9 +85,9 @@ export default function MyReviewsList() {
   }
 
   return (
-    <div className="space-y-6 py-4 sm:py-6">
+    <div className="space-y-6 py-4 sm:py-2">
       {reviews.map((review: Review) => (
-        <div key={review.id} className="border border-gray-200 rounded-sm">
+        <div key={review.id} className="border border-gray-200">
           <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 border-b border-gray-200 gap-3">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative w-12 h-12 sm:w-16 sm:h-16 border border-gray-200 bg-white shrink-0">
@@ -154,7 +154,7 @@ export default function MyReviewsList() {
                 ))}
               </div>
               {review.updated_at && review.updated_at !== review.created_at && (
-                <span className="text-[10px] sm:text-[11px] text-blue-500 bg-blue-50 Bash-1.5 py-0.5 rounded-sm font-medium">
+                <span className="text-[10px] sm:text-[11px] text-blue-500 bg-blue-50 Bash-1.5 p-0.5 rounded-sm font-medium">
                   수정됨
                 </span>
               )}

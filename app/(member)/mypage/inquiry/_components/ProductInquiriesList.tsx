@@ -92,15 +92,12 @@ export default function ProductInquiriesList() {
   }
 
   return (
-    <div className="space-y-6 py-4 sm:py-6 w-full">
+    <div className="space-y-6 py-4 sm:py-2">
       {inquiries.map((inquiry: ProductInquiry) => (
-        <div
-          key={inquiry.id}
-          className="border border-gray-300 bg-gray-50/80 rounded-md shadow-xs overflow-hidden"
-        >
-          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-white border-b border-gray-100 gap-3">
+        <div key={inquiry.id} className="border border-gray-200">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 border-b border-gray-200 gap-3">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative w-12 h-12 border border-gray-200 bg-white shrink-0 rounded-xs overflow-hidden">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 border border-gray-200 bg-white shrink-0">
                 {inquiry.product_image ? (
                   <Image
                     src={inquiry.product_image}
@@ -114,25 +111,33 @@ export default function ProductInquiriesList() {
                   </div>
                 )}
               </div>
-              <div className="space-y-1 flex-1 min-w-0">
+              <div className="space-y-1 flex-1 flex flex-col gap-1 min-w-0">
                 <button
                   onClick={() => router.push(`/products/${inquiry.product_id}`)}
                   className="text-xs sm:text-sm font-bold text-gray-950 hover:underline line-clamp-1 text-left w-full"
                 >
                   {inquiry.product_name || "상품 정보 없음"}
                 </button>
-                <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-400">
-                  <span className="font-bold px-1.5 py-0.5 rounded-xs text-[10px] tracking-tight bg-gray-900 text-white">
-                    내 문의
-                  </span>
-                  <span className="flex items-center gap-1 text-gray-500">
-                    <Calendar size={12} /> {inquiry.created_at?.split("T")[0]}
-                  </span>
-                </div>
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs text-gray-400">
+                  <Calendar size={12} /> {inquiry.created_at?.split("T")[0]}
+                </span>
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 text-xs sm:text-sm text-gray-500 border-t border-gray-100 pt-2 sm:pt-0 sm:border-none">
+              <button
+                onClick={() =>
+                  router.push(
+                    `/products/${inquiry.product_id}#product-qa-section`,
+                  )
+                }
+                className="hover:text-blue-600 px-2 py-1 border border-gray-300 bg-white rounded-xs"
+              >
+                바로가기
+              </button>
+
+              <span className="text-gray-300 hidden sm:inline">|</span>
+
               <button
                 onClick={() => handleDelInquiry(inquiry.id)}
                 className="hover:text-red-500 px-2.5 py-1 border border-gray-300 bg-white rounded-xs transition-colors font-medium text-gray-700"
@@ -143,12 +148,12 @@ export default function ProductInquiriesList() {
           </div>
 
           <div className="p-4 sm:p-5 flex flex-col gap-4">
-            <div className="text-sm sm:text-[15px] text-gray-950 font-semibold leading-relaxed whitespace-pre-wrap pl-1">
+            <div className="text-sm sm:text-[15px] leading-relaxed whitespace-pre-wrap pl-1">
               {inquiry.content}
             </div>
 
             {inquiry.answer_content ? (
-              <div className="p-4 rounded-sm border-t flex gap-2 items-start mt-1 bg-white border-gray-200">
+              <div className="p-4 border-t flex gap-2 items-start mt-1 bg-gray-50 border-gray-200">
                 <CornerDownRight
                   size={16}
                   className="text-gray-400 shrink-0 mt-0.5"
@@ -156,7 +161,7 @@ export default function ProductInquiriesList() {
                 <div className="flex flex-col gap-1.5 w-full">
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <div className="flex items-center gap-2">
-                      <span className="bg-gray-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[11px]">
+                      <span className="bg-gray-600 text-white font-bold px-1.5 py-0.5 text-[11px]">
                         답변
                       </span>
                       <span className="font-bold text-gray-700">판매자</span>
