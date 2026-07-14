@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import ProductInquiriesList from "./_components/ProductInquiriesList";
+import CustomerInquiriesList from "./_components/CustomerInquiriesList";
 
 export default function MyInquiriesPage() {
   const [activeTab, setActiveTab] = useState<"product" | "customer">("product");
@@ -37,8 +38,7 @@ export default function MyInquiriesPage() {
         {activeTab === "product" ? (
           <ProductInquiriesList />
         ) : (
-          // <CustomerInquiriesList />
-          <></>
+          <CustomerInquiriesList />
         )}
       </div>
     </section>
