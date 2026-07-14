@@ -4,6 +4,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import {
   delDeliveryAddress,
   deleteInquiry,
+  getCustomerInquiries,
   getMyAddressList,
   getMyDefaultAddress,
   getMyProfile,
@@ -1140,6 +1141,7 @@ export const useDeleteInquiry = (isAdmin: boolean) => {
       toast.success("문의가 삭제되었습니다.");
       router.replace("/inquiry");
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      await queryClient.invalidateQueries({ queryKey: ["customerInquiries"] });
     },
 
     onError: (error) => {
@@ -1152,3 +1154,16 @@ export const useDeleteInquiry = (isAdmin: boolean) => {
 
   return { mutate, isPending };
 };
+
+// 내 문의 조회
+export function useGetCustomerInquiries(
+  userId: string,
+  page: number,
+  limit: number,
+) {
+  return useQuery({
+    queryKey: ["customerInquiries", userId, page],
+    queryFn: () => getCustomerInquiries(userId, page, limit),
+    enabled: !!userId,
+  });
+}

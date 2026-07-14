@@ -34,7 +34,7 @@ const menu = [
     href: "/mypage/review",
   },
   {
-    name: "문의 내역",
+    name: "문의 관리",
     currentPage: "/mypage/inquiry",
     href: "/mypage/inquiry",
   },
