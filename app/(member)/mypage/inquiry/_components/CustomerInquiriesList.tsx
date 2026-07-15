@@ -2,16 +2,19 @@
 
 import React from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import {
-  Loader2,
-  MailQuestion,
-  Calendar,
-  CornerDownRight,
-  HelpCircle,
-} from "lucide-react";
+import { Loader2, MailQuestion, Calendar, CornerDownRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ReactPaginate from "react-paginate";
 import { useDeleteInquiry, useGetCustomerInquiries } from "@/lib/queries/auth";
+
+const INQUIRY_TYPE_MAP: Record<string, string> = {
+  DELIVERY: "배송",
+  PRODUCT: "상품",
+  CANCEL: "취소/반품",
+  ORDER: "주문/결제",
+  OTHER: "기타",
+  AUTH: "계정",
+};
 
 export interface CustomerInquiry {
   id: number;
@@ -42,7 +45,7 @@ export default function CustomerInquiriesList() {
     LIMIT,
   );
 
-  const { mutate: deleteInquiry } = useDeleteInquiry(false);
+  const { mutate: deleteInquiry } = useDeleteInquiry(false, "mypage");
 
   const handleDelInquiry = (inquiryId: number) => {
     if (confirm("정말로 문의를 삭제하시겠습니까?")) {
@@ -93,28 +96,29 @@ export default function CustomerInquiriesList() {
       {inquiries.map((inquiry: CustomerInquiry) => (
         <div key={inquiry.id} className="border border-gray-200">
           <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 border-b border-gray-200 gap-3">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-              <div className="flex items-center gap-2 shrink-0">
-                <HelpCircle
-                  size={20}
-                  className="text-gray-400 hidden sm:block"
-                />
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 shrink-0 flex-1 min-w-0">
                 <span className="bg-gray-200 text-gray-800 font-bold px-2 py-0.5 text-[11px] rounded-xs">
-                  {inquiry.category || "일반문의"}
+                  {INQUIRY_TYPE_MAP[inquiry.category] || "일반문의"}
                 </span>
-              </div>
-
-              <div className="space-y-1 flex-1 min-w-0">
                 <h3 className="text-xs sm:text-sm font-bold text-gray-950 line-clamp-1">
                   {inquiry.title || "문의 제목 없음"}
                 </h3>
-                <span className="flex items-center gap-1 text-[11px] sm:text-xs text-gray-400">
-                  <Calendar size={12} /> {inquiry.created_at?.split("T")[0]}
-                </span>
               </div>
+              <span className="flex items-center gap-1 text-[11px] sm:text-xs text-gray-400">
+                <Calendar size={12} /> {inquiry.created_at?.split("T")[0]}
+              </span>
             </div>
 
-            <div className="flex items-center justify-end text-xs sm:text-sm text-gray-500 border-t border-gray-100 pt-2 sm:pt-0 sm:border-none">
+            <div className="flex items-center justify-end gap-2 text-xs sm:text-sm text-gray-500 border-t border-gray-100 pt-2 sm:pt-0 sm:border-none">
+              <button
+                onClick={() => router.push(`/inquiry/${inquiry.id}`)}
+                className="hover:text-blue-600 px-2 py-1 border border-gray-300 bg-white rounded-xs"
+              >
+                바로가기
+              </button>
+
+              <span className="text-gray-300 hidden sm:inline">|</span>
               <button
                 onClick={() => handleDelInquiry(inquiry.id)}
                 className="hover:text-red-500 px-2.5 py-1 border border-gray-300 bg-white rounded-xs transition-colors font-medium text-gray-700"

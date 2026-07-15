@@ -939,10 +939,11 @@ export const postInquiry = async (inquiryData: InquiryPostType) => {
 export const usePostInquiryMutation = () => {
   return useMutation({
     mutationFn: (newInquiry: InquiryPostType) => postInquiry(newInquiry),
-    onSuccess: () => {
-      toast.success("문의가 성공적으로 등록되었습니다.");
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      await queryClient.invalidateQueries({ queryKey: ["customerInquiries"] });
 
-      queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      toast.success("문의가 성공적으로 등록되었습니다.");
     },
     onError: (error) => {
       console.error("문의 등록 실패:", error);
@@ -1131,7 +1132,7 @@ interface DeleteVariables {
   guestPassword?: string;
 }
 
-export const useDeleteInquiry = (isAdmin: boolean) => {
+export const useDeleteInquiry = (isAdmin: boolean, prePage?: string) => {
   const router = useRouter();
   const { mutate, isPending } = useMutation({
     mutationFn: ({ inquiryId, guestPassword }: DeleteVariables) =>
@@ -1139,9 +1140,12 @@ export const useDeleteInquiry = (isAdmin: boolean) => {
 
     onSuccess: async () => {
       toast.success("문의가 삭제되었습니다.");
-      router.replace("/inquiry");
+      if (prePage === "mypage") {
+        router.replace("/mypage/inquiry");
+      } else {
+        router.replace("/inquiry");
+      }
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      await queryClient.invalidateQueries({ queryKey: ["customerInquiries"] });
     },
 
     onError: (error) => {
@@ -1162,7 +1166,7 @@ export function useGetCustomerInquiries(
   limit: number,
 ) {
   return useQuery({
-    queryKey: ["customerInquiries", userId, page],
+    queryKey: ["inquiries", userId, page],
     queryFn: () => getCustomerInquiries(userId, page, limit),
     enabled: !!userId,
   });
