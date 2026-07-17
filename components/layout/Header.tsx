@@ -1,4 +1,4 @@
-import { LogIn, SquareUserRound, User } from "lucide-react";
+import { SquareUserRound, User } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
@@ -7,17 +7,9 @@ import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
 import CategoryDropdown_M from "../ui/CategoryDropdown_M";
 import CategoryDropdown from "../ui/CategoryDropdown";
-import { headers } from "next/headers"; // 💡 추가
+import SignInBtn from "../common/buttons/SignInBtn";
 
 async function Header({ user }: { user: UserType | null }) {
-  const headersList = await headers();
-  const currentPath = headersList.get("x-pathname") || "/";
-
-  const signInUrl =
-    currentPath === "/signin" || currentPath === "/signup"
-      ? "/signin"
-      : `/signin?redirectTo=${encodeURIComponent(currentPath)}`;
-
   return (
     <header className="w-full fixed top-0 left-0 border-b-2 border-gray-100 bg-white z-50">
       <div className="w-full flex flex-col">
@@ -33,6 +25,7 @@ async function Header({ user }: { user: UserType | null }) {
             {user ? (
               <>
                 <SignOutBtn />
+
                 <Link
                   href={`/mypage`}
                   className="text-black flex gap-1 items-center"
@@ -43,13 +36,7 @@ async function Header({ user }: { user: UserType | null }) {
               </>
             ) : (
               <>
-                <Link
-                  href={signInUrl}
-                  className="text-black flex gap-1 items-center"
-                >
-                  <p className="text-[12px] sm:text-[14px]">로그인</p>
-                  <LogIn size={16} className="hidden sm:block" />
-                </Link>
+                <SignInBtn />
                 <Link
                   href="/signup"
                   className="text-black flex gap-1 items-center"
@@ -73,6 +60,7 @@ async function Header({ user }: { user: UserType | null }) {
           </div>
           <nav className="flex gap-4 items-center justify-between w-full sm:w-auto sm:ml-auto">
             <SearchInput />
+
             <div className="flex-shrink-0">
               <CartLinkBtn />
             </div>

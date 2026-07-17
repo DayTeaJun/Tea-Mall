@@ -43,9 +43,10 @@ export const useSignInMutation = () => {
     onSuccess: () => {
       toast.success("로그인에 성공하였습니다.");
 
-      const redirectTo = searchParams.get("redirectTo") || "/";
+      const redirectTo = searchParams.get("redirectTo");
+      const destination = redirectTo || "/";
 
-      router.push(redirectTo);
+      router.push(destination);
       router.refresh();
     },
     onError: (error) => {
@@ -101,16 +102,13 @@ export const useSignUpMutation = () => {
 // 소셜 로그인 (회원가입)
 export const useSignUpOAuthMutation = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignUpFormData) => signUpOAuth(formData),
 
     onSuccess: () => {
       toast.success("회원가입에 성공하였습니다.");
-
-      const redirectTo = searchParams.get("redirectTo") || "/";
-      router.push(redirectTo);
+      router.push("/");
     },
     onError: (error) => {
       if (error && typeof error === "object" && "status" in error) {
