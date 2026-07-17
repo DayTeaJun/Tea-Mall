@@ -23,7 +23,7 @@ import {
   UserType,
 } from "@/types/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "../config/supabase/client";
@@ -35,13 +35,18 @@ import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page"
 // 로그인
 export const useSignInMutation = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState("");
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignInFormData) => signInUser(formData),
     onSuccess: () => {
       toast.success("로그인에 성공하였습니다.");
-      router.push("/");
+
+      const redirectTo = searchParams.get("redirectTo") || "/";
+
+      router.push(redirectTo);
+      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -96,13 +101,16 @@ export const useSignUpMutation = () => {
 // 소셜 로그인 (회원가입)
 export const useSignUpOAuthMutation = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (formData: SignUpFormData) => signUpOAuth(formData),
 
     onSuccess: () => {
       toast.success("회원가입에 성공하였습니다.");
-      router.push("/");
+
+      const redirectTo = searchParams.get("redirectTo") || "/";
+      router.push(redirectTo);
     },
     onError: (error) => {
       if (error && typeof error === "object" && "status" in error) {
