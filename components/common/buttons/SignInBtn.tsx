@@ -11,10 +11,14 @@ export default function SignInBtn() {
   const queryString = searchParams.toString();
   const currentPath = queryString ? `${pathname}?${queryString}` : pathname;
 
-  const signInUrl =
-    pathname.startsWith("/signin") || pathname.startsWith("/signup")
-      ? "/signin"
-      : `/signin?redirectTo=${encodeURIComponent(currentPath)}`;
+  const isSkipRedirect = 
+    pathname === "/" || 
+    pathname.startsWith("/signin") || 
+    pathname.startsWith("/signup");
+
+  const signInUrl = isSkipRedirect
+    ? "/signin"
+    : `/signin?redirectTo=${encodeURIComponent(currentPath)}`;
 
   return (
     <Link href={signInUrl} className="text-black flex gap-1 items-center">

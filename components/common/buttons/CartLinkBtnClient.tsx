@@ -17,7 +17,7 @@ export default function CartLinkBtnClient({ cartCount, isLoggedIn }: Props) {
       router.push("/mypage/myCart");
     } else {
       toast.error("로그인이 필요합니다.");
-      router.push("/signin?redirect=/myCart");
+      router.push("/signin?redirectTo=/mypage/myCart");
     }
   };
 
