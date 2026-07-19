@@ -42,7 +42,7 @@ export default function ProductTabs() {
         className={tabClass("comments")}
         onClick={() => handleTabClick("comments", "product-comments-section")}
       >
-        상품평
+        상품 리뷰
       </button>
       <button
         type="button"
