@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import { useRouter } from "next/navigation";
 
 interface Props {
   inquiry_id: number;
@@ -14,6 +15,7 @@ interface Props {
 
 function ProductInquiryAnswer(inquiry: Props) {
   const { user } = useAuthStore();
+  const router = useRouter();
   const isAdmin = user?.level === 3;
 
   const [content, setContent] = useState("");
@@ -35,7 +37,7 @@ function ProductInquiryAnswer(inquiry: Props) {
     const supabase = createBrowserSupabaseClient();
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("product_inquiry")
         .update({
           admin_id: user.id,
@@ -44,12 +46,11 @@ function ProductInquiryAnswer(inquiry: Props) {
         })
         .eq("id", inquiry.inquiry_id);
 
-      console.log("업데이트 결과 데이터:", data);
-
       if (error) throw error;
 
       toast.success("답변이 정상적으로 등록되었습니다.");
       setContent("");
+      router.refresh();
     } catch (err) {
       console.error(err);
       toast.error("답변 등록에 실패했습니다.");

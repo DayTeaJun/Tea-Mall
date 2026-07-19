@@ -74,7 +74,7 @@ export default async function CommentsSection({ productId }: Props) {
                   <div className="flex flex-col gap-2">
                     {isMyItem && (
                       <div className="flex justify-between items-center">
-                        <span className="w-fit font-bold px-1.5 py-0.5 rounded-xs text-[10px] tracking-tight bg-gray-500 text-white">
+                        <span className="w-fit font-bold px-1.5 py-0.5 rounded-xs text-[10px] tracking-tight bg-gray-900 text-white">
                           내가 남긴 리뷰
                         </span>
                         <CommentBtn productId={productId} />
