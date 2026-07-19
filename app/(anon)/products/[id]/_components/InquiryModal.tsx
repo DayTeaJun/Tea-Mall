@@ -61,57 +61,79 @@ export default function InquiryModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white w-full max-w-2xl rounded-sm shadow-xl flex flex-col overflow-hidden"
+        className="bg-white w-full max-w-2xl rounded-sm shadow-xl flex flex-col overflow-hidden max-h-[90vh]"
       >
-        <div className="flex justify-between items-center px-5 py-4 bg-gray-100">
-          <h2 className="text-lg font-bold text-gray-800">상품 문의</h2>
+        <div className="flex justify-between items-center px-4 py-3 sm:px-5 sm:py-4 bg-gray-100">
+          <h2 className="text-base sm:text-lg font-bold text-gray-800">
+            상품 문의하기
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-700 hover:text-gray-900"
+            className="text-gray-500 hover:text-gray-800 transition-colors p-1"
           >
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-          <div className="grid grid-cols-[100px_1fr] gap-4 border-b pb-4 items-center">
-            <span className="font-semibold text-gray-700 text-sm">판매자</span>
-            <span className="text-gray-600 text-sm">티몰 공식 판매처</span>
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-5 flex flex-col gap-4 overflow-y-auto"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-1 sm:gap-4 border-b pb-4 items-center">
+            <span className="font-semibold text-gray-700 text-xs sm:text-sm">
+              판매자
+            </span>
+            <span className="text-gray-600 text-xs sm:text-sm">
+              티몰 공식 판매처
+            </span>
           </div>
 
-          <div className="grid grid-cols-[100px_1fr] gap-4 items-start">
-            <span className="font-semibold text-gray-700 text-sm mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-1 sm:gap-4 items-start">
+            <span className="font-semibold text-gray-700 text-xs sm:text-sm sm:mt-2">
               문의내용
             </span>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="문의하실 내용을 입력해 주세요."
-              className="w-full min-h-[160px] border p-3 text-sm focus:outline-none focus:border-gray-400 resize-none"
-            />
+            <div className="relative w-full">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                maxLength={200}
+                placeholder="문의하실 내용을 입력해 주세요. (최대 200자)"
+                className="w-full min-h-[140px] sm:min-h-[160px] border border-gray-200 p-3 pb-7 text-xs sm:text-sm focus:outline-none focus:border-gray-400 resize-none rounded-xs"
+              />
+              <div className="absolute bottom-2 right-3 text-[10px] sm:text-xs text-gray-400 font-medium">
+                <span
+                  className={
+                    content.length >= 200 ? "text-amber-600 font-semibold" : ""
+                  }
+                >
+                  {content.length}
+                </span>
+                <span> / 200자</span>
+              </div>
+            </div>
           </div>
 
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[10px] sm:text-[11px] text-gray-400 leading-normal">
             * 개인정보(주민번호, 연락처, 주소, 계좌번호, 카드번호 등)가 포함되지
             않도록 유의해 주세요.
           </p>
 
-          <div className="flex justify-center gap-2 mt-4">
+          <div className="flex justify-center gap-2 mt-2 sm:mt-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#007bff] text-white px-8 py-2 text-sm font-medium hover:bg-[#0069d9] disabled:bg-gray-400"
+              className="flex-1 sm:flex-initial bg-[#007bff] text-white px-7 py-2 text-xs sm:text-sm font-medium hover:bg-[#0069d9] disabled:bg-gray-400 transition-colors"
             >
               확인
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="border border-gray-300 bg-white text-gray-700 px-8 py-2 text-sm font-medium hover:bg-gray-50"
+              className="flex-1 sm:flex-initial border border-gray-300 bg-white text-gray-700 px-7 py-2 text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               취소
             </button>

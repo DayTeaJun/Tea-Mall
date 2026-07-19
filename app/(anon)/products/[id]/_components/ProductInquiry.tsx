@@ -57,34 +57,39 @@ async function ProductInquiry({ productId }: { productId: string }) {
       className="min-h-20 border-b scroll-mt-[146px] w-full"
       id="product-qa-section"
     >
-      <div className="flex flex-col gap-6 border border-gray-200 p-4 sm:p-5 mb-6 text-[13px] sm:text-sm text-gray-600 leading-relaxed">
-        <div className="flex justify-between items-center -mb-2">
-          <h2 className="text-[20px] font-semibold text-gray-800">상품 문의</h2>
-
+      <div className="flex flex-col gap-5 border border-gray-200 p-4 sm:p-5 mb-6 text-[12px] sm:text-sm text-gray-600 leading-relaxed">
+        <div className="flex justify-between items-center -mb-1">
+          <h2 className="text-[18px] sm:text-[20px] font-semibold text-gray-800">
+            상품 문의
+          </h2>
           {!hasInquiry && <InquiryPostBtn productId={productId} />}
         </div>
 
-        <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-5">
+        {/* 유의사항 유연한 여백 적용 */}
+        <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-4 text-gray-500 text-[12px] sm:text-[13px]">
           <li>
             <span className="font-medium text-gray-800">·</span> 구매한 상품의{" "}
-            <span className="font-semibold">취소/반품/환불</span> 은 마이쿠팡
-            구매내역에서 신청해 주세요. (본 게시판에서는 처리 불가)
+            <span className="font-semibold text-gray-700">취소/반품/환불</span>{" "}
+            은 마이쿠팡 구매내역에서 신청해 주세요. (본 게시판에서는 처리 불가)
           </li>
           <li>
             <span className="font-medium text-gray-800">·</span> 가격, 판매자,
             배송 등 상품 자체와 관련 없는 문의는 고객센터{" "}
-            <span className="font-semibold">문의하기</span> 를 이용해 주세요.
+            <span className="font-semibold text-gray-700">문의하기</span> 를
+            이용해 주세요.
           </li>
           <li>
             <span className="font-medium text-gray-800">·</span> 상품과 관계없는
             글, 양도, 광고, 욕설, 비방성 글은 예고 없이{" "}
-            <span className="font-semibold">노출 제한 및 삭제</span> 조치될 수
-            있습니다.
+            <span className="font-semibold text-gray-700">
+              노출 제한 및 삭제
+            </span>{" "}
+            조치될 수 있습니다.
           </li>
           <li>
             <span className="font-medium text-gray-800">·</span> 공개
             게시판이므로 전화번호, 이메일 등{" "}
-            <span className="font-semibold">
+            <span className="font-semibold text-gray-700">
               개인정보는 절대 남기지 마세요.
             </span>
           </li>
@@ -92,30 +97,37 @@ async function ProductInquiry({ productId }: { productId: string }) {
 
         <div className="w-full flex flex-col">
           {inquiries && inquiries.length > 0 ? (
-            <ul className="">
+            <ul className="divide-y divide-gray-100/60">
               {inquiries.map((inquiry) => {
                 const isMyItem = inquiry.user_id === userId;
 
                 return (
                   <li
                     key={inquiry.id}
-                    className={`py-5 flex flex-col gap-3 transition-colors ${
+                    className={`py-4 sm:py-5 flex flex-col gap-3 transition-colors ${
                       isMyItem
                         ? "bg-gray-50/70 -mx-4 px-4 sm:-mx-5 sm:px-5 my-1 first:mt-0 relative"
                         : ""
                     }`}
                   >
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex justify-between items-center text-xs text-gray-400">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 text-[11px] sm:text-xs text-gray-400">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold px-1.5 py-0.5 rounded-xs text-[11px] tracking-tight bg-gray-500 text-white">
+                          <span
+                            className={`font-bold px-1.5 py-0.5 rounded-xs text-[10px] sm:text-[11px] tracking-tight text-white ${
+                              isMyItem ? "bg-gray-900" : "bg-gray-500"
+                            }`}
+                          >
                             {isMyItem ? "내 문의" : "질문"}
                           </span>
-                          <span className="font-medium text-gray-600">
+                          <span
+                            className={`font-medium ${isMyItem ? "text-gray-900 font-semibold" : "text-gray-600"}`}
+                          >
                             {inquiry.user_name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
+
+                        <div className="flex items-center justify-between sm:justify-end gap-2 text-gray-400">
                           <span>{formatDate(inquiry.created_at)}</span>
                           {isMyItem && (
                             <InquiryDelBtn
@@ -125,22 +137,29 @@ async function ProductInquiry({ productId }: { productId: string }) {
                           )}
                         </div>
                       </div>
-                      <p className="font-medium whitespace-pre-line pl-1 text-[13px] sm:text-sm text-gray-900">
+
+                      <p
+                        className={`whitespace-pre-line pl-0.5 text-[13px] sm:text-sm leading-relaxed ${
+                          isMyItem
+                            ? "text-gray-950 font-medium"
+                            : "text-gray-800"
+                        }`}
+                      >
                         {inquiry.content}
                       </p>
                     </div>
 
                     {inquiry.answer_content ? (
-                      <div className="p-4 rounded-sm border-t flex gap-2 items-start mt-1 bg-gray-50/50 border-gray-100">
+                      <div className="p-3.5 sm:p-4 rounded-sm border-t flex gap-2 items-start mt-1 bg-gray-50/50 border-gray-100">
                         <CornerDownRight
-                          size={16}
-                          className="text-gray-400 shrink-0 mt-0.5"
+                          size={14}
+                          className="text-gray-400 shrink-0 mt-1 sm:w-4 sm:h-4"
                         />
 
-                        <div className="flex flex-col gap-1.5 w-full">
-                          <div className="flex justify-between items-center text-xs text-gray-400">
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-[11px] sm:text-xs text-gray-400">
                             <div className="flex items-center gap-2">
-                              <span className="bg-gray-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[11px]">
+                              <span className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[10px] sm:text-[11px]">
                                 답변
                               </span>
                               <span className="font-bold text-gray-700">
@@ -151,7 +170,8 @@ async function ProductInquiry({ productId }: { productId: string }) {
                               <span>{formatDate(inquiry.answered_at)}</span>
                             )}
                           </div>
-                          <p className="text-gray-700 whitespace-pre-line text-[13px] sm:text-sm leading-relaxed">
+
+                          <p className="text-gray-700 whitespace-pre-line text-[13px] sm:text-sm leading-relaxed pl-0.5">
                             {inquiry.answer_content}
                           </p>
                         </div>
@@ -169,8 +189,11 @@ async function ProductInquiry({ productId }: { productId: string }) {
             </ul>
           ) : (
             <ul className="space-y-4 pl-0">
-              <li className="py-10 flex flex-col items-center gap-2 text-gray-500 text-[18px] border-dashed border-2 border-gray-200 rounded-sm">
-                <MailQuestion size={40} className="text-gray-400" />
+              <li className="py-10 flex flex-col items-center gap-2 text-gray-500 text-[15px] sm:text-[18px] border-dashed border-2 border-gray-200 rounded-sm">
+                <MailQuestion
+                  size={36}
+                  className="text-gray-400 sm:w-10 sm:h-10"
+                />
                 아직 작성된 상품문의가 없습니다.
               </li>
             </ul>
