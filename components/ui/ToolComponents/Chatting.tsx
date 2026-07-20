@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { X } from "lucide-react";
 import React from "react";
-import AdminChattingRoom from "./AdminChattingRoom";
+import AdminChattingLists from "./AdminChattingLists";
 import UserChatting from "./UserChatting";
 
 interface Props {
@@ -28,7 +28,7 @@ function Chatting({ onClose }: Props) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {isAdmin ? <AdminChattingRoom /> : <UserChatting />}
+        {isAdmin ? <AdminChattingLists /> : <UserChatting />}
       </div>
     </div>
   );

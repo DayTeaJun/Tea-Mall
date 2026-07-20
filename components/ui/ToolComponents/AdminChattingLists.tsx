@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronRight, UserIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, UserIcon } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import AdminChatView from "./AdminChatView"; // 분리한 AdminChatView 불러오기
 
 export interface ChatRoomWithUser {
   id: number;
@@ -19,16 +20,11 @@ export interface ChatRoomWithUser {
   };
 }
 
-interface AdminChattingRoomProps {
-  selectedRoomId?: number | null;
-  onSelectRoom?: (roomId: number) => void;
-}
-
-export default function AdminChattingRoom({
-  selectedRoomId,
-  onSelectRoom,
-}: AdminChattingRoomProps) {
+export default function AdminChattingLists() {
   const [rooms, setRooms] = useState<ChatRoomWithUser[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<ChatRoomWithUser | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   const supabase = createBrowserSupabaseClient();
@@ -41,9 +37,9 @@ export default function AdminChattingRoom({
           `
           *,
           user:public_profiles!user_id (
-          user_name,
-          profile_image_url
-        )
+            user_name,
+            profile_image_url
+          )
         `,
         )
         .eq("status", "OPEN")
@@ -110,6 +106,48 @@ export default function AdminChattingRoom({
     );
   }
 
+  if (selectedRoom) {
+    const userName = selectedRoom.user?.user_name || "익명 사용자";
+
+    return (
+      <div className="flex flex-col h-full bg-white">
+        <div className="flex items-center gap-2 p-3 border-b border-gray-200 bg-gray-50 shrink-0">
+          <button
+            type="button"
+            onClick={() => setSelectedRoom(null)}
+            className="p-1 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="relative w-7 h-7 rounded-full overflow-hidden bg-gray-200 border border-gray-300 shrink-0">
+              {selectedRoom.user?.profile_image_url ? (
+                <Image
+                  fill
+                  src={selectedRoom.user.profile_image_url}
+                  alt={userName}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <UserIcon size={18} />
+                </div>
+              )}
+            </div>
+            <span className="font-bold text-xs text-gray-800">{userName}</span>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          <AdminChatView
+            roomId={selectedRoom.id}
+            roomStatus={selectedRoom.status}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (rooms.length === 0) {
     return (
       <div className="p-4 text-xs text-gray-400 text-center">
@@ -119,20 +157,16 @@ export default function AdminChattingRoom({
   }
 
   return (
-    <div className="flex flex-col gap-1 overflow-y-auto h-full">
+    <div className="flex flex-col gap-1 overflow-y-auto h-full bg-white">
       {rooms.map((room) => {
-        console.log(room);
-        const isSelected = selectedRoomId === room.id;
         const userName = room.user?.user_name || "익명 사용자";
         const profileImage = room.user?.profile_image_url;
 
         return (
           <div
             key={room.id}
-            onClick={() => onSelectRoom && onSelectRoom(room.id)}
-            className={`flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 ${
-              isSelected ? "bg-gray-100/80" : ""
-            }`}
+            onClick={() => setSelectedRoom(room)}
+            className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100"
           >
             <div className="w-full flex items-center gap-3">
               <div className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
