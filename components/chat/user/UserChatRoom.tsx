@@ -15,7 +15,7 @@ interface Message {
   is_admin?: boolean;
 }
 
-export default function UserChatting() {
+export default function UserChatRoom() {
   const { user } = useAuthStore();
   const [roomId, setRoomId] = useState<number | null>(null);
   const [roomStatus, setRoomStatus] = useState<string>("OPEN");

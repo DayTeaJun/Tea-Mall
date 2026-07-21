@@ -15,15 +15,15 @@ interface Message {
   is_admin?: boolean;
 }
 
-interface AdminChatViewProps {
+interface AdminChatRoomProps {
   roomId: number;
   roomStatus?: string;
 }
 
-export default function AdminChatView({
+export default function AdminChatRoom({
   roomId,
   roomStatus = "OPEN",
-}: AdminChatViewProps) {
+}: AdminChatRoomProps) {
   const { user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");

@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, UserIcon } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import AdminChatView from "./AdminChatView"; // 분리한 AdminChatView 불러오기
+import AdminChatView from "./AdminChatRoom"; // 분리한 AdminChatView 불러오기
 
-export interface ChatRoomWithUser {
+export interface AdminChatListProps {
   id: number;
   user_id: string;
   admin_id: string | null;
@@ -20,9 +20,9 @@ export interface ChatRoomWithUser {
   };
 }
 
-export default function AdminChattingLists() {
-  const [rooms, setRooms] = useState<ChatRoomWithUser[]>([]);
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoomWithUser | null>(
+export default function AdminChatList() {
+  const [rooms, setRooms] = useState<AdminChatListProps[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<AdminChatListProps | null>(
     null,
   );
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export default function AdminChattingLists() {
         .order("last_message_at", { ascending: false });
 
       if (error) throw error;
-      if (data) setRooms(data as unknown as ChatRoomWithUser[]);
+      if (data) setRooms(data as unknown as AdminChatListProps[]);
     } catch (err) {
       console.error("채팅방 목록 불러오기 오류:", err);
     } finally {

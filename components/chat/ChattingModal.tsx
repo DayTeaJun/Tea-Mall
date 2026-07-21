@@ -3,14 +3,14 @@
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { X } from "lucide-react";
 import React from "react";
-import AdminChattingLists from "./AdminChattingLists";
-import UserChatting from "./UserChatting";
+import AdminChatList from "./admin/AdminChatList";
+import UserChatRoom from "./user/UserChatRoom";
 
 interface Props {
   onClose: () => void;
 }
 
-function Chatting({ onClose }: Props) {
+function ChattingModal({ onClose }: Props) {
   const { user } = useAuthStore();
   const isAdmin = user?.level === 3;
 
@@ -28,10 +28,10 @@ function Chatting({ onClose }: Props) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {isAdmin ? <AdminChattingLists /> : <UserChatting />}
+        {isAdmin ? <AdminChatList /> : <UserChatRoom />}
       </div>
     </div>
   );
 }
 
-export default Chatting;
+export default ChattingModal;

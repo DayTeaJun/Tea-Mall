@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import React, { useState } from "react";
-import Chatting from "./Chatting";
+import ChattingModal from "../../chat/ChattingModal";
 
 function ChattingBtn() {
   const [isChatting, setIsChatting] = useState(false);
@@ -15,7 +15,7 @@ function ChattingBtn() {
         <MessageCircle size={25} />
       </button>
 
-      {isChatting && <Chatting onClose={() => setIsChatting(false)} />}
+      {isChatting && <ChattingModal onClose={() => setIsChatting(false)} />}
     </div>
   );
 }
