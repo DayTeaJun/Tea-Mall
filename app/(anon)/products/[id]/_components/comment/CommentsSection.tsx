@@ -90,6 +90,7 @@ export default async function CommentsSection({ productId }: Props) {
                             src={comment.public_user_profile.profile_image_url}
                             alt={comment.user_name}
                             className="object-cover w-12 h-12 sm:w-10 sm:h-10"
+                            unoptimized
                           />
                         ) : (
                           <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-200 flex items-center justify-center text-gray-300">

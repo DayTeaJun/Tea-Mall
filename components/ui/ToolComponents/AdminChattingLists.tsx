@@ -127,6 +127,7 @@ export default function AdminChattingLists() {
                   src={selectedRoom.user.profile_image_url}
                   alt={userName}
                   className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
