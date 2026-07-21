@@ -1,7 +1,7 @@
 "use client";
 
-import ProductCard from "@/app/_components/ProductCard";
-import ProductCardSkeleton from "@/app/_components/ProductCardSkeleton";
+import ProductCard from "@/components/common/ProductCard/ProductCard";
+import ProductCardSkeleton from "@/components/common/ProductCard/ProductCardSkeleton";
 import { useSearchProductsQuery } from "@/lib/queries/products";
 import ReactPaginate from "react-paginate";
 import { useRouter } from "next/navigation";

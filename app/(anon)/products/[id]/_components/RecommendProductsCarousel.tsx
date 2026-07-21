@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRelatedProductsQuery } from "@/lib/queries/products"; // 💡 새로 만든 훅 임포트
-import ProductCard from "@/app/_components/ProductCard";
+import ProductCard from "@/components/common/ProductCard/ProductCard";
 
 interface RecommendProductsCarouselProps {
   currentProductId: string;

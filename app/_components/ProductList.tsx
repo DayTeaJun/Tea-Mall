@@ -1,8 +1,8 @@
 "use client";
 
 import { useProductAllToMainQuery } from "@/lib/queries/products";
-import ProductCard from "./ProductCard";
-import ProductCardSkeleton from "./ProductCardSkeleton";
+import ProductCard from "../../components/common/ProductCard/ProductCard";
+import ProductCardSkeleton from "../../components/common/ProductCard/ProductCardSkeleton";
 
 export default function ProductList() {
   const { data: products, isLoading } = useProductAllToMainQuery();
