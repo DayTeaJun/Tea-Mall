@@ -1,17 +1,17 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
-import ProductImageSection from "./_components/ProductImageSection";
+import ProductImageSection from "./_components/section/ProductImageSection";
 import ShareButton from "@/components/common/buttons/ShareBtn";
-import ProductPurchaseSection from "./_components/ProductPurchaseSection";
-import RecommendProductsCarousel from "./_components/RecommendProductsCarousel";
-import CommentsSection from "./_components/CommentsSection";
+import ProductPurchaseSection from "./_components/section/ProductPurchaseSection";
+import RecommendProductsCarousel from "./_components/section/RecommendProductsCarousel";
 import { publicSupabase } from "@/lib/config/supabase/publicClient";
 import Image from "next/image";
 import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 import ProductTabs from "./_components/ProductTabs";
-import ProductInquiry from "./_components/ProductInquiry";
+import ProductInquiry from "./_components/inquiry/ProductInquiry";
 import ProductViewLog from "./_components/ProductViewLog";
+import CommentsSection from "./_components/comment/CommentsSection";
 
 export async function generateMetadata({
   params,

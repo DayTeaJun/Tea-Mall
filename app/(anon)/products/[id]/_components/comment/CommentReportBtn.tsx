@@ -3,7 +3,7 @@
 import React from "react";
 import { toast } from "sonner";
 
-function ReportBtn() {
+function CommentReportBtn() {
   return (
     <button
       onClick={() => toast.info("신고 기능 준비중 입니다.")}
@@ -14,4 +14,4 @@ function ReportBtn() {
   );
 }
 
-export default ReportBtn;
+export default CommentReportBtn;

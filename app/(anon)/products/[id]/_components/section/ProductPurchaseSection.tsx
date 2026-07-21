@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CartBtn from "../../../../../components/common/buttons/CartBtn";
+import CartBtn from "../../../../../../components/common/buttons/CartBtn";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";

@@ -1,7 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
 import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
-import ReportBtn from "./ReportBtn";
+import CommentReportBtn from "./CommentReportBtn";
 import CommentBtn from "./CommentBtn";
 
 interface Props {
@@ -173,7 +173,7 @@ export default async function CommentsSection({ productId }: Props) {
                   </p>
 
                   <div className="flex justify-end pt-1">
-                    <ReportBtn />
+                    <CommentReportBtn />
                   </div>
                 </li>
               );
