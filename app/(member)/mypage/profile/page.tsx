@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useMyProfileQuery } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { withdrawalUser } from "@/lib/actions/auth";
-import Modal from "@/components/common/Modals/Modal";
+import Modal from "@/components/common/modal/Modal";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import Image from "next/image";
 

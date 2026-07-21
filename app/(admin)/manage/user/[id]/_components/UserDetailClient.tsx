@@ -19,7 +19,7 @@ import {
   usePatchUserActiveMutation,
 } from "@/lib/queries/admin";
 import { toast } from "sonner";
-import Modal from "@/components/common/Modals/Modal";
+import Modal from "@/components/common/modal/Modal";
 import Image from "next/image";
 
 export default function UserDetailClient({ userId }: { userId: string }) {

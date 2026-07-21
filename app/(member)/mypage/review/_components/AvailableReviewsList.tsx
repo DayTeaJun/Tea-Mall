@@ -10,7 +10,7 @@ import {
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Loader2, Package } from "lucide-react";
 import ReactPaginate from "react-paginate";
-import Modal from "@/components/common/Modals/Modal";
+import Modal from "@/components/common/modal/Modal";
 import { toast } from "sonner";
 
 export default function AvailableReviewsList() {
