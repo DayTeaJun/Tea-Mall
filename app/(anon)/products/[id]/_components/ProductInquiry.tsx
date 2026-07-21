@@ -65,7 +65,6 @@ async function ProductInquiry({ productId }: { productId: string }) {
           {!hasInquiry && <InquiryPostBtn productId={productId} />}
         </div>
 
-        {/* 유의사항 유연한 여백 적용 */}
         <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-4 text-gray-500 text-[12px] sm:text-[13px]">
           <li>
             <span className="font-medium text-gray-800">·</span> 구매한 상품의{" "}

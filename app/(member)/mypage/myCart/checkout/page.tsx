@@ -9,7 +9,7 @@ import Modal from "@/components/common/Modals/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import AddressListModal from "@/components/common/Modals/AddressModal";
+import AddressListModal from "@/components/common/Modals/Delivery/AddressModal";
 import { useGetDefaultAddress } from "@/lib/queries/auth";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;

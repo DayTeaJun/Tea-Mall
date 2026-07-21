@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import PrivacyModal from "../../policy/_components/PrivacyModal";
+import PrivacyModal from "../../../../components/common/Modals/Privacy_Terms/PrivacyModal";
 import {
   Lock,
   FileText,

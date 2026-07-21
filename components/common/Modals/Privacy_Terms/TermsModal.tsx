@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import PrivacyComponent from "./PrivacyComponent";
+import TermsComponent from "../../../../app/(anon)/policy/_components/TermsComponent";
 
-const PrivacyModal = () => {
+const TermsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const openModal = () => setIsOpen(true);
@@ -22,9 +22,9 @@ const PrivacyModal = () => {
             className="flex flex-col justify-between bg-white rounded-lg shadow-lg w-[90%] md:w-[50%] h-[60%] p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold mb-4">개인정보처리방침</h2>
+            <h2 className="sm:text-xl text-16 font-bold mb-4">이용약관</h2>
             <div className="overflow-y-auto h-[80%] p-3 mb-4 text-sm text-gray-700 border-t border-solid border-gray-200">
-              <PrivacyComponent />
+              <TermsComponent />
             </div>
             <div className="flex justify-end mt-2 border-t border-solid border-gray-200">
               <button
@@ -41,4 +41,4 @@ const PrivacyModal = () => {
   );
 };
 
-export default PrivacyModal;
+export default TermsModal;

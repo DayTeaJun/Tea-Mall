@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TermsComponent from "./TermsComponent";
+import TermsComponent from "../../../../app/(anon)/policy/_components/TermsComponent";
 
 const TermsModal = () => {
   const [isOpen, setIsOpen] = useState(false);

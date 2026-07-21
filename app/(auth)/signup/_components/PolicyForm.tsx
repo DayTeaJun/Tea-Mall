@@ -1,5 +1,5 @@
-import PrivacyModal from "@/app/(anon)/policy/_components/PrivacyModal";
-import TermsModal from "@/app/(anon)/policy/_components/TermsModal";
+import PrivacyModal from "@/components/common/Modals/Privacy_Terms/PrivacyModal";
+import TermsModal from "@/components/common/Modals/Privacy_Terms/TermsModal";
 import React, { useState } from "react";
 
 function PolicyForm({
