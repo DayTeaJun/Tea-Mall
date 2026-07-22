@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, UserIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, UserIcon } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import AdminChatView from "./AdminChatRoom"; // 분리한 AdminChatView 불러오기
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { toast } from "sonner";
+import AdminChatView from "./AdminChatRoom";
 
 export interface AdminChatListProps {
   id: number;
@@ -21,13 +23,16 @@ export interface AdminChatListProps {
 }
 
 export default function AdminChatList() {
+  const { user } = useAuthStore();
   const [rooms, setRooms] = useState<AdminChatListProps[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<AdminChatListProps | null>(
     null,
   );
   const [loading, setLoading] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
 
   const supabase = createBrowserSupabaseClient();
+  const isAdmin = user?.level === 3;
 
   const fetchChatRooms = async () => {
     try {
@@ -77,6 +82,43 @@ export default function AdminChatList() {
     };
   }, []);
 
+  const handleCloseAndDeleteRoom = async (roomId: number) => {
+    if (!isAdmin) {
+      toast.error("관리자 권한(Level 3)이 필요합니다.");
+      return;
+    }
+
+    if (
+      !confirm(
+        "상담을 종료하고 이 채팅방과 모든 대화 내역을 완전히 삭제하시겠습니까?",
+      )
+    ) {
+      return;
+    }
+
+    setIsClosing(true);
+
+    try {
+      await supabase.from("chat_messages").delete().eq("room_id", roomId);
+
+      const { error: deleteRoomError } = await supabase
+        .from("chat_rooms")
+        .delete()
+        .eq("id", roomId);
+
+      if (deleteRoomError) throw deleteRoomError;
+
+      toast.success("상담방과 대화 내역이 완전히 삭제되었습니다.");
+      setSelectedRoom(null);
+      fetchChatRooms();
+    } catch (err) {
+      console.error("채팅방 삭제 에러:", err);
+      toast.error("상담 종료 및 삭제 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
   const formatLastMessageTime = (isoString: string) => {
     if (!isoString) return "";
     const messageDate = new Date(isoString);
@@ -111,32 +153,48 @@ export default function AdminChatList() {
 
     return (
       <div className="flex flex-col h-full bg-white">
-        <div className="flex items-center gap-2 p-3 border-b border-gray-200 bg-gray-50 shrink-0">
-          <button
-            type="button"
-            onClick={() => setSelectedRoom(null)}
-            className="p-1 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
-          >
-            <ChevronLeft size={20} />
-          </button>
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="relative w-7 h-7 rounded-full overflow-hidden bg-gray-200 border border-gray-300 shrink-0">
-              {selectedRoom.user?.profile_image_url ? (
-                <Image
-                  fill
-                  src={selectedRoom.user.profile_image_url}
-                  alt={userName}
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <UserIcon size={18} />
-                </div>
-              )}
+            <button
+              type="button"
+              onClick={() => setSelectedRoom(null)}
+              className="p-1 hover:bg-gray-200 rounded-lg transition-colors text-gray-600 cursor-pointer"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="relative w-7 h-7 rounded-full overflow-hidden bg-gray-200 border border-gray-300 shrink-0">
+                {selectedRoom.user?.profile_image_url ? (
+                  <Image
+                    fill
+                    src={selectedRoom.user.profile_image_url}
+                    alt={userName}
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <UserIcon size={18} />
+                  </div>
+                )}
+              </div>
+              <span className="font-bold text-xs text-gray-800">
+                {userName}
+              </span>
             </div>
-            <span className="font-bold text-xs text-gray-800">{userName}</span>
           </div>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => handleCloseAndDeleteRoom(selectedRoom.id)}
+              disabled={isClosing}
+              className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1.5 rounded transition-colors disabled:opacity-50 cursor-pointer font-medium border border-red-200"
+            >
+              <Trash2 size={14} />
+              <span>상담 종료</span>
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-hidden">

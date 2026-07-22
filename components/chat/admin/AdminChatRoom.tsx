@@ -181,7 +181,7 @@ export default function AdminChatRoom({
 
       <form
         onSubmit={handleSendMessage}
-        className="w-full flex justify-between items-center p-2 gap-2 border-t border-gray-200 bg-white"
+        className="w-full flex justify-between items-center p-2 gap-2 border-t border-gray-200 bg-white shrink-0"
       >
         <input
           type="text"

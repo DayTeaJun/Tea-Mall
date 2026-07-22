@@ -168,13 +168,6 @@ export default function UserChatRoom() {
   return (
     <div className="flex flex-col justify-between h-full">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
-        <button
-          type="button"
-          className="text-xs p-1 px-4 bg-gray-100 text-gray-500 w-fit rounded-xl mx-auto hover:text-gray-700 transition-colors"
-        >
-          이전 채팅기록 보기
-        </button>
-
         {messages.map((msg, index) => {
           const isMyMsg = msg.sender_id === user?.id;
           const showDateHeader =
