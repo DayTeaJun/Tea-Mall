@@ -24,6 +24,8 @@ export default function UserChatRoom() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const isInitializingRef = useRef<boolean>(false);
+
   const supabase = createBrowserSupabaseClient();
 
   const scrollToBottom = () => {
@@ -35,9 +37,11 @@ export default function UserChatRoom() {
   }, [messages]);
 
   useEffect(() => {
-    if (!user || !user.id) return;
+    if (!user || !user.id || isInitializingRef.current) return;
 
     const initializeRoom = async () => {
+      isInitializingRef.current = true;
+
       try {
         const { data: existingRoom, error: fetchError } = await supabase
           .from("chat_rooms")
@@ -56,7 +60,7 @@ export default function UserChatRoom() {
         } else {
           const { data: newRoom, error: createError } = await supabase
             .from("chat_rooms")
-            .insert({ user_id: user.id })
+            .insert({ user_id: user.id, status: "OPEN" })
             .select("id, status")
             .single();
 
@@ -68,6 +72,8 @@ export default function UserChatRoom() {
         }
       } catch (err) {
         console.error("채팅방 초기화 에러:", err);
+      } finally {
+        isInitializingRef.current = false;
       }
     };
 
