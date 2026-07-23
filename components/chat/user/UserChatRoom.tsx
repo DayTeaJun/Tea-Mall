@@ -200,6 +200,14 @@ export default function UserChatRoom() {
   return (
     <div className="flex flex-col justify-between h-full">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
+        {roomId === null && (
+          <div className="flex items-center justify-center my-2">
+            <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
+              새로운 상담을 시작하려면 메시지를 입력해주세요.
+            </span>
+          </div>
+        )}
+
         {messages.map((msg, index) => {
           const isMyMsg = msg.sender_id === user?.id;
           const showDateHeader =
