@@ -151,14 +151,25 @@ export default function UserChatRoom() {
         setRoomId(activeRoomId);
       }
 
-      const { error: msgError } = await supabase.from("chat_messages").insert({
-        room_id: activeRoomId,
-        sender_id: user.id,
-        is_admin: false,
-        content: messageContent,
-      });
+      const { data: insertedMsg, error: msgError } = await supabase
+        .from("chat_messages")
+        .insert({
+          room_id: activeRoomId,
+          sender_id: user.id,
+          is_admin: false,
+          content: messageContent,
+        })
+        .select()
+        .single();
 
       if (msgError) throw msgError;
+
+      if (insertedMsg) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === insertedMsg.id)) return prev;
+          return [...prev, insertedMsg as Message];
+        });
+      }
 
       await supabase
         .from("chat_rooms")
