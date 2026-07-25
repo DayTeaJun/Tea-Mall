@@ -15,6 +15,8 @@ interface Message {
   is_admin?: boolean;
 }
 
+const supabase = createBrowserSupabaseClient();
+
 export default function UserChatRoom() {
   const { user } = useAuthStore();
   const [roomId, setRoomId] = useState<number | null>(null);
@@ -25,8 +27,6 @@ export default function UserChatRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isInitializingRef = useRef<boolean>(false);
-
-  const supabase = createBrowserSupabaseClient();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -94,7 +94,11 @@ export default function UserChatRoom() {
           filter: `room_id=eq.${roomId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMsg = payload.new as Message;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         },
       )
       .subscribe();

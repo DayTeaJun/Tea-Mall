@@ -24,7 +24,11 @@ export default function AuthProvider({ user, children }: Props) {
 
     const {
       data: { subscription: authListener },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token);
+      }
+
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         router.refresh();
       }

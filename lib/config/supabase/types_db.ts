@@ -121,7 +121,29 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_chat_rooms_user_table"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_chat_rooms_user_table"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_user_profile"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "fk_chat_rooms_user_table"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       delivery_addresses: {
         Row: {
@@ -168,6 +190,13 @@ export type Database = {
             foreignKeyName: "delivery_addresses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -205,6 +234,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -285,6 +321,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "inquiries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inquiries_user_id_fkey"
             columns: ["user_id"]
@@ -392,6 +435,13 @@ export type Database = {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -478,6 +528,13 @@ export type Database = {
             foreignKeyName: "fk_product_inquiry_admin"
             columns: ["admin_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_admin"
+            columns: ["admin_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -493,6 +550,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_product_inquiry_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -626,6 +690,13 @@ export type Database = {
             foreignKeyName: "reviews_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -703,6 +774,13 @@ export type Database = {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -730,6 +808,13 @@ export type Database = {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "public_user_profile"
             referencedColumns: ["user_id"]
           },
@@ -741,6 +826,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      public_profiles: {
+        Row: {
+          id: string | null
+          profile_image_url: string | null
+          user_name: string | null
+        }
+        Insert: {
+          id?: string | null
+          profile_image_url?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          id?: string | null
+          profile_image_url?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
       }
       public_user_profile: {
         Row: {
@@ -799,6 +902,10 @@ export type Database = {
     Functions: {
       increment_product_views: { Args: { p_id: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
+      mark_messages_as_read: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       set_default_address: {
         Args: { current_user_id: string; target_id: string }
         Returns: undefined
