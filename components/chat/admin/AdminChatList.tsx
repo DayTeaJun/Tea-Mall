@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Trash2, UserIcon } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
-import AdminChatView from "./AdminChatRoom";
+import AdminChatRoom from "./AdminChatRoom";
 
 export interface AdminChatListProps {
   id: number;
@@ -20,6 +20,7 @@ export interface AdminChatListProps {
     user_name: string | null;
     profile_image_url: string | null;
   };
+  unread_count?: number;
 }
 
 export default function AdminChatList() {
@@ -36,7 +37,8 @@ export default function AdminChatList() {
 
   const fetchChatRooms = async () => {
     try {
-      const { data, error } = await supabase
+      // 채팅방 목록과 유저 정보를 한 번에 가져오기
+      const { data: roomsData, error } = await supabase
         .from("chat_rooms")
         .select(
           `
@@ -51,7 +53,27 @@ export default function AdminChatList() {
         .order("last_message_at", { ascending: false });
 
       if (error) throw error;
-      if (data) setRooms(data as unknown as AdminChatListProps[]);
+
+      if (roomsData && user?.id) {
+        // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
+        const roomsWithUnread = await Promise.all(
+          roomsData.map(async (room) => {
+            const { count } = await supabase
+              .from("chat_messages")
+              .select("*", { count: "exact", head: true })
+              .eq("room_id", room.id)
+              .eq("is_read", false)
+              .neq("sender_id", user.id);
+
+            return {
+              ...room,
+              unread_count: count || 0,
+            };
+          }),
+        );
+
+        setRooms(roomsWithUnread as unknown as AdminChatListProps[]);
+      }
     } catch (err) {
       console.error("채팅방 목록 불러오기 오류:", err);
     } finally {
@@ -60,27 +82,50 @@ export default function AdminChatList() {
   };
 
   useEffect(() => {
+    if (!user?.id) return;
     fetchChatRooms();
 
-    const channel = supabase
+    const roomChannel = supabase
       .channel("admin_chat_rooms_realtime")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "chat_rooms",
-        },
-        () => {
-          fetchChatRooms();
-        },
+        { event: "*", schema: "public", table: "chat_rooms" },
+        () => fetchChatRooms(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_messages" },
+        () => fetchChatRooms(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "chat_messages" },
+        () => fetchChatRooms(),
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(roomChannel);
     };
-  }, []);
+  }, [user?.id]);
+
+  const handleSelectRoom = async (room: AdminChatListProps) => {
+    setSelectedRoom(room);
+
+    // 낙관적 업데이트
+    // setRooms((prevRooms) =>
+    //   prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
+    // );
+
+    const { error } = await supabase.rpc("mark_room_messages_as_read", {
+      target_room_id: room.id,
+    });
+
+    if (error) {
+      console.error("메시지 읽음 처리 오류:", error);
+      fetchChatRooms();
+    }
+  };
 
   const handleCloseAndDeleteRoom = async (roomId: number) => {
     if (!isAdmin) {
@@ -198,7 +243,7 @@ export default function AdminChatList() {
         </div>
 
         <div className="flex-1 overflow-hidden">
-          <AdminChatView
+          <AdminChatRoom
             roomId={selectedRoom.id}
             roomStatus={selectedRoom.status}
           />
@@ -220,11 +265,12 @@ export default function AdminChatList() {
       {rooms.map((room) => {
         const userName = room.user?.user_name || "익명 사용자";
         const profileImage = room.user?.profile_image_url;
+        const unreadCount = room.unread_count || 0;
 
         return (
           <div
             key={room.id}
-            onClick={() => setSelectedRoom(room)}
+            onClick={() => handleSelectRoom(room)}
             className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100"
           >
             <div className="w-full flex items-center gap-3">
@@ -245,18 +291,26 @@ export default function AdminChatList() {
 
               <div className="w-full flex flex-col gap-1 overflow-hidden">
                 <div className="w-full flex justify-between items-center">
-                  <p className="font-bold text-sm text-gray-700 truncate">
-                    {userName}
-                  </p>
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <p className="font-bold text-sm text-gray-700 truncate">
+                      {userName}
+                    </p>
+                  </div>
                   <div className="flex gap-0.5 items-center text-xs text-gray-400 shrink-0 ml-2">
                     <span>{formatLastMessageTime(room.last_message_at)}</span>
                     <ChevronRight size={14} />
                   </div>
                 </div>
-
-                <p className="text-xs text-gray-400 truncate">
-                  {room.last_message || "메시지가 없습니다."}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-400 truncate">
+                    {room.last_message || "메시지가 없습니다."}
+                  </p>
+                  {unreadCount > 0 && (
+                    <span className="flex items-center justify-center text-10 bg-red-500 text-white font-bold w-4 h-4 rounded-full shrink-0">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

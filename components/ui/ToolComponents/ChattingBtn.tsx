@@ -39,14 +39,13 @@ function ChattingBtn() {
     let isMounted = true;
 
     const initSubscription = async () => {
-      // 안 읽은 개수 우선 가져오기
+      // 초기 안 읽은 개수 가져오기
       await fetchUnreadCount(user.id);
 
       if (!isMounted) return;
 
       const channelName = `chat_notif_${user.id}`;
 
-      // 기존 동일한 채널 정리
       const existingChannels = supabase.getChannels();
       for (const ch of existingChannels) {
         if (ch.topic === `realtime:${channelName}`) {
@@ -74,13 +73,30 @@ function ChattingBtn() {
             const newMsg = payload.new;
 
             if (newMsg && newMsg.sender_id !== user.id) {
-              if (isChattingRef.current) {
+              if (user.level === 3) {
+                await fetchUnreadCount(user.id);
+              } else if (isChattingRef.current) {
                 await supabase.rpc("mark_messages_as_read", {
                   target_user_id: user.id,
                 });
               } else {
-                setUnreadCount((prev) => prev + 1);
+                await fetchUnreadCount(user.id);
               }
+            }
+          },
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "chat_messages",
+          },
+          async (payload) => {
+            // UPDATE가 일어났을 때, 내가 받은 메시지의 is_read가 true로 바뀐 경우라면 즉시 갱신
+            const updatedMsg = payload.new;
+            if (updatedMsg && updatedMsg.is_read === true) {
+              await fetchUnreadCount(user.id);
             }
           },
         )
@@ -105,6 +121,8 @@ function ChattingBtn() {
     setIsChatting(nextState);
 
     if (nextState && user?.id) {
+      if (user.level === 3) return; // 관리자일 경우 읽음 처리하지 않음
+
       setUnreadCount(0);
 
       const { error } = await supabase.rpc("mark_messages_as_read", {

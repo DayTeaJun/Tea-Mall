@@ -906,6 +906,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      mark_room_messages_as_read: {
+        Args: { target_room_id: number }
+        Returns: undefined
+      }
       set_default_address: {
         Args: { current_user_id: string; target_id: string }
         Returns: undefined
