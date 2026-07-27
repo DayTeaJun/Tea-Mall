@@ -29,7 +29,7 @@ export default function UserChatRoom() {
   const isInitializingRef = useRef<boolean>(false);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   useEffect(() => {

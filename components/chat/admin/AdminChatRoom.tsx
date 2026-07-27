@@ -33,7 +33,7 @@ export default function AdminChatRoom({
   const supabase = createBrowserSupabaseClient();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   useEffect(() => {
