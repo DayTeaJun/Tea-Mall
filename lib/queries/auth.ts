@@ -1177,3 +1177,26 @@ export function useGetCustomerInquiries(
     enabled: !!userId,
   });
 }
+
+// 상담채팅 알림 조회
+const getUnreadCount = async (userId: string) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .select("id")
+    .neq("sender_id", userId)
+    .eq("is_read", false);
+
+  if (error) throw new Error(error.message);
+
+  return data ? data.length : 0;
+};
+
+export function useGetUnreadCount(userId: string) {
+  return useQuery({
+    queryKey: ["chatUnreadCount", userId],
+    queryFn: () => getUnreadCount(userId),
+    enabled: !!userId,
+  });
+}
