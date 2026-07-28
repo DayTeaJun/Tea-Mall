@@ -1,10 +1,12 @@
 "use client";
 
 import { SendHorizonal, PlusCircle } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
+import { useUserChat } from "@/lib/queries/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Message {
   id: number;
@@ -15,18 +17,30 @@ interface Message {
   is_admin?: boolean;
 }
 
+interface ChatData {
+  roomId: number | null;
+  messages: Message[];
+  isClosed: boolean;
+}
+
 const supabase = createBrowserSupabaseClient();
 
 export default function UserChatRoom() {
   const { user } = useAuthStore();
-  const [roomId, setRoomId] = useState<number | null>(null);
-  const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const queryClient = useQueryClient();
+
   const [inputText, setInputText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const isInitializingRef = useRef<boolean>(false);
+  // React Query를 통해 roomId, messages, isClosed를 한 번에 가져옴
+  const { data } = useUserChat(user?.id || "");
+  const roomId = data?.roomId ?? null;
+  const isClosed = data?.isClosed ?? false;
+
+  const messages = useMemo(() => {
+    return data?.messages ?? [];
+  }, [data?.messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -36,52 +50,9 @@ export default function UserChatRoom() {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    if (!user || !user.id || isInitializingRef.current) return;
-
-    const initializeRoom = async () => {
-      isInitializingRef.current = true;
-
-      try {
-        const { data: existingRoom, error: fetchError } = await supabase
-          .from("chat_rooms")
-          .select("id")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (fetchError) throw fetchError;
-
-        if (existingRoom) {
-          setRoomId(existingRoom.id);
-        }
-      } catch (err) {
-        console.error("채팅방 조회 에러:", err);
-      } finally {
-        isInitializingRef.current = false;
-      }
-    };
-
-    initializeRoom();
-  }, [user?.id]);
-
+  // 실시간 구독 (roomId가 생기면 활성화)
   useEffect(() => {
     if (!roomId) return;
-
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("room_id", roomId)
-        .order("created_at", { ascending: true });
-
-      if (!error && data) {
-        setMessages(data);
-      }
-    };
-
-    fetchMessages();
 
     const msgChannel = supabase
       .channel(`chat_messages_${roomId}`)
@@ -95,10 +66,19 @@ export default function UserChatRoom() {
         },
         (payload) => {
           const newMsg = payload.new as Message;
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
-          });
+          // React Query 캐시를 직접 업데이트하여 실시간 반영
+          queryClient.setQueryData(
+            ["userChat", user?.id],
+            (oldData: ChatData) => {
+              if (!oldData) return oldData;
+              if (oldData.messages.some((m: Message) => m.id === newMsg.id))
+                return oldData;
+              return {
+                ...oldData,
+                messages: [...oldData.messages, newMsg],
+              };
+            },
+          );
         },
       )
       .subscribe();
@@ -114,8 +94,8 @@ export default function UserChatRoom() {
           filter: `id=eq.${roomId}`,
         },
         () => {
-          setIsClosed(true);
           toast.info("상담이 종료되었습니다.");
+          queryClient.invalidateQueries({ queryKey: ["userChat", user?.id] });
         },
       )
       .subscribe();
@@ -124,7 +104,7 @@ export default function UserChatRoom() {
       supabase.removeChannel(msgChannel);
       supabase.removeChannel(roomChannel);
     };
-  }, [roomId]);
+  }, [roomId, user?.id, queryClient]);
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -142,6 +122,7 @@ export default function UserChatRoom() {
     try {
       let activeRoomId = roomId;
 
+      // 💡 방이 없다면 새로 생성
       if (!activeRoomId) {
         const { data: newRoom, error: createError } = await supabase
           .from("chat_rooms")
@@ -150,12 +131,11 @@ export default function UserChatRoom() {
           .single();
 
         if (createError) throw createError;
-
         activeRoomId = newRoom.id;
-        setRoomId(activeRoomId);
       }
 
-      const { data: insertedMsg, error: msgError } = await supabase
+      // 메시지 삽입
+      const { error: msgError } = await supabase
         .from("chat_messages")
         .insert({
           room_id: activeRoomId,
@@ -168,13 +148,7 @@ export default function UserChatRoom() {
 
       if (msgError) throw msgError;
 
-      if (insertedMsg) {
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === insertedMsg.id)) return prev;
-          return [...prev, insertedMsg as Message];
-        });
-      }
-
+      // 채팅방의 최근 메시지 정보 업데이트
       await supabase
         .from("chat_rooms")
         .update({
@@ -182,6 +156,9 @@ export default function UserChatRoom() {
           last_message_at: new Date().toISOString(),
         })
         .eq("id", activeRoomId);
+
+      // React Query 캐시를 최신 상태로 갱신 (새로 생성된 방 정보 및 메시지 반영)
+      queryClient.invalidateQueries({ queryKey: ["userChat", user.id] });
     } catch (err) {
       console.error("메시지 전송 에러:", err);
       toast.error("메시지 전송 실패");
@@ -192,9 +169,12 @@ export default function UserChatRoom() {
   };
 
   const handleStartNewChat = () => {
-    setRoomId(null);
-    setMessages([]);
-    setIsClosed(false);
+    // 캐시를 초기화하여 새로운 상담을 시작할 수 있도록 유도
+    queryClient.setQueryData(["userChat", user?.id], {
+      roomId: null,
+      messages: [],
+      isClosed: false,
+    });
     toast.info("메시지를 입력하면 새로운 상담이 시작됩니다.");
   };
 
@@ -223,7 +203,7 @@ export default function UserChatRoom() {
           </div>
         )}
 
-        {messages.map((msg, index) => {
+        {messages.map((msg: Message, index: number) => {
           const isMyMsg = msg.sender_id === user?.id;
           const showDateHeader =
             index === 0 ||

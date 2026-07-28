@@ -1200,3 +1200,56 @@ export function useGetUnreadCount(userId: string) {
     enabled: !!userId,
   });
 }
+
+// 유저채팅 내역 조회
+interface Message {
+  id: number;
+  room_id: number;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  is_admin?: boolean;
+}
+
+const getUserChatMsg = async (userId: string) => {
+  const supabase = createBrowserSupabaseClient();
+
+  // 유저의 가장 최근(또는 활성) 채팅방 조회
+  const { data: existingRoom, error: roomError } = await supabase
+    .from("chat_rooms")
+    .select("id, status")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (roomError) throw new Error(roomError.message);
+
+  // 방이 아예 없으면 roomId는 null, 메시지도 빈 배열 반환
+  if (!existingRoom) {
+    return { roomId: null, messages: [], isClosed: false };
+  }
+
+  // 해당 방의 메시지 내역 조회
+  const { data: messages, error: msgError } = await supabase
+    .from("chat_messages")
+    .select("*")
+    .eq("room_id", existingRoom.id)
+    .order("created_at", { ascending: true });
+
+  if (msgError) throw new Error(msgError.message);
+
+  return {
+    roomId: existingRoom.id,
+    messages: (messages as Message[]) || [],
+    isClosed: existingRoom.status === "CLOSED",
+  };
+};
+
+export function useUserChat(userId: string) {
+  return useQuery({
+    queryKey: ["userChat", userId],
+    queryFn: () => getUserChatMsg(userId),
+    enabled: !!userId,
+  });
+}
