@@ -48,7 +48,7 @@ export default function Toaster(props: ToasterProps) {
 
       <Sonner
         {...common}
-        position="bottom-right"
+        position="top-center"
         className={`${common.className} hidden sm:block`}
       />
     </>
