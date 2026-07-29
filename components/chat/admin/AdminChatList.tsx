@@ -7,6 +7,8 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import AdminChatRoom from "./AdminChatRoom";
+import { useGetAdminChatList } from "@/lib/queries/auth";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 export interface AdminChatListProps {
   id: number;
@@ -25,82 +27,45 @@ export interface AdminChatListProps {
 
 export default function AdminChatList() {
   const { user } = useAuthStore();
-  const [rooms, setRooms] = useState<AdminChatListProps[]>([]);
+
   const [selectedRoom, setSelectedRoom] = useState<AdminChatListProps | null>(
     null,
   );
-  const [loading, setLoading] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
 
   const supabase = createBrowserSupabaseClient();
   const isAdmin = user?.level === 3;
 
-  const fetchChatRooms = async () => {
-    try {
-      // 채팅방 목록과 유저 정보를 한 번에 가져오기
-      const { data: roomsData, error } = await supabase
-        .from("chat_rooms")
-        .select(
-          `
-          *,
-          user:public_profiles!user_id (
-            user_name,
-            profile_image_url
-          )
-        `,
-        )
-        .eq("status", "OPEN")
-        .order("last_message_at", { ascending: false });
-
-      if (error) throw error;
-
-      if (roomsData && user?.id) {
-        // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
-        const roomsWithUnread = await Promise.all(
-          roomsData.map(async (room) => {
-            const { count } = await supabase
-              .from("chat_messages")
-              .select("*", { count: "exact", head: true })
-              .eq("room_id", room.id)
-              .eq("is_read", false)
-              .neq("sender_id", user.id);
-
-            return {
-              ...room,
-              unread_count: count || 0,
-            };
-          }),
-        );
-
-        setRooms(roomsWithUnread as unknown as AdminChatListProps[]);
-      }
-    } catch (err) {
-      console.error("채팅방 목록 불러오기 오류:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: rooms = [], isLoading } = useGetAdminChatList(user?.id || "");
 
   useEffect(() => {
-    if (!user?.id) return;
-    fetchChatRooms();
+    if (!user?.id && !isAdmin) return;
 
     const roomChannel = supabase
       .channel("admin_chat_rooms_realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "chat_rooms" },
-        () => fetchChatRooms(),
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["adminChatList", user?.id],
+          }),
       )
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "chat_messages" },
-        () => fetchChatRooms(),
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["adminChatList", user?.id],
+          }),
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "chat_messages" },
-        () => fetchChatRooms(),
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["adminChatList", user?.id],
+          }),
       )
       .subscribe();
 
@@ -123,7 +88,7 @@ export default function AdminChatList() {
 
     if (error) {
       console.error("메시지 읽음 처리 오류:", error);
-      fetchChatRooms();
+      queryClient.invalidateQueries({ queryKey: ["adminChatList", user?.id] });
     }
   };
 
@@ -155,7 +120,7 @@ export default function AdminChatList() {
 
       toast.success("상담방과 대화 내역이 완전히 삭제되었습니다.");
       setSelectedRoom(null);
-      fetchChatRooms();
+      queryClient.invalidateQueries({ queryKey: ["adminChatList", user?.id] });
     } catch (err) {
       console.error("채팅방 삭제 에러:", err);
       toast.error("상담 종료 및 삭제 처리 중 오류가 발생했습니다.");
@@ -185,7 +150,7 @@ export default function AdminChatList() {
     return `${messageDate.getMonth() + 1}월 ${messageDate.getDate()}일`;
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-4 text-xs text-gray-400">
         채팅방 목록을 불러오는 중...

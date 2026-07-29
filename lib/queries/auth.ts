@@ -31,6 +31,7 @@ import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
 import { useAuthStore } from "../store/useAuthStore";
 import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
+import { AdminChatListProps } from "@/components/chat/admin/AdminChatList";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -1250,6 +1251,56 @@ export function useUserChat(userId: string) {
   return useQuery({
     queryKey: ["userChat", userId],
     queryFn: () => getUserChatMsg(userId),
+    enabled: !!userId,
+  });
+}
+
+// 관리자 채팅 목록
+const getAdminChatList = async (userId: string) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data: roomsData, error: roomError } = await supabase
+    .from("chat_rooms")
+    .select(
+      `
+          *,
+          user:public_profiles!user_id (
+            user_name,
+            profile_image_url
+          )
+        `,
+    )
+    .eq("status", "OPEN")
+    .order("last_message_at", { ascending: false });
+
+  if (roomError) throw roomError;
+
+  if (!roomsData || roomsData.length === 0) return [];
+
+  // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
+  const roomsWithUnread = await Promise.all(
+    roomsData.map(async (room) => {
+      const { count } = await supabase
+        .from("chat_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("room_id", room.id)
+        .eq("is_read", false)
+        .neq("sender_id", userId);
+
+      return {
+        ...room,
+        unread_count: count || 0,
+      };
+    }),
+  );
+
+  return roomsWithUnread as AdminChatListProps[];
+};
+
+export function useGetAdminChatList(userId: string) {
+  return useQuery({
+    queryKey: ["adminChatList", userId],
+    queryFn: () => getAdminChatList(userId),
     enabled: !!userId,
   });
 }
