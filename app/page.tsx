@@ -22,7 +22,7 @@ export default function Home() {
           <ProductList />
         </section>
 
-        <aside className="hidden 2xl:block absolute top-0 -right-36 w-32 h-full z-40">
+        <aside className="hidden 2xl:block absolute top-0 -right-36 w-32 h-full z-40 2xl:w-28 2xl:-right-24">
           <div className="sticky top-32">
             <SideQuickMenu />
           </div>

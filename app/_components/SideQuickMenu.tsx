@@ -24,7 +24,7 @@ export default function SideQuickMenu() {
   );
 
   return (
-    <div className="w-32 border border-gray-300 bg-white text-center text-xs select-none shadow-sm">
+    <div className="w-full border border-gray-300 bg-white text-center text-xs select-none shadow-sm">
       <Link
         href="/mypage/myCart"
         className="block bg-[#343a40] text-white py-2.5 px-3 border-b border-[#495057] hover:bg-[#212529] transition-colors"
@@ -46,7 +46,7 @@ export default function SideQuickMenu() {
         </div>
       </div>
 
-      <div className="p-2 flex flex-col gap-2 min-h-[362px] justify-start bg-white">
+      <div className="p-2 flex flex-col gap-2 min-h-[360px] xl:min-h-[310px] justify-start bg-white">
         {currentItems.length > 0 ? (
           currentItems.map((prod) => (
             <Link
