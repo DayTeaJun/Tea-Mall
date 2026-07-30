@@ -1,10 +1,12 @@
 "use client";
 
 import { SendHorizonal } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
+import { useAdminChatMsg } from "@/lib/queries/auth";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 interface Message {
   id: number;
@@ -12,7 +14,11 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
-  is_admin?: boolean;
+  is_admin: boolean;
+}
+
+interface ChatData {
+  messages: Message[];
 }
 
 interface AdminChatRoomProps {
@@ -25,10 +31,11 @@ export default function AdminChatRoom({
   roomStatus = "OPEN",
 }: AdminChatRoomProps) {
   const { user } = useAuthStore();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { data } = useAdminChatMsg(roomId);
 
   const supabase = createBrowserSupabaseClient();
 
@@ -36,26 +43,16 @@ export default function AdminChatRoom({
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
+  const messages = useMemo(() => {
+    return data?.messages ?? [];
+  }, [data?.messages]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
     if (!roomId) return;
-
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("room_id", roomId)
-        .order("created_at", { ascending: true });
-
-      if (!error && data) {
-        setMessages(data);
-      }
-    };
-
-    fetchMessages();
 
     const channel = supabase
       .channel(`chat_messages_${roomId}`)
@@ -68,7 +65,20 @@ export default function AdminChatRoom({
           filter: `room_id=eq.${roomId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMsg = payload.new as Message;
+          // React Query 캐시를 직접 업데이트하여 실시간 반영
+          queryClient.setQueryData(
+            ["adminChat", roomId],
+            (oldData: ChatData) => {
+              if (!oldData) return oldData;
+              if (oldData.messages.some((m: Message) => m.id === newMsg.id))
+                return oldData;
+              return {
+                ...oldData,
+                messages: [...oldData.messages, newMsg],
+              };
+            },
+          );
         },
       )
       .subscribe();

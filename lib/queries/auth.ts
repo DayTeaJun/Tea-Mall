@@ -1304,3 +1304,24 @@ export function useGetAdminChatList(userId: string) {
     enabled: !!userId,
   });
 }
+
+// 채팅상담 메시지 목록 (관리자)
+const getAdminChatMsg = async (roomId: number) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .select("*")
+    .eq("room_id", roomId)
+    .order("created_at", { ascending: true });
+
+  return { messages: data as Message[], error };
+};
+
+export function useAdminChatMsg(roomId: number) {
+  return useQuery({
+    queryKey: ["adminChat", roomId],
+    queryFn: () => getAdminChatMsg(roomId),
+    enabled: !!roomId,
+  });
+}
