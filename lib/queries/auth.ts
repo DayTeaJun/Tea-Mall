@@ -1179,29 +1179,6 @@ export function useGetCustomerInquiries(
   });
 }
 
-// 상담채팅 알림 조회
-const getUnreadCount = async (userId: string) => {
-  const supabase = createBrowserSupabaseClient();
-
-  const { data, error } = await supabase
-    .from("chat_messages")
-    .select("id")
-    .neq("sender_id", userId)
-    .eq("is_read", false);
-
-  if (error) throw new Error(error.message);
-
-  return data ? data.length : 0;
-};
-
-export function useGetUnreadCount(userId: string) {
-  return useQuery({
-    queryKey: ["chatUnreadCount", userId],
-    queryFn: () => getUnreadCount(userId),
-    enabled: !!userId,
-  });
-}
-
 // 유저채팅 내역 조회
 interface Message {
   id: number;
@@ -1315,7 +1292,9 @@ const getAdminChatMsg = async (roomId: number) => {
     .eq("room_id", roomId)
     .order("created_at", { ascending: true });
 
-  return { messages: data as Message[], error };
+  if (error) throw error;
+
+  return { messages: (data as Message[]) || [] };
 };
 
 export function useAdminChatMsg(roomId: number) {

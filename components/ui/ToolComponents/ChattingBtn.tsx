@@ -6,15 +6,13 @@ import ChattingModal from "../../chat/ChattingModal";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import { useGetUnreadCount } from "@/lib/queries/auth";
-import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 const supabase = createBrowserSupabaseClient();
 
 function ChattingBtn() {
   const [isChatting, setIsChatting] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuthStore();
-  const { data: unreadCount = 0 } = useGetUnreadCount(user?.id || "");
 
   const isChattingRef = useRef(isChatting);
 
@@ -22,13 +20,29 @@ function ChattingBtn() {
     isChattingRef.current = isChatting;
   }, [isChatting]);
 
+  const fetchUnreadCount = async (userId: string) => {
+    const { count, error } = await supabase
+      .from("chat_messages")
+      .select("*", { count: "exact", head: true })
+      .neq("sender_id", userId)
+      .eq("is_read", false);
+
+    if (!error && count !== null) {
+      setUnreadCount(count);
+    }
+  };
+
   useEffect(() => {
     if (!user?.id) return;
 
     let channel: RealtimeChannel | null = null;
+    let isMounted = true;
 
     const initSubscription = async () => {
       // 초기 안 읽은 개수 가져오기
+      await fetchUnreadCount(user.id);
+
+      if (!isMounted) return;
 
       const channelName = `chat_notif_${user.id}`;
 
@@ -38,6 +52,8 @@ function ChattingBtn() {
           await supabase.removeChannel(ch);
         }
       }
+
+      if (!isMounted) return;
 
       // 신규 채널 생성 및 구독
       channel = supabase
@@ -58,17 +74,13 @@ function ChattingBtn() {
 
             if (newMsg && newMsg.sender_id !== user.id) {
               if (user.level === 3) {
-                queryClient.invalidateQueries({
-                  queryKey: ["chatUnreadCount", user.id],
-                });
+                await fetchUnreadCount(user.id);
               } else if (isChattingRef.current) {
                 await supabase.rpc("mark_messages_as_read", {
                   target_user_id: user.id,
                 });
               } else {
-                queryClient.invalidateQueries({
-                  queryKey: ["chatUnreadCount", user.id],
-                });
+                await fetchUnreadCount(user.id);
               }
             }
           },
@@ -84,9 +96,7 @@ function ChattingBtn() {
             // UPDATE가 일어났을 때, 내가 받은 메시지의 is_read가 true로 바뀐 경우라면 즉시 갱신
             const updatedMsg = payload.new;
             if (updatedMsg && updatedMsg.is_read === true) {
-              queryClient.invalidateQueries({
-                queryKey: ["chatUnreadCount", user.id],
-              });
+              await fetchUnreadCount(user.id);
             }
           },
         )
@@ -98,6 +108,7 @@ function ChattingBtn() {
     initSubscription();
 
     return () => {
+      isMounted = false;
       if (channel) {
         supabase.removeChannel(channel);
       }
@@ -111,6 +122,8 @@ function ChattingBtn() {
 
     if (nextState && user?.id) {
       if (user.level === 3) return; // 관리자일 경우 읽음 처리하지 않음
+
+      setUnreadCount(0);
 
       const { error } = await supabase.rpc("mark_messages_as_read", {
         target_user_id: user.id,
