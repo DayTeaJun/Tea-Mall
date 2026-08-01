@@ -7,8 +7,7 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import AdminChatRoom from "./AdminChatRoom";
-import { useGetAdminChatList } from "@/lib/queries/auth";
-import { queryClient } from "@/components/providers/ReactQueryProvider";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface AdminChatListProps {
   id: number;
@@ -25,62 +24,137 @@ export interface AdminChatListProps {
   unread_count?: number;
 }
 
+const supabase = createBrowserSupabaseClient();
+
 export default function AdminChatList() {
   const { user } = useAuthStore();
 
+  const [rooms, setRooms] = useState<AdminChatListProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<AdminChatListProps | null>(
     null,
   );
   const [isClosing, setIsClosing] = useState(false);
 
-  const supabase = createBrowserSupabaseClient();
   const isAdmin = user?.level === 3;
 
-  const { data: rooms = [], isLoading } = useGetAdminChatList(user?.id || "");
+  const fetchRooms = async (userId: string) => {
+    try {
+      const { data: roomsData, error: roomError } = await supabase
+        .from("chat_rooms")
+        .select(
+          `
+            *,
+            user:public_profiles!user_id (
+              user_name,
+              profile_image_url
+            )
+          `,
+        )
+        .eq("status", "OPEN")
+        .order("last_message_at", { ascending: false });
+
+      if (roomError) throw roomError;
+
+      if (!roomsData || roomsData.length === 0) {
+        setRooms([]);
+        return;
+      }
+
+      // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
+      const roomsWithUnread = await Promise.all(
+        roomsData.map(async (room) => {
+          const { count } = await supabase
+            .from("chat_messages")
+            .select("*", { count: "exact", head: true })
+            .eq("room_id", room.id)
+            .eq("is_read", false)
+            .neq("sender_id", userId);
+
+          return {
+            ...room,
+            status: room.status as "OPEN" | "CLOSED",
+            user: Array.isArray(room.user) ? room.user[0] : room.user,
+            unread_count: count || 0,
+          };
+        }),
+      );
+
+      setRooms(roomsWithUnread as AdminChatListProps[]);
+    } catch (err) {
+      console.error("채팅방 목록 조회 실패:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!user?.id && !isAdmin) return;
+    if (!user?.id || !isAdmin) return;
 
-    const roomChannel = supabase
-      .channel("admin_chat_rooms_realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "chat_rooms" },
-        () =>
-          queryClient.invalidateQueries({
-            queryKey: ["adminChatList", user?.id],
-          }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages" },
-        () =>
-          queryClient.invalidateQueries({
-            queryKey: ["adminChatList", user?.id],
-          }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "chat_messages" },
-        () =>
-          queryClient.invalidateQueries({
-            queryKey: ["adminChatList", user?.id],
-          }),
-      )
-      .subscribe();
+    let roomChannel: RealtimeChannel | null = null;
+    let isMounted = true;
+
+    const initSubscription = async () => {
+      await fetchRooms(user.id);
+
+      if (!isMounted) return;
+
+      const channelName = `admin_rooms_${user.id}`;
+
+      const existingChannels = supabase.getChannels();
+      for (const ch of existingChannels) {
+        if (ch.topic === `realtime:${channelName}`) {
+          await supabase.removeChannel(ch);
+        }
+      }
+
+      if (!isMounted) return;
+
+      roomChannel = supabase
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "chat_rooms" },
+          async () => {
+            await fetchRooms(user.id);
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "chat_messages" },
+          async () => {
+            await fetchRooms(user.id);
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "chat_messages" },
+          async () => {
+            await fetchRooms(user.id);
+          },
+        )
+        .subscribe((status, err) => {
+          if (err) console.error("❌ 관리자 실시간 에러:", err);
+        });
+    };
+
+    initSubscription();
 
     return () => {
-      supabase.removeChannel(roomChannel);
+      isMounted = false;
+      if (roomChannel) {
+        supabase.removeChannel(roomChannel);
+      }
     };
-  }, [user?.id]);
+  }, [user?.id, isAdmin]);
 
   const handleSelectRoom = async (room: AdminChatListProps) => {
     setSelectedRoom(room);
 
-    // 낙관적 업데이트
-    // setRooms((prevRooms) =>
-    //   prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
-    // );
+    // 낙관적 업데이트: 클릭 즉시 해당 방의 뱃지를 0으로 변경
+    setRooms((prevRooms) =>
+      prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
+    );
 
     const { error } = await supabase.rpc("mark_room_messages_as_read", {
       target_room_id: room.id,
@@ -88,7 +162,7 @@ export default function AdminChatList() {
 
     if (error) {
       console.error("메시지 읽음 처리 오류:", error);
-      queryClient.invalidateQueries({ queryKey: ["adminChatList", user?.id] });
+      if (user?.id) await fetchRooms(user.id);
     }
   };
 
@@ -120,7 +194,7 @@ export default function AdminChatList() {
 
       toast.success("상담방과 대화 내역이 완전히 삭제되었습니다.");
       setSelectedRoom(null);
-      queryClient.invalidateQueries({ queryKey: ["adminChatList", user?.id] });
+      if (user?.id) await fetchRooms(user.id);
     } catch (err) {
       console.error("채팅방 삭제 에러:", err);
       toast.error("상담 종료 및 삭제 처리 중 오류가 발생했습니다.");
@@ -271,7 +345,7 @@ export default function AdminChatList() {
                     {room.last_message || "메시지가 없습니다."}
                   </p>
                   {unreadCount > 0 && (
-                    <span className="flex items-center justify-center text-10 bg-red-500 text-white font-bold w-4 h-4 rounded-full shrink-0">
+                    <span className="flex items-center justify-center text-xs bg-red-500 text-white font-bold w-4 h-4 rounded-full shrink-0">
                       {unreadCount}
                     </span>
                   )}
