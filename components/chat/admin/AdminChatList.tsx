@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Trash2, UserIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MailQuestion,
+  Trash2,
+  UserIcon,
+} from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
@@ -293,8 +299,11 @@ export default function AdminChatList() {
 
   if (rooms.length === 0) {
     return (
-      <div className="p-4 text-xs text-gray-400 text-center">
-        진행 중인 문의가 없습니다.
+      <div className="h-full flex flex-col items-center justify-center gap-4 my-2">
+        <MailQuestion size={40} strokeWidth={1.5} className="text-gray-400" />
+        <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
+          새로운 상담을 시작하려면 메시지를 입력해주세요.
+        </span>
       </div>
     );
   }

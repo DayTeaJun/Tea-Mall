@@ -1,6 +1,6 @@
 "use client";
 
-import { SendHorizonal, PlusCircle } from "lucide-react";
+import { SendHorizonal, PlusCircle, MessageSquareMore } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -196,7 +196,12 @@ export default function UserChatRoom() {
     <div className="flex flex-col justify-between h-full">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
         {roomId === null && (
-          <div className="flex items-center justify-center my-2">
+          <div className="h-full flex flex-col items-center justify-center gap-4 my-2">
+            <MessageSquareMore
+              size={40}
+              strokeWidth={1.5}
+              className="text-gray-400"
+            />
             <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
               새로운 상담을 시작하려면 메시지를 입력해주세요.
             </span>
@@ -227,13 +232,13 @@ export default function UserChatRoom() {
                   <p className="text-[10px] text-gray-400 shrink-0">
                     {formatTime(msg.created_at)}
                   </p>
-                  <div className="bg-blue-500 text-white p-2.5 rounded-xl rounded-br-none text-xs leading-relaxed break-all">
+                  <div className="bg-gray-500 text-white p-2.5 rounded-xl rounded-br-none text-xs leading-relaxed break-all">
                     {msg.content}
                   </div>
                 </div>
               ) : (
                 <div className="mr-auto flex items-end gap-1.5 max-w-[80%]">
-                  <div className="bg-gray-100 text-gray-800 p-2.5 rounded-xl rounded-bl-none text-xs leading-relaxed break-all">
+                  <div className="bg-gray-200 text-gray-800 p-2.5 rounded-xl rounded-bl-none text-xs leading-relaxed break-all">
                     {msg.content}
                   </div>
                   <p className="text-[10px] text-gray-400 shrink-0">
@@ -267,14 +272,19 @@ export default function UserChatRoom() {
           onSubmit={handleSendMessage}
           className="w-full flex justify-between items-center p-2 gap-2 border-t border-gray-200 bg-white"
         >
-          <input
-            type="text"
-            maxLength={300}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="메시지를 입력해주세요."
-            className="text-xs p-2.5 w-full border border-gray-300 rounded-md focus:outline-none focus:border-gray-400"
-          />
+          <div className="flex items-center gap-1 w-full relative">
+            <input
+              type="text"
+              maxLength={300}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="메시지를 입력해주세요."
+              className="text-xs p-2.5 pr-16 w-full border border-gray-300 rounded-md focus:outline-none focus:border-gray-400"
+            />
+            <p className="absolute right-[10px] text-gray-300 text-xs">
+              {inputText.length} / 300
+            </p>
+          </div>
 
           <button
             type="submit"
