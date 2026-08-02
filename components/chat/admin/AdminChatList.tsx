@@ -180,7 +180,7 @@ export default function AdminChatList() {
 
     if (
       !confirm(
-        "상담을 종료하고 이 채팅방과 모든 대화 내역을 완전히 삭제하시겠습니까?",
+        "상담을 종료하시겠습니까? (종료된 상담방은 24시간 후 자동으로 완전히 삭제됩니다.)",
       )
     ) {
       return;
@@ -189,21 +189,23 @@ export default function AdminChatList() {
     setIsClosing(true);
 
     try {
-      await supabase.from("chat_messages").delete().eq("room_id", roomId);
-
-      const { error: deleteRoomError } = await supabase
+      // DELETE 대신 status를 CLOSED로 변경하고 closed_at에 현재 시간 기록
+      const { error: updateError } = await supabase
         .from("chat_rooms")
-        .delete()
+        .update({
+          status: "CLOSED",
+          closed_at: new Date().toISOString(),
+        })
         .eq("id", roomId);
 
-      if (deleteRoomError) throw deleteRoomError;
+      if (updateError) throw updateError;
 
-      toast.success("상담방과 대화 내역이 완전히 삭제되었습니다.");
+      toast.success("상담이 종료되었습니다.");
       setSelectedRoom(null);
       if (user?.id) await fetchRooms(user.id);
     } catch (err) {
-      console.error("채팅방 삭제 에러:", err);
-      toast.error("상담 종료 및 삭제 처리 중 오류가 발생했습니다.");
+      console.error("상담 종료 에러:", err);
+      toast.error("상담 종료 처리 중 오류가 발생했습니다.");
     } finally {
       setIsClosing(false);
     }

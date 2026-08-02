@@ -21,11 +21,13 @@ function ChattingBtn() {
   }, [isChatting]);
 
   const fetchUnreadCount = async (userId: string) => {
+    // chat_rooms 테이블과 조인(inner join)하여 status가 'OPEN'(또는 CLOSED가 아닌 것)인 방의 메시지만 카운트
     const { count, error } = await supabase
       .from("chat_messages")
-      .select("*", { count: "exact", head: true })
+      .select("id, chat_rooms!inner(status)", { count: "exact", head: true })
       .neq("sender_id", userId)
-      .eq("is_read", false);
+      .eq("is_read", false)
+      .neq("chat_rooms.status", "CLOSED");
 
     if (!error && count !== null) {
       setUnreadCount(count);
@@ -97,6 +99,21 @@ function ChattingBtn() {
             const updatedMsg = payload.new;
             if (updatedMsg && updatedMsg.is_read === true) {
               await fetchUnreadCount(user.id);
+            }
+          },
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "chat_rooms",
+          },
+          async (payload) => {
+            const updatedRoom = payload.new;
+            // 관리자가 상담 종료(status를 'CLOSED'로 변경)를 누른 경우 즉시 0으로 리셋
+            if (updatedRoom && updatedRoom.status === "CLOSED") {
+              setUnreadCount(0);
             }
           },
         )
