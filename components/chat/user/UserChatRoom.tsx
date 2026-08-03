@@ -1,6 +1,6 @@
 "use client";
 
-import { SendHorizonal, PlusCircle, MessageSquareMore } from "lucide-react";
+import { SendHorizonal, MessageSquareMore } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -88,14 +88,19 @@ export default function UserChatRoom() {
       .on(
         "postgres_changes",
         {
-          event: "DELETE",
+          event: "UPDATE",
           schema: "public",
           table: "chat_rooms",
           filter: `id=eq.${roomId}`,
         },
-        () => {
-          toast.info("상담이 종료되었습니다.");
-          queryClient.invalidateQueries({ queryKey: ["userChat", user?.id] });
+        async (payload) => {
+          const updatedRoom = payload.new;
+          // 관리자가 상담 종료(status를 'CLOSED'로 변경)를 누른 경우 즉시 0으로 리셋
+          if (updatedRoom && updatedRoom.status === "CLOSED") {
+            toast.info("상담이 종료되었습니다.");
+            queryClient.invalidateQueries({ queryKey: ["userChat", user?.id] });
+            scrollToBottom();
+          }
         },
       )
       .subscribe();
@@ -193,7 +198,7 @@ export default function UserChatRoom() {
   };
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full bg-white">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
         {roomId === null && (
           <div className="h-full flex flex-col items-center justify-center gap-4 my-2">
@@ -249,22 +254,27 @@ export default function UserChatRoom() {
             </React.Fragment>
           );
         })}
+
+        {isClosed && roomId !== null && (
+          <div className="flex items-center justify-center my-4">
+            <span className="px-3 text-xs font-medium text-gray-400 bg-gray-50 py-1 rounded-full border border-gray-100 shrink-0">
+              상담이 종료되었습니다.
+            </span>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {isClosed ? (
-        <div className="w-full flex flex-col items-center justify-center p-4 gap-2 border-t border-gray-200 bg-gray-50">
-          <p className="text-xs text-gray-500 font-medium">
-            상담이 종료되었습니다.
-          </p>
+      {isClosed && roomId !== null ? (
+        <div className="w-full p-2 border-t border-gray-200 bg-white">
           <button
             type="button"
             onClick={handleStartNewChat}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-xs rounded-md transition-colors cursor-pointer disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center py-2.5 bg-gray-500 hover:bg-gray-700 text-white text-xs rounded-md transition-colors cursor-pointer disabled:cursor-not-allowed font-medium"
           >
-            <PlusCircle size={14} />
-            <span>새 상담 시작하기</span>
+            <span>새로운 상담 시작하기</span>
           </button>
         </div>
       ) : (
