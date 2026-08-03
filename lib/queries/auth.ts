@@ -1266,6 +1266,8 @@ const getAdminChatList = async (userId: string) => {
 
       return {
         ...room,
+        status: room.status as "OPEN" | "CLOSED",
+        user: Array.isArray(room.user) ? room.user[0] : room.user,
         unread_count: count || 0,
       };
     }),

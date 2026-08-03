@@ -14,6 +14,8 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import AdminChatRoom from "./AdminChatRoom";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { useGetAdminChatList } from "@/lib/queries/auth";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 export interface AdminChatListProps {
   id: number;
@@ -35,64 +37,16 @@ const supabase = createBrowserSupabaseClient();
 export default function AdminChatList() {
   const { user } = useAuthStore();
 
-  const [rooms, setRooms] = useState<AdminChatListProps[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<AdminChatListProps | null>(
     null,
   );
   const [isClosing, setIsClosing] = useState(false);
 
+  const userId = user?.id || "";
+
+  const { data: rooms, isLoading } = useGetAdminChatList(userId);
+
   const isAdmin = user?.level === 3;
-
-  const fetchRooms = async (userId: string) => {
-    try {
-      const { data: roomsData, error: roomError } = await supabase
-        .from("chat_rooms")
-        .select(
-          `
-            *,
-            user:public_profiles!user_id (
-              user_name,
-              profile_image_url
-            )
-          `,
-        )
-        .eq("status", "OPEN")
-        .order("last_message_at", { ascending: false });
-
-      if (roomError) throw roomError;
-
-      if (!roomsData || roomsData.length === 0) {
-        setRooms([]);
-        return;
-      }
-
-      // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
-      const roomsWithUnread = await Promise.all(
-        roomsData.map(async (room) => {
-          const { count } = await supabase
-            .from("chat_messages")
-            .select("*", { count: "exact", head: true })
-            .eq("room_id", room.id)
-            .eq("is_read", false)
-            .neq("sender_id", userId);
-
-          return {
-            ...room,
-            status: room.status as "OPEN" | "CLOSED",
-            user: Array.isArray(room.user) ? room.user[0] : room.user,
-            unread_count: count || 0,
-          };
-        }),
-      );
-
-      setRooms(roomsWithUnread as AdminChatListProps[]);
-    } catch (err) {
-      console.error("채팅방 목록 조회 실패:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (!user?.id || !isAdmin) return;
@@ -101,9 +55,11 @@ export default function AdminChatList() {
     let isMounted = true;
 
     const initSubscription = async () => {
-      await fetchRooms(user.id);
-
       if (!isMounted) return;
+
+      await queryClient.invalidateQueries({
+        queryKey: ["adminChatList", userId],
+      });
 
       const channelName = `admin_rooms_${user.id}`;
 
@@ -122,21 +78,27 @@ export default function AdminChatList() {
           "postgres_changes",
           { event: "*", schema: "public", table: "chat_rooms" },
           async () => {
-            await fetchRooms(user.id);
+            await queryClient.invalidateQueries({
+              queryKey: ["adminChatList", userId],
+            });
           },
         )
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "chat_messages" },
           async () => {
-            await fetchRooms(user.id);
+            await queryClient.invalidateQueries({
+              queryKey: ["adminChatList", userId],
+            });
           },
         )
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "chat_messages" },
           async () => {
-            await fetchRooms(user.id);
+            await queryClient.invalidateQueries({
+              queryKey: ["adminChatList", userId],
+            });
           },
         )
         .subscribe((status, err) => {
@@ -158,9 +120,9 @@ export default function AdminChatList() {
     setSelectedRoom(room);
 
     // 낙관적 업데이트: 클릭 즉시 해당 방의 뱃지를 0으로 변경
-    setRooms((prevRooms) =>
-      prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
-    );
+    // setRooms((prevRooms) =>
+    //   prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
+    // );
 
     const { error } = await supabase.rpc("mark_room_messages_as_read", {
       target_room_id: room.id,
@@ -168,7 +130,10 @@ export default function AdminChatList() {
 
     if (error) {
       console.error("메시지 읽음 처리 오류:", error);
-      if (user?.id) await fetchRooms(user.id);
+      if (user?.id)
+        await queryClient.invalidateQueries({
+          queryKey: ["adminChatList", userId],
+        });
     }
   };
 
@@ -202,7 +167,10 @@ export default function AdminChatList() {
 
       toast.success("상담이 종료되었습니다.");
       setSelectedRoom(null);
-      if (user?.id) await fetchRooms(user.id);
+      if (user?.id)
+        await queryClient.invalidateQueries({
+          queryKey: ["adminChatList", userId],
+        });
     } catch (err) {
       console.error("상담 종료 에러:", err);
       toast.error("상담 종료 처리 중 오류가 발생했습니다.");
@@ -299,7 +267,7 @@ export default function AdminChatList() {
     );
   }
 
-  if (rooms.length === 0) {
+  if (rooms && rooms.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 my-2">
         <MailQuestion size={40} strokeWidth={1.5} className="text-gray-400" />
@@ -312,60 +280,61 @@ export default function AdminChatList() {
 
   return (
     <div className="flex flex-col gap-1 overflow-y-auto h-full bg-white">
-      {rooms.map((room) => {
-        const userName = room.user?.user_name || "익명 사용자";
-        const profileImage = room.user?.profile_image_url;
-        const unreadCount = room.unread_count || 0;
+      {rooms &&
+        rooms.map((room) => {
+          const userName = room.user?.user_name || "익명 사용자";
+          const profileImage = room.user?.profile_image_url;
+          const unreadCount = room.unread_count || 0;
 
-        return (
-          <div
-            key={room.id}
-            onClick={() => handleSelectRoom(room)}
-            className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100"
-          >
-            <div className="w-full flex items-center gap-3">
-              <div className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
-                {profileImage ? (
-                  <Image
-                    fill
-                    src={profileImage}
-                    alt={userName}
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full p-1 flex items-center justify-center text-gray-300">
-                    <UserIcon size={32} />
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full flex flex-col gap-1 overflow-hidden">
-                <div className="w-full flex justify-between items-center">
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <p className="font-bold text-sm text-gray-700 truncate">
-                      {userName}
-                    </p>
-                  </div>
-                  <div className="flex gap-0.5 items-center text-xs text-gray-400 shrink-0 ml-2">
-                    <span>{formatLastMessageTime(room.last_message_at)}</span>
-                    <ChevronRight size={14} />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 truncate">
-                    {room.last_message || "메시지가 없습니다."}
-                  </p>
-                  {unreadCount > 0 && (
-                    <span className="flex items-center justify-center text-xs bg-red-500 text-white font-bold w-4 h-4 rounded-full shrink-0">
-                      {unreadCount}
-                    </span>
+          return (
+            <div
+              key={room.id}
+              onClick={() => handleSelectRoom(room)}
+              className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100"
+            >
+              <div className="w-full flex items-center gap-3">
+                <div className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
+                  {profileImage ? (
+                    <Image
+                      fill
+                      src={profileImage}
+                      alt={userName}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full p-1 flex items-center justify-center text-gray-300">
+                      <UserIcon size={32} />
+                    </div>
                   )}
+                </div>
+
+                <div className="w-full flex flex-col gap-1 overflow-hidden">
+                  <div className="w-full flex justify-between items-center">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <p className="font-bold text-sm text-gray-700 truncate">
+                        {userName}
+                      </p>
+                    </div>
+                    <div className="flex gap-0.5 items-center text-xs text-gray-400 shrink-0 ml-2">
+                      <span>{formatLastMessageTime(room.last_message_at)}</span>
+                      <ChevronRight size={14} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-400 truncate">
+                      {room.last_message || "메시지가 없습니다."}
+                    </p>
+                    {unreadCount > 0 && (
+                      <span className="flex items-center justify-center text-xs bg-red-500 text-white font-bold w-4 h-4 rounded-full shrink-0">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 }
