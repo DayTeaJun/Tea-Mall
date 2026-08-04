@@ -271,9 +271,18 @@ export default function AdminChatList() {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 my-2">
         <MailQuestion size={40} strokeWidth={1.5} className="text-gray-400" />
-        <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
-          새로운 상담을 시작하려면 메시지를 입력해주세요.
-        </span>
+
+        {isAdmin ? (
+          <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
+            현재 상담 중인 유저가 없습니다.
+          </span>
+        ) : (
+          <>
+            <span className="px-3 text-xs font-medium text-gray-400 shrink-0">
+              새로운 상담을 시작하려면 메시지를 입력해주세요.
+            </span>
+          </>
+        )}
       </div>
     );
   }
