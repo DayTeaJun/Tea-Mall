@@ -1233,28 +1233,34 @@ export function useUserChat(userId: string) {
 }
 
 // 관리자 채팅 목록
-const getAdminChatList = async (userId: string) => {
+export const getAdminChatList = async (
+  userId: string,
+  page = 0,
+  limit = 10,
+) => {
   const supabase = createBrowserSupabaseClient();
+  const from = page * limit;
+  const to = from + limit - 1;
 
   const { data: roomsData, error: roomError } = await supabase
     .from("chat_rooms")
     .select(
       `
-          *,
-          user:public_profiles!user_id (
-            user_name,
-            profile_image_url
-          )
-        `,
+        *,
+        user:public_profiles!user_id (
+          user_name,
+          profile_image_url
+        )
+      `,
     )
     .eq("status", "OPEN")
-    .order("last_message_at", { ascending: false });
+    .order("last_message_at", { ascending: false })
+    .range(from, to);
 
   if (roomError) throw roomError;
 
   if (!roomsData || roomsData.length === 0) return [];
 
-  // 각 방별 안 읽은 개수를 병렬로 한 번에 조회
   const roomsWithUnread = await Promise.all(
     roomsData.map(async (room) => {
       const { count } = await supabase
@@ -1276,10 +1282,19 @@ const getAdminChatList = async (userId: string) => {
   return roomsWithUnread as AdminChatListProps[];
 };
 
-export function useGetAdminChatList(userId: string) {
-  return useQuery({
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+export function useInfiniteAdminChatList(userId: string) {
+  return useInfiniteQuery({
     queryKey: ["adminChatList", userId],
-    queryFn: () => getAdminChatList(userId),
+    // pageParam은 useInfiniteQuery에서 제공하는 매개변수로, 다음 페이지를 가져올 때 사용 기본값은 0으로 설정, allPages.length를 반환하여 다음 페이지 번호를 계산
+    queryFn: ({ pageParam = 0 }) => getAdminChatList(userId, pageParam, 10),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      // 마지막으로 받아온 데이터가 10개 미만이면 다음 페이지가 없는 것으로 판단
+      if (!lastPage || lastPage.length < 10) return undefined;
+      return allPages.length; // 다음 페이지 번호 ([[],[...],[]])의 길이를 반환
+    },
     enabled: !!userId,
   });
 }

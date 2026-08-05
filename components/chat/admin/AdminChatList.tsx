@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -14,7 +14,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import AdminChatRoom from "./AdminChatRoom";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import { useGetAdminChatList } from "@/lib/queries/auth";
+import { useInfiniteAdminChatList } from "@/lib/queries/auth";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 export interface AdminChatListProps {
@@ -44,7 +44,37 @@ export default function AdminChatList() {
 
   const userId = user?.id || "";
 
-  const { data: rooms, isLoading } = useGetAdminChatList(userId);
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteAdminChatList(userId);
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // IntersectionObserver 설정 (화면에 바닥이 보이면 다음 페이지 호출)
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    const currentTarget = loadMoreRef.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const rooms = data?.pages.flatMap((page) => page) ?? [];
 
   const isAdmin = user?.level === 3;
 
@@ -344,6 +374,12 @@ export default function AdminChatList() {
             </div>
           );
         })}
+
+      <div ref={loadMoreRef} className="text-center">
+        {isFetchingNextPage && (
+          <span className="text-xs text-gray-400">목록을 불러오는 중...</span>
+        )}
+      </div>
     </div>
   );
 }

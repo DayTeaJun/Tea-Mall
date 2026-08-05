@@ -19,11 +19,11 @@ function ChattingModal({ onClose }: Props) {
       className={
         "fixed inset-0 z-50 flex flex-col bg-white " +
         "sm:absolute sm:right-14 sm:bottom-0 sm:inset-auto " +
-        "sm:w-[300px] sm:h-[400px] md:w-[360px] md:h-[500px] sm:shadow-xl sm:border sm:border-gray-200 " +
+        "sm:w-[300px] sm:h-[350px] md:w-[360px] md:h-[430px] sm:shadow-xl sm:border sm:border-gray-200 " +
         "overflow-hidden"
       }
     >
-      <div className="flex justify-between items-center py-3 border-b border-gray-100 px-4 shrink-0">
+      <div className="flex justify-between items-center py-2 border-b border-gray-100 px-3 shrink-0">
         <h2 className="font-bold text-lg text-gray-800">채팅 상담</h2>
         <button
           type="button"
@@ -34,7 +34,7 @@ function ChattingModal({ onClose }: Props) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="h-[460px] flex-1 overflow-hidden flex flex-col">
         {isAdmin ? <AdminChatList /> : <UserChatRoom />}
       </div>
     </div>
