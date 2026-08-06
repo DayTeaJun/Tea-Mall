@@ -2,10 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle } from "lucide-react";
-import ChattingModal from "../../chat/ChattingModal";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import ChattingModal from "./chat/ChattingModal";
 
 const supabase = createBrowserSupabaseClient();
 
