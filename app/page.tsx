@@ -1,5 +1,6 @@
 import MainCarousel from "./_components/MainCarousel";
 import ProductList from "./_components/ProductList";
+import QuickCategory from "./_components/QuickCategory";
 import SideQuickMenu from "./_components/SideQuickMenu";
 
 export default function Home() {
@@ -16,7 +17,11 @@ export default function Home() {
         <MainCarousel />
       </section>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-8 mt-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12">
+        <QuickCategory />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-8">
         <section className="w-full">
           <h2 className="text-xl font-semibold mb-4">추천 상품</h2>
           <ProductList />
