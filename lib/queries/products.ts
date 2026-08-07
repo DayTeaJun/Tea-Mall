@@ -35,6 +35,34 @@ export function useProductAllToMainQuery() {
   };
 }
 
+// 베스트 상품 조회 4개 (메인 페이지용)
+export async function getBestProductList() {
+  const { data, error } = await supabase
+    .from("v_products_with_favorites")
+    .select("*")
+    .eq("deleted", false)
+    .gt("total_stock", 0)
+    .order("sales_count", { ascending: false })
+    .limit(4);
+
+  if (error) throw error;
+
+  return (data ?? []) as unknown as ProductType[];
+}
+
+export function useBestProductListQuery() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["best_products"],
+    queryFn: getBestProductList,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 추천 상품 조회
 export async function getRelatedProducts(
   currentProductId: string,
