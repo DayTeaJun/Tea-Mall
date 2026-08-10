@@ -3,6 +3,7 @@ import ProductList from "./_components/ProductList";
 import BestProductList from "./_components/BestProductList";
 import SideQuickMenu from "./_components/SideQuickMenu";
 import QuickCategory from "./_components/QuickCategory";
+import MiddleBanner from "./_components/MiddleBanner";
 
 export default function Home() {
   return (
@@ -19,6 +20,10 @@ export default function Home() {
         </div>
         <MainCarousel />
       </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
+        <MiddleBanner />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
         <QuickCategory />
