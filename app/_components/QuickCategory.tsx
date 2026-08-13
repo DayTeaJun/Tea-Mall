@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Shirt, Footprints, Watch, Glasses, Sparkles } from "lucide-react";
+import { Shirt, Tag, Watch, Sparkles } from "lucide-react";
 
 const categories = [
   { name: "전체상품", path: "/category?type=전체&page=1", icon: Sparkles },
   { name: "아우터", path: "/category?type=아우터&page=1", icon: Shirt },
   { name: "상의", path: "/category?type=상의&page=1", icon: Shirt },
-  { name: "팬츠", path: "/category?type=팬츠&page=1", icon: Footprints },
-  { name: "악세서리", path: "/category?type=악세서리&page=1", icon: Watch },
-  { name: "기타", path: "/category?type=기타&page=1", icon: Glasses },
+  { name: "팬츠", path: "/category?type=팬츠&page=1", icon: Tag },
+  { name: "액세서리", path: "/category?type=악세서리&page=1", icon: Watch },
 ];
 
 export default function QuickCategory() {
