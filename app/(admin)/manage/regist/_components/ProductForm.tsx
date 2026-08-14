@@ -12,7 +12,12 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import DetailImagePreview from "./DetailImagePreview";
 
 function ProductForm() {
-  const categories = ["의류", "신발", "가방", "액세서리"];
+  const categoryMap: Record<string, string[]> = {
+    의류: ["아우터", "상의", "하의", "원피스"],
+    신발: ["스니커즈", "구두", "부츠", "샌들"],
+    가방: ["백팩", "숄더백", "크로스백", "클러치"],
+    액세서리: ["모자", "벨트", "지갑", "기타"],
+  };
 
   const sizeOptionsMap: Record<string, string[]> = {
     의류: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
@@ -44,8 +49,9 @@ function ProductForm() {
 
   const { mutate } = useCreateProductMutation();
 
-  const handleCategoryChange = (newCategory: string) => {
+  const handleCategoryClick = (newCategory: string) => {
     setCategory(newCategory);
+    setSubcategory("");
     setSelectedSizes([]);
     setStockBySize({});
     setSingleStock(0);
@@ -118,15 +124,8 @@ function ProductForm() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      <div className="border-b pb-4">
-        <h2 className="text-xl font-bold text-gray-900">신규 상품 등록</h2>
-        <p className="text-sm text-gray-500">
-          쇼핑몰에 판매할 상품의 정보와 옵션을 입력해주세요.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <div className="flex flex-col h-full gap-6">
           <div className="bg-white p-6 border border-gray-200 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               기본 정보
@@ -139,7 +138,7 @@ function ProductForm() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
                 placeholder="상품 이름을 입력하세요"
               />
             </div>
@@ -152,44 +151,58 @@ function ProductForm() {
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
                 placeholder="가격을 입력하세요"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-gray-600">
-                  카테고리
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
-                >
-                  <option value="">선택</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-gray-600">
-                  하위 카테고리
-                </label>
-                <input
-                  value={subcategory}
-                  onChange={(e) => setSubcategory(e.target.value)}
-                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-                  placeholder="예: 아우터, 상의 등"
-                />
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                카테고리
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {Object.keys(categoryMap).map((cat) => (
+                  <button
+                    type="button"
+                    key={cat}
+                    onClick={() => handleCategoryClick(cat)}
+                    className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+                      category === cat
+                        ? "bg-black text-white border-black"
+                        : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            {category && (
+              <div className="space-y-1 pt-2 border-t">
+                <label className="block text-xs font-semibold text-gray-600 mb-2">
+                  하위 카테고리
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {categoryMap[category].map((sub) => (
+                    <button
+                      type="button"
+                      key={sub}
+                      onClick={() => setSubcategory(sub)}
+                      className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+                        subcategory === sub
+                          ? "bg-black text-white border-black"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
                   성별
@@ -197,7 +210,7 @@ function ProductForm() {
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none"
                 >
                   <option value="">선택</option>
                   <option value="남성">남성</option>
@@ -212,7 +225,7 @@ function ProductForm() {
                 <input
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
                   placeholder="예: 블랙, 화이트"
                 />
               </div>
@@ -225,26 +238,26 @@ function ProductForm() {
               <input
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
                 placeholder="쉼표(,)로 구분 (예: 여름, 캐주얼, 신상품)"
               />
             </div>
           </div>
 
-          <div className="bg-white p-6 border border-gray-200 space-y-4">
+          <div className="bg-white p-6 border border-gray-200 flex flex-col flex-1 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               상세 설명
             </h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full h-64 border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
-              placeholder="상품 상세 설명을 입력하세요..."
+              className="w-full flex-1 border border-gray-300 p-3 text-sm focus:outline-none resize-none"
+              placeholder="상품 상세 설명을 입력하세요."
             />
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="flex flex-col h-full gap-6">
           <div className="bg-white p-6 border border-gray-200 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               {hasSizeOptions ? "옵션 및 재고 관리" : "재고 관리"}
@@ -296,7 +309,7 @@ function ProductForm() {
                             onChange={(e) =>
                               handleStockChange(size, Number(e.target.value))
                             }
-                            className="flex-1 border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                            className="flex-1 border border-gray-300 p-2 text-sm focus:outline-none"
                             placeholder="수량"
                           />
                         </div>
@@ -326,19 +339,19 @@ function ProductForm() {
                   min={0}
                   value={singleStock}
                   onChange={(e) => setSingleStock(Number(e.target.value))}
-                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
                   placeholder="재고 수량을 입력하세요"
                 />
               </div>
             )}
           </div>
 
-          <div className="bg-white p-6 border border-gray-200 space-y-4">
+          <div className="bg-white p-6 border border-gray-200 flex flex-col flex-1 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               상품 이미지
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1 flex flex-col justify-between">
               <div>
                 <span className="block text-xs font-semibold text-gray-600 mb-2">
                   대표 이미지
