@@ -12,18 +12,14 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import DetailImagePreview from "./DetailImagePreview";
 
 function ProductForm() {
-  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-  const categories = [
-    "전체",
-    "상의",
-    "티셔츠",
-    "셔츠/블라우스",
-    "아우터",
-    "스커트",
-    "드레스",
-    "니트",
-    "스포츠웨어",
-  ];
+  const categories = ["의류", "신발", "가방", "액세서리"];
+
+  const sizeOptionsMap: Record<string, string[]> = {
+    의류: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
+    신발: ["230", "240", "250", "260", "270", "280"],
+    가방: [],
+    액세서리: [],
+  };
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,6 +33,7 @@ function ProductForm() {
 
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [stockBySize, setStockBySize] = useState<Record<string, number>>({});
+  const [singleStock, setSingleStock] = useState<number>(0);
 
   const [uploading, setUploading] = useState(false);
 
@@ -47,11 +44,24 @@ function ProductForm() {
 
   const { mutate } = useCreateProductMutation();
 
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+    setSelectedSizes([]);
+    setStockBySize({});
+    setSingleStock(0);
+  };
+
   const handleSubmit = async () => {
-    if (!name || !description || !imgUrl || !user) {
-      toast.info("모든 필수 항목을 입력해 주세요.");
+    if (!name || !description || !imgUrl || !user || !category) {
+      toast.info("필수 항목 및 카테고리를 모두 입력해 주세요.");
       return;
     }
+
+    const hasSizes = sizeOptionsMap[category]?.length > 0;
+    const finalStockBySize = hasSizes ? stockBySize : { FREE: singleStock };
+    const finalTotalStock = hasSizes
+      ? Object.values(stockBySize).reduce((sum, val) => sum + val, 0)
+      : singleStock;
 
     try {
       setUploading(true);
@@ -69,11 +79,8 @@ function ProductForm() {
         subcategory,
         gender,
         color,
-        stock_by_size: stockBySize,
-        total_stock: Object.values(stockBySize).reduce(
-          (sum, val) => sum + val,
-          0,
-        ),
+        stock_by_size: finalStockBySize,
+        total_stock: finalTotalStock,
         image_url: imageUrl,
         detailImages: detailImageUrls,
       });
@@ -106,179 +113,268 @@ function ProductForm() {
     setStockBySize({ ...stockBySize, [size]: value });
   };
 
+  const currentSizeOptions = sizeOptionsMap[category] || [];
+  const hasSizeOptions = currentSizeOptions.length > 0;
+
   return (
-    <>
-      <div className="space-y-2">
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
-        >
-          상품 이름
-        </label>
-        <input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="상품 이름"
-        />
+    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+      <div className="border-b pb-4">
+        <h2 className="text-xl font-bold text-gray-900">신규 상품 등록</h2>
+        <p className="text-sm text-gray-500">
+          쇼핑몰에 판매할 상품의 정보와 옵션을 입력해주세요.
+        </p>
       </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
-        >
-          상품 설명
-        </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full h-40 border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="상품 설명"
-        />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="space-y-6">
+          <div className="bg-white p-6 border border-gray-200 space-y-4">
+            <h3 className="font-semibold text-gray-800 border-b pb-2">
+              기본 정보
+            </h3>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="price"
-          className="block text-sm font-medium text-gray-700"
-        >
-          가격
-        </label>
-        <input
-          id="price"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="가격"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          태그 (쉼표로 구분)
-        </label>
-        <input
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="예: 여름, 남성용, 캐주얼"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          카테고리
-        </label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-        >
-          <option value="">선택</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          하위 카테고리
-        </label>
-        <input
-          value={subcategory}
-          onChange={(e) => setSubcategory(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="하위 카테고리 입력"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">성별</label>
-        <select
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-        >
-          <option value="">선택</option>
-          <option value="남성">남성</option>
-          <option value="여성">여성</option>
-        </select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">색상</label>
-        <input
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          className="w-full border border-gray-300 rounded-none mt-2 p-2"
-          placeholder="색상 입력"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          사이즈 및 재고
-        </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {sizeOptions.map((size) => (
-            <label key={size} className="flex items-center space-x-1">
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-gray-600">
+                상품 이름
+              </label>
               <input
-                type="checkbox"
-                checked={selectedSizes.includes(size)}
-                onChange={() => handleSizeToggle(size)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="상품 이름을 입력하세요"
               />
-              <span>{size}</span>
-            </label>
-          ))}
-        </div>
+            </div>
 
-        {selectedSizes.map((size) => (
-          <div key={size} className="flex items-center space-x-2 mb-1">
-            <span className="w-12">{size}</span>
-            <input
-              type="number"
-              min={0}
-              value={stockBySize[size] || 0}
-              onChange={(e) => handleStockChange(size, Number(e.target.value))}
-              className="flex-1 border border-gray-300 rounded-none p-2"
-              placeholder="재고 수량"
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-gray-600">
+                가격 (원)
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="가격을 입력하세요"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-600">
+                  카테고리
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                  <option value="">선택</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-600">
+                  하위 카테고리
+                </label>
+                <input
+                  value={subcategory}
+                  onChange={(e) => setSubcategory(e.target.value)}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="예: 아우터, 상의 등"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-600">
+                  성별
+                </label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                  <option value="">선택</option>
+                  <option value="남성">남성</option>
+                  <option value="여성">여성</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-600">
+                  색상
+                </label>
+                <input
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="예: 블랙, 화이트"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-gray-600">
+                태그
+              </label>
+              <input
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="쉼표(,)로 구분 (예: 여름, 캐주얼, 신상품)"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white p-6 border border-gray-200 space-y-4">
+            <h3 className="font-semibold text-gray-800 border-b pb-2">
+              상세 설명
+            </h3>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full h-64 border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+              placeholder="상품 상세 설명을 입력하세요..."
             />
           </div>
-        ))}
+        </div>
 
-        <div className="mt-2 text-sm text-gray-700 font-semibold">
-          총 재고량:{" "}
-          {Object.values(stockBySize).reduce((sum, val) => sum + val, 0)}
+        <div className="space-y-6">
+          <div className="bg-white p-6 border border-gray-200 space-y-4">
+            <h3 className="font-semibold text-gray-800 border-b pb-2">
+              {hasSizeOptions ? "옵션 및 재고 관리" : "재고 관리"}
+            </h3>
+
+            {!category ? (
+              <p className="text-xs text-gray-400 py-4 text-center">
+                카테고리를 먼저 선택해 주세요.
+              </p>
+            ) : hasSizeOptions ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                    사이즈 선택
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {currentSizeOptions.map((size) => (
+                      <button
+                        type="button"
+                        key={size}
+                        onClick={() => handleSizeToggle(size)}
+                        className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+                          selectedSizes.includes(size)
+                            ? "bg-black text-white border-black"
+                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedSizes.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <label className="block text-xs font-semibold text-gray-600">
+                      선택된 사이즈별 재고 수량
+                    </label>
+                    <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                      {selectedSizes.map((size) => (
+                        <div key={size} className="flex items-center gap-3">
+                          <span className="w-12 text-sm font-medium text-gray-700">
+                            {size}
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={stockBySize[size] || 0}
+                            onChange={(e) =>
+                              handleStockChange(size, Number(e.target.value))
+                            }
+                            className="flex-1 border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                            placeholder="수량"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t flex justify-between items-center text-sm font-bold text-gray-900">
+                  <span>총 재고량</span>
+                  <span className="text-green-600">
+                    {Object.values(stockBySize).reduce(
+                      (sum, val) => sum + val,
+                      0,
+                    )}{" "}
+                    개
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-gray-600">
+                  총 재고 수량
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={singleStock}
+                  onChange={(e) => setSingleStock(Number(e.target.value))}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="재고 수량을 입력하세요"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white p-6 border border-gray-200 space-y-4">
+            <h3 className="font-semibold text-gray-800 border-b pb-2">
+              상품 이미지
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <span className="block text-xs font-semibold text-gray-600 mb-2">
+                  대표 이미지
+                </span>
+                <ImagePreviews
+                  imageSrc={imageSrc || ""}
+                  onUpload={onUpload}
+                  onRemove={onRemove}
+                />
+              </div>
+
+              <div className="pt-2 border-t">
+                <span className="block text-xs font-semibold text-gray-600 mb-2">
+                  상세 이미지
+                </span>
+                <DetailImagePreview
+                  previews={detailPreviews}
+                  onUpload={detailOnUpload}
+                  onRemove={removeDetailImage}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <ImagePreviews
-        imageSrc={imageSrc || ""}
-        onUpload={onUpload}
-        onRemove={onRemove}
-      />
-
-      <DetailImagePreview
-        previews={detailPreviews}
-        onUpload={detailOnUpload}
-        onRemove={removeDetailImage}
-      />
-
-      <button
-        onClick={handleSubmit}
-        disabled={uploading}
-        className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer"
-      >
-        {uploading ? "업로드 중..." : "상품 등록"}
-      </button>
-    </>
+      <div className="pt-4">
+        <button
+          onClick={handleSubmit}
+          disabled={uploading}
+          className="w-full bg-black hover:bg-gray-800 text-white font-medium py-3.5 transition-colors disabled:opacity-50 cursor-pointer shadow-md"
+        >
+          {uploading ? "상품 등록 중..." : "상품 등록 완료"}
+        </button>
+      </div>
+    </div>
   );
 }
 
