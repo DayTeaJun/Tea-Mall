@@ -296,7 +296,7 @@ function ProductForm() {
                     <label className="block text-xs font-semibold text-gray-600">
                       선택된 사이즈별 재고 수량
                     </label>
-                    <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
                       {selectedSizes.map((size) => (
                         <div key={size} className="flex items-center gap-3">
                           <span className="w-12 text-sm font-medium text-gray-700">
