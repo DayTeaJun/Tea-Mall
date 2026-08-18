@@ -3,6 +3,7 @@ import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
 import CommentReportBtn from "./CommentReportBtn";
 import CommentBtn from "./CommentBtn";
+import CommentHelpful from "./CommentHelpful";
 
 interface Props {
   productId: string;
@@ -29,14 +30,33 @@ export default async function CommentsSection({ productId }: Props) {
       content,
       product_id,
       updated_at,
-      public_profiles ( profile_image_url )
+      public_profiles ( profile_image_url ),
+      helpful_count,
+      review_helpfuls ( user_id )
     `,
     )
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
 
   const comments = rawComments
-    ? [...rawComments].sort((a, b) => {
+    ? rawComments.map((comment) => {
+        // review_helpfuls 배열 중에 현재 유저의 id가 포함되어 있는지 확인
+        const isLikedByMe = userId
+          ? comment.review_helpfuls?.some(
+              (h: { user_id: string }) => h.user_id === userId,
+            )
+          : false;
+
+        return {
+          ...comment,
+          isLiked: isLikedByMe,
+        };
+      })
+    : [];
+
+  // 내가 남긴 리뷰를 상단으로 정렬
+  const sortedComments = comments
+    ? [...comments].sort((a, b) => {
         if (a.user_id === userId && b.user_id !== userId) return -1;
         if (a.user_id !== userId && b.user_id === userId) return 1;
         return 0;
@@ -54,14 +74,14 @@ export default async function CommentsSection({ productId }: Props) {
         </h2>
       </div>
       <ul className="list-none pl-0 divide-y divide-gray-100">
-        {comments &&
-          (comments.length === 0 ? (
+        {sortedComments &&
+          (sortedComments.length === 0 ? (
             <li className="py-10 mx-4 sm:mx-0 flex flex-col items-center gap-2 text-gray-500 text-[16px] sm:text-[18px] border-dashed border-2 border-gray-200 rounded-sm">
               <MessageCircleQuestion size={36} className="sm:w-10 sm:h-10" />
               아직 작성된 리뷰가 없습니다.
             </li>
           ) : (
-            comments.map((comment) => {
+            sortedComments.map((comment) => {
               const isMyItem = comment.user_id === userId;
 
               return (
@@ -173,7 +193,12 @@ export default async function CommentsSection({ productId }: Props) {
                     {comment.content}
                   </p>
 
-                  <div className="flex justify-end pt-1">
+                  <div className="flex justify-between pt-1">
+                    <CommentHelpful
+                      reviewId={comment.id}
+                      initialCount={comment.helpful_count}
+                      initialIsLiked={comment.isLiked}
+                    />
                     <CommentReportBtn />
                   </div>
                 </li>

@@ -598,10 +598,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      review_helpfuls: {
+        Row: {
+          created_at: string;
+          id: string;
+          review_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          review_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          review_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_helpfuls_review_id_fkey";
+            columns: ["review_id"];
+            isOneToOne: false;
+            referencedRelation: "reviews";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_helpfuls_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_helpfuls_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "user_table";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       reviews: {
         Row: {
           content: string;
           created_at: string | null;
+          helpful_count: number;
           id: string;
           images: string[] | null;
           product_id: string;
@@ -613,6 +657,7 @@ export type Database = {
         Insert: {
           content: string;
           created_at?: string | null;
+          helpful_count?: number;
           id?: string;
           images?: string[] | null;
           product_id: string;
@@ -624,6 +669,7 @@ export type Database = {
         Update: {
           content?: string;
           created_at?: string | null;
+          helpful_count?: number;
           id?: string;
           images?: string[] | null;
           product_id?: string;
@@ -832,6 +878,10 @@ export type Database = {
       set_default_address: {
         Args: { current_user_id: string; target_id: string };
         Returns: undefined;
+      };
+      toggle_review_helpful: {
+        Args: { p_review_id: string; p_user_id: string };
+        Returns: Json;
       };
     };
     Enums: {
