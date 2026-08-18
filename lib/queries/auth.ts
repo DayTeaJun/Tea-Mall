@@ -31,7 +31,6 @@ import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
 import { useAuthStore } from "../store/useAuthStore";
 import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
-import { AdminChatListProps } from "@/components/chat/admin/AdminChatList";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -1283,6 +1282,7 @@ export const getAdminChatList = async (
 };
 
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { AdminChatListProps } from "@/components/ui/ToolComponents/chat/admin/AdminChatList";
 
 export function useInfiniteAdminChatList(userId: string) {
   return useInfiniteQuery({

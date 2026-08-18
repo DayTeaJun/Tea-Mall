@@ -29,7 +29,7 @@ export default async function CommentsSection({ productId }: Props) {
       content,
       product_id,
       updated_at,
-      public_user_profile ( profile_image_url )
+      public_profiles ( profile_image_url )
     `,
     )
     .eq("product_id", productId)
@@ -83,11 +83,11 @@ export default async function CommentsSection({ productId }: Props) {
 
                     <div className="flex gap-3 items-center sm:items-start">
                       <div className="rounded-full overflow-hidden shrink-0 border border-gray-100">
-                        {comment?.public_user_profile?.profile_image_url ? (
+                        {comment?.public_profiles?.profile_image_url ? (
                           <Image
                             width={40}
                             height={40}
-                            src={comment.public_user_profile.profile_image_url}
+                            src={comment.public_profiles.profile_image_url}
                             alt={comment.user_name}
                             className="object-cover w-12 h-12 sm:w-10 sm:h-10"
                             unoptimized
