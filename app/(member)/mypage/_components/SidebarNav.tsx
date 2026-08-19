@@ -18,6 +18,11 @@ const menu = [
     href: "/mypage/delivery",
   },
   {
+    name: "쿠폰함",
+    currentPage: "/mypage/coupon",
+    href: "/mypage/coupon",
+  },
+  {
     name: "찜 목록",
     currentPage: "/mypage/bookmark",
     href: "/mypage/bookmark",
