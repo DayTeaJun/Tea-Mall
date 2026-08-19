@@ -5,7 +5,7 @@ export default function MiddleBanner() {
   return (
     <div className="w-full my-4">
       <Link
-        href="/products?event=special"
+        href="/events"
         className="relative block w-full h-[120px] sm:h-[160px] rounded-2xl overflow-hidden group cursor-pointer shadow-sm"
       >
         <Image
