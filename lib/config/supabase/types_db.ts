@@ -939,7 +939,7 @@ export type Database = {
     }
     Functions: {
       delete_old_closed_chats: { Args: never; Returns: undefined }
-      download_coupon: { Args: { p_coupon_id: string }; Returns: Json }
+      download_coupon: { Args: { p_coupon_id: string }; Returns: string }
       increment_product_views: { Args: { p_id: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       mark_messages_as_read: {

@@ -3,8 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Ticket } from "lucide-react";
+import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import { toast } from "sonner";
 
 export default function EventPage() {
+  const supabase = createBrowserSupabaseClient();
+
+  const handleDownloadCoupon = async (couponId: string) => {
+    const { data, error } = await supabase.rpc("download_coupon", {
+      p_coupon_id: couponId,
+    });
+
+    if (error || !data) {
+      toast.error("오류가 발생했습니다.");
+      return;
+    }
+
+    if (data.startsWith("SUCCESS:")) {
+      toast.success(data.replace("SUCCESS:", ""));
+    } else {
+      toast.warning(data.replace("FAIL:", ""));
+    }
+  };
+
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
       <div className="text-center mb-8">
@@ -45,7 +66,7 @@ export default function EventPage() {
         </div>
         <button
           onClick={() =>
-            alert("쿠폰 다운로드 기능은 DB 연동 후 구현될 예정입니다!")
+            handleDownloadCoupon("2026 S/S 시즌 오픈 10% 할인 쿠폰")
           }
           className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm"
         >
