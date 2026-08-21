@@ -66,7 +66,7 @@ export default function EventPage() {
         </div>
         <button
           onClick={() =>
-            handleDownloadCoupon("2026 S/S 시즌 오픈 10% 할인 쿠폰")
+            handleDownloadCoupon("b51fbad2-8be4-4e7c-afc9-cfc0c77d316d")
           }
           className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm"
         >
