@@ -2,11 +2,10 @@
 
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
+import AvailableCoupons from "./_components/AvailableCoupons";
 
 export default function CouponPage() {
-  const [activeTab, setActiveTab] = useState<"written" | "available">(
-    "written",
-  );
+  const [activeTab, setActiveTab] = useState<"available" | "used">("available");
 
   return (
     <section className="max-w-7xl mx-auto flex flex-col gap-4">
@@ -24,9 +23,9 @@ export default function CouponPage() {
 
       <div className="flex border-b border-gray-200">
         <button
-          onClick={() => setActiveTab("written")}
+          onClick={() => setActiveTab("available")}
           className={`flex-1 sm:flex-none text-center px-4 sm:px-6 py-3 border-b-4 text-xs sm:text-sm font-bold transition-colors ${
-            activeTab === "written"
+            activeTab === "available"
               ? "border-green-600 text-green-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
@@ -34,9 +33,9 @@ export default function CouponPage() {
           사용 가능 쿠폰
         </button>
         <button
-          onClick={() => setActiveTab("available")}
+          onClick={() => setActiveTab("used")}
           className={`flex-1 sm:flex-none text-center px-4 sm:px-6 py-3 border-b-4 text-xs sm:text-sm font-bold transition-colors ${
-            activeTab === "available"
+            activeTab === "used"
               ? "border-green-600 text-green-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
@@ -45,8 +44,9 @@ export default function CouponPage() {
         </button>
       </div>
 
-      <div>
-        {/* {activeTab === "written" ? <MyReviewsList /> : <AvailableReviewsList />} */}
+      {/* 탭 컨텐츠 분기 */}
+      <div className="mt-4">
+        {activeTab === "available" ? <AvailableCoupons /> : <></>}
       </div>
     </section>
   );
