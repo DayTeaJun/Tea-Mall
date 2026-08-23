@@ -13,6 +13,7 @@ interface UserCoupon {
     discount_value: number;
     min_order_price: number | null;
     max_discount_price: number | null;
+    created_at: string;
     expires_at: string;
   };
 }
@@ -47,6 +48,7 @@ export default function AvailableCoupons() {
           discount_value,
           min_order_price,
           max_discount_price,
+          created_at,
           expires_at
         )
       `,
@@ -64,6 +66,21 @@ export default function AvailableCoupons() {
     fetchMyAvailableCoupons();
   }, []);
 
+  const calculateDday = (expiresAt: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const expiryDate = new Date(expiresAt);
+    expiryDate.setHours(0, 0, 0, 0);
+
+    const diffTime = expiryDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "D-DAY";
+    if (diffDays < 0) return "기간만료";
+    return `D-${diffDays}`;
+  };
+
   if (loading) {
     return (
       <p className="text-gray-400 text-center py-10">쿠폰을 불러오는 중...</p>
@@ -79,38 +96,49 @@ export default function AvailableCoupons() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {coupons.map((item) => {
         const coupon = item.coupon;
-
         if (!coupon) return null;
+
+        const dDayText = calculateDday(coupon.expires_at);
 
         return (
           <div
             key={item.id}
-            className="border border-gray-200 rounded-lg p-4 flex justify-between items-center shadow-sm bg-white"
+            className="border border-gray-300 p-6 py-8 flex items-center justify-between bg-white shadow"
           >
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-green-600 font-bold">
+            <div className="w-[38%] text-center border-r border-dashed border-gray-500 pr-4">
+              <span className="text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
                 {coupon.discount_type === "percentage"
-                  ? `${coupon.discount_value}% 할인`
-                  : `${coupon.discount_value.toLocaleString()}원 할인`}
+                  ? `${coupon.discount_value}%`
+                  : `${coupon.discount_value.toLocaleString()}`}
               </span>
-              <h3 className="font-bold text-sm sm:text-base text-gray-800">
+            </div>
+
+            <div className="w-[62%] pl-4 flex flex-col items-start gap-1.5 relative">
+              <div className="relative mb-1">
+                <span className="absolute -top-5 left-1 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm after:content-[''] after:absolute after:top-full after:left-2 after:border-4 after:border-transparent after:border-t-pink-500">
+                  {dDayText}
+                </span>
+
+                <p className="text-[11px] px-2 py-1 bg-black text-white w-fit font-medium">
+                  {new Date(coupon.created_at).toLocaleDateString("ko-KR")}
+                  {" ~ "}
+                  {new Date(coupon.expires_at).toLocaleDateString("ko-KR")}
+                </p>
+              </div>
+
+              <h3 className="font-bold text-sm sm:text-base text-gray-900">
                 {coupon.name}
               </h3>
+
               <p className="text-xs text-gray-500">
-                최소주문:{" "}
+                최소주문{" "}
                 {coupon.min_order_price
-                  ? coupon.min_order_price.toLocaleString() + "원"
+                  ? coupon.min_order_price.toLocaleString() + "원 이상"
                   : "없음"}
               </p>
-              <p className="text-xs text-gray-400">
-                기한: {new Date(coupon.expires_at).toLocaleDateString()} 까지
-              </p>
-            </div>
-            <div className="bg-green-100 text-green-700 text-xs sm:text-sm px-4 py-2 rounded font-medium">
-              사용 가능
             </div>
           </div>
         );
