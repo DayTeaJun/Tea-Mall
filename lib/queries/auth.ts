@@ -416,6 +416,68 @@ export const uploadImageToStorageProfile = async (
   return publicUrl;
 };
 
+// 내 사용가능(다운로드 된) 쿠폰 조회
+interface UserCoupon {
+  id: string;
+  is_used: boolean;
+  coupon: {
+    id: string;
+    name: string;
+    discount_type: string;
+    discount_value: number;
+    min_order_price: number | null;
+    max_discount_price: number | null;
+    created_at: string;
+    expires_at: string;
+  };
+}
+
+export async function getMyAvailableCoupons(userId: string) {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("user_coupons")
+    .select(
+      `
+        id,
+        is_used,
+        coupon:coupons (
+          id,
+          name,
+          discount_type,
+          discount_value,
+          min_order_price,
+          max_discount_price,
+          created_at,
+          expires_at
+        )
+      `,
+    )
+    .eq("user_id", userId)
+    .eq("is_used", false);
+
+  if (error) {
+    console.error("쿠폰 조회 실패:", error.message);
+    throw new Error("쿠폰 조회에 실패했습니다.");
+  }
+
+  return data as UserCoupon[];
+}
+
+export function useGetMyAvailableCoupons(userId: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myAvailableCoupons", userId],
+    queryFn: () => getMyAvailableCoupons(userId),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 주문목록 조회 (사용자 및 관리자용)
 export async function getOrders(
   userId: string,
