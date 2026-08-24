@@ -9,9 +9,14 @@ import { toast } from "sonner";
 export default function EventPage() {
   const supabase = createBrowserSupabaseClient();
 
-  const handleDownloadCoupon = async (couponId: string) => {
+  interface CouponResponse {
+    success: boolean;
+    message: string;
+  }
+
+  const handleDownloadCoupon = async (couponCode: string) => {
     const { data, error } = await supabase.rpc("download_coupon", {
-      p_coupon_id: couponId,
+      p_coupon_code: couponCode.trim(),
     });
 
     if (error || !data) {
@@ -19,10 +24,12 @@ export default function EventPage() {
       return;
     }
 
-    if (data.startsWith("SUCCESS:")) {
-      toast.success(data.replace("SUCCESS:", ""));
+    const result = data as unknown as CouponResponse;
+
+    if (result.success) {
+      toast.success(result.message);
     } else {
-      toast.warning(data.replace("FAIL:", ""));
+      toast.warning(result.message);
     }
   };
 
@@ -65,9 +72,7 @@ export default function EventPage() {
           </div>
         </div>
         <button
-          onClick={() =>
-            handleDownloadCoupon("b51fbad2-8be4-4e7c-afc9-cfc0c77d316d")
-          }
+          onClick={() => handleDownloadCoupon("SS26SPEC")}
           className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm"
         >
           쿠폰 다운로드 받기
