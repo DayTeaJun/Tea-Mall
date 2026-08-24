@@ -478,6 +478,55 @@ export function useGetMyAvailableCoupons(userId: string) {
   };
 }
 
+// 1. 응답 데이터 타입 정의
+interface CouponResponse {
+  success: boolean;
+  message: string;
+}
+
+const postDownloadCoupon = async (couponCode: string) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase.rpc("download_coupon", {
+    p_coupon_code: couponCode.trim(),
+  });
+
+  if (error) {
+    console.error("통신 실패:", error.message);
+    throw new Error("서버와 통신 중 오류가 발생했습니다.");
+  }
+
+  const response = data as unknown as CouponResponse;
+
+  if (response && !response.success) {
+    throw new Error(response.message);
+  }
+
+  return response;
+};
+
+export function usePostDownloadCouponMutation(userId: string) {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (couponCode: string) => postDownloadCoupon(couponCode),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["myAvailableCoupons", userId],
+      });
+      toast.success("쿠폰이 성공적으로 등록되었습니다.");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.error(error.message || "오류가 발생했습니다.");
+        console.error(`오류 발생: ${error.message}`);
+      } else {
+        toast.error("예상치 못한 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  return { mutateAsync, isPending };
+}
+
 // 주문목록 조회 (사용자 및 관리자용)
 export async function getOrders(
   userId: string,

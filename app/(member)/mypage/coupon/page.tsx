@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import AvailableCoupons from "./_components/AvailableCoupons";
+import CouponDownload from "./_components/CouponDownload";
 
 export default function CouponPage() {
   const [activeTab, setActiveTab] = useState<"available" | "used">("available");
@@ -12,13 +12,7 @@ export default function CouponPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-base sm:text-xl font-bold pt-4 sm:pt-0">쿠폰함</h2>
 
-        <button
-          className="flex items-center gap-1.5 border-2 p-1.5 px-2 border-green-400 text-14 hover:bg-green-100 transition-colors rounded"
-          type="button"
-        >
-          <Plus size={18} />
-          쿠폰등록
-        </button>
+        <CouponDownload />
       </div>
 
       <div className="flex border-b border-gray-200">

@@ -143,6 +143,7 @@ export type Database = {
       }
       coupons: {
         Row: {
+          coupon_code: string | null
           created_at: string
           discount_type: string
           discount_value: number
@@ -155,6 +156,7 @@ export type Database = {
           total_quantity: number
         }
         Insert: {
+          coupon_code?: string | null
           created_at?: string
           discount_type: string
           discount_value: number
@@ -167,6 +169,7 @@ export type Database = {
           total_quantity?: number
         }
         Update: {
+          coupon_code?: string | null
           created_at?: string
           discount_type?: string
           discount_value?: number
@@ -939,7 +942,7 @@ export type Database = {
     }
     Functions: {
       delete_old_closed_chats: { Args: never; Returns: undefined }
-      download_coupon: { Args: { p_coupon_id: string }; Returns: string }
+      download_coupon: { Args: { p_coupon_code: string }; Returns: Json }
       increment_product_views: { Args: { p_id: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       mark_messages_as_read: {
