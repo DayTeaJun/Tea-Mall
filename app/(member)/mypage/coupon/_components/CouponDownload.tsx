@@ -20,7 +20,7 @@ export default function CouponDownload() {
       return;
     }
 
-    await mutateAsync(couponCode.trim());
+    await mutateAsync(couponCode.trim().toUpperCase());
 
     setIsModal(false);
     setCouponCode("");
