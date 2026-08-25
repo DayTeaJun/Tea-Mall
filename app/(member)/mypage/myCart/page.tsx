@@ -66,6 +66,46 @@ export default function MyCartPage() {
       0,
     ) ?? 0;
 
+  // 선택된 쿠폰 정보 찾기
+  const selectedUserCoupon = coupons?.find(
+    (item) => item.id === selectedCouponId,
+  );
+  const selectedCoupon = selectedUserCoupon?.coupon;
+
+  // 쿠폰 할인 금액 계산 로직
+  const calculateDiscount = () => {
+    if (!selectedCoupon) return 0;
+
+    // 최소 주문 금액 조건 확인
+    if (
+      selectedCoupon.min_order_price &&
+      selectedCoupon.min_order_price > 0 &&
+      totalPrice < selectedCoupon.min_order_price
+    ) {
+      return 0;
+    }
+
+    let discount = 0;
+    if (selectedCoupon.discount_type === "percentage") {
+      discount = (totalPrice * selectedCoupon.discount_value) / 100;
+      // 최대 할인 금액 제한 적용
+      if (
+        selectedCoupon.max_discount_price &&
+        discount > selectedCoupon.max_discount_price
+      ) {
+        discount = selectedCoupon.max_discount_price;
+      }
+    } else {
+      discount = selectedCoupon.discount_value;
+    }
+
+    // 상품 가격보다 할인이 클 경우 처리
+    return Math.min(discount, totalPrice);
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalPrice = Math.max(0, totalPrice - discountAmount);
+
   const handleCheckout = () => {
     if (selectedItems.length === 0) {
       toast.error("선택된 상품이 없습니다.");
@@ -74,6 +114,9 @@ export default function MyCartPage() {
 
     const query = new URLSearchParams();
     selectedItems.forEach((id) => query.append("itemIds", id));
+    if (selectedCouponId) {
+      query.append("couponId", selectedCouponId);
+    }
     router.push(`/mypage/myCart/checkout?${query.toString()}`);
   };
 
@@ -376,10 +419,23 @@ export default function MyCartPage() {
                 </p>
               </div>
 
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-[16px] text-red-500">
+                  <p>할인 금액</p>
+                  <p>
+                    -{" "}
+                    <span className="font-bold">
+                      {discountAmount.toLocaleString()}
+                    </span>{" "}
+                    원
+                  </p>
+                </div>
+              )}
+
               <hr className="my-2" />
 
-              <p className="text-[20px] text-right">
-                {totalPrice.toLocaleString()}
+              <p className="text-[20px] text-right font-bold">
+                {finalPrice.toLocaleString()}
                 <span className="font-normal text-[16px]"> 원</span>
               </p>
 
