@@ -418,36 +418,49 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_id: string | null
           created_at: string | null
           deleted: boolean | null
           deleted_at: string | null
           detail_address: string | null
+          discount_amount: number | null
           id: string
           receiver: string | null
           request: string | null
           user_id: string
         }
         Insert: {
+          coupon_id?: string | null
           created_at?: string | null
           deleted?: boolean | null
           deleted_at?: string | null
           detail_address?: string | null
+          discount_amount?: number | null
           id?: string
           receiver?: string | null
           request?: string | null
           user_id: string
         }
         Update: {
+          coupon_id?: string | null
           created_at?: string | null
           deleted?: boolean | null
           deleted_at?: string | null
           detail_address?: string | null
+          discount_amount?: number | null
           id?: string
           receiver?: string | null
           request?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
