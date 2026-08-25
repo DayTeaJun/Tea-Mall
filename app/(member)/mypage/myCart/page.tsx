@@ -2,6 +2,7 @@
 
 import Modal from "@/components/common/modal/Modal";
 import { Json } from "@/lib/config/supabase/types_db";
+import { useGetMyAvailableCoupons } from "@/lib/queries/auth";
 import {
   useDeleteCartItemMutation,
   useProductAllCart,
@@ -38,7 +39,10 @@ export default function MyCartPage() {
   const { mutate: deleteMutate } = useDeleteCartItemMutation(user?.id ?? "");
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
 
+  const { data: coupons } = useGetMyAvailableCoupons(user?.id || "");
+
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
   const [isModal, setIsModal] = useState(false);
 
   const toggleItemSelection = (id: string) => {
@@ -122,147 +126,235 @@ export default function MyCartPage() {
           </div>
         ) : (
           <div className="flex sm:flex-row flex-col gap-4">
-            <ul className="flex flex-col gap-4 mb-6 flex-1">
-              <div className="flex items-center justify-between mb-4 border p-3 rounded bg-gray-50">
-                <div
-                  onClick={toggleSelectAll}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    onChange={() => toggleSelectAll()}
-                    type="checkbox"
-                    className="w-4 h-4 accent-blue-600 cursor-pointer"
-                    checked={selectedItems.length === cartItems?.length}
-                  />
-                  <span className="text-sm text-gray-800 font-medium">
-                    전체 선택 ({selectedItems.length} / {cartItems?.length ?? 0}
-                    )
-                  </span>
+            <div className="flex flex-col gap-8 mb-6 flex-1">
+              <ul className="flex flex-col gap-4">
+                <div className="flex items-center justify-between mb-4 border p-3 rounded bg-gray-50">
+                  <div
+                    onClick={toggleSelectAll}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      onChange={() => toggleSelectAll()}
+                      type="checkbox"
+                      className="w-4 h-4 accent-blue-600 cursor-pointer"
+                      checked={selectedItems.length === cartItems?.length}
+                    />
+                    <span className="text-sm text-gray-800 font-medium">
+                      전체 선택 ({selectedItems.length} /{" "}
+                      {cartItems?.length ?? 0})
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (selectedItems.length === 0) {
+                          toast.error("삭제할 항목을 선택하세요.");
+                          return;
+                        }
+                        setIsModal(true);
+                      }}
+                      className="px-3 py-1 border text-sm rounded hover:bg-gray-100 transition"
+                    >
+                      선택삭제
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      if (selectedItems.length === 0) {
-                        toast.error("삭제할 항목을 선택하세요.");
-                        return;
-                      }
-                      setIsModal(true);
-                    }}
-                    className="px-3 py-1 border text-sm rounded hover:bg-gray-100 transition"
-                  >
-                    선택삭제
-                  </button>
-                </div>
-              </div>
+                {cartItems.map((item) => {
+                  return (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between border p-3 rounded"
+                    >
+                      <div className="flex items-start gap-3 justify-between w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 mr-2 my-auto cursor-pointer"
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => toggleItemSelection(item.id)}
+                          />
 
-              {cartItems.map((item) => {
-                return (
-                  <li
-                    key={item.id}
-                    className="flex items-center justify-between border p-3 rounded"
-                  >
-                    <div className="flex items-start gap-3 justify-between w-full">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 mr-2 my-auto cursor-pointer"
-                          checked={selectedItems.includes(item.id)}
-                          onChange={() => toggleItemSelection(item.id)}
-                        />
+                          <div className="flex items-center gap-4">
+                            {item.product?.image_url ? (
+                              <Image
+                                width={144}
+                                height={144}
+                                src={item.product.image_url}
+                                alt={item.product.name}
+                                className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded cursor-pointer"
+                                onClick={() =>
+                                  router.push(`/products/${item.product?.id}`)
+                                }
+                              />
+                            ) : (
+                              <div className="flex w-32 h-32 flex-col gap-2 items-center justify-center bg-gray-100 rounded">
+                                <ImageOff size={40} className="text-gray-400" />
+                                <p className="text-gray-500 text-sm text-center">
+                                  이미지가 없습니다.
+                                </p>
+                              </div>
+                            )}
 
-                        <div className="flex items-center gap-4">
-                          {item.product?.image_url ? (
-                            <Image
-                              width={144}
-                              height={144}
-                              src={item.product.image_url}
-                              alt={item.product.name}
-                              className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded cursor-pointer"
-                              onClick={() =>
-                                router.push(`/products/${item.product?.id}`)
-                              }
-                            />
-                          ) : (
-                            <div className="flex w-32 h-32 flex-col gap-2 items-center justify-center bg-gray-100 rounded">
-                              <ImageOff size={40} className="text-gray-400" />
-                              <p className="text-gray-500 text-sm text-center">
-                                이미지가 없습니다.
+                            <div className="flex flex-col gap-2">
+                              <button
+                                className="cursor-pointer hover:underline text-left"
+                                type="button"
+                                onClick={() =>
+                                  router.push(`/products/${item.product?.id}`)
+                                }
+                              >
+                                <span className="font-semibold">
+                                  {item.product?.name}
+                                </span>
+                              </button>
+
+                              <CartItemOptions options={item.options} />
+
+                              <p className="text-sm text-gray-500">
+                                ₩{(item.product?.price ?? 0).toLocaleString()}
                               </p>
-                            </div>
-                          )}
 
-                          <div className="flex flex-col gap-2">
-                            <button
-                              className="cursor-pointer hover:underline text-left"
-                              type="button"
-                              onClick={() =>
-                                router.push(`/products/${item.product?.id}`)
-                              }
-                            >
-                              <span className="font-semibold">
-                                {item.product?.name}
-                              </span>
-                            </button>
-
-                            <CartItemOptions options={item.options} />
-
-                            <p className="text-sm text-gray-500">
-                              ₩{(item.product?.price ?? 0).toLocaleString()}
-                            </p>
-
-                            <div className="flex items-center gap-2 mt-auto">
-                              <button
-                                className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                                onClick={() => {
-                                  if (item.quantity === 1) {
-                                    deleteMutate(item?.id);
-                                    router.refresh();
-                                    return;
-                                  }
-                                  mutate({
-                                    itemId: item.id,
-                                    quantity: item.quantity - 1,
-                                  });
-                                }}
-                                disabled={isPending}
-                              >
-                                -
-                              </button>
-                              <span className="min-w-[24px] text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
-                                onClick={() => {
-                                  mutate({
-                                    itemId: item.id,
-                                    quantity: item.quantity + 1,
-                                  });
-                                }}
-                                disabled={isPending}
-                              >
-                                +
-                              </button>
+                              <div className="flex items-center gap-2 mt-auto">
+                                <button
+                                  className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                                  onClick={() => {
+                                    if (item.quantity === 1) {
+                                      deleteMutate(item?.id);
+                                      router.refresh();
+                                      return;
+                                    }
+                                    mutate({
+                                      itemId: item.id,
+                                      quantity: item.quantity - 1,
+                                    });
+                                  }}
+                                  disabled={isPending}
+                                >
+                                  -
+                                </button>
+                                <span className="min-w-[24px] text-center">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  className="w-8 h-8 border rounded bg-white hover:bg-gray-400 transition-all cursor-pointer"
+                                  onClick={() => {
+                                    mutate({
+                                      itemId: item.id,
+                                      quantity: item.quantity + 1,
+                                    });
+                                  }}
+                                  disabled={isPending}
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <button
-                        onClick={() => deleteMutate(item?.id)}
-                        type="button"
-                        className="shrink-0 cursor-pointer"
+                        <button
+                          onClick={() => deleteMutate(item?.id)}
+                          type="button"
+                          className="shrink-0 cursor-pointer"
+                        >
+                          <span className="text-gray-500 underline transition-colors hover:no-underline hover:text-gray-800">
+                            삭제
+                          </span>
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="flex flex-col gap-2">
+                <div className="border-t p-3 bg-gray-50">
+                  <h2 className="font-bold">할인쿠폰 적용</h2>
+                </div>
+
+                <ul className="flex flex-col">
+                  {coupons?.map((item, idx) => {
+                    const coupon = item.coupon;
+                    if (!coupon) return null;
+
+                    return (
+                      <label
+                        key={item.id}
+                        className={`flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${selectedCouponId === item.id ? "bg-gray-50" : "bg-white"} ${idx === 0 ? "border-t" : ""}`}
                       >
-                        <span className="text-gray-500 underline transition-colors hover:no-underline hover:text-gray-800">
-                          삭제
-                        </span>
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                        <div className="w-full flex items-center gap-4">
+                          <input
+                            type="radio"
+                            name="selectedCoupon"
+                            value={item.id}
+                            checked={selectedCouponId === item.id}
+                            onChange={() => setSelectedCouponId(item.id)}
+                            className="accent-black"
+                          />
+                          <div className="w-full flex flex-col gap-1.5">
+                            <div className="w-full flex items-center justify-between">
+                              <span className="font-bold text-sm text-gray-900">
+                                {coupon.name}
+                              </span>
+                              <span className="font-bold text-xl text-gray-600">
+                                {coupon.discount_type === "percentage"
+                                  ? `${coupon.discount_value}%`
+                                  : `${coupon.discount_value.toLocaleString()}원`}
+                              </span>
+                            </div>
+
+                            <div className="text-xs text-gray-500 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {coupon.min_order_price &&
+                                  coupon.min_order_price > 0 && (
+                                    <span>
+                                      {coupon.min_order_price.toLocaleString()}
+                                      원 이상
+                                    </span>
+                                  )}
+                                {coupon.max_discount_price && (
+                                  <span>
+                                    (최대{" "}
+                                    {coupon.max_discount_price.toLocaleString()}
+                                    원 할인)
+                                  </span>
+                                )}
+                              </div>
+                              {coupon.expires_at && (
+                                <span className="text-gray-400">
+                                  ~{" "}
+                                  {new Date(
+                                    coupon.expires_at,
+                                  ).toLocaleDateString()}{" "}
+                                  까지
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+
+                  <label
+                    className={`flex items-center gap-4 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${selectedCouponId === null ? "bg-gray-50" : "bg-white"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="selectedCoupon"
+                      checked={selectedCouponId === null}
+                      onChange={() => setSelectedCouponId(null)}
+                      className="accent-black"
+                    />
+                    <span className="text-sm text-gray-700 font-medium">
+                      쿠폰 사용 안 함
+                    </span>
+                  </label>
+                </ul>
+              </div>
+            </div>
 
             <div className="w-full sm:w-[280px] border p-4 flex flex-col gap-3 self-start rounded">
               <p className="text-[22px]">주문 예상 금액</p>
