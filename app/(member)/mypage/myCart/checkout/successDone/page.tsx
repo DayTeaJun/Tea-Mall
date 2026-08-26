@@ -8,6 +8,7 @@ import {
   StickyNote,
   Package,
   PackageX,
+  Ticket,
 } from "lucide-react";
 import { useGetOrderDetails } from "@/lib/queries/auth";
 import { toast } from "sonner";
@@ -105,6 +106,22 @@ export default function CheckoutDonePage() {
             <span className="font-normal">{order.request || "없음"}</span>
           </span>
         </div>
+
+        {order.coupon && (
+          <div className="flex items-center gap-2 text-gray-700 pt-2 border-t">
+            <Ticket size={16} className="text-blue-500" />
+            <span className="font-bold">
+              사용한 쿠폰 :{" "}
+              <span className="font-normal text-blue-600">
+                {order.coupon.name} (
+                {order.discount_amount
+                  ? `-${order.discount_amount.toLocaleString()}원 할인`
+                  : ""}
+                )
+              </span>
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-2 justify-between items-center">

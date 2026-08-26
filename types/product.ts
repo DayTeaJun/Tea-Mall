@@ -86,6 +86,13 @@ export interface OrderDetailsType {
   request: string | null;
   receiver: string | null;
   detail_address: string | null;
+  coupon_id: string | null;
+  discount_amount: number | null;
+  coupon: {
+    name: string;
+    discount_type: string;
+    discount_value: number;
+  } | null;
   order_items: OrderItemType[];
   user: OrderUserType | null;
 }

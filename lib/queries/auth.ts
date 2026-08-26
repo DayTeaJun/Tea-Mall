@@ -681,8 +681,9 @@ export async function getOrderDetails(orderId: string) {
     .from("orders")
     .select(
       `
-          id, created_at, request, receiver, detail_address,
+          id, created_at, request, receiver, detail_address, coupon_id, discount_amount,
           user: user_table (user_name, email),
+          coupon: coupons (name, discount_type, discount_value),
           order_items (
             id,
             quantity,
