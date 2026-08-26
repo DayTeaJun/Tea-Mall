@@ -416,7 +416,6 @@ export const uploadImageToStorageProfile = async (
   return publicUrl;
 };
 
-// 내 사용가능(다운로드 된) 쿠폰 조회
 interface UserCoupon {
   id: string;
   is_used: boolean;
@@ -432,6 +431,63 @@ interface UserCoupon {
   };
 }
 
+// 내 쿠폰 ID로 쿠폰 정보 조회
+export async function getMyCoupon(userId: string, userCouponId: string) {
+  const supabase = createBrowserSupabaseClient();
+
+  if (!userCouponId || userCouponId.trim() === "") {
+    return null;
+  }
+
+  if (!userId || userId.trim() === "") {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("user_coupons")
+    .select(
+      `
+      id,
+      is_used,
+      coupon:coupons (
+        id,
+        name,
+        discount_type,
+        discount_value,
+        min_order_price,
+        max_discount_price,
+        created_at,
+        expires_at
+      )
+    `,
+    )
+    .eq("id", userCouponId)
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("쿠폰 조회 실패:", error.message);
+    throw new Error("쿠폰 조회에 실패했습니다.");
+  }
+
+  return data as UserCoupon;
+}
+
+export function useGetMyCoupon(userId: string, userCouponId: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myCoupon", userId, userCouponId],
+    queryFn: () => getMyCoupon(userId, userCouponId),
+    enabled: !!userCouponId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+// 내 사용가능(다운로드 된) 쿠폰 조회
 export async function getMyAvailableCoupons(userId: string) {
   const supabase = createBrowserSupabaseClient();
 
@@ -478,7 +534,6 @@ export function useGetMyAvailableCoupons(userId: string) {
   };
 }
 
-// 1. 응답 데이터 타입 정의
 interface CouponResponse {
   success: boolean;
   message: string;

@@ -9,8 +9,8 @@ import Modal from "@/components/common/modal/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import AddressListModal from "@/components/common/Modals/Delivery/AddressModal";
-import { useGetDefaultAddress } from "@/lib/queries/auth";
+import AddressListModal from "@/components/common/modal/delivery/AddressModal";
+import { useGetDefaultAddress, useGetMyCoupon } from "@/lib/queries/auth";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -19,10 +19,18 @@ export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const itemIds = searchParams.getAll("itemIds");
+  const couponId = searchParams.get("couponId") ?? undefined;
+
+  const { data: selectedUserCoupon } = useGetMyCoupon(
+    user?.id || "",
+    couponId || "",
+  );
+  const selectedCoupon = selectedUserCoupon?.coupon;
 
   const { data: defaultAddress } = useGetDefaultAddress(user?.id || "");
 
   const { data: cartItems, isLoading } = useProductAllCart(user?.id ?? "");
+
   const selectedCartItems = useMemo(() => {
     return cartItems?.filter((item) => itemIds.includes(item.id)) ?? [];
   }, [cartItems, itemIds]);
@@ -31,6 +39,36 @@ export default function CheckoutPage() {
     (sum, item) => sum + (item.product?.price ?? 0) * item.quantity,
     0,
   );
+
+  const calculateDiscount = () => {
+    if (!selectedCoupon) return 0;
+
+    if (
+      selectedCoupon.min_order_price &&
+      selectedCoupon.min_order_price > 0 &&
+      totalPrice < selectedCoupon.min_order_price
+    ) {
+      return 0;
+    }
+
+    let discount = 0;
+    if (selectedCoupon.discount_type === "percentage") {
+      discount = (totalPrice * selectedCoupon.discount_value) / 100;
+      if (
+        selectedCoupon.max_discount_price &&
+        discount > selectedCoupon.max_discount_price
+      ) {
+        discount = selectedCoupon.max_discount_price;
+      }
+    } else {
+      discount = selectedCoupon.discount_value;
+    }
+
+    return Math.min(discount, totalPrice);
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalPrice = Math.max(0, totalPrice - discountAmount);
 
   const [request, setRequest] = useState(
     defaultAddress?.delivery_instruction || "",
@@ -67,6 +105,7 @@ export default function CheckoutPage() {
     sessionStorage.setItem("request", request);
     sessionStorage.setItem("receiver", defaultAddress?.receiver_name);
     sessionStorage.setItem("detailAddress", user.address);
+    sessionStorage.setItem("couponId", couponId ?? "");
 
     try {
       const tossPayments = await loadTossPayments(clientKey);
@@ -78,7 +117,7 @@ export default function CheckoutPage() {
         method: "CARD",
         amount: {
           currency: "KRW",
-          value: totalPrice,
+          value: finalPrice,
         },
         orderId: `order-${Date.now()}`,
         orderName: `${selectedCartItems[0]?.product?.name ?? "상품"} 외 ${
@@ -236,11 +275,19 @@ export default function CheckoutPage() {
             <span>총 상품 가격</span>
             <span>{totalPrice.toLocaleString()}원</span>
           </div>
+
+          {discountAmount > 0 && (
+            <div className="flex justify-between mb-2 text-sm text-red-500">
+              <span>쿠폰 할인 금액</span>
+              <span>- {discountAmount.toLocaleString()}원</span>
+            </div>
+          )}
+
           <div className="h-[1px] bg-gray-300 my-4" />
           <div className="flex flex-col text-sm font-bold mb-6">
             <span>총 결제 금액</span>
             <p className="ml-auto text-xl">
-              {totalPrice.toLocaleString()} <span className="text-sm">원</span>
+              {finalPrice.toLocaleString()} <span className="text-sm">원</span>
             </p>
           </div>
           <p className="text-[10px] text-gray-400 mb-2">
