@@ -20,6 +20,10 @@ export default function CheckoutDonePage() {
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
   const router = useRouter();
 
+  const totalAmount = order?.order_items.reduce(
+    (total: number, item: OrderItemType) => total + item.price * item.quantity,
+    0,
+  );
   if (!orderId) {
     toast.error("잘못된 접근입니다.");
     router.push("/");
@@ -109,10 +113,10 @@ export default function CheckoutDonePage() {
 
         {order.coupon && (
           <div className="flex items-center gap-2 text-gray-700 pt-2 border-t">
-            <Ticket size={16} className="text-blue-500" />
+            <Ticket size={16} className="text-gray-600" />
             <span className="font-bold">
               사용한 쿠폰 :{" "}
-              <span className="font-normal text-blue-600">
+              <span className="font-normal text-gray-600">
                 {order.coupon.name} (
                 {order.discount_amount
                   ? `-${order.discount_amount.toLocaleString()}원 할인`
@@ -124,23 +128,41 @@ export default function CheckoutDonePage() {
         )}
       </div>
 
-      <div className="flex gap-2 justify-between items-center">
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] sm:text-[14px]">총 주문 금액 : </span>
-          <span className="text-[16px] sm:text-[18px] font-bold ">
-            {order.order_items
-              .reduce(
-                (total: number, item: OrderItemType) =>
-                  total + item.price * item.quantity,
-                0,
-              )
-              .toLocaleString()}
-            원
+      <div className="mt-2 border-t border-gray-200 py-4 border-b bg-white flex flex-col gap-3">
+        <div className="flex justify-between items-center text-gray-500">
+          <span className="text-sm sm:text-base font-medium">총 상품 금액</span>
+          <span className="text-sm sm:text-base">
+            {totalAmount?.toLocaleString()}원
           </span>
         </div>
 
+        {order?.discount_amount ? (
+          <div className="flex justify-between items-center text-red-500">
+            <span className="text-sm sm:text-base font-medium">쿠폰 할인</span>
+            <span className="text-sm sm:text-base">
+              -{order.discount_amount.toLocaleString()}원
+            </span>
+          </div>
+        ) : null}
+
+        <div className="border-t border-gray-100 my-1"></div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-gray-800 text-base sm:text-lg">
+            총 결제 금액
+          </span>
+          <span className="text-xl sm:text-2xl font-extrabold text-gray-600 tracking-tight">
+            {(
+              Number(totalAmount) - (order?.discount_amount || 0)
+            ).toLocaleString()}
+            <span className="text-base font-bold ml-1">원</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-2 mb-10">
         <button
-          className="text-[12px] sm:text-[16px] px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
+          className="text-sm sm:text-base font-semibold px-8 py-3 rounded-md text-white bg-green-500 hover:bg-green-600 transition shadow-sm"
           onClick={() => router.push("/mypage/orderList?page=1")}
         >
           주문 내역 보기

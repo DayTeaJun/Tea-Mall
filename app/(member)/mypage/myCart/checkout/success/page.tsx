@@ -67,6 +67,24 @@ export default function CheckoutSuccessPage() {
         }
 
         // 3. 주문(Orders) 테이블 저장
+        const items = JSON.parse(
+          sessionStorage.getItem("checkoutItems") ?? "[]",
+        );
+
+        if (!Array.isArray(items) || items.length === 0) {
+          throw new Error("상품 정보가 비어 있습니다.");
+        }
+
+        const totalProductPrice = items.reduce(
+          (sum, item) => sum + (item.product?.price ?? 0) * item.quantity,
+          0,
+        );
+
+        const calculatedDiscountAmount = Math.max(
+          0,
+          totalProductPrice - amount,
+        );
+
         const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
           .insert({
@@ -75,6 +93,7 @@ export default function CheckoutSuccessPage() {
             receiver,
             detail_address: detailAddress,
             coupon_id: masterCouponId,
+            discount_amount: calculatedDiscountAmount,
           })
           .select("id")
           .single();
@@ -103,13 +122,6 @@ export default function CheckoutSuccessPage() {
         }
 
         // 5. 주문 상품(Order Items) 저장
-        const items = JSON.parse(
-          sessionStorage.getItem("checkoutItems") ?? "[]",
-        );
-        if (!Array.isArray(items) || items.length === 0) {
-          throw new Error("상품 정보가 비어 있습니다.");
-        }
-
         function mergeItems(items: CheckoutItem[]): CheckoutItem[] {
           const map = new Map<string, CheckoutItem>();
           for (const item of items) {
