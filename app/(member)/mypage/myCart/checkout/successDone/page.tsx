@@ -162,7 +162,7 @@ export default function CheckoutDonePage() {
 
       <div className="flex justify-end mt-2 mb-10">
         <button
-          className="text-sm sm:text-base font-semibold px-8 py-3 rounded-md text-white bg-green-500 hover:bg-green-600 transition shadow-sm"
+          className="text-sm sm:text-14 font-semibold px-6 py-2 text-white bg-gray-700"
           onClick={() => router.push("/mypage/orderList?page=1")}
         >
           주문 내역 보기
