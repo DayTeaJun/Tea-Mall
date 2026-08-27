@@ -50,6 +50,22 @@ export default function CheckoutSuccessPage() {
           throw new Error(`결제 인증 실패: ${result.message}`);
         }
 
+        let masterCouponId = null;
+
+        // userCouponId가 있다면, 원본 쿠폰 ID(coupon_id)를 찾아오기
+        if (userCouponId && userCouponId !== "") {
+          const { data: userCouponData, error: userCouponQueryError } =
+            await supabase
+              .from("user_coupons")
+              .select("coupon_id")
+              .eq("id", userCouponId)
+              .single();
+
+          if (!userCouponQueryError && userCouponData) {
+            masterCouponId = userCouponData.coupon_id; // orders 테이블이 요구하는 진짜 마스터 쿠폰 ID
+          }
+        }
+
         // 3. 주문(Orders) 테이블 저장
         const { data: orderInsert, error: orderError } = await supabase
           .from("orders")
@@ -58,12 +74,14 @@ export default function CheckoutSuccessPage() {
             request,
             receiver,
             detail_address: detailAddress,
+            coupon_id: masterCouponId,
           })
           .select("id")
           .single();
 
         if (orderError || !orderInsert) {
-          throw new Error("주문 저장에 실패하였습니다.");
+          console.error("🔥 Supabase 주문 저장 상세 에러:", orderError);
+          throw new Error(`주문 저장에 실패하였습니다: ${orderError?.message}`);
         }
 
         const order_id = orderInsert.id;
