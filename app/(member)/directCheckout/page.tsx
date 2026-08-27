@@ -9,8 +9,11 @@ import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useGetProductDetail } from "@/lib/queries/products";
-import AddressListModal from "@/components/common/Modals/Delivery/AddressModal";
-import { useGetDefaultAddress } from "@/lib/queries/auth";
+import {
+  useGetDefaultAddress,
+  useGetMyAvailableCoupons,
+} from "@/lib/queries/auth";
+import AddressListModal from "@/components/common/modal/delivery/AddressModal";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
@@ -40,6 +43,15 @@ export default function CheckoutPage() {
 
   const { data: product, isLoading } = useGetProductDetail(productIdFromParam);
 
+  const { data: coupons } = useGetMyAvailableCoupons(user?.id || "");
+
+  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
+
+  const selectedUserCoupon = coupons?.find(
+    (item) => item.id === selectedCouponId,
+  );
+  const rawSelectedCoupon = selectedUserCoupon?.coupon;
+
   const selectedItem: SelectedItem | null = useMemo(() => {
     if (!product) return null;
     return {
@@ -64,6 +76,46 @@ export default function CheckoutPage() {
         : selectedItem.quantity)
     );
   }, [selectedItem]);
+
+  const isSelectedCouponInvalid =
+    rawSelectedCoupon &&
+    rawSelectedCoupon.min_order_price &&
+    rawSelectedCoupon.min_order_price > 0 &&
+    totalPrice < rawSelectedCoupon.min_order_price;
+
+  const selectedCoupon = isSelectedCouponInvalid ? null : rawSelectedCoupon;
+  const effectiveCouponId = isSelectedCouponInvalid ? null : selectedCouponId;
+
+  const calculateDiscount = () => {
+    if (!selectedCoupon) return 0;
+
+    if (
+      selectedCoupon.min_order_price &&
+      selectedCoupon.min_order_price > 0 &&
+      totalPrice < selectedCoupon.min_order_price
+    ) {
+      return 0;
+    }
+
+    let discount = 0;
+    if (selectedCoupon.discount_type === "percentage") {
+      discount = (totalPrice * selectedCoupon.discount_value) / 100;
+      // 최대 할인 금액 제한 적용
+      if (
+        selectedCoupon.max_discount_price &&
+        discount > selectedCoupon.max_discount_price
+      ) {
+        discount = selectedCoupon.max_discount_price;
+      }
+    } else {
+      discount = selectedCoupon.discount_value;
+    }
+
+    return Math.min(discount, totalPrice);
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalPrice = Math.max(0, totalPrice - discountAmount);
 
   const orderName = useMemo(() => {
     if (!selectedItem?.product) return "상품";
@@ -105,6 +157,10 @@ export default function CheckoutPage() {
     sessionStorage.setItem("request", request);
     sessionStorage.setItem("receiver", defaultAddress.receiver_name);
     sessionStorage.setItem("detailAddress", user.address);
+
+    if (effectiveCouponId) {
+      sessionStorage.setItem("couponId", effectiveCouponId);
+    }
 
     const customerMobile = (
       defaultAddress.receiver_phone ?? "01000000000"
@@ -256,6 +312,112 @@ export default function CheckoutPage() {
             </h2>
             <div className="text-sm text-gray-600">카드 결제 (테스트용)</div>
           </section>
+
+          <div className="flex flex-col">
+            <div className="border-t p-3">
+              <h2 className="font-bold">할인쿠폰 적용</h2>
+            </div>
+
+            <ul className="flex flex-col">
+              {coupons?.map((item) => {
+                const coupon = item.coupon;
+                if (!coupon) return null;
+
+                const isMinPriceNotMet =
+                  coupon.min_order_price &&
+                  coupon.min_order_price > 0 &&
+                  totalPrice < coupon.min_order_price;
+
+                return (
+                  <label
+                    key={item.id}
+                    className={`flex items-center justify-between p-4 border-b border-gray-200 transition ${
+                      isMinPriceNotMet
+                        ? "opacity-50 cursor-not-allowed"
+                        : `cursor-pointer hover:bg-gray-50 ${
+                            effectiveCouponId === item.id
+                              ? "bg-gray-50"
+                              : "bg-white"
+                          }`
+                    } first:border-t`}
+                  >
+                    <div className="w-full flex items-center gap-4">
+                      <input
+                        type="radio"
+                        name="selectedCoupon"
+                        value={item.id}
+                        checked={effectiveCouponId === item.id}
+                        onChange={() => {
+                          if (isMinPriceNotMet) {
+                            toast.error(
+                              `최소 주문 금액(${coupon.min_order_price?.toLocaleString()}원)을 채워야 사용 가능합니다.`,
+                            );
+                            return;
+                          }
+                          setSelectedCouponId(item.id);
+                        }}
+                        disabled={Boolean(isMinPriceNotMet)}
+                        className="accent-black"
+                      />
+                      <div className="w-full flex flex-col gap-1.5">
+                        <div className="w-full flex items-center justify-between">
+                          <span className="font-bold text-sm text-gray-900">
+                            {coupon.name}
+                          </span>
+                          <span className="font-bold text-xl text-gray-900">
+                            {coupon.discount_type === "percentage"
+                              ? `${coupon.discount_value}%`
+                              : `${coupon.discount_value.toLocaleString()}원`}
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-gray-500 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {coupon.min_order_price &&
+                              coupon.min_order_price > 0 && (
+                                <span>
+                                  {coupon.min_order_price.toLocaleString()}원
+                                  이상
+                                </span>
+                              )}
+                            {coupon.max_discount_price && (
+                              <span>
+                                (최대{" "}
+                                {coupon.max_discount_price.toLocaleString()}원
+                                할인)
+                              </span>
+                            )}
+                          </div>
+                          {coupon.expires_at && (
+                            <span className="text-gray-400">
+                              ~{" "}
+                              {new Date(coupon.expires_at).toLocaleDateString()}{" "}
+                              까지
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+
+              <label
+                className={`flex items-center gap-4 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${effectiveCouponId === null ? "bg-gray-50" : "bg-white"}`}
+              >
+                <input
+                  type="radio"
+                  name="selectedCoupon"
+                  checked={effectiveCouponId === null}
+                  onChange={() => setSelectedCouponId(null)}
+                  className="accent-black"
+                />
+                <span className="text-sm text-gray-700 font-medium">
+                  쿠폰 사용 안 함
+                </span>
+              </label>
+            </ul>
+          </div>
         </div>
 
         <div className="border p-6 bg-white h-fit sm:mt-0 mt-4">
@@ -264,11 +426,19 @@ export default function CheckoutPage() {
             <span>총 상품 가격</span>
             <span>{totalPrice.toLocaleString()}원</span>
           </div>
+
+          {discountAmount > 0 && (
+            <div className="flex justify-between mb-2 text-sm text-red-500">
+              <span>쿠폰 할인 금액</span>
+              <span>- {discountAmount.toLocaleString()}원</span>
+            </div>
+          )}
+
           <div className="h-[1px] bg-gray-300 my-4" />
           <div className="flex flex-col text-sm font-bold mb-6">
             <span>총 결제 금액</span>
             <p className="ml-auto text-xl">
-              {totalPrice.toLocaleString()} <span className="text-sm">원</span>
+              {finalPrice.toLocaleString()} <span className="text-sm">원</span>
             </p>
           </div>
           <p className="text-[10px] text-gray-400 mb-2">
