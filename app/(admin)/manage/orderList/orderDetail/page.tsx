@@ -9,6 +9,7 @@ import {
   StickyNote,
   Package,
   PackageX,
+  Ticket,
 } from "lucide-react";
 import { Dropdown } from "@/components/common/Dropdown";
 import { useDeleteOrderMutation, useGetOrderDetails } from "@/lib/queries/auth";
@@ -39,6 +40,11 @@ export default function OrderListPage() {
     "배송완료",
     "취소됨",
   ];
+
+  const totalAmount = order?.order_items.reduce(
+    (total: number, item: OrderItemType) => total + item.price * item.quantity,
+    0,
+  );
 
   const handleStatusChange = async (orderItemId: string, status: string) => {
     try {
@@ -194,20 +200,54 @@ export default function OrderListPage() {
             <span className="font-normal">{order.request || "없음"}</span>
           </span>
         </div>
+
+        {order.coupon && (
+          <div className="flex items-center gap-2 text-gray-700 pt-2 border-t">
+            <Ticket size={16} className="text-gray-600" />
+            <span className="font-bold">
+              사용한 쿠폰 :{" "}
+              <span className="font-normal text-gray-600">
+                {order.coupon.name} (
+                {order.discount_amount
+                  ? `-${order.discount_amount.toLocaleString()}원 할인`
+                  : ""}
+                )
+              </span>
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center gap-2 justify-end">
-        <span className="text-[16px]">총 주문 금액 : </span>
-        <span className="text-[20px] font-bold ">
-          {order.order_items
-            .reduce(
-              (total: number, item: OrderItemType) =>
-                total + item.price * item.quantity,
-              0,
-            )
-            .toLocaleString()}
-          원
-        </span>
+      <div className="border-t border-gray-200 py-4 bg-white flex flex-col gap-3">
+        <div className="flex justify-between items-center text-gray-500">
+          <span className="text-sm sm:text-base font-medium">총 상품 금액</span>
+          <span className="text-sm sm:text-base">
+            {totalAmount?.toLocaleString()}원
+          </span>
+        </div>
+
+        {order?.discount_amount ? (
+          <div className="flex justify-between items-center text-red-500">
+            <span className="text-sm sm:text-base font-medium">쿠폰 할인</span>
+            <span className="text-sm sm:text-base">
+              -{order.discount_amount.toLocaleString()}원
+            </span>
+          </div>
+        ) : null}
+
+        <div className="border-t border-gray-100 my-1"></div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-gray-800 text-base sm:text-lg">
+            총 결제 금액
+          </span>
+          <span className="text-xl sm:text-2xl font-extrabold text-gray-600 tracking-tight">
+            {(
+              Number(totalAmount) - (order?.discount_amount || 0)
+            ).toLocaleString()}
+            <span className="text-base font-bold ml-1">원</span>
+          </span>
+        </div>
       </div>
 
       <Modal
