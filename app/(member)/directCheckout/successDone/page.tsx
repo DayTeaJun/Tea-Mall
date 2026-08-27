@@ -8,6 +8,7 @@ import {
   StickyNote,
   Package,
   PackageX,
+  Ticket,
 } from "lucide-react";
 import { useGetOrderDetails } from "@/lib/queries/auth";
 import { toast } from "sonner";
@@ -18,6 +19,11 @@ export default function CheckoutDonePage() {
   const orderId = searchParams.get("orderId");
   const { data: order, isLoading } = useGetOrderDetails(orderId || "");
   const router = useRouter();
+
+  const totalAmount = order?.order_items.reduce(
+    (total: number, item: OrderItemType) => total + item.price * item.quantity,
+    0,
+  );
 
   if (!orderId) {
     toast.error("잘못된 접근입니다.");
@@ -49,8 +55,8 @@ export default function CheckoutDonePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <h1 className="text-xl font-bold mx-auto">주문 완료</h1>
+    <div className="max-w-7xl mx-auto flex flex-col gap-4">
+      <h1 className="text-xl font-bold -mb-2">주문 완료</h1>
       <p className="text-sm text-gray-500">
         주문일: {new Date(order.created_at!).toLocaleString()}
       </p>
@@ -105,25 +111,59 @@ export default function CheckoutDonePage() {
             <span className="font-normal">{order.request || "없음"}</span>
           </span>
         </div>
+
+        {order.coupon && (
+          <div className="flex items-center gap-2 text-gray-700 pt-2 border-t">
+            <Ticket size={16} className="text-gray-600" />
+            <span className="font-bold">
+              사용한 쿠폰 :{" "}
+              <span className="font-normal text-gray-600">
+                {order.coupon.name} (
+                {order.discount_amount
+                  ? `-${order.discount_amount.toLocaleString()}원 할인`
+                  : ""}
+                )
+              </span>
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-2 justify-between items-center">
-        <div className="flex items-center gap-2">
-          <span className="text-[14px]">총 주문 금액 : </span>
-          <span className="text-[18px] font-bold ">
-            {order.order_items
-              .reduce(
-                (total: number, item: OrderItemType) =>
-                  total + item.price * item.quantity,
-                0,
-              )
-              .toLocaleString()}
-            원
+      <div className="mt-2 border-t border-gray-200 py-4 border-b bg-white flex flex-col gap-3">
+        <div className="flex justify-between items-center text-gray-500">
+          <span className="text-sm sm:text-base font-medium">총 상품 금액</span>
+          <span className="text-sm sm:text-base">
+            {totalAmount?.toLocaleString()}원
           </span>
         </div>
 
+        {order?.discount_amount ? (
+          <div className="flex justify-between items-center text-red-500">
+            <span className="text-sm sm:text-base font-medium">쿠폰 할인</span>
+            <span className="text-sm sm:text-base">
+              -{order.discount_amount.toLocaleString()}원
+            </span>
+          </div>
+        ) : null}
+
+        <div className="border-t border-gray-100 my-1"></div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-gray-800 text-base sm:text-lg">
+            총 결제 금액
+          </span>
+          <span className="text-xl sm:text-2xl font-extrabold text-gray-600 tracking-tight">
+            {(
+              Number(totalAmount) - (order?.discount_amount || 0)
+            ).toLocaleString()}
+            <span className="text-base font-bold ml-1">원</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-2 mb-10">
         <button
-          className="px-6 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition"
+          className="text-sm sm:text-14 font-semibold px-6 py-2 text-white bg-gray-700"
           onClick={() => router.push("/mypage/orderList?page=1")}
         >
           주문 내역 보기

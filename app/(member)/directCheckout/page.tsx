@@ -176,7 +176,7 @@ export default function CheckoutPage() {
         method: "CARD",
         amount: {
           currency: "KRW",
-          value: totalPrice,
+          value: finalPrice,
         },
         orderId: `order-${Date.now()}`,
         orderName,
