@@ -70,13 +70,24 @@ export default function MyCartPage() {
   const selectedUserCoupon = coupons?.find(
     (item) => item.id === selectedCouponId,
   );
-  const selectedCoupon = selectedUserCoupon?.coupon;
+  const rawSelectedCoupon = selectedUserCoupon?.coupon;
+
+  // [파생값 방식 적용] 최소 주문 금액을 충족하지 않으면 유효하지 않은 쿠폰으로 간주
+  const isSelectedCouponInvalid =
+    rawSelectedCoupon &&
+    rawSelectedCoupon.min_order_price &&
+    rawSelectedCoupon.min_order_price > 0 &&
+    totalPrice < rawSelectedCoupon.min_order_price;
+
+  // 최종 유효한 쿠폰 및 쿠폰 ID 계산 (조건 미달 시 자동으로 null 처리됨)
+  const selectedCoupon = isSelectedCouponInvalid ? null : rawSelectedCoupon;
+  const effectiveCouponId = isSelectedCouponInvalid ? null : selectedCouponId;
 
   // 쿠폰 할인 금액 계산 로직
   const calculateDiscount = () => {
     if (!selectedCoupon) return 0;
 
-    // 최소 주문 금액 조건 확인
+    // 최소 주문 금액 조건 확인 (이미 위에서 거걸러지지만 안전장치로 유지)
     if (
       selectedCoupon.min_order_price &&
       selectedCoupon.min_order_price > 0 &&
@@ -114,8 +125,10 @@ export default function MyCartPage() {
 
     const query = new URLSearchParams();
     selectedItems.forEach((id) => query.append("itemIds", id));
-    if (selectedCouponId) {
-      query.append("couponId", selectedCouponId);
+
+    // 유효한 effectiveCouponId만 쿼리에 포함
+    if (effectiveCouponId) {
+      query.append("couponId", effectiveCouponId);
     }
     router.push(`/mypage/myCart/checkout?${query.toString()}`);
   };
@@ -312,28 +325,50 @@ export default function MyCartPage() {
                 })}
               </ul>
 
-              <div className="flex flex-col gap-2">
-                <div className="border-t p-3 bg-gray-50">
+              <div className="flex flex-col">
+                <div className="border-t p-3">
                   <h2 className="font-bold">할인쿠폰 적용</h2>
                 </div>
 
                 <ul className="flex flex-col">
-                  {coupons?.map((item, idx) => {
+                  {coupons?.map((item) => {
                     const coupon = item.coupon;
                     if (!coupon) return null;
+
+                    const isMinPriceNotMet =
+                      coupon.min_order_price &&
+                      coupon.min_order_price > 0 &&
+                      totalPrice < coupon.min_order_price;
 
                     return (
                       <label
                         key={item.id}
-                        className={`flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${selectedCouponId === item.id ? "bg-gray-50" : "bg-white"} ${idx === 0 ? "border-t" : ""}`}
+                        className={`flex items-center justify-between p-4 border-b border-gray-200 transition ${
+                          isMinPriceNotMet
+                            ? "opacity-50 cursor-not-allowed"
+                            : `cursor-pointer hover:bg-gray-50 ${
+                                effectiveCouponId === item.id
+                                  ? "bg-gray-50"
+                                  : "bg-white"
+                              }`
+                        } first:border-t`}
                       >
                         <div className="w-full flex items-center gap-4">
                           <input
                             type="radio"
                             name="selectedCoupon"
                             value={item.id}
-                            checked={selectedCouponId === item.id}
-                            onChange={() => setSelectedCouponId(item.id)}
+                            checked={effectiveCouponId === item.id}
+                            onChange={() => {
+                              if (isMinPriceNotMet) {
+                                toast.error(
+                                  `최소 주문 금액(${coupon.min_order_price?.toLocaleString()}원)을 채워야 사용 가능합니다.`,
+                                );
+                                return;
+                              }
+                              setSelectedCouponId(item.id);
+                            }}
+                            disabled={Boolean(isMinPriceNotMet)}
                             className="accent-black"
                           />
                           <div className="w-full flex flex-col gap-1.5">
@@ -341,7 +376,7 @@ export default function MyCartPage() {
                               <span className="font-bold text-sm text-gray-900">
                                 {coupon.name}
                               </span>
-                              <span className="font-bold text-xl text-gray-600">
+                              <span className="font-bold text-xl text-gray-900">
                                 {coupon.discount_type === "percentage"
                                   ? `${coupon.discount_value}%`
                                   : `${coupon.discount_value.toLocaleString()}원`}
@@ -382,12 +417,13 @@ export default function MyCartPage() {
                   })}
 
                   <label
-                    className={`flex items-center gap-4 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${selectedCouponId === null ? "bg-gray-50" : "bg-white"}`}
+                    className={`flex items-center gap-4 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${effectiveCouponId === null ? "bg-gray-50" : "bg-white"}`}
                   >
                     <input
                       type="radio"
                       name="selectedCoupon"
-                      checked={selectedCouponId === null}
+                      // 💡 effectiveCouponId가 null이면 '사용 안 함' 라디오가 자동 체크됨
+                      checked={effectiveCouponId === null}
                       onChange={() => setSelectedCouponId(null)}
                       className="accent-black"
                     />
