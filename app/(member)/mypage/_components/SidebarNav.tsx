@@ -79,7 +79,7 @@ export default function SidebarNav({ user }: Props) {
 
         <ul
           className={`absolute mt-2 w-full bg-white z-50 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-            open ? "max-h-96 border-b border-t" : "max-h-0"
+            open ? "border-b border-t" : "max-h-0"
           }`}
         >
           {menu.map(({ name, href, currentPage }) => {
@@ -125,7 +125,7 @@ export default function SidebarNav({ user }: Props) {
           <div className="h-[12px] pb-2" />
         )}
 
-        <ul className="flex flex-col gap-4 md:h-[50vh]">
+        <ul className="flex flex-col gap-4 md:min-h-[50vh]">
           {menu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
             return (

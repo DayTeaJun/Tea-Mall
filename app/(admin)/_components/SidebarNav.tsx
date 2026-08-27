@@ -63,18 +63,18 @@ export default function SidebarNav() {
 
         <ul
           className={`absolute mt-2 w-full bg-white z-50 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-            open ? "max-h-96 border-b border-t" : "max-h-0"
+            open ? "border-b border-t" : "max-h-0"
           }`}
         >
           {menu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
             return (
-              <li key={href}>
+              <li key={href} className="border-b last:border-b-0">
                 <Link
                   href={href}
                   onClick={() => setOpen(false)}
-                  className={`block px-4 py-2 transition-colors duration-150 ${
+                  className={`block px-4 py-3 transition-colors duration-150 ${
                     isActive
                       ? "bg-gray-800 text-white font-medium"
                       : "text-gray-700 hover:bg-gray-100"
@@ -86,10 +86,10 @@ export default function SidebarNav() {
             );
           })}
 
-          <div className="py-4 border-t">
+          <div className="border-b last:border-b-0 py-3">
             <Link
               href="/mypage/profile"
-              className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
+              className="text-xs text-gray-500 flex items-center gap-2 hover:text-red-400 px-1"
             >
               <User size={14} />내 정보 메뉴 이동
             </Link>
@@ -102,7 +102,7 @@ export default function SidebarNav() {
           <UserCog size={16} />
           관리자 전용
         </p>
-        <ul className="flex flex-col gap-4 h-[50vh]">
+        <ul className="flex flex-col gap-4 min-h-[50vh]">
           {menu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
