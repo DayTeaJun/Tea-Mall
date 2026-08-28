@@ -419,6 +419,7 @@ export const uploadImageToStorageProfile = async (
 interface UserCoupon {
   id: string;
   is_used: boolean;
+  used_at?: string;
   coupon: {
     id: string;
     name: string;
@@ -524,6 +525,52 @@ export function useGetMyAvailableCoupons(userId: string) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["myAvailableCoupons", userId],
     queryFn: () => getMyAvailableCoupons(userId),
+    enabled: !!userId,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
+export async function getMyUsedCoupons(userId: string) {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("user_coupons")
+    .select(
+      `
+        id,
+        is_used,
+        used_at,
+        coupon:coupons (
+          id,
+          name,
+          discount_type,
+          discount_value,
+          min_order_price,
+          max_discount_price,
+          created_at,
+        )
+      `,
+    )
+    .eq("user_id", userId)
+    .eq("is_used", true);
+
+  if (error) {
+    console.error("쿠폰 조회 실패:", error.message);
+    throw new Error("쿠폰 조회에 실패했습니다.");
+  }
+
+  return data as UserCoupon[];
+}
+
+export function useGetMyUsedCoupons(userId: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["myUsedCoupons", userId],
+    queryFn: () => getMyUsedCoupons(userId),
     enabled: !!userId,
   });
 

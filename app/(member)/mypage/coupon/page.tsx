@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import AvailableCoupons from "./_components/AvailableCoupons";
 import CouponDownload from "./_components/CouponDownload";
+import UsedCoupons from "./_components/UsedCoupons";
 
 export default function CouponPage() {
   const [activeTab, setActiveTab] = useState<"available" | "used">("available");
@@ -39,7 +40,7 @@ export default function CouponPage() {
       </div>
 
       <div className="mt-4">
-        {activeTab === "available" ? <AvailableCoupons /> : <></>}
+        {activeTab === "available" ? <AvailableCoupons /> : <UsedCoupons />}
       </div>
     </section>
   );
