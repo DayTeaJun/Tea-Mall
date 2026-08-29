@@ -2,6 +2,7 @@
 
 import { useGetMyUsedCoupons } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { formatWithoutYear } from "@/lib/utils";
 
 export default function UsedCoupons() {
   const { user } = useAuthStore();
@@ -29,15 +30,14 @@ export default function UsedCoupons() {
         return (
           <div
             key={item.id}
-            className="border border-gray-200 p-6 py-8 flex items-center justify-between bg-gray-50 opacity-80 shadow-sm relative overflow-hidden"
+            className="border border-gray-200 p-2 py-4 sm:p-6 sm:py-8 flex items-center justify-between bg-gray-50 opacity-80 shadow-sm relative overflow-hidden"
           >
-            {/* 💡 우측 상단이나 구원에 '사용완료' 워터마크 또는 라벨 느낌 추가 */}
             <div className="absolute top-0 right-0 bg-gray-400 text-white text-[10px] font-bold px-3 py-1">
               사용완료
             </div>
 
             <div className="w-[38%] text-center border-r border-dashed border-gray-300 pr-4">
-              <span className="text-4xl sm:text-5xl font-black tracking-tight text-gray-400">
+              <span className="text-3xl sm:text-5xl font-black tracking-tight text-gray-400">
                 {coupon.discount_type === "percentage"
                   ? `${coupon.discount_value}%`
                   : `${coupon.discount_value.toLocaleString()}`}
@@ -47,13 +47,13 @@ export default function UsedCoupons() {
             <div className="w-[62%] pl-4 flex flex-col items-start gap-1.5 relative">
               <div className="relative mb-1">
                 <p className="text-[11px] px-2 py-1 bg-gray-200 text-gray-600 w-fit font-medium">
-                  {new Date(coupon.created_at).toLocaleDateString("ko-KR")}
+                  {formatWithoutYear(coupon.created_at)}
                   {" ~ "}
-                  {new Date(coupon.expires_at).toLocaleDateString("ko-KR")}
+                  {formatWithoutYear(coupon.expires_at)}
                 </p>
               </div>
 
-              <h3 className="font-bold text-sm sm:text-base text-gray-600 line-through">
+              <h3 className="font-bold text-12 sm:text-base text-gray-600 line-through">
                 {coupon.name}
               </h3>
 
@@ -65,7 +65,7 @@ export default function UsedCoupons() {
               </p>
 
               {item.used_at && (
-                <p className="text-[11px] text-gray-400 mt-1">
+                <p className="text-[11px] text-gray-400">
                   사용일: {new Date(item.used_at).toLocaleDateString("ko-KR")}
                 </p>
               )}

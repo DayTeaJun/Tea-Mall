@@ -35,7 +35,7 @@ export default function CouponPage() {
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
-          사용한 쿠폰 / 만료된 쿠폰
+          사용 / 만료된 쿠폰
         </button>
       </div>
 

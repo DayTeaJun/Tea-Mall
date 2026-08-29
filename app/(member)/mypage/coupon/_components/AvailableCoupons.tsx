@@ -2,26 +2,12 @@
 
 import { useGetMyAvailableCoupons } from "@/lib/queries/auth";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { calculateDday, formatWithoutYear } from "@/lib/utils";
 
 export default function AvailableCoupons() {
   const { user } = useAuthStore();
 
   const { data: coupons, isLoading } = useGetMyAvailableCoupons(user?.id || "");
-
-  const calculateDday = (expiresAt: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const expiryDate = new Date(expiresAt);
-    expiryDate.setHours(0, 0, 0, 0);
-
-    const diffTime = expiryDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "D-DAY";
-    if (diffDays < 0) return "기간만료";
-    return `D-${diffDays}`;
-  };
 
   if (isLoading) {
     return (
@@ -48,10 +34,10 @@ export default function AvailableCoupons() {
         return (
           <div
             key={item.id}
-            className="border border-gray-300 p-6 py-8 flex items-center justify-between bg-white shadow"
+            className="border border-gray-200 p-2 py-8 sm:p-6 sm:py-8 flex items-center justify-between bg-gray-50 opacity-80 shadow-sm relative overflow-hidden"
           >
-            <div className="w-[38%] text-center border-r border-dashed border-gray-500 pr-4">
-              <span className="text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
+            <div className="w-[38%] text-center border-r border-dashed border-gray-300 pr-4">
+              <span className="text-3xl sm:text-5xl font-black tracking-tight text-gray-900">
                 {coupon.discount_type === "percentage"
                   ? `${coupon.discount_value}%`
                   : `${coupon.discount_value.toLocaleString()}`}
@@ -65,13 +51,13 @@ export default function AvailableCoupons() {
                 </span>
 
                 <p className="text-[11px] px-2 py-1 bg-black text-white w-fit font-medium">
-                  {new Date(coupon.created_at).toLocaleDateString("ko-KR")}
+                  {formatWithoutYear(coupon.created_at)}
                   {" ~ "}
-                  {new Date(coupon.expires_at).toLocaleDateString("ko-KR")}
+                  {formatWithoutYear(coupon.expires_at)}
                 </p>
               </div>
 
-              <h3 className="font-bold text-sm sm:text-base text-gray-900">
+              <h3 className="font-bold text-12 sm:text-base text-gray-900">
                 {coupon.name}
               </h3>
 

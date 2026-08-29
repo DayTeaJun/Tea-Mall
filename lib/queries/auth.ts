@@ -553,6 +553,7 @@ export async function getMyUsedCoupons(userId: string) {
           min_order_price,
           max_discount_price,
           created_at,
+          expires_at
         )
       `,
     )
