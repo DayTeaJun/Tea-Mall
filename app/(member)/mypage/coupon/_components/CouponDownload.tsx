@@ -29,12 +29,11 @@ export default function CouponDownload() {
   return (
     <>
       <button
-        onClick={() => setIsModal(true)}
-        className="flex items-center gap-1.5 border-2 p-1.5 px-2 border-green-400 text-sm hover:bg-green-100 transition-colors rounded"
         type="button"
+        onClick={() => setIsModal(true)}
+        className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white bg-gray-700 rounded-full px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-gray-800 transition-colors"
       >
-        <Plus size={18} />
-        쿠폰등록
+        <Plus size={16} /> 쿠폰 등록
       </button>
 
       {isModal && (
