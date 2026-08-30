@@ -62,6 +62,7 @@ export default function SidebarNav() {
         </div>
 
         <ul
+          id="mypage-nav-list"
           className={`absolute mt-2 w-full bg-white z-50 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
             open ? "border-b border-t" : "max-h-0"
           }`}
@@ -102,17 +103,47 @@ export default function SidebarNav() {
           <UserCog size={16} />
           관리자 전용
         </p>
-        <ul className="flex flex-col gap-4 min-h-[50vh]">
-          {menu.map(({ name, href, currentPage }) => {
+
+        <ul className="flex flex-col gap-1.5 mt-5">
+          <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
+            상품 관리
+          </span>
+          {menu.slice(0, 3).map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
             return (
               <li key={href}>
                 <Link
                   href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 ${
+                  className={`block px-4 py-2 transition-colors duration-150 rounded-md ${
                     isActive
-                      ? "bg-gray-800 text-white font-medium"
+                      ? "bg-gray-600 text-white font-medium"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {name}
+                </Link>
+              </li>
+            );
+          })}
+
+          <div className="my-3 px-2">
+            <div className="w-full border-t border-dashed border-gray-300" />
+          </div>
+
+          <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
+            고객 및 주문
+          </span>
+          {menu.slice(3).map(({ name, href, currentPage }) => {
+            const isActive = pathname.startsWith(currentPage);
+
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`block px-4 py-2 transition-colors duration-150 rounded-md ${
+                    isActive
+                      ? "bg-gray-600 text-white font-medium"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -123,10 +154,10 @@ export default function SidebarNav() {
           })}
         </ul>
 
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-6 pt-4 border-t">
           <Link
             href="/mypage/profile"
-            className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 hover:text-red-400"
+            className="text-xs text-gray-500 uppercase flex items-center gap-2 hover:text-red-400 px-2"
           >
             <User size={14} />내 정보 메뉴 이동
           </Link>
