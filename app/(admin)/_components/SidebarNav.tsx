@@ -115,7 +115,7 @@ export default function SidebarNav() {
               <li key={href}>
                 <Link
                   href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 rounded-md ${
+                  className={`block px-4 py-2 transition-colors duration-150  ${
                     isActive
                       ? "bg-gray-600 text-white font-medium"
                       : "text-gray-700 hover:bg-gray-100"
@@ -141,7 +141,7 @@ export default function SidebarNav() {
               <li key={href}>
                 <Link
                   href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 rounded-md ${
+                  className={`block px-4 py-2 transition-colors duration-150  ${
                     isActive
                       ? "bg-gray-600 text-white font-medium"
                       : "text-gray-700 hover:bg-gray-100"
