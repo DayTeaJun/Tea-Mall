@@ -372,18 +372,19 @@ export default function MyCartPage() {
                             className="accent-black"
                           />
                           <div className="w-full flex flex-col gap-1.5">
-                            <div className="w-full flex items-center justify-between">
-                              <span className="font-bold text-sm text-gray-900">
-                                {coupon.name}
-                              </span>
+                            <div className="w-full flex flex-col gap-2">
                               <span className="font-bold text-xl text-gray-900">
                                 {coupon.discount_type === "percentage"
-                                  ? `${coupon.discount_value}%`
-                                  : `${coupon.discount_value.toLocaleString()}원`}
+                                  ? `${coupon.discount_value}% 할인`
+                                  : `${coupon.discount_value.toLocaleString()}원 할인`}
+                              </span>
+
+                              <span className="text-sm text-gray-500">
+                                {coupon.name}
                               </span>
                             </div>
 
-                            <div className="text-xs text-gray-500 flex items-center justify-between">
+                            <div className="text-xs text-gray-500 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 justify-between">
                               <div className="flex items-center gap-2">
                                 {coupon.min_order_price &&
                                   coupon.min_order_price > 0 && (
@@ -422,7 +423,6 @@ export default function MyCartPage() {
                     <input
                       type="radio"
                       name="selectedCoupon"
-                      // 💡 effectiveCouponId가 null이면 '사용 안 함' 라디오가 자동 체크됨
                       checked={effectiveCouponId === null}
                       onChange={() => setSelectedCouponId(null)}
                       className="accent-black"
