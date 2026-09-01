@@ -181,7 +181,7 @@ export default function CheckoutPage() {
         orderId: `order-${Date.now()}`,
         orderName,
         successUrl: `${window.location.origin}/directCheckout/success`,
-        failUrl: `${window.location.origin}/directCheckout/fail`,
+        failUrl: `${window.location.origin}/directCheckout/fail?productId=${productIdFromParam}&size=${sizeParam}&quantity=${quantity}`,
         customerName: user?.user_name,
         customerEmail: user?.email ?? "",
         customerMobilePhone: customerMobile,
