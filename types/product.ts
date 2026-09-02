@@ -21,7 +21,9 @@ export interface ProductType {
   updated_at: string | null;
   user_id: string | null;
   views: number;
-
+  original_price?: number | null;
+  discount_type?: string | null;
+  discount_value?: number | null;
   favorite_count?: number;
 }
 

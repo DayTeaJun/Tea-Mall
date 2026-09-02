@@ -99,6 +99,8 @@ function ProductForm() {
         name,
         description,
         price: finalSalePrice,
+        discount_type: discountType || null,
+        discount_value: discountValue ? Number(discountValue) : null,
         original_price: originalPriceForDb,
         tags: tags.split(",").map((tag) => tag.trim()),
         category,
