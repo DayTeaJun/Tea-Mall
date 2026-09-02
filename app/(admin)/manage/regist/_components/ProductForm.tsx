@@ -30,6 +30,11 @@ function ProductForm() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
 
+  const [discountType, setDiscountType] = useState<"" | "percentage" | "fixed">(
+    "",
+  );
+  const [discountValue, setDiscountValue] = useState("");
+
   const [tags, setTags] = useState("");
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
@@ -58,9 +63,23 @@ function ProductForm() {
   };
 
   const handleSubmit = async () => {
-    if (!name || !description || !imgUrl || !user || !category) {
-      toast.info("필수 항목 및 카테고리를 모두 입력해 주세요.");
+    if (!name || !description || !imgUrl || !user || !category || !price) {
+      toast.info("필수 항목 및 정가를 모두 입력해 주세요.");
       return;
+    }
+
+    const rawPrice = Number(price);
+    let finalSalePrice = rawPrice;
+    let originalPriceForDb: number | null = null;
+
+    if (discountType && discountValue && Number(discountValue) > 0) {
+      const val = Number(discountValue);
+      if (discountType === "percentage") {
+        finalSalePrice = Math.floor(rawPrice * (1 - val / 100));
+      } else if (discountType === "fixed") {
+        finalSalePrice = Math.max(0, rawPrice - val);
+      }
+      originalPriceForDb = rawPrice;
     }
 
     const hasSizes = sizeOptionsMap[category]?.length > 0;
@@ -79,7 +98,8 @@ function ProductForm() {
       mutate({
         name,
         description,
-        price: Number(price),
+        price: finalSalePrice,
+        original_price: originalPriceForDb,
         tags: tags.split(",").map((tag) => tag.trim()),
         category,
         subcategory,
@@ -145,15 +165,52 @@ function ProductForm() {
 
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600">
-                가격 (원)
+                정가 (원)
               </label>
               <input
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none"
-                placeholder="가격을 입력하세요"
+                placeholder="정가를 입력하세요"
               />
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-gray-100">
+              <label className="block text-xs font-semibold text-gray-600">
+                특가 / 할인 설정 (선택)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={discountType}
+                  onChange={(e) => {
+                    setDiscountType(
+                      e.target.value as "" | "percentage" | "fixed",
+                    );
+                    if (!e.target.value) setDiscountValue("");
+                  }}
+                  className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none"
+                >
+                  <option value="">할인 없음</option>
+                  <option value="percentage">할인율 (%)</option>
+                  <option value="fixed">할인 금액 (원)</option>
+                </select>
+
+                <input
+                  type="number"
+                  value={discountValue}
+                  onChange={(e) => setDiscountValue(e.target.value)}
+                  disabled={!discountType}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none disabled:bg-gray-100"
+                  placeholder={
+                    discountType === "percentage"
+                      ? "예: 10 (10%)"
+                      : discountType === "fixed"
+                        ? "예: 5000 (5천원)"
+                        : "할인 유형 선택"
+                  }
+                />
+              </div>
             </div>
 
             <div className="space-y-1">

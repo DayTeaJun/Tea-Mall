@@ -48,6 +48,9 @@ export interface CreateProductType {
   color?: string;
   stock_by_size?: Record<string, number>;
   total_stock?: number;
+  original_price?: number | null;
+  discount_type?: "percentage" | "fixed" | null;
+  discount_value?: number | null;
 }
 
 export type CartItemType = {
