@@ -47,6 +47,21 @@ function ProductCard({
 
   const reviewCount = ratings.length;
 
+  const hasDiscount =
+    products.original_price && products.original_price > products.price;
+
+  let discountPercent = 0;
+  if (hasDiscount && products.original_price) {
+    if (products.discount_type === "percentage" && products.discount_value) {
+      discountPercent = products.discount_value;
+    } else {
+      discountPercent = Math.round(
+        ((products.original_price - products.price) / products.original_price) *
+          100,
+      );
+    }
+  }
+
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
       if (!user?.id) {
@@ -139,16 +154,32 @@ function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col pt-2.5 px-0.5">
-        <h3 className="text-[13px] sm:text-[14px] pb-2 font-normal text-[#111111] line-clamp-2 leading-tight tracking-tight group-hover:text-gray-600 transition-colors">
+        <h3 className="text-[13px] sm:text-[14px] pb-1 font-normal text-[#111111] line-clamp-2 leading-tight tracking-tight group-hover:text-gray-600 transition-colors">
           {products.name}
         </h3>
 
-        <div className="mt-auto pt-1 flex flex-col gap-1">
-          <p className="text-[14px] sm:text-[15px] font-bold text-[#111111] tracking-tight">
-            {products.price.toLocaleString()}원
-          </p>
+        <div className="mt-auto pt-1 flex flex-col gap-0.5">
+          {hasDiscount ? (
+            <div className="flex flex-col">
+              <span className="text-[11px] text-gray-400 line-through">
+                {products.original_price?.toLocaleString()}원
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[14px] sm:text-[15px] font-bold text-red-500 tracking-tight">
+                  {discountPercent}%
+                </span>
+                <span className="text-[14px] sm:text-[15px] font-bold text-[#111111] tracking-tight">
+                  {products.price.toLocaleString()}원
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[14px] sm:text-[15px] font-bold text-[#111111] tracking-tight">
+              {products.price.toLocaleString()}원
+            </p>
+          )}
 
-          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-400 font-medium">
+          <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-400 font-medium">
             <span className="flex items-center gap-0.5 text-gray-500">
               <Heart size={11} className="fill-gray-400 text-gray-400" />
               {favCount}
