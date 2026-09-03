@@ -152,7 +152,7 @@ export default function EditProductForm({
     let finalDiscountType: string | null = null;
     let finalDiscountValue: number | null = null;
 
-    if (discountType && discountValue && Number(discountValue) > 0) {
+    if (discountType && discountValue !== "" && Number(discountValue) > 0) {
       const val = Number(discountValue);
       if (discountType === "percentage") {
         finalSalePrice = Math.floor(rawPrice * (1 - val / 100));
@@ -162,6 +162,10 @@ export default function EditProductForm({
       originalPriceForDb = rawPrice;
       finalDiscountType = discountType;
       finalDiscountValue = val;
+    } else {
+      originalPriceForDb = null;
+      finalDiscountType = null;
+      finalDiscountValue = null;
     }
 
     const currentHasSizes = sizeOptionsMap[category]?.length > 0;
@@ -188,6 +192,13 @@ export default function EditProductForm({
       ];
 
       const oldDetailImageIds = existingDetailImages.map((img) => img.id);
+
+      console.log("👉 최종 전송 데이터:", {
+        price: finalSalePrice,
+        original_price: originalPriceForDb,
+        discount_type: finalDiscountType,
+        discount_value: finalDiscountValue,
+      });
 
       mutate({
         id: product.id,

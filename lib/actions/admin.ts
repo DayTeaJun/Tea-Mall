@@ -122,6 +122,10 @@ export async function updateProduct({
   color,
   stock_by_size,
   total_stock,
+  original_price,
+  discount_type,
+  discount_value,
+  favorite_count,
 }: ProductUpdateType) {
   const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
   const supabase = await createServerSupabaseClient();
@@ -221,6 +225,10 @@ export async function updateProduct({
       color,
       stock_by_size,
       total_stock,
+      original_price,
+      discount_type,
+      discount_value,
+      favorite_count,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
