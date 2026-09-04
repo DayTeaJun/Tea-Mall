@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Truck, Plus } from "lucide-react";
 import {
   useGetAddressList,
   usePostDefaultDeliveryAddressMutation,
@@ -71,50 +71,58 @@ export default function AddressListModal({ userId, onClose }: Props) {
 
   return (
     <section className="flex flex-col gap-2">
-      {addresses?.map((addr: DeliveryAddress) => (
-        <div
-          key={addr.id}
-          className={`${
-            addr.is_default ? "border-green-400 border-2" : "border-gray-200"
-          } border p-3 flex flex-col gap-2`}
-        >
-          <div className="flex gap-4">
-            <p className="font-bold">{addr.address_name}</p>
-            <p className="text-gray-500">-</p>
-            <p className="text-gray-500">{addr.receiver_name}</p>
-          </div>
-
-          {addr.is_default && (
-            <p className="text-[13px] font-bold border border-gray-200 rounded-2xl px-2 py-0.5 w-fit -ml-1">
-              기본 배송지
-            </p>
-          )}
-
-          <p className="text-[16px]">{`(${addr.postal_code}) ${addr.address}, ${addr.detail_address ?? ""}`}</p>
-          {addr.delivery_instruction && (
-            <p className="text-gray-600">{addr.delivery_instruction}</p>
-          )}
-
-          <div className="flex justify-between text-[14px] mt-2">
-            <button
-              className="px-5 py-2 border border-gray-200 text-green-500 hover:bg-green-50 transition-colors"
-              type="button"
-              onClick={() => handleDeliveryEdit(addr)}
-            >
-              수정
-            </button>
-            {!addr.is_default && (
-              <button
-                onClick={() => handleDeliveryChange(addr.id)}
-                className="px-5 py-2 border border-transparent text-white bg-green-400 hover:bg-green-500 transition-colors"
-                type="button"
-              >
-                선택
-              </button>
-            )}
-          </div>
+      {!isLoading && addresses?.length === 0 ? (
+        <div className="py-6 mx-4 sm:mx-0 flex flex-col items-center gap-2 text-gray-500 text-[12px] sm:text-[14px] border-dashed border-2 border-gray-200 rounded-sm">
+          <Truck size={25} className="sm:w-8 sm:h-8" />
+          등록된 배송지가 없습니다.
+          <br />새 배송지를 추가해주세요.
         </div>
-      ))}
+      ) : (
+        addresses?.map((addr: DeliveryAddress) => (
+          <div
+            key={addr.id}
+            className={`${
+              addr.is_default ? "border-green-400 border-2" : "border-gray-200"
+            } border p-3 flex flex-col gap-2`}
+          >
+            <div className="flex gap-4">
+              <p className="font-bold">{addr.address_name}</p>
+              <p className="text-gray-500">-</p>
+              <p className="text-gray-500">{addr.receiver_name}</p>
+            </div>
+
+            {addr.is_default && (
+              <p className="text-[13px] font-bold border border-gray-200 rounded-2xl px-2 py-0.5 w-fit -ml-1">
+                기본 배송지
+              </p>
+            )}
+
+            <p className="text-[16px]">{`(${addr.postal_code}) ${addr.address}, ${addr.detail_address ?? ""}`}</p>
+            {addr.delivery_instruction && (
+              <p className="text-gray-600">{addr.delivery_instruction}</p>
+            )}
+
+            <div className="flex justify-between text-[14px] mt-2">
+              <button
+                className="px-5 py-2 border border-gray-200 text-green-500 hover:bg-green-50 transition-colors"
+                type="button"
+                onClick={() => handleDeliveryEdit(addr)}
+              >
+                수정
+              </button>
+              {!addr.is_default && (
+                <button
+                  onClick={() => handleDeliveryChange(addr.id)}
+                  className="px-5 py-2 border border-transparent text-white bg-green-400 hover:bg-green-500 transition-colors"
+                  type="button"
+                >
+                  선택
+                </button>
+              )}
+            </div>
+          </div>
+        ))
+      )}
 
       <button
         type="button"
