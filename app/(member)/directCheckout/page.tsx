@@ -457,7 +457,7 @@ export default function CheckoutPage() {
         title={user?.address ? "배송지 변경" : "배송지 추가"}
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
-        className="rounded-none max-h-[85vh] flex flex-col"
+        className="rounded-none h-[85vh] flex flex-col"
       >
         <AddressListModal
           userId={user?.id}

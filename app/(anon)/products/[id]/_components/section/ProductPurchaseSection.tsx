@@ -68,6 +68,7 @@ export default function ProductPurchaseSection({
       toast.error("로그인이 필요합니다.");
       return;
     }
+
     if (!validateQuantity()) return;
 
     router.push(
@@ -155,9 +156,13 @@ export default function ProductPurchaseSection({
           </div>
 
           <button
+            type="button"
             onClick={handleBuyNow}
-            className="flex-1 bg-green-600 text-white hover:bg-green-700 flex items-center justify-center cursor-pointer duration-300 transition-colors p-2"
-            disabled={!selectedSize || currentStock === 0}
+            className={`flex-1 flex items-center justify-center p-2 duration-300 transition-colors ${
+              !selectedSize || currentStock === 0
+                ? "bg-green-600/50 text-white/70"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
           >
             <span>바로 구매</span>
             <ChevronRight />
