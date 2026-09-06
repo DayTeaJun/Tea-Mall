@@ -271,6 +271,26 @@ export default function ProductListPage() {
             {products.map((product, index) => {
               const validStocks = getAvailableStock(product.stock_by_size);
 
+              const hasDiscount =
+                product.original_price &&
+                product.original_price > product.price;
+
+              let discountPercent = 0;
+              if (product && product.original_price) {
+                if (
+                  product.discount_type === "percentage" &&
+                  product.discount_value
+                ) {
+                  discountPercent = product.discount_value;
+                } else {
+                  discountPercent = Math.round(
+                    ((product.original_price - product.price) /
+                      product.original_price) *
+                      100,
+                  );
+                }
+              }
+
               return (
                 <li
                   key={product.id}
@@ -302,10 +322,25 @@ export default function ProductListPage() {
                         <span className="text-xs text-gray-500">
                           No. {products.length - index}
                         </span>
-                        <span className="text-xs font-semibold text-gray-900">
-                          {new Intl.NumberFormat("ko-KR").format(product.price)}
-                          원
-                        </span>
+                        {hasDiscount ? (
+                          <div className="flex flex-col">
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {product.original_price?.toLocaleString()}원
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[14px] sm:text-[15px] font-bold text-red-500 tracking-tight">
+                                {discountPercent}%
+                              </span>
+                              <span className="text-[14px] sm:text-[15px] font-bold text-[#111111] tracking-tight">
+                                {product.price.toLocaleString()}원
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[14px] sm:text-[15px] font-bold text-[#111111] tracking-tight">
+                            {product.price.toLocaleString()}원
+                          </p>
+                        )}
                       </div>
 
                       <button
