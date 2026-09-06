@@ -79,18 +79,18 @@ export default function EditDeliveryForm({
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <form className="w-full bg-white">
+    <section className="flex flex-col gap-2 h-full max-h-full overflow-hidden">
+      <form className="w-full bg-white flex-1 overflow-y-auto p-3">
         <table className="w-full text-sm">
           <tbody className="flex flex-col gap-2 divide-y divide-gray-200">
             <tr className="flex flex-col">
               <th className="bg-gray-50 p-3 text-left font-medium text-gray-700">
                 배송지명
               </th>
-              <td className="p-3">
+              <td className="py-3">
                 <input
                   type="text"
-                  className="w-full border border-gray-300 p-2 rounded-sm"
+                  className="w-full border border-gray-300 p-2"
                   value={formData.address_name}
                   onChange={(e) =>
                     setFormData({ ...formData, address_name: e.target.value })
@@ -104,10 +104,10 @@ export default function EditDeliveryForm({
               <th className="bg-gray-50 p-3 text-left font-medium text-gray-700">
                 수령인
               </th>
-              <td className="p-3">
+              <td className="py-3">
                 <input
                   type="text"
-                  className="w-full border border-gray-300 p-2 rounded-sm"
+                  className="w-full border border-gray-300 p-2"
                   value={formData.receiver_name}
                   onChange={(e) =>
                     setFormData({ ...formData, receiver_name: e.target.value })
@@ -121,7 +121,7 @@ export default function EditDeliveryForm({
               <th className="bg-gray-50 p-3 text-left font-medium text-gray-700">
                 주소
               </th>
-              <td className="p-3 space-y-2">
+              <td className="py-3 space-y-2">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -132,14 +132,14 @@ export default function EditDeliveryForm({
                   <button
                     type="button"
                     onClick={() => setIsAddressModalOpen(!isAddressModalOpen)}
-                    className="px-3 py-1 bg-slate-700 text-white text-xs rounded-sm"
+                    className="px-3 py-1 bg-slate-700 text-white text-xs"
                     disabled={isPending}
                   >
                     주소검색
                   </button>
                 </div>
                 {isAddressModalOpen && (
-                  <div className="border border-gray-300 rounded-sm">
+                  <div className="border border-gray-300">
                     <DaumPostcode onComplete={handleAddressComplete} />
                   </div>
                 )}
@@ -165,7 +165,7 @@ export default function EditDeliveryForm({
               <th className="bg-gray-50 p-3 text-left font-medium text-gray-700">
                 휴대전화
               </th>
-              <td className="p-3">
+              <td className="py-3">
                 <input
                   type="tel"
                   className="w-full border border-gray-300 p-2"
@@ -181,7 +181,7 @@ export default function EditDeliveryForm({
           </tbody>
         </table>
 
-        <label className="flex items-center gap-2 cursor-pointer p-3">
+        <label className="flex items-center gap-2 cursor-pointer py-3">
           <input
             type="checkbox"
             className="w-4 h-4 rounded border-gray-300 text-slate-700 focus:ring-slate-500"
@@ -193,26 +193,26 @@ export default function EditDeliveryForm({
           />
           <span className="text-gray-600">기본 배송지로 저장</span>
         </label>
-      </form>
 
-      <div className="py-4 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 bg-white text-sm"
-          disabled={isPending}
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="px-6 py-2 bg-slate-800 text-white text-sm"
-          disabled={isPending}
-        >
-          {isPending ? "수정 중..." : "수정하기"}
-        </button>
-      </div>
+        <div className="pt-4 flex justify-end gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 border border-gray-300 bg-white text-sm"
+            disabled={isPending}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="px-6 py-2 bg-slate-800 text-white text-sm"
+            disabled={isPending}
+          >
+            {isPending ? "수정 중..." : "수정하기"}
+          </button>
+        </div>
+      </form>
     </section>
   );
 }

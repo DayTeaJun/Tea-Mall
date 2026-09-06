@@ -27,7 +27,7 @@ export default function Modal({
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-4 relative animate-fade-in ${className}`}
+        className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 p-4 relative animate-fade-in overflow-hidden ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button

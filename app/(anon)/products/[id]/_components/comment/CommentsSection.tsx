@@ -72,6 +72,10 @@ export default async function CommentsSection({ productId }: Props) {
         <h2 className="text-[18px] sm:text-[20px] font-semibold my-4">
           상품 리뷰
         </h2>
+
+        {sortedComments.find((item) => item.user_id !== userId) && (
+          <CommentBtn productId={productId} />
+        )}
       </div>
       <ul className="list-none pl-0 divide-y divide-gray-100">
         {sortedComments &&
