@@ -112,7 +112,20 @@ export default async function ProductDetailPage({
     .eq("product_id", product.id)
     .order("sort_order", { ascending: true });
 
-  const formattedPrice = product.price.toLocaleString();
+  const hasDiscount =
+    product.original_price && product.original_price > product.price;
+
+  let discountPercent = 0;
+  if (hasDiscount && product.original_price) {
+    if (product.discount_type === "percentage" && product.discount_value) {
+      discountPercent = product.discount_value;
+    } else {
+      discountPercent = Math.round(
+        ((product.original_price - product.price) / product.original_price) *
+          100,
+      );
+    }
+  }
 
   const isSoldOut =
     product.total_stock === 0 ||
@@ -218,8 +231,19 @@ export default async function ProductDetailPage({
             <hr className="my-2" />
 
             <div className="flex flex-col gap-2">
-              <div className="text-2xl font-bold text-green-700">
-                {formattedPrice}원
+              {hasDiscount && (
+                <div className="flex gap-1.5 items-center">
+                  <span className="text-[14px] sm:text-[15px] font-bold tracking-tight">
+                    {discountPercent}%
+                  </span>
+                  <span className="text-[13px] text-gray-400 line-through">
+                    {product.original_price?.toLocaleString()}원
+                  </span>
+                </div>
+              )}
+
+              <div className="text-2xl font-bold text-green-700 -mt-2.5">
+                {product.price.toLocaleString()}원
               </div>
 
               <p className="text-sm text-gray-500">
