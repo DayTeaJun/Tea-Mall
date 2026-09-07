@@ -101,7 +101,7 @@ export default function ProductListPage() {
                 <th className="border p-2">
                   닉네임 / 상품번호 / 상품명 / 상품태그
                 </th>
-                <th className="border p-2 w-[120px]">판매가</th>
+                <th className="border p-2 w-[120px]">판매가 (할인)</th>
                 <th className="border p-2 w-[160px]">재고 상태</th>
                 <th className="border p-2 w-[150px]">처리 날짜</th>
                 <th className="border p-2 w-[120px]">관리</th>
@@ -141,6 +141,26 @@ export default function ProductListPage() {
               ) : (
                 products.map((product, index) => {
                   const validStocks = getAvailableStock(product.stock_by_size);
+
+                  const hasDiscount =
+                    product.original_price &&
+                    product.original_price > product.price;
+
+                  let discountPercent = 0;
+                  if (product && product.original_price) {
+                    if (
+                      product.discount_type === "percentage" &&
+                      product.discount_value
+                    ) {
+                      discountPercent = product.discount_value;
+                    } else {
+                      discountPercent = Math.round(
+                        ((product.original_price - product.price) /
+                          product.original_price) *
+                          100,
+                      );
+                    }
+                  }
 
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
@@ -184,7 +204,23 @@ export default function ProductListPage() {
                         </span>
                       </td>
                       <td className="border p-2 font-medium">
-                        {new Intl.NumberFormat("ko-KR").format(product.price)}원
+                        {hasDiscount ? (
+                          <div className="flex flex-col">
+                            <span className="text-[14px] text-red-500 tracking-tight">
+                              {discountPercent}%
+                            </span>
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {product.original_price?.toLocaleString()}원
+                            </span>
+                            <span className="text-[14px] text-[#111111] tracking-tight">
+                              {product.price.toLocaleString()}원
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-[14px] text-[#111111] tracking-tight">
+                            {product.price.toLocaleString()}원
+                          </p>
+                        )}
                       </td>
 
                       <td className="border p-2 text-center align-middle">
@@ -323,7 +359,7 @@ export default function ProductListPage() {
                           No. {products.length - index}
                         </span>
                         {hasDiscount ? (
-                          <div className="flex flex-col">
+                          <div className="flex flex-col items-end">
                             <span className="text-[11px] text-gray-400 line-through">
                               {product.original_price?.toLocaleString()}원
                             </span>
