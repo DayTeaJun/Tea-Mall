@@ -307,7 +307,13 @@ const getSearchProducts = async (
     .eq("deleted", false);
 
   if (category && category !== "전체") {
-    queryBuilder = queryBuilder.eq("category", category);
+    if (category === "특가/할인") {
+      queryBuilder = queryBuilder
+        .not("discount_value", "is", null)
+        .gt("discount_value", 0);
+    } else {
+      queryBuilder = queryBuilder.eq("category", category);
+    }
   }
 
   if (query.trim() !== "") {
