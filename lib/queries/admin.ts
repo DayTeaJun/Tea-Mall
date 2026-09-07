@@ -126,6 +126,7 @@ export const useUpdateProductMutation = (productId: string) => {
           queryKey: ["products", productId],
         }),
         queryClient.invalidateQueries({ queryKey: ["products"] }),
+        queryClient.invalidateQueries({ queryKey: ["searchProducts"] }),
         queryClient.invalidateQueries({ queryKey: ["manageProducts"] }),
         queryClient.invalidateQueries({ queryKey: ["cart_items"] }),
       ]);

@@ -8,6 +8,7 @@ export default function CategoryPage() {
   const router = useRouter();
 
   const category = searchParams.get("type") ?? "";
+  const subCategory = searchParams.get("sub") ?? "";
   const page = Number(searchParams.get("page") ?? 1);
   const sort = searchParams.get("sort") ?? "accurate";
   const pageSize = Number(searchParams.get("size") ?? 36);
@@ -25,8 +26,22 @@ export default function CategoryPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <h1 className="text-2xl mb-4 text-center font-semibold text-gray-800">
-        {category ? `${category} 카테고리` : "전체 카테고리"}
+      <h1 className="text-[26px] mb-4 text-center font-semibold text-gray-800">
+        {category ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className={`${subCategory && "text-gray-500"}`}>
+              {category} {`${subCategory ? "" : "카테고리"}`}
+            </span>
+            {subCategory && (
+              <>
+                <span className="text-gray-300 text-lg">|</span>
+                <span>{subCategory}</span>
+              </>
+            )}
+          </span>
+        ) : (
+          "전체 카테고리"
+        )}
       </h1>
 
       <div className="flex flex-wrap items-center justify-between gap-4 border-b p-2 mb-6 text-sm">
@@ -116,6 +131,7 @@ export default function CategoryPage() {
 
       <ProductListView
         category={category}
+        subCategory={subCategory}
         page={page}
         sort={sort}
         pageSize={pageSize}

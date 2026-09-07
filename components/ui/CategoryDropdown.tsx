@@ -71,16 +71,19 @@ export default function CategoryDropdown({
 }: CategoryDropdownProps) {
   const router = useRouter();
 
-  const goToSearch = (label: string) => {
-    const searchTarget = label.includes("신상품")
-      ? "전체"
-      : label.includes("베스트")
-        ? "전체"
-        : label === "전체상품"
-          ? "전체"
-          : label;
-    const encoded = encodeURIComponent(searchTarget);
-    router.push(`/category?type=${encoded}&page=1`);
+  const goToSearch = (parentLabel: string, subLabel?: string) => {
+    const params = new URLSearchParams();
+
+    const typeValue = parentLabel === "전체상품" ? "전체" : parentLabel;
+    params.set("type", typeValue);
+
+    if (subLabel) {
+      params.set("sub", subLabel);
+    }
+
+    params.set("page", "1");
+
+    router.push(`/category?${params.toString()}`);
   };
 
   return (
@@ -123,7 +126,7 @@ export default function CategoryDropdown({
                       <button
                         type="button"
                         className="w-full rounded text-xs text-gray-500 hover:text-green-600 hover:bg-green-50 p-1.5 hover:font-medium transition-colors cursor-pointer"
-                        onClick={() => goToSearch(sub.label)}
+                        onClick={() => goToSearch(cat.label, sub.label)}
                       >
                         {sub.label}
                       </button>

@@ -293,6 +293,7 @@ export const useDeleteCartItemMutation = (userId: string) => {
 // 상품 검색 쿼리
 const getSearchProducts = async (
   category: string = "",
+  sub: string = "",
   query: string = "",
   page: number,
   limit: number,
@@ -314,6 +315,12 @@ const getSearchProducts = async (
     } else {
       queryBuilder = queryBuilder.eq("category", category);
     }
+  }
+
+  const trimmedSub = typeof sub === "string" ? sub.trim() : "";
+
+  if (trimmedSub && trimmedSub !== "전체") {
+    queryBuilder = queryBuilder.eq("subcategory", trimmedSub);
   }
 
   if (query.trim() !== "") {
@@ -358,14 +365,24 @@ const getSearchProducts = async (
 
 export const useSearchProductsQuery = (
   category: string = "",
+  subCategory: string = "",
   query: string = "",
   page: number,
   limit: number,
   sort: string = "accurate",
 ) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["searchProducts", category, query, page, limit, sort],
-    queryFn: () => getSearchProducts(category, query, page, limit, sort),
+    queryKey: [
+      "searchProducts",
+      category,
+      subCategory,
+      query,
+      page,
+      limit,
+      sort,
+    ],
+    queryFn: () =>
+      getSearchProducts(category, subCategory, query, page, limit, sort),
   });
 
   return {

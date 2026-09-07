@@ -9,6 +9,7 @@ import { PackageSearch, ShoppingCart } from "lucide-react";
 
 type Props = {
   category?: string;
+  subCategory?: string;
   keyword?: string;
   page?: number;
   pageSize?: number;
@@ -18,6 +19,7 @@ type Props = {
 export default function ProductListView({
   category = "",
   keyword = "",
+  subCategory = "",
   page = 1,
   pageSize = 36,
   sort = "accurate",
@@ -26,6 +28,7 @@ export default function ProductListView({
 
   const { data: products, isLoading } = useSearchProductsQuery(
     category,
+    subCategory,
     keyword,
     page,
     pageSize,
