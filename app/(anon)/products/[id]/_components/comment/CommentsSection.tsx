@@ -73,7 +73,7 @@ export default async function CommentsSection({ productId }: Props) {
           상품 리뷰
         </h2>
 
-        {sortedComments.find((item) => item.user_id !== userId) && (
+        {!sortedComments.some((item) => item.user_id === userId) && (
           <CommentBtn productId={productId} />
         )}
       </div>
