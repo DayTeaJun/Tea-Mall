@@ -145,7 +145,7 @@ export default function CategoryDropdown_M({
                     {cat.children!.map((sub) => (
                       <Link
                         key={sub.id}
-                        href={`/category?type=${encodeURIComponent(sub.label)}&page=1`}
+                        href={`/category?type=${encodeURIComponent(cat.label)}&sub=${encodeURIComponent(sub.label)}&page=1`}
                         onClick={close}
                         className="px-6 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
