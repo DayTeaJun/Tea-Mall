@@ -308,19 +308,19 @@ const getSearchProducts = async (
     .eq("deleted", false);
 
   if (category && category !== "전체") {
-    if (category === "특가/할인") {
-      queryBuilder = queryBuilder
-        .not("discount_value", "is", null)
-        .gt("discount_value", 0);
-    } else {
-      queryBuilder = queryBuilder.eq("category", category);
-    }
+    queryBuilder = queryBuilder.eq("category", category);
   }
 
   const trimmedSub = typeof sub === "string" ? sub.trim() : "";
 
   if (trimmedSub && trimmedSub !== "전체") {
-    queryBuilder = queryBuilder.eq("subcategory", trimmedSub);
+    if (trimmedSub === "특가/할인") {
+      queryBuilder = queryBuilder
+        .not("discount_value", "is", null)
+        .gt("discount_value", 0);
+    } else {
+      queryBuilder = queryBuilder.eq("subcategory", trimmedSub);
+    }
   }
 
   if (query.trim() !== "") {
