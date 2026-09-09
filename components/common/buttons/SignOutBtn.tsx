@@ -15,6 +15,8 @@ function SignOutBtn() {
     await supabase.auth.signOut();
     setUser(null);
     toast.success("로그아웃 되었습니다.");
+
+    router.push("/");
     router.refresh();
   };
 

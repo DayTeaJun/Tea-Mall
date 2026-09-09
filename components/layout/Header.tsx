@@ -1,4 +1,4 @@
-import { SquareUserRound, User } from "lucide-react";
+import { Headset, SquareUserRound, User } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
@@ -21,7 +21,6 @@ async function Header({ user }: { user: UserType | null }) {
                 T-Mall
               </Link>
             </h1>
-
             {user ? (
               <>
                 <SignOutBtn />
@@ -46,6 +45,14 @@ async function Header({ user }: { user: UserType | null }) {
                 </Link>
               </>
             )}
+
+            <Link
+              href="/inquiry"
+              className="text-black flex gap-1 items-center"
+            >
+              <p className="text-[12px] sm:text-[14px]">고객센터</p>
+              <Headset size={16} className="hidden sm:block" />
+            </Link>
           </div>
         </div>
 
