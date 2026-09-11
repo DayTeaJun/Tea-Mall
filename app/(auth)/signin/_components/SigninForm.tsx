@@ -83,16 +83,16 @@ function SigninForm() {
                 계정 자동입력
               </button>
             </div>
-            <div className="space-y-1.5 text-gray-600">
+            <div className="space-y-1.5 text-gray-600 bg-gray-50 p-2">
               <p className="font-bold">
                 · 아이디(이메일) :{" "}
-                <span className="font-mono text-[11px] sm:text-[14px] tracking-wider">
+                <span className="font-mono text-[11px] sm:text-[14px] tracking-tight">
                   testuser@tmall.com
                 </span>
               </p>
               <p className="font-bold">
                 · 비밀번호 :{" "}
-                <span className="font-mono text-[11px] sm:text-[14px] tracking-wider">
+                <span className="font-mono text-[11px] sm:text-[14px] tracking-tight">
                   test1234
                 </span>
               </p>
