@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type SubCategory = {
@@ -91,9 +92,10 @@ export default function CategoryDropdown({
       <button
         type="button"
         aria-label="카테고리 열기"
-        className="flex h-full flex-col items-center justify-center gap-1 font-bold px-4 py-2 hover:bg-gray-100 cursor-pointer"
+        className="flex h-full gap-1.5 items-center justify-center font-bold px-4 pr-2 py-2 hover:bg-gray-100 cursor-pointer hover:text-gray-600 transition-all duration-500"
       >
         카테고리
+        <ChevronDown size={20} />
       </button>
 
       <div
@@ -113,7 +115,7 @@ export default function CategoryDropdown({
             >
               <button
                 type="button"
-                className="text-base font-bold text-gray-900 hover:text-green-600 transition-colors cursor-pointer pb-2 border-b border-transparent hover:border-green-600"
+                className="text-base font-extrabold text-gray-900 hover:text-green-600 transition-colors cursor-pointer pb-2 border-b-2 border-green-500 w-fit"
                 onClick={() => goToSearch(cat.label)}
               >
                 {cat.label}
@@ -125,7 +127,7 @@ export default function CategoryDropdown({
                     <li key={sub.id}>
                       <button
                         type="button"
-                        className="w-full rounded text-xs text-gray-500 hover:text-green-600 hover:bg-green-50 p-1.5 hover:font-medium transition-colors cursor-pointer"
+                        className="w-full rounded text-sm text-gray-500 hover:text-green-600 hover:bg-green-50 p-1.5 hover:font-medium transition-colors cursor-pointer"
                         onClick={() => goToSearch(cat.label, sub.label)}
                       >
                         {sub.label}
