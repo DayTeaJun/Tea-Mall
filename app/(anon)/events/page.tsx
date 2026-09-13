@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Ticket } from "lucide-react";
+import { Sparkles, Ticket, Check } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function EventPage() {
   const supabase = createBrowserSupabaseClient();
+  const [isDownloaded, setIsDownloaded] = useState(false); // 🌟 쿠폰 다운로드 상태 추가
 
   interface CouponResponse {
     success: boolean;
@@ -28,8 +30,12 @@ export default function EventPage() {
 
     if (result.success) {
       toast.success(result.message);
+      setIsDownloaded(true);
     } else {
       toast.warning(result.message);
+      if (result.message.includes("이미")) {
+        setIsDownloaded(true);
+      }
     }
   };
 
@@ -67,15 +73,29 @@ export default function EventPage() {
               전 품목 10% 할인 쿠폰팩
             </h3>
             <p className="text-xs sm:text-sm text-gray-300 mt-0.5">
-              지금 다운로드하고 즉시 결제 시 사용해 보세요.
+              지금 다운로드하고 즉시 결제 시 사용해 보세요. (유효기간:
+              2026.04.30까지)
             </p>
           </div>
         </div>
+
         <button
+          type="button"
           onClick={() => handleDownloadCoupon("SS26SPEC")}
-          className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm"
+          disabled={isDownloaded}
+          className={`w-full sm:w-auto px-6 py-3 font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm flex items-center justify-center gap-2 ${
+            isDownloaded
+              ? "bg-gray-700 text-gray-300 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+          }`}
         >
-          쿠폰 다운로드 받기
+          {isDownloaded ? (
+            <>
+              <Check size={18} /> 쿠폰 다운로드 완료
+            </>
+          ) : (
+            "쿠폰 다운로드 받기"
+          )}
         </button>
       </div>
 
