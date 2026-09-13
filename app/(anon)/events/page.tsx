@@ -92,7 +92,7 @@ export default function EventPage() {
 
       <div className="text-center mt-10">
         <Link
-          href="/products"
+          href="/category?type=전체&sub=특가/할인&page=1"
           className="inline-block text-sm font-semibold text-gray-700 hover:text-black underline underline-offset-4"
         >
           &larr; 특가 상품 전체 보러 가기
