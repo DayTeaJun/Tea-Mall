@@ -5,11 +5,16 @@ import Link from "next/link";
 import { Sparkles, Ticket, Check } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useGetIsCouponDownloaded } from "@/lib/queries/auth";
 
 export default function EventPage() {
   const supabase = createBrowserSupabaseClient();
-  const [isDownloaded, setIsDownloaded] = useState(false); // 🌟 쿠폰 다운로드 상태 추가
+  const { user } = useAuthStore();
+  const { data: coupons } = useGetIsCouponDownloaded(
+    user?.id || "",
+    "SS26SPEC",
+  );
 
   interface CouponResponse {
     success: boolean;
@@ -30,12 +35,8 @@ export default function EventPage() {
 
     if (result.success) {
       toast.success(result.message);
-      setIsDownloaded(true);
     } else {
       toast.warning(result.message);
-      if (result.message.includes("이미")) {
-        setIsDownloaded(true);
-      }
     }
   };
 
@@ -82,14 +83,14 @@ export default function EventPage() {
         <button
           type="button"
           onClick={() => handleDownloadCoupon("SS26SPEC")}
-          disabled={isDownloaded}
+          disabled={coupons !== null}
           className={`w-full sm:w-auto px-6 py-3 font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm flex items-center justify-center gap-2 ${
-            isDownloaded
+            coupons !== null
               ? "bg-gray-700 text-gray-300 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
           }`}
         >
-          {isDownloaded ? (
+          {coupons !== null ? (
             <>
               <Check size={18} /> 쿠폰 다운로드 완료
             </>

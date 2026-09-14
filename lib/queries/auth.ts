@@ -432,6 +432,45 @@ interface UserCoupon {
   };
 }
 
+// 쿠폰 다운로드 확인
+export async function checkCouponDownload(userId: string, couponCode: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase
+    .from("user_coupons")
+    .select(
+      `
+    coupon_id,
+    coupons!inner (
+      coupon_code
+    )
+  `,
+    )
+    .eq("user_id", userId)
+    .eq("coupons.coupon_code", couponCode)
+    .maybeSingle();
+
+  if (error) {
+    console.error("쿠폰 조회 실패:", error.message);
+    throw new Error("쿠폰 조회에 실패했습니다.");
+  }
+
+  return data;
+}
+
+export function useGetIsCouponDownloaded(userId: string, couponCode: string) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["isCouponDownloaded", userId, couponCode],
+    queryFn: () => checkCouponDownload(userId, couponCode),
+    enabled: !!userId && !!couponCode,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 내 쿠폰 ID로 쿠폰 정보 조회
 export async function getMyCoupon(userId: string, userCouponId: string) {
   const supabase = createBrowserSupabaseClient();
