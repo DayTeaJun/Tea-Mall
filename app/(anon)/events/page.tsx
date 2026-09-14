@@ -83,14 +83,14 @@ export default function EventPage() {
         <button
           type="button"
           onClick={() => handleDownloadCoupon("SS26SPEC")}
-          disabled={coupons !== null}
+          disabled={user && coupons !== null ? true : false}
           className={`w-full sm:w-auto px-6 py-3 font-bold rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap shadow-sm flex items-center justify-center gap-2 ${
-            coupons !== null
+            user && coupons !== null
               ? "bg-gray-700 text-gray-300 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
           }`}
         >
-          {coupons !== null ? (
+          {user && coupons !== null ? (
             <>
               <Check size={18} /> 쿠폰 다운로드 완료
             </>
