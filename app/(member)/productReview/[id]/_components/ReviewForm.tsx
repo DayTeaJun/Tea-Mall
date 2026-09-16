@@ -5,6 +5,10 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import {
+  compressImage,
+  IMAGE_COMPRESS_PRESETS,
+} from "@/lib/utils/imageCompression";
 import { ProductType } from "@/types/product";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -51,10 +55,14 @@ function ReviewForm({ product }: { product: ProductType }) {
     const imageUrls: string[] = [];
 
     for (const file of detailFiles) {
-      const filePath = `reviews/${user.id}/${Date.now()}-${file.name}`;
+      const compressedFile = await compressImage(
+        file,
+        IMAGE_COMPRESS_PRESETS.review,
+      );
+      const filePath = `reviews/${user.id}/${Date.now()}-${compressedFile.name}`;
       const { error } = await supabase.storage
         .from(bucket!)
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
 
       if (error) {
         toast.error("이미지 업로드 실패");

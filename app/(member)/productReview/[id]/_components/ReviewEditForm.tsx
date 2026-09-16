@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
+import {
+  compressImage,
+  IMAGE_COMPRESS_PRESETS,
+} from "@/lib/utils/imageCompression";
 import { ProductType } from "@/types/product";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -80,10 +84,14 @@ function ReviewEditForm({
 
     const uploadedUrls: string[] = [];
     for (const file of detailFiles) {
-      const filePath = `reviews/${userId}/${Date.now()}-${file.name}`;
+      const compressedFile = await compressImage(
+        file,
+        IMAGE_COMPRESS_PRESETS.review,
+      );
+      const filePath = `reviews/${userId}/${Date.now()}-${compressedFile.name}`;
       const { error: uploadError } = await supabase.storage
         .from(BUCKET)
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
       if (uploadError) {
         toast.error("이미지 업로드 실패");
         return;
