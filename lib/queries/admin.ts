@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -18,54 +17,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CreateProductType, ProductUpdateType } from "@/types/product";
-import {
-  compressImage,
-  CompressImageOptions,
-  IMAGE_COMPRESS_PRESETS,
-} from "@/lib/utils/imageCompression";
-
-// 버킷별로 화질 우선순위가 달라서 압축 프리셋을 다르게 적용
-const BUCKET_COMPRESS_PRESET: Record<string, CompressImageOptions> = {
-  "product-images": IMAGE_COMPRESS_PRESETS.product,
-  "inquiry-images": IMAGE_COMPRESS_PRESETS.inquiry,
-};
-
-// 이미지 업로드
-export const uploadImageToStorage = async (
-  userId: string,
-  file: File,
-  bucketName: string = "product-images",
-): Promise<string> => {
-  const supabase = createBrowserSupabaseClient();
-  const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-  const compressPreset =
-    BUCKET_COMPRESS_PRESET[bucketName] ?? IMAGE_COMPRESS_PRESETS.product;
-  const compressedFile = await compressImage(file, compressPreset);
-  const fileName = `${userId}/${uuidv4()}-${compressedFile.name.replace(/\s+/g, "_")}`;
-
-  if (!projectUrl) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL 환경 변수가 설정되지 않았습니다.",
-    );
-  }
-
-  const { data, error: uploadError } = await supabase.storage
-    .from(bucketName)
-    .upload(fileName, compressedFile, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: compressedFile.type,
-    });
-
-  if (uploadError || !data?.path) {
-    console.error("이미지 업로드 실패:", uploadError?.message);
-    throw new Error(`이미지 업로드에 실패했습니다: ${uploadError?.message}`);
-  }
-
-  const publicUrl = `${projectUrl}/storage/v1/object/public/${bucketName}/${data.path}`;
-  return publicUrl;
-};
 
 // 상품 등록 mutation
 export const useCreateProductMutation = () => {

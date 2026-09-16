@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import {
-  uploadImageToStorageProfile,
   useMyProfileQuery,
   useUpdateMyProfileMutation,
 } from "@/lib/queries/auth";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import ImagePreviews from "./_components/ImagePreview_Profile";
 import { ImgPreview } from "@/hooks/useImagePreview";
@@ -55,7 +55,7 @@ export default function EditProfilePage() {
 
     try {
       const imageUrl = imgUrl
-        ? await uploadImageToStorageProfile(user.id, imgUrl)
+        ? await uploadImageToStorage("avatar", user.id, imgUrl)
         : profileImage || null;
 
       updateProfile({

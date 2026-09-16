@@ -5,8 +5,7 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { uploadImageToStorageProfile } from "@/lib/queries/auth";
-import { IMAGE_COMPRESS_PRESETS } from "@/lib/utils/imageCompression";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { ProductType } from "@/types/product";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -53,11 +52,7 @@ function ReviewForm({ product }: { product: ProductType }) {
     try {
       imageUrls = await Promise.all(
         detailFiles.map((file) =>
-          uploadImageToStorageProfile(user.id, file, {
-            bucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-            compressPreset: IMAGE_COMPRESS_PRESETS.review,
-            pathPrefix: "reviews",
-          }),
+          uploadImageToStorage("review", user.id, file),
         ),
       );
     } catch {

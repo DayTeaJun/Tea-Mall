@@ -14,7 +14,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { usePostInquiryMutation } from "@/lib/queries/auth";
-import { uploadImageToStorage } from "@/lib/queries/admin";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { toast } from "sonner";
 import DetailImagePreview from "./_components/DetailImagePreview";
@@ -120,7 +120,7 @@ export default function DeliveryRegisterPage() {
       const uploaderId = user?.id || "guest";
       const uploadedImageUrls = await Promise.all(
         detailFiles.map((file) =>
-          uploadImageToStorage(uploaderId, file, "inquiry-images"),
+          uploadImageToStorage("inquiry", uploaderId, file),
         ),
       );
 

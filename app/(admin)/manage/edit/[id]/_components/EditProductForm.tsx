@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
-import {
-  uploadImageToStorage,
-  useUpdateProductMutation,
-} from "@/lib/queries/admin";
+import { useUpdateProductMutation } from "@/lib/queries/admin";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { Json } from "@/lib/config/supabase/types_db";
@@ -179,11 +177,13 @@ export default function EditProductForm({
     try {
       setUploading(true);
       const newMainImageUrl = imgUrl
-        ? await uploadImageToStorage(user.id, imgUrl)
+        ? await uploadImageToStorage("product", user.id, imgUrl)
         : mainImage || null;
 
       const newDetailImageUrls = await Promise.all(
-        detailFiles.map((file) => uploadImageToStorage(user.id, file)),
+        detailFiles.map((file) =>
+          uploadImageToStorage("product", user.id, file),
+        ),
       );
 
       const finalDetailImages = [

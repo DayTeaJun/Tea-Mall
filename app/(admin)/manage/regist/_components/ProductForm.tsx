@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  uploadImageToStorage,
-  useCreateProductMutation,
-} from "@/lib/queries/admin";
+import { useCreateProductMutation } from "@/lib/queries/admin";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { toast } from "sonner";
 import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
 import ImagePreviews from "./ImagePreview";
@@ -90,9 +88,11 @@ function ProductForm() {
 
     try {
       setUploading(true);
-      const imageUrl = await uploadImageToStorage(user.id, imgUrl);
+      const imageUrl = await uploadImageToStorage("product", user.id, imgUrl);
       const detailImageUrls = await Promise.all(
-        detailFiles.map((file) => uploadImageToStorage(user.id, file)),
+        detailFiles.map((file) =>
+          uploadImageToStorage("product", user.id, file),
+        ),
       );
 
       mutate({

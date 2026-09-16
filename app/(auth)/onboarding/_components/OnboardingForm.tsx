@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import useDebounce from "@/hooks/useDebounce";
 import { USERNAME_REGEX } from "../../constants";
-import {
-  uploadImageToStorageProfile,
-  useSignUpOAuthMutation,
-} from "@/lib/queries/auth";
+import { useSignUpOAuthMutation } from "@/lib/queries/auth";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { User } from "@supabase/supabase-js";
 import { ImgPreview } from "@/hooks/useImagePreview";
 import DaumPostcode from "@/components/common/AddressSearch";
@@ -115,7 +113,7 @@ export default function OnboardingForm({ user }: Props) {
     e.preventDefault();
 
     const imageUrl = imgUrl
-      ? await uploadImageToStorageProfile(user.id, imgUrl)
+      ? await uploadImageToStorage("avatar", user.id, imgUrl)
       : profileImage || null;
 
     mutate({

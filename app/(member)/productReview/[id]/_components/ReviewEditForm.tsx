@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { uploadImageToStorageProfile } from "@/lib/queries/auth";
-import { IMAGE_COMPRESS_PRESETS } from "@/lib/utils/imageCompression";
+import { uploadImageToStorage } from "@/lib/queries/storage";
 import { ProductType } from "@/types/product";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -84,11 +83,7 @@ function ReviewEditForm({
     try {
       uploadedUrls = await Promise.all(
         detailFiles.map((file) =>
-          uploadImageToStorageProfile(userId, file, {
-            bucket: BUCKET,
-            compressPreset: IMAGE_COMPRESS_PRESETS.review,
-            pathPrefix: "reviews",
-          }),
+          uploadImageToStorage("review", userId, file),
         ),
       );
     } catch {
