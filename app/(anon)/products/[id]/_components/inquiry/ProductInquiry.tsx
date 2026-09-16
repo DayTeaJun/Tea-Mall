@@ -1,6 +1,7 @@
 import { CornerDownRight, MailQuestion } from "lucide-react";
 import React from "react";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
+import { getCachedUserId } from "@/lib/config/supabase/server/getCachedUserId";
 import ProductInquiryAnswer from "./ProductInquiryAnswer";
 import InquiryDelBtn from "./InquiryDelBtn";
 import InquiryPostBtn from "./InquiryPostBtn";
@@ -19,10 +20,7 @@ export const formatDate = (dateString: string) => {
 async function ProductInquiry({ productId }: { productId: string }) {
   const supabase = await createServerSupabaseClient();
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const userId = session?.user?.id || null;
+  const userId = await getCachedUserId();
 
   const { data: rawInquiries } = await supabase
     .from("product_inquiry")

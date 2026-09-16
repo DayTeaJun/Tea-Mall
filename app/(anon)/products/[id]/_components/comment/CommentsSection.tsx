@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
+import { getCachedUserId } from "@/lib/config/supabase/server/getCachedUserId";
 import { MessageCircleQuestion, Star, UserRound } from "lucide-react";
 import Image from "next/image";
 import CommentReportBtn from "./CommentReportBtn";
@@ -12,10 +13,7 @@ interface Props {
 export default async function CommentsSection({ productId }: Props) {
   const supabase = await createServerSupabaseClient();
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const userId = session?.user?.id || null;
+  const userId = await getCachedUserId();
 
   const { data: rawComments } = await supabase
     .from("reviews")

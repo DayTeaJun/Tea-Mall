@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
+import { getCachedUserId } from "@/lib/config/supabase/server/getCachedUserId";
 import ProductImageSection from "./_components/section/ProductImageSection";
 import ShareButton from "@/components/common/buttons/ShareBtn";
 import ProductPurchaseSection from "./_components/section/ProductPurchaseSection";
@@ -87,11 +88,7 @@ export default async function ProductDetailPage({
     .single();
   if (!product || error) return notFound();
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const userId = session?.user?.id ?? null;
+  const userId = await getCachedUserId();
 
   let initialFavorited = false;
 
