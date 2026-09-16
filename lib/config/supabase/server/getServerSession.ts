@@ -1,7 +1,10 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
-export async function getServerSession() {
+// cache()로 감싸서, 같은 요청(렌더링 트리) 안에서 여러 번 호출돼도
+// 실제로는 1번만 실행되도록 함 (예: app/layout.tsx + mypage/layout.tsx 중복 호출 방지)
+export const getServerSession = cache(async function getServerSession() {
   const cookieStore = await cookies();
 
   const supabase = createServerClient(
@@ -49,4 +52,4 @@ export async function getServerSession() {
       ...userData.user.user_metadata,
     },
   };
-}
+});
