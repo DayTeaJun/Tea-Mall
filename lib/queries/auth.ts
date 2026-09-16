@@ -31,6 +31,10 @@ import { v4 as uuidv4 } from "uuid";
 import { OrderDetailsType } from "@/types/product";
 import { useAuthStore } from "../store/useAuthStore";
 import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
+import {
+  compressImage,
+  IMAGE_COMPRESS_PRESETS,
+} from "@/lib/utils/imageCompression";
 
 // 로그인
 export const useSignInMutation = () => {
@@ -393,7 +397,9 @@ export const uploadImageToStorageProfile = async (
   const supabase = createBrowserSupabaseClient();
   const bucket = process.env.NEXT_PUBLIC_STORAGE_USER_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const cleanFileName = file.name.replace(/[^\w.-]/g, ""); // 안전한 ASCII 문자만 사용
+
+  const compressedFile = await compressImage(file, IMAGE_COMPRESS_PRESETS.avatar);
+  const cleanFileName = compressedFile.name.replace(/[^\w.-]/g, ""); // 안전한 ASCII 문자만 사용
   const fileName = `${userId}/${uuidv4()}-${cleanFileName}`;
 
   if (!bucket || !projectUrl) {
@@ -402,9 +408,9 @@ export const uploadImageToStorageProfile = async (
 
   const { data, error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(fileName, file, {
+    .upload(fileName, compressedFile, {
       upsert: true,
-      contentType: file.type,
+      contentType: compressedFile.type,
     });
 
   if (uploadError || !data?.path) {
