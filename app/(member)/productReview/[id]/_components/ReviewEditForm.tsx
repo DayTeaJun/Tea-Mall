@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import {
-  compressImage,
-  IMAGE_COMPRESS_PRESETS,
-} from "@/lib/utils/imageCompression";
+import { uploadImageToStorageProfile } from "@/lib/queries/auth";
+import { IMAGE_COMPRESS_PRESETS } from "@/lib/utils/imageCompression";
 import { ProductType } from "@/types/product";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -82,24 +80,20 @@ function ReviewEditForm({
       return;
     }
 
-    const uploadedUrls: string[] = [];
-    for (const file of detailFiles) {
-      const compressedFile = await compressImage(
-        file,
-        IMAGE_COMPRESS_PRESETS.review,
+    let uploadedUrls: string[] = [];
+    try {
+      uploadedUrls = await Promise.all(
+        detailFiles.map((file) =>
+          uploadImageToStorageProfile(userId, file, {
+            bucket: BUCKET,
+            compressPreset: IMAGE_COMPRESS_PRESETS.review,
+            pathPrefix: "reviews",
+          }),
+        ),
       );
-      const filePath = `reviews/${userId}/${Date.now()}-${compressedFile.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET)
-        .upload(filePath, compressedFile);
-      if (uploadError) {
-        toast.error("이미지 업로드 실패");
-        return;
-      }
-      const { data: urlData } = supabase.storage
-        .from(BUCKET)
-        .getPublicUrl(filePath);
-      uploadedUrls.push(urlData.publicUrl);
+    } catch {
+      toast.error("이미지 업로드 실패");
+      return;
     }
 
     const removed = originalImages.filter((u) => !existingImages.includes(u));

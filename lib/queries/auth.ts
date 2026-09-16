@@ -33,6 +33,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { DeliveryAddressForm } from "@/app/(member)/mypage/delivery/regist/page";
 import {
   compressImage,
+  CompressImageOptions,
   IMAGE_COMPRESS_PRESETS,
 } from "@/lib/utils/imageCompression";
 
@@ -389,18 +390,31 @@ export function useUpdateMyProfileMutation(userId: string | undefined) {
   return { data, isError, mutate, isSuccess, isPending };
 }
 
-// 프로필 이미지 업로드
+// 이미지 업로드 (기본은 프로필용이지만, bucket/compressPreset을 넘기면
+// 다른 용도로도 재사용 가능 - 예: 리뷰 이미지는 product-images 버킷 + review 프리셋)
 export const uploadImageToStorageProfile = async (
   userId: string,
   file: File,
+  options?: {
+    bucket?: string;
+    compressPreset?: CompressImageOptions;
+    // Storage RLS 정책이 경로 prefix 기준으로 짜여 있을 수 있어,
+    // 기존 경로 구조를 유지해야 하는 용도(예: 리뷰)에 사용
+    pathPrefix?: string;
+  },
 ): Promise<string> => {
   const supabase = createBrowserSupabaseClient();
-  const bucket = process.env.NEXT_PUBLIC_STORAGE_USER_BUCKET;
+  const bucket = options?.bucket ?? process.env.NEXT_PUBLIC_STORAGE_USER_BUCKET;
   const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-  const compressedFile = await compressImage(file, IMAGE_COMPRESS_PRESETS.avatar);
+  const compressedFile = await compressImage(
+    file,
+    options?.compressPreset ?? IMAGE_COMPRESS_PRESETS.avatar,
+  );
   const cleanFileName = compressedFile.name.replace(/[^\w.-]/g, ""); // 안전한 ASCII 문자만 사용
-  const fileName = `${userId}/${uuidv4()}-${cleanFileName}`;
+  const fileName = options?.pathPrefix
+    ? `${options.pathPrefix}/${userId}/${uuidv4()}-${cleanFileName}`
+    : `${userId}/${uuidv4()}-${cleanFileName}`;
 
   if (!bucket || !projectUrl) {
     throw new Error("env 설정 안했음");

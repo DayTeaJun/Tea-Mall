@@ -5,17 +5,13 @@ import { queryClient } from "@/components/providers/ReactQueryProvider";
 import { Button } from "@/components/ui/button";
 import { useDetailImagePreview } from "@/hooks/useImagePreview";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import {
-  compressImage,
-  IMAGE_COMPRESS_PRESETS,
-} from "@/lib/utils/imageCompression";
+import { uploadImageToStorageProfile } from "@/lib/queries/auth";
+import { IMAGE_COMPRESS_PRESETS } from "@/lib/utils/imageCompression";
 import { ProductType } from "@/types/product";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
-
-const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
 
 function ReviewForm({ product }: { product: ProductType }) {
   const [ratingValue, setRatingValue] = useState<number>(0);
@@ -52,27 +48,21 @@ function ReviewForm({ product }: { product: ProductType }) {
       return;
     }
 
-    const imageUrls: string[] = [];
+    let imageUrls: string[] = [];
 
-    for (const file of detailFiles) {
-      const compressedFile = await compressImage(
-        file,
-        IMAGE_COMPRESS_PRESETS.review,
+    try {
+      imageUrls = await Promise.all(
+        detailFiles.map((file) =>
+          uploadImageToStorageProfile(user.id, file, {
+            bucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+            compressPreset: IMAGE_COMPRESS_PRESETS.review,
+            pathPrefix: "reviews",
+          }),
+        ),
       );
-      const filePath = `reviews/${user.id}/${Date.now()}-${compressedFile.name}`;
-      const { error } = await supabase.storage
-        .from(bucket!)
-        .upload(filePath, compressedFile);
-
-      if (error) {
-        toast.error("이미지 업로드 실패");
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from(bucket!)
-        .getPublicUrl(filePath);
-      imageUrls.push(urlData.publicUrl);
+    } catch {
+      toast.error("이미지 업로드 실패");
+      return;
     }
 
     // 1. 리뷰 등록
