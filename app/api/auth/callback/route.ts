@@ -4,7 +4,12 @@ import { createServerSupabaseClient } from "@/lib/config/supabase/server/server"
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/";
+
+  // Open Redirect 방지: "/"로 시작하는 같은 출처의 상대 경로만 허용
+  // ("//evil.com" 같은 프로토콜 상대 URL도 브라우저가 외부 사이트로 취급하므로 같이 차단)
+  const rawNext = url.searchParams.get("next") || "/";
+  const next =
+    rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
 
   const error = url.searchParams.get("error");
   const errorDescription = url.searchParams.get("error_description");
