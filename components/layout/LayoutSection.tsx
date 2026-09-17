@@ -2,7 +2,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
 import { UserType } from "@/types/user";
-import ToolComponent from "../ui/ToolComponents/ToolComponent";
+import ToolComponent from "../ToolComponents/ToolComponent";
 
 interface Props {
   user: UserType | null;

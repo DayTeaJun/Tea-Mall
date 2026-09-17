@@ -1504,7 +1504,7 @@ export const getAdminChatList = async (
 };
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { AdminChatListProps } from "@/components/ui/ToolComponents/chat/admin/AdminChatList";
+import { AdminChatListProps } from "@/components/ToolComponents/chat/admin/AdminChatList";
 
 export function useInfiniteAdminChatList(userId: string) {
   return useInfiniteQuery({
