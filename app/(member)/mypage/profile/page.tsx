@@ -102,10 +102,10 @@ export default function ProfilePage() {
               {data?.profile_image_url ? (
                 <Image
                   fill
+                  sizes="128px"
                   src={data.profile_image_url}
                   alt={data.user_name || "Profile"}
                   className="object-cover"
-                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
