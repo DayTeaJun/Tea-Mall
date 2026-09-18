@@ -72,7 +72,11 @@ export default function RecommendProductsCarousel({
                 lg:basis-[calc((100%-3rem)/4)]
               `}
             >
-              <ProductCard recommend products={product} />
+              <ProductCard
+                recommend
+                products={product}
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
             </div>
           ))}
       </div>

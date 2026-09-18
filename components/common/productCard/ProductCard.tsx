@@ -17,9 +17,13 @@ import {
 function ProductCard({
   products,
   recommend,
+  // 이 카드가 실제로 그려지는 그리드/캐러셀 레이아웃에 맞는 값을 호출부에서 넘겨줄 것.
+  // 안 넘기면 가장 흔한 상품 그리드(1→2→4→5열) 기준값으로 대체됨.
+  sizes = "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw",
 }: {
   products: ProductType;
   recommend?: boolean;
+  sizes?: string;
 }) {
   const [imageError, setImageError] = useState(false);
   const { user } = useAuthStore();
@@ -118,7 +122,7 @@ function ProductCard({
             `}
             onError={() => setImageError(true)}
             priority={recommend}
-            sizes="(max-width: 768px) 50vw, 33vw"
+            sizes={sizes}
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-gray-400">

@@ -27,7 +27,10 @@ export default function BestProductList() {
             ))
           : bestProducts.map((product) => (
               <div key={product.id}>
-                <ProductCard products={product} />
+                <ProductCard
+                  products={product}
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
               </div>
             ))}
       </div>
