@@ -618,9 +618,12 @@ const postDownloadCoupon = async (couponCode: string) => {
 export function usePostDownloadCouponMutation(userId: string) {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (couponCode: string) => postDownloadCoupon(couponCode),
-    onSuccess: async () => {
+    onSuccess: async (_response, couponCode) => {
       await queryClient.invalidateQueries({
         queryKey: ["myAvailableCoupons", userId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["isCouponDownloaded", userId, couponCode],
       });
       toast.success("쿠폰이 성공적으로 등록되었습니다.");
     },

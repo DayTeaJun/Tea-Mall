@@ -7,6 +7,7 @@ import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useGetIsCouponDownloaded } from "@/lib/queries/auth";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 export default function EventPage() {
   const supabase = createBrowserSupabaseClient();
@@ -37,6 +38,9 @@ export default function EventPage() {
 
     if (result.success) {
       toast.success(result.message);
+      await queryClient.invalidateQueries({
+        queryKey: ["isCouponDownloaded", user?.id || "", couponCode],
+      });
     } else {
       toast.warning(result.message);
     }
