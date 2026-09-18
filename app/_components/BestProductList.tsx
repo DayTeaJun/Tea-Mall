@@ -1,8 +1,8 @@
 "use client";
 
 import { useBestProductListQuery } from "@/lib/queries/products";
-import ProductCard from "../../components/common/ProductCard/ProductCard";
-import ProductCardSkeleton from "../../components/common/ProductCard/ProductCardSkeleton";
+import ProductCard from "../../components/common/productCard/ProductCard";
+import ProductCardSkeleton from "../../components/common/productCard/ProductCardSkeleton";
 
 export default function BestProductList() {
   const { data: products, isLoading } = useBestProductListQuery();

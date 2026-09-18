@@ -1,4 +1,3 @@
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createProduct,
