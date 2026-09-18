@@ -15,7 +15,7 @@ function Footer() {
             </Link>
             <Link
               href="/policy/privacy"
-              className="hover:underline text-sm text-gray-800 font-bold"
+              className="hover:underline text-sm text-gray-800"
             >
               개인정보처리방침
             </Link>
