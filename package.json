@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-types": "npx supabase gen types typescript --linked --schema public > lib/config/supabase/types_db.ts"
+    "generate-types": "npx supabase gen types typescript --linked --schema public > lib/config/supabase/types_db.ts",
+    "recompress-images:dry": "node scripts/recompress-images.mjs --dry-run",
+    "recompress-images": "node scripts/recompress-images.mjs"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.6",
@@ -46,6 +48,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "eslint-config-prettier": "^10.1.2",
+    "sharp": "^0.33.5",
     "tailwindcss": "^4.1.4",
     "tw-animate-css": "^1.2.9",
     "typescript": "^5"
