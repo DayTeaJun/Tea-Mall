@@ -3,71 +3,32 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
-import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import { CheckoutItem } from "@/types/product";
+import { confirmOrder } from "@/lib/actions/checkout";
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createBrowserSupabaseClient();
 
   useEffect(() => {
     const processOrder = async () => {
       try {
         const orderId = searchParams.get("orderId");
         const paymentKey = searchParams.get("paymentKey");
-        const amount = Number(searchParams.get("amount"));
 
-        if (!orderId || !paymentKey || isNaN(amount)) {
+        if (!orderId || !paymentKey) {
           throw new Error("결제 정보가 유효하지 않습니다.");
         }
 
         const request = sessionStorage.getItem("request") ?? "";
         const receiver = sessionStorage.getItem("receiver") ?? "";
         const detailAddress = sessionStorage.getItem("detailAddress") ?? "";
-        const userCouponId = sessionStorage.getItem("couponId");
+        const rawUserCouponId = sessionStorage.getItem("couponId");
+        const userCouponId =
+          rawUserCouponId && rawUserCouponId !== "" ? rawUserCouponId : null;
 
-        // 1. 유저 정보 확인
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          throw new Error("사용자 인증에 실패하였습니다.");
-        }
-
-        // 2. 토스 결제 승인 요청
-        const confirmRes = await fetch("/api/toss/confirm", {
-          method: "POST",
-          body: JSON.stringify({ orderId, paymentKey, amount }),
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!confirmRes.ok) {
-          const result = await confirmRes.json();
-          throw new Error(`결제 인증 실패: ${result.message}`);
-        }
-
-        let masterCouponId = null;
-
-        // userCouponId가 있다면, 원본 쿠폰 ID(coupon_id)를 찾아오기
-        if (userCouponId && userCouponId !== "") {
-          const { data: userCouponData, error: userCouponQueryError } =
-            await supabase
-              .from("user_coupons")
-              .select("coupon_id")
-              .eq("id", userCouponId)
-              .single();
-
-          if (!userCouponQueryError && userCouponData) {
-            masterCouponId = userCouponData.coupon_id; // orders 테이블이 요구하는 진짜 마스터 쿠폰 ID
-          }
-        }
-
-        // 3. 주문(Orders) 테이블 저장
-        const items = JSON.parse(
+        const items: CheckoutItem[] = JSON.parse(
           sessionStorage.getItem("checkoutItems") ?? "[]",
         );
 
@@ -75,145 +36,23 @@ export default function CheckoutSuccessPage() {
           throw new Error("상품 정보가 비어 있습니다.");
         }
 
-        const totalProductPrice = items.reduce(
-          (sum, item) => sum + (item.product?.price ?? 0) * item.quantity,
-          0,
-        );
-
-        const calculatedDiscountAmount = Math.max(
-          0,
-          totalProductPrice - amount,
-        );
-
-        const { data: orderInsert, error: orderError } = await supabase
-          .from("orders")
-          .insert({
-            user_id: user.id,
-            request,
-            receiver,
-            detail_address: detailAddress,
-            coupon_id: masterCouponId,
-            discount_amount: calculatedDiscountAmount,
-          })
-          .select("id")
-          .single();
-
-        if (orderError || !orderInsert) {
-          console.error("🔥 Supabase 주문 저장 상세 에러:", orderError);
-          throw new Error(`주문 저장에 실패하였습니다: ${orderError?.message}`);
-        }
-
-        const order_id = orderInsert.id;
-
-        // 4. 쿠폰 사용 처리 (쿠폰을 썼을 경우에만)
-        if (userCouponId && userCouponId !== "") {
-          const { error: couponUpdateError } = await supabase
-            .from("user_coupons")
-            .update({
-              is_used: true,
-              used_at: new Date().toISOString(),
-            })
-            .eq("id", userCouponId)
-            .eq("user_id", user.id);
-
-          if (couponUpdateError) {
-            throw new Error("쿠폰 사용 처리에 실패했습니다.");
-          }
-        }
-
-        // 5. 주문 상품(Order Items) 저장
-        function mergeItems(items: CheckoutItem[]): CheckoutItem[] {
-          const map = new Map<string, CheckoutItem>();
-          for (const item of items) {
-            const size = item.options?.size ?? null;
-            const key = `${item.product.id}::${size ?? "null"}`;
-            const existed = map.get(key);
-            if (existed) {
-              map.set(key, {
-                ...existed,
-                quantity: existed.quantity + item.quantity,
-              });
-            } else {
-              map.set(key, { ...item });
-            }
-          }
-          return Array.from(map.values());
-        }
-
-        const mergedItems = mergeItems(items as CheckoutItem[]);
-        const orderItems = mergedItems.map((item) => {
-          const price = item.product?.price;
-          if (typeof price !== "number") {
-            throw new Error("상품 가격이 유효하지 않습니다.");
-          }
-          return {
-            order_id,
-            product_id: item.product.id,
+        // 가격/할인 계산과 Toss 승인은 서버(confirmOrder)에서 다시 검증하며 처리됨.
+        // 여기서는 상품/수량/옵션만 넘기고, 가격은 절대 클라이언트에서 넘기지 않음.
+        const { orderId: newOrderId } = await confirmOrder({
+          orderId,
+          paymentKey,
+          request,
+          receiver,
+          detailAddress,
+          userCouponId,
+          items: items.map((item) => ({
+            productId: item.product.id,
             quantity: item.quantity,
             size: item.options?.size ?? null,
-            price,
-          };
+          })),
+          clearCartAfter: true,
         });
 
-        const { error: itemError } = await supabase
-          .from("order_items")
-          .insert(orderItems);
-        if (itemError) {
-          throw new Error("상품 정보 저장에 실패하였습니다.");
-        }
-
-        // 6. 장바구니 비우기
-        for (const item of items) {
-          await supabase
-            .from("cart_items")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", item.product.id)
-            .contains("options", { size: item.options?.size });
-        }
-
-        // 7. 재고 차감
-        const productStockMap = new Map<
-          string,
-          { size: string | null; quantity: number }[]
-        >();
-        for (const item of orderItems) {
-          const group = productStockMap.get(item.product_id) ?? [];
-          group.push({ size: item.size, quantity: item.quantity });
-          productStockMap.set(item.product_id, group);
-        }
-
-        for (const [productId, sizeItems] of productStockMap.entries()) {
-          const { data: productData } = await supabase
-            .from("products")
-            .select("stock_by_size")
-            .eq("id", productId)
-            .single();
-
-          if (!productData?.stock_by_size) continue;
-
-          const stockMap = {
-            ...(productData.stock_by_size as Record<string, number>),
-          };
-          for (const { size, quantity } of sizeItems) {
-            if (size && typeof stockMap[size] === "number") {
-              stockMap[size] = Math.max(0, stockMap[size] - quantity);
-            }
-          }
-
-          await supabase
-            .from("products")
-            .update({
-              stock_by_size: stockMap,
-              total_stock: Object.values(stockMap).reduce(
-                (sum, qty) => sum + qty,
-                0,
-              ),
-            })
-            .eq("id", productId);
-        }
-
-        // 8. 성공 마무리 및 세션 정리
         router.refresh();
         sessionStorage.removeItem("checkoutItems");
         sessionStorage.removeItem("request");
@@ -222,7 +61,7 @@ export default function CheckoutSuccessPage() {
         sessionStorage.removeItem("couponId");
 
         toast.success("주문이 완료되었습니다.");
-        window.location.href = `/mypage/myCart/checkout/successDone?orderId=${order_id}`;
+        window.location.href = `/mypage/myCart/checkout/successDone?orderId=${newOrderId}`;
       } catch (err) {
         console.error("주문 처리 중 오류 발생:", err);
 
