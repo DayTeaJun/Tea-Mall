@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProductListView from "./_components/ProductListView";
-
-const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+import { SIZE_FILTER_GROUPS } from "@/lib/constants/categories";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -176,10 +175,16 @@ export default function SearchPage() {
             className="border rounded px-2 py-1 text-sm"
           >
             <option value="">사이즈 전체</option>
-            {SIZE_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+            {/* 검색은 카테고리가 고정돼있지 않아서, 카테고리별 사이즈 체계를
+                그룹으로 나눠서 보여줌 (의류: XS~XXXL, 신발: 230~280mm 등) */}
+            {SIZE_FILTER_GROUPS.map(([categoryName, sizes]) => (
+              <optgroup key={categoryName} label={categoryName}>
+                {sizes.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
 

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Json } from "@/lib/config/supabase/types_db";
 import ImagePreviews from "../../../regist/_components/ImagePreview";
 import DetailImagePreview from "../../../regist/_components/DetailImagePreview";
+import { CATEGORY_MAP, SIZE_OPTIONS_MAP } from "@/lib/constants/categories";
 
 interface ProductWithImages {
   category: string | null;
@@ -46,19 +47,8 @@ export default function EditProductForm({
 }: {
   product: ProductWithImages;
 }) {
-  const categoryMap: Record<string, string[]> = {
-    의류: ["아우터", "상의", "하의", "원피스"],
-    신발: ["스니커즈", "구두", "부츠", "샌들"],
-    가방: ["백팩", "숄더백", "크로스백", "클러치"],
-    액세서리: ["모자", "벨트", "지갑", "기타"],
-  };
-
-  const sizeOptionsMap: Record<string, string[]> = {
-    의류: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
-    신발: ["230", "240", "250", "260", "270", "280"],
-    가방: [],
-    액세서리: [],
-  };
+  const categoryMap = CATEGORY_MAP;
+  const sizeOptionsMap = SIZE_OPTIONS_MAP;
 
   const [name, setName] = useState(product.name);
   const [description, setDescription] = useState(product.description || "");

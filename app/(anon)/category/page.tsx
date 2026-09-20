@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProductListView from "../search/_components/ProductListView";
-
-const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+import { SIZE_OPTIONS_MAP } from "@/lib/constants/categories";
 
 export default function CategoryPage() {
   const searchParams = useSearchParams();
@@ -24,6 +23,9 @@ export default function CategoryPage() {
 
   const [minInput, setMinInput] = useState(minPriceParam);
   const [maxInput, setMaxInput] = useState(maxPriceParam);
+
+  // 카테고리마다 사이즈 체계가 다름 (의류: XS~XXXL, 신발: 230~280, 가방/액세서리: 없음)
+  const currentSizeOptions = SIZE_OPTIONS_MAP[category] ?? [];
 
   const updateQuery = (params: Record<string, string | number>) => {
     const qs = new URLSearchParams(searchParams.toString());
@@ -189,18 +191,20 @@ export default function CategoryPage() {
             </button>
           </div>
 
-          <select
-            value={productSize}
-            onChange={(e) => updateQuery({ productSize: e.target.value })}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            <option value="">사이즈 전체</option>
-            {SIZE_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {currentSizeOptions.length > 0 && (
+            <select
+              value={productSize}
+              onChange={(e) => updateQuery({ productSize: e.target.value })}
+              className="border rounded px-2 py-1 text-sm"
+            >
+              <option value="">사이즈 전체</option>
+              {currentSizeOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
 
           {hasActiveFilters && (
             <button
