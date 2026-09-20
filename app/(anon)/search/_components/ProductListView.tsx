@@ -4,7 +4,7 @@ import ProductCard from "@/components/common/productCard/ProductCard";
 import ProductCardSkeleton from "@/components/common/productCard/ProductCardSkeleton";
 import { useSearchProductsQuery } from "@/lib/queries/products";
 import ReactPaginate from "react-paginate";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { PackageSearch, ShoppingCart } from "lucide-react";
 
 type Props = {
@@ -14,6 +14,9 @@ type Props = {
   page?: number;
   pageSize?: number;
   sort?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  productSize?: string;
 };
 
 export default function ProductListView({
@@ -23,8 +26,12 @@ export default function ProductListView({
   page = 1,
   pageSize = 36,
   sort = "accurate",
+  minPrice,
+  maxPrice,
+  productSize = "",
 }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { data: products, isLoading } = useSearchProductsQuery(
     category,
@@ -33,6 +40,9 @@ export default function ProductListView({
     page,
     pageSize,
     sort,
+    minPrice,
+    maxPrice,
+    productSize,
   );
 
   const totalCount = products?.count ?? 0;
@@ -44,11 +54,18 @@ export default function ProductListView({
     const qs = new URLSearchParams();
 
     if (keyword) qs.set("query", keyword);
+    if (category) qs.set("type", category);
+    if (subCategory) qs.set("sub", subCategory);
+    if (minPrice !== undefined) qs.set("minPrice", String(minPrice));
+    if (maxPrice !== undefined) qs.set("maxPrice", String(maxPrice));
+    if (productSize) qs.set("productSize", productSize);
     qs.set("page", String(newPage));
     qs.set("sort", sort);
     qs.set("size", String(pageSize));
 
-    router.push(`/search?${qs.toString()}`);
+    // 검색/카테고리 페이지 둘 다에서 쓰이므로, 지금 페이지 경로 그대로 이동
+    // (기존엔 /search로 고정돼 있어서 /category에서 페이지 이동 시 카테고리 필터를 잃는 버그가 있었음)
+    router.push(`${pathname}?${qs.toString()}`);
   };
 
   return (

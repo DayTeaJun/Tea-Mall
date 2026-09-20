@@ -298,6 +298,9 @@ const getSearchProducts = async (
   page: number,
   limit: number,
   sort: string = "accurate",
+  minPrice?: number,
+  maxPrice?: number,
+  size?: string,
 ) => {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -325,6 +328,21 @@ const getSearchProducts = async (
 
   if (query.trim() !== "") {
     queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+  }
+
+  // 최소금액
+  if (typeof minPrice === "number" && !isNaN(minPrice)) {
+    queryBuilder = queryBuilder.gte("price", minPrice);
+  }
+  // 최대금액
+  if (typeof maxPrice === "number" && !isNaN(maxPrice)) {
+    queryBuilder = queryBuilder.lte("price", maxPrice);
+  }
+
+  // 사이즈 필터: stock_by_size(JSON)에 해당 사이즈 키 자체가 있는 상품만
+  // (예: stock_by_size->M 이 존재하는 상품 - 재고 0이어도 그 사이즈를 운영하는 상품은 노출)
+  if (size) {
+    queryBuilder = queryBuilder.not(`stock_by_size->${size}`, "is", null);
   }
 
   // 정렬 처리
@@ -370,6 +388,9 @@ export const useSearchProductsQuery = (
   page: number,
   limit: number,
   sort: string = "accurate",
+  minPrice?: number,
+  maxPrice?: number,
+  size?: string,
 ) => {
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -380,9 +401,22 @@ export const useSearchProductsQuery = (
       page,
       limit,
       sort,
+      minPrice ?? null,
+      maxPrice ?? null,
+      size ?? "",
     ],
     queryFn: () =>
-      getSearchProducts(category, subCategory, query, page, limit, sort),
+      getSearchProducts(
+        category,
+        subCategory,
+        query,
+        page,
+        limit,
+        sort,
+        minPrice,
+        maxPrice,
+        size,
+      ),
   });
 
   return {
