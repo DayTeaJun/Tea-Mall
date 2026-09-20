@@ -13,7 +13,7 @@ const categories = [
   { name: "의류", path: "/category?type=의류&page=1", icon: Shirt },
   { name: "신발", path: "/category?type=신발&page=1", icon: Footprints },
   { name: "가방", path: "/category?type=가방&page=1", icon: ShoppingBag },
-  { name: "액세서리", path: "/category?type=악세서리&page=1", icon: Watch },
+  { name: "액세서리", path: "/category?type=액세서리&page=1", icon: Watch },
 ];
 
 export default function QuickCategory() {
