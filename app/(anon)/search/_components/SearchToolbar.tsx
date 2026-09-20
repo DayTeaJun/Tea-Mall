@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
 interface SizeGroup {
   label: string;
@@ -205,15 +205,12 @@ export default function SearchToolbar({
                           <button
                             key={s}
                             onClick={() => onToggleSize(s)}
-                            className={`flex items-center gap-1 text-sm ${
+                            className={`text-sm ${
                               isSelected
-                                ? "text-green-700 font-medium"
+                                ? "font-medium text-gray-900 underline decoration-green-400 decoration-[3px] underline-offset-2"
                                 : "text-gray-700 hover:text-black"
                             }`}
                           >
-                            {isSelected && (
-                              <Check size={13} className="text-green-600" />
-                            )}
                             {s}
                           </button>
                         );
@@ -225,7 +222,7 @@ export default function SearchToolbar({
                 {hasActiveFilters && (
                   <button
                     onClick={onClear}
-                    className="pt-4 text-xs text-gray-500 underline hover:text-black text-left w-full"
+                    className="pt-4 text-xs text-gray-500 underline hover:text-black w-full text-end"
                   >
                     필터 초기화
                   </button>
