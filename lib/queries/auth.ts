@@ -1210,8 +1210,6 @@ export const postInquiryComment = async (
 };
 
 export const usePostInquiryCommentMutation = () => {
-  const router = useRouter();
-
   const { mutate, isPending } = useMutation({
     mutationFn: ({
       userId,
@@ -1223,9 +1221,8 @@ export const usePostInquiryCommentMutation = () => {
       comment: string;
     }) => postInquiryComment(userId, inquiryId, comment),
     onSuccess: async () => {
-      toast.success("답변이 성공적으로 등록되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      router.refresh();
+      toast.success("답변이 성공적으로 등록되었습니다.");
     },
     onError: (error) => {
       console.error("답변 등록 실패:", error);
@@ -1261,8 +1258,6 @@ export const updateInquiryComment = async (
 };
 
 export const useUpdateInquiryCommentMutation = () => {
-  const router = useRouter();
-
   const { mutate, isPending } = useMutation({
     mutationFn: ({
       inquiryId,
@@ -1272,9 +1267,8 @@ export const useUpdateInquiryCommentMutation = () => {
       comment: string;
     }) => updateInquiryComment(inquiryId, comment),
     onSuccess: async () => {
-      toast.success("답변이 수정되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      router.refresh();
+      toast.success("답변이 수정되었습니다.");
     },
     onError: (error) => {
       console.error("답변 수정 실패:", error);
@@ -1309,14 +1303,11 @@ export const deleteInquiryComment = async (inquiryId: number) => {
 };
 
 export const useDeleteInquiryCommentMutation = () => {
-  const router = useRouter();
-
   const { mutate, isPending } = useMutation({
     mutationFn: (inquiryId: number) => deleteInquiryComment(inquiryId),
     onSuccess: async () => {
-      toast.success("답변이 삭제되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      router.refresh();
+      toast.success("답변이 삭제되었습니다.");
     },
     onError: (error) => {
       console.error("답변 삭제 실패:", error);
@@ -1370,13 +1361,13 @@ export const useDeleteInquiry = (isAdmin: boolean, prePage?: string) => {
       deleteInquiry(inquiryId, guestPassword, isAdmin),
 
     onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
       toast.success("문의가 삭제되었습니다.");
       if (prePage === "mypage") {
         router.replace("/mypage/inquiry");
       } else {
         router.replace("/inquiry");
       }
-      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
     },
 
     onError: (error) => {
