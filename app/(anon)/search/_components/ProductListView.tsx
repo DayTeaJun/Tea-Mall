@@ -71,7 +71,7 @@ export default function ProductListView({
   return (
     <div className="w-full min-h-screen flex flex-col justify-between">
       {isLoading ? (
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {Array.from({ length: pageSize }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
