@@ -177,8 +177,6 @@ export function useGetDefaultAddress(userId: string | undefined) {
 
 // 내 배송지 기본 배송지로 설정
 export function usePostDefaultDeliveryAddressMutation(userId: string) {
-  const router = useRouter();
-
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (addressId: string) =>
       postDefaultDeliveryAddress(addressId, userId),
@@ -194,8 +192,6 @@ export function usePostDefaultDeliveryAddressMutation(userId: string) {
       ]);
 
       toast.success("기본 배송지로 적용되었습니다.");
-
-      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -239,7 +235,6 @@ export function usePostDeliveryAddressMutation(
       if (!isModal) {
         router.push("/mypage/delivery");
       }
-      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -286,7 +281,6 @@ export function usePatchDeliveryAddressMutation(
       if (!isModal) {
         router.push("/mypage/delivery");
       }
-      router.refresh();
     },
     onError: (error) => {
       if (error instanceof Error) {
