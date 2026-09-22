@@ -60,7 +60,7 @@ export async function confirmOrder(
   const productIds = [...new Set(mergedItems.map((i) => i.productId))];
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, price, stock_by_size")
+    .select("id, price, stock_by_size, sales_count")
     .in("id", productIds);
 
   if (productsError || !products || products.length !== productIds.length) {
@@ -242,11 +242,17 @@ export async function confirmOrder(
       }
     }
 
+    const purchasedQuantity = deductions.reduce(
+      (sum, { quantity }) => sum + quantity,
+      0,
+    );
+
     const { error: stockError } = await supabase
       .from("products")
       .update({
         stock_by_size: stockMap,
         total_stock: Object.values(stockMap).reduce((sum, qty) => sum + qty, 0),
+        sales_count: (product.sales_count ?? 0) + purchasedQuantity,
       })
       .eq("id", productId);
 
