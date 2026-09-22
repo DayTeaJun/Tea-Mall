@@ -16,6 +16,7 @@ import {
   signUpUser,
   updateMyProfile,
 } from "@/lib/actions/auth";
+import { cancelOrderItem } from "@/lib/actions/checkout";
 import {
   SignInFormData,
   SignUpFormData,
@@ -818,28 +819,14 @@ export function useDeleteOrderMutation(userId: string, page?: string) {
   return { mutate, isPending };
 }
 
-// 주문 취소
-async function updateCancelOrderItem(orderId: string) {
-  const supabase = createBrowserSupabaseClient();
-  const { data, error } = await supabase
-    .from("order_items")
-    .update({ delivery_status: "취소됨" })
-    .eq("id", orderId)
-    .select("id, order_id")
-    .single();
-
-  if (error) throw new Error(error.message);
-  return data;
-}
-
 export const useUpdateCancelOrderItem = (userId: string) => {
   const { mutate, isPending } = useMutation({
-    mutationFn: (orderId: string) => updateCancelOrderItem(orderId),
+    mutationFn: (orderItemId: string) => cancelOrderItem(orderItemId),
     onSuccess: async (data) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["orders", userId] }),
         queryClient.invalidateQueries({
-          queryKey: ["orderDetails", data?.order_id],
+          queryKey: ["orderDetails", data?.orderId],
         }),
       ]);
       toast.success("주문이 취소되었습니다.");
