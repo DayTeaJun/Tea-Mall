@@ -93,6 +93,7 @@ export const useUpdateProductMutation = (productId: string) => {
         queryClient.invalidateQueries({ queryKey: ["searchProducts"] }),
         queryClient.invalidateQueries({ queryKey: ["manageProducts"] }),
         queryClient.invalidateQueries({ queryKey: ["cart_items"] }),
+        queryClient.invalidateQueries({ queryKey: ["discount_products"] }),
       ]);
 
       toast.success("상품이 성공적으로 수정되었습니다.");

@@ -1,5 +1,6 @@
 import MainCarousel from "./_components/MainCarousel";
 import BestProductList from "./_components/BestProductList";
+import DiscountProductList from "./_components/DiscountProductList";
 import ProductList from "./_components/ProductList";
 import SideQuickMenu from "./_components/SideQuickMenu";
 import QuickCategory from "./_components/QuickCategory";
@@ -31,6 +32,8 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-16">
+          <DiscountProductList />
+
           <BestProductList />
 
           <section className="w-full">

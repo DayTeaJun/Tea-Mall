@@ -63,6 +63,46 @@ export function useBestProductListQuery() {
   };
 }
 
+// 실제 할인율(%) 계산 - discount_type이 fixed(정액)인 경우 discount_value가
+// 원 단위라서 percentage 상품과 그대로 비교/정렬할 수 없어 정가 대비 비율로 환산
+export function getDiscountPercent(product: ProductType) {
+  if (!product.original_price || product.original_price <= product.price) {
+    return 0;
+  }
+  return Math.round(
+    ((product.original_price - product.price) / product.original_price) * 100,
+  );
+}
+
+// 할인 상품 전체 조회, 할인율 높은 순 (메인 페이지 카테고리별 할인 섹션용)
+export async function getDiscountProductList() {
+  const { data, error } = await supabase
+    .from("v_products_with_favorites")
+    .select("*")
+    .eq("deleted", false)
+    .gt("total_stock", 0)
+    .not("discount_value", "is", null);
+
+  if (error) throw error;
+
+  return ((data ?? []) as unknown as ProductType[]).sort(
+    (a, b) => getDiscountPercent(b) - getDiscountPercent(a),
+  );
+}
+
+export function useDiscountProductListQuery() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["discount_products"],
+    queryFn: getDiscountProductList,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+  };
+}
+
 // 추천 상품 조회
 export async function getRelatedProducts(
   currentProductId: string,
