@@ -38,11 +38,11 @@ export default function Home() {
 
           <section className="w-full">
             <div className="mb-6">
-              <h2 className="text-xl font-bold tracking-tight text-gray-900">
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900">
                 추천 상품
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                트렌드를 앞서가는 T-Mall의 제안
+              <p className="text-sm text-gray-400 mt-1">
+                취향을 저격할 다음 아이템을 만나보세요
               </p>
             </div>
             <ProductList />

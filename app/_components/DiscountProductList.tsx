@@ -161,12 +161,12 @@ export default function DiscountProductList() {
   return (
     <section className="w-full mb-16">
       <div className="mb-6">
-        <h2 className="flex items-center gap-1.5 text-xl font-bold tracking-tight">
-          <Percent size={18} className="text-red-500" strokeWidth={2.5} />
+        <h2 className="flex items-center gap-1.5 text-2xl font-bold tracking-tight">
+          <Percent size={20} className="text-red-500" strokeWidth={2.5} />
           지금 놓치면 후회할 특가
         </h2>
-        <p className="text-xs text-gray-400 mt-0.5">
-          할인가로 만나는 T-Mall 인기 상품
+        <p className="text-sm text-gray-400 mt-1">
+          얼마 남지 않은 할인, 지금 바로 확인하세요
         </p>
       </div>
 

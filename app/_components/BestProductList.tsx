@@ -69,11 +69,11 @@ export default function BestProductList() {
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#2a2a2a] py-24 mb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="mb-6">
-          <h2 className="text-xl font-bold tracking-tight text-white">
+          <h2 className="text-2xl font-bold tracking-tight text-white">
             실시간 베스트
           </h2>
-          <p className="text-xs text-gray-400 mt-0.5">
-            지금 가장 사랑받는 인기 상품
+          <p className="text-sm text-gray-400 mt-1">
+            지금 T-Mall에서 가장 많이 팔리는 상품
           </p>
         </div>
 
