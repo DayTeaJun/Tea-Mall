@@ -42,3 +42,6 @@ next-env.d.ts
 
 # supabase
 /supabase
+
+# 더미 데이터용으로 받아온 이미지 (Unsplash 등)
+/scripts/downloaded-images
