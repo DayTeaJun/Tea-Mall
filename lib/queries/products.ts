@@ -481,6 +481,28 @@ export async function getFavorite(userId: string, productId: string) {
   return data;
 }
 
+// 내가 찜한 상품 id 전체를 한 번에 조회 (상품 카드들이 이 결과 하나를 공유해서 씀)
+export async function getMyFavoriteIds(userId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("product_id")
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error("즐겨찾기 목록 조회 실패: " + error.message);
+  }
+
+  return new Set((data ?? []).map((f) => f.product_id));
+}
+
+export function useMyFavoriteIdsQuery(userId?: string) {
+  return useQuery({
+    queryKey: ["favoriteIds", userId],
+    queryFn: () => getMyFavoriteIds(userId as string),
+    enabled: !!userId,
+  });
+}
+
 // 즐겨찾기 전체 조회
 async function getFavoritesAll(
   userId: string,
@@ -588,7 +610,11 @@ export const postFavorite = async (
 export const usePostFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => postFavorite(userId, productId),
-    onSuccess: async () => {
+    onSuccess: async (_data, productId) => {
+      queryClient.setQueryData<Set<string>>(
+        ["favoriteIds", userId],
+        (prev) => new Set(prev).add(productId),
+      );
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
@@ -615,7 +641,15 @@ export const deleteFavorite = async (userId: string, productId: string) => {
 export const useDeleteFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => deleteFavorite(userId, productId),
-    onSuccess: async () => {
+    onSuccess: async (_data, productId) => {
+      queryClient.setQueryData<Set<string>>(
+        ["favoriteIds", userId],
+        (prev) => {
+          const next = new Set(prev);
+          next.delete(productId);
+          return next;
+        },
+      );
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });

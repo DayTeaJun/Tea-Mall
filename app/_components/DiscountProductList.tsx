@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import {
   getDiscountPercent,
   useDiscountProductListQuery,
-  getFavorite,
+  useMyFavoriteIdsQuery,
   usePostFavoriteMutation,
   useDeleteFavoriteMutation,
 } from "@/lib/queries/products";
@@ -29,29 +29,13 @@ function DiscountListRow({ product }: { product: ProductType }) {
   const router = useRouter();
   const { user } = useAuthStore();
 
-  const [isFavorited, setIsFavorited] = useState(false);
+  const { data: favoriteIds } = useMyFavoriteIdsQuery(user?.id);
+  const isFavorited = favoriteIds?.has(product.id) ?? false;
 
   const { mutate: addFavoriteMutate } = usePostFavoriteMutation(user?.id ?? "");
   const { mutate: delFavoriteMutate } = useDeleteFavoriteMutation(
     user?.id ?? "",
   );
-
-  useEffect(() => {
-    const fetchFavoriteStatus = async () => {
-      if (!user?.id) {
-        setIsFavorited(false);
-        return;
-      }
-      try {
-        const favorite = await getFavorite(user.id, product.id);
-        setIsFavorited(!!favorite);
-      } catch (error) {
-        console.error("찜 상태 로드 오류:", error);
-      }
-    };
-
-    fetchFavoriteStatus();
-  }, [user?.id, product.id]);
 
   const handleBookmark = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -63,10 +47,8 @@ function DiscountListRow({ product }: { product: ProductType }) {
 
     if (isFavorited) {
       delFavoriteMutate(product.id);
-      setIsFavorited(false);
     } else {
       addFavoriteMutate(product.id);
-      setIsFavorited(true);
     }
 
     router.refresh();

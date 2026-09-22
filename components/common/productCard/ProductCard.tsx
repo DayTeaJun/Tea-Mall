@@ -4,13 +4,13 @@ import { ProductType } from "@/types/product";
 import { Heart, ImageOff, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
-  getFavorite,
   useDeleteFavoriteMutation,
+  useMyFavoriteIdsQuery,
   usePostFavoriteMutation,
 } from "@/lib/queries/products";
 
@@ -29,10 +29,12 @@ function ProductCard({
   const { user } = useAuthStore();
   const router = useRouter();
 
-  const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [favCount, setFavCount] = useState<number>(
     products.favorite_count ?? 0,
   );
+
+  const { data: favoriteIds } = useMyFavoriteIdsQuery(user?.id);
+  const isFavorited = favoriteIds?.has(products.id) ?? false;
 
   const { mutate: addFavoriteMutate } = usePostFavoriteMutation(user?.id ?? "");
   const { mutate: delFavoriteMutate } = useDeleteFavoriteMutation(
@@ -66,23 +68,6 @@ function ProductCard({
     }
   }
 
-  useEffect(() => {
-    const fetchFavoriteStatus = async () => {
-      if (!user?.id) {
-        setIsFavorited(false);
-        return;
-      }
-      try {
-        const favorite = await getFavorite(user.id, products.id);
-        setIsFavorited(!!favorite);
-      } catch (error) {
-        console.error("찜 상태 로드 오류:", error);
-      }
-    };
-
-    fetchFavoriteStatus();
-  }, [user?.id, products.id]);
-
   const handleBookmark = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -93,11 +78,9 @@ function ProductCard({
 
     if (isFavorited) {
       delFavoriteMutate(products.id);
-      setIsFavorited(false);
       setFavCount((prev) => Math.max(0, prev - 1));
     } else {
       addFavoriteMutate(products.id);
-      setIsFavorited(true);
       setFavCount((prev) => prev + 1);
     }
 
