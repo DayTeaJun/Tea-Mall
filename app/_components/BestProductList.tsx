@@ -6,9 +6,9 @@ import { useBestProductListQuery } from "@/lib/queries/products";
 import ProductCard from "../../components/common/productCard/ProductCard";
 import ProductCardSkeleton from "../../components/common/productCard/ProductCardSkeleton";
 
-// 한 화면에 보이는 카드 개수 (트랙 폭 계산의 기준)
-const VISIBLE = 4;
-// 트랙 슬라이드 트랜지션 시간과 동일하게 맞춰야 함 (below transition-transform duration-300)
+// 데스크톱/모바일에서 한 화면에 보이는 카드 개수 (트랙 폭 계산의 기준)
+const VISIBLE_DESKTOP = 4;
+const VISIBLE_MOBILE = 2;
 const TRANSITION_MS = 300;
 
 export default function BestProductList() {
@@ -18,15 +18,27 @@ export default function BestProductList() {
   // 애니메이션 없이 실제 인덱스로 조용히 되돌려서 무한 루프처럼 보이게 함
   const [index, setIndex] = useState(0);
   const [noTransition, setNoTransition] = useState(false);
+  // 서버 렌더링 시점엔 화면 폭을 알 수 없어서 일단 모바일 기준으로 시작하고,
+  // 마운트된 뒤 실제 화면 폭에 맞춰 조정함
+  const [visible, setVisible] = useState(VISIBLE_MOBILE);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 768px)");
+    const update = () =>
+      setVisible(mql.matches ? VISIBLE_DESKTOP : VISIBLE_MOBILE);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
 
   const items = products ?? [];
   const count = items.length;
-  const canSlide = count > VISIBLE;
+  const canSlide = count > visible;
 
   // 양 끝에 카드를 복제해서 붙여둠 - 끝에서 다음으로/처음에서 이전으로 넘어갈 때도
   // 방향이 꺾이지 않고 같은 방향으로 계속 이어지도록 하기 위함
-  const headClones = canSlide ? items.slice(count - VISIBLE) : [];
-  const tailClones = canSlide ? items.slice(0, VISIBLE) : [];
+  const headClones = canSlide ? items.slice(count - visible) : [];
+  const tailClones = canSlide ? items.slice(0, visible) : [];
   const trackItems = canSlide
     ? [...headClones, ...items, ...tailClones]
     : items;
@@ -59,7 +71,7 @@ export default function BestProductList() {
   const navButtonClass =
     "flex h-8 w-12 items-center justify-center rounded text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
 
-  const slidePercent = ((headOffset + index) * 100) / VISIBLE;
+  const slidePercent = ((headOffset + index) * 100) / visible;
   const displayIndex = (((index % count) + count) % count) + 1;
 
   return (
@@ -78,8 +90,11 @@ export default function BestProductList() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {Array.from({ length: VISIBLE }).map((_, idx) => (
+          <div
+            className="grid gap-6"
+            style={{ gridTemplateColumns: `repeat(${visible}, minmax(0, 1fr))` }}
+          >
+            {Array.from({ length: visible }).map((_, idx) => (
               <ProductCardSkeleton key={idx} />
             ))}
           </div>
@@ -93,7 +108,7 @@ export default function BestProductList() {
                 <div
                   key={`${product.id}-${i}`}
                   className="shrink-0 px-3"
-                  style={{ width: `${100 / VISIBLE}%` }}
+                  style={{ width: `${100 / visible}%` }}
                 >
                   <ProductCard
                     products={product}
