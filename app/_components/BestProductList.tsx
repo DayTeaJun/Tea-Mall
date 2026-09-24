@@ -6,9 +6,10 @@ import { useBestProductListQuery } from "@/lib/queries/products";
 import ProductCard from "../../components/common/productCard/ProductCard";
 import ProductCardSkeleton from "../../components/common/productCard/ProductCardSkeleton";
 
-// 데스크톱/모바일에서 한 화면에 보이는 카드 개수 (트랙 폭 계산의 기준)
-const VISIBLE_DESKTOP = 4;
-const VISIBLE_MOBILE = 2;
+// 카드 1개가 트랙 폭에서 차지하는 비율(%). 데스크톱은 4등분(25%)이라 옆이 안 보이고,
+// 모바일은 82%로 살짝 작게 둬서 양옆 카드가 조금씩 삐져나와 보이게 함
+const DESKTOP_ITEM_WIDTH_PERCENT = 25;
+const MOBILE_ITEM_WIDTH_PERCENT = 82;
 const TRANSITION_MS = 300;
 
 export default function BestProductList() {
@@ -20,12 +21,16 @@ export default function BestProductList() {
   const [noTransition, setNoTransition] = useState(false);
   // 서버 렌더링 시점엔 화면 폭을 알 수 없어서 일단 모바일 기준으로 시작하고,
   // 마운트된 뒤 실제 화면 폭에 맞춰 조정함
-  const [visible, setVisible] = useState(VISIBLE_MOBILE);
+  const [itemWidthPercent, setItemWidthPercent] = useState(
+    MOBILE_ITEM_WIDTH_PERCENT,
+  );
 
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 768px)");
     const update = () =>
-      setVisible(mql.matches ? VISIBLE_DESKTOP : VISIBLE_MOBILE);
+      setItemWidthPercent(
+        mql.matches ? DESKTOP_ITEM_WIDTH_PERCENT : MOBILE_ITEM_WIDTH_PERCENT,
+      );
     update();
     mql.addEventListener("change", update);
     return () => mql.removeEventListener("change", update);
@@ -33,12 +38,19 @@ export default function BestProductList() {
 
   const items = products ?? [];
   const count = items.length;
-  const canSlide = count > visible;
+
+  // 카드 폭이 100%보다 작으면(=모바일 peek), 한 화면에 동시에 걸쳐 보일 수 있는
+  // 카드 수가 늘어남 (예: 82%면 최대 2장이 동시에 화면에 걸침) - 그만큼 양 끝에
+  // 복제본을 더 붙여둬야 슬라이드 도중 빈 칸이 안 생김
+  const cloneCount = Math.ceil(100 / itemWidthPercent);
+  // 카드가 완전히(잘리지 않고) 몇 장 들어가는지 - 그 수보다 상품이 많을 때만 슬라이드 필요
+  const itemsFittingFully = Math.floor(100 / itemWidthPercent);
+  const canSlide = count > itemsFittingFully;
 
   // 양 끝에 카드를 복제해서 붙여둠 - 끝에서 다음으로/처음에서 이전으로 넘어갈 때도
   // 방향이 꺾이지 않고 같은 방향으로 계속 이어지도록 하기 위함
-  const headClones = canSlide ? items.slice(count - visible) : [];
-  const tailClones = canSlide ? items.slice(0, visible) : [];
+  const headClones = canSlide ? items.slice(count - cloneCount) : [];
+  const tailClones = canSlide ? items.slice(0, cloneCount) : [];
   const trackItems = canSlide
     ? [...headClones, ...items, ...tailClones]
     : items;
@@ -71,7 +83,12 @@ export default function BestProductList() {
   const navButtonClass =
     "flex h-8 w-12 items-center justify-center rounded text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
 
-  const slidePercent = ((headOffset + index) * 100) / visible;
+  // 모바일 peek 모드(카드 폭 < 100/화면에 꽉 채워지는 개수)에서만, 카드가 화면
+  // 왼쪽에 딱 붙지 않고 가운데 오도록 남는 여백의 절반만큼 덜 밀어서 보정.
+  // 데스크톱(카드가 정확히 등분)은 이 보정이 필요 없음(안 하면 카드 사이가 벌어짐)
+  const isPeekMode = itemWidthPercent * itemsFittingFully !== 100;
+  const centerOffset = isPeekMode ? (100 - itemWidthPercent) / 2 : 0;
+  const slidePercent = (headOffset + index) * itemWidthPercent - centerOffset;
   const displayIndex = (((index % count) + count) % count) + 1;
 
   return (
@@ -90,13 +107,18 @@ export default function BestProductList() {
         </div>
 
         {isLoading ? (
-          <div
-            className="grid gap-6"
-            style={{ gridTemplateColumns: `repeat(${visible}, minmax(0, 1fr))` }}
-          >
-            {Array.from({ length: visible }).map((_, idx) => (
-              <ProductCardSkeleton key={idx} />
-            ))}
+          <div className="overflow-hidden -mx-3">
+            <div className="flex justify-center">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="shrink-0 px-3"
+                  style={{ width: `${itemWidthPercent}%` }}
+                >
+                  <ProductCardSkeleton />
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="overflow-hidden -mx-3">
@@ -104,19 +126,28 @@ export default function BestProductList() {
               className={`flex ${noTransition ? "" : "transition-transform duration-300 ease-out"}`}
               style={{ transform: `translateX(-${slidePercent}%)` }}
             >
-              {trackItems.map((product, i) => (
-                <div
-                  key={`${product.id}-${i}`}
-                  className="shrink-0 px-3"
-                  style={{ width: `${100 / visible}%` }}
-                >
-                  <ProductCard
-                    products={product}
-                    dark
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </div>
-              ))}
+              {trackItems.map((product, i) => {
+                // peek 모드(모바일)에서 지금 가운데인 카드 딱 하나만 원래 높이,
+                // 양옆에 살짝 보이는 카드들은 세로만 살짝 축소해서 덜 도드라지게 함
+                const isCenter = i === headOffset + index;
+                const isSidePeek = isPeekMode && !isCenter;
+
+                return (
+                  <div
+                    key={`${product.id}-${i}`}
+                    className={`shrink-0 px-3 transition-transform duration-300 ${
+                      isSidePeek ? "scale-y-90" : ""
+                    }`}
+                    style={{ width: `${itemWidthPercent}%` }}
+                  >
+                    <ProductCard
+                      products={product}
+                      dark
+                      sizes="(max-width: 768px) 80vw, 25vw"
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
