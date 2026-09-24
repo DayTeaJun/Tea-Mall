@@ -11,6 +11,7 @@ import ProductCardSkeleton from "../../components/common/productCard/ProductCard
 const DESKTOP_ITEM_WIDTH_PERCENT = 25;
 const MOBILE_ITEM_WIDTH_PERCENT = 82;
 const TRANSITION_MS = 300;
+const AUTO_ADVANCE_MS = 4000;
 
 export default function BestProductList() {
   const { data: products, isLoading } = useBestProductListQuery();
@@ -77,6 +78,15 @@ export default function BestProductList() {
       return () => clearTimeout(timer);
     }
   }, [index, count, canSlide]);
+
+  // 가만히 두면 일정 시간마다 자동으로 다음 상품으로 넘어감. index가 바뀔
+  // 때마다(자동이든 사용자가 직접 눌렀든) 타이머가 새로 시작되므로, 방금
+  // 조작했는데 곧바로 또 넘어가는 어색함이 없음
+  useEffect(() => {
+    if (!canSlide) return;
+    const timer = setTimeout(goNext, AUTO_ADVANCE_MS);
+    return () => clearTimeout(timer);
+  }, [index, canSlide]);
 
   const isCorrecting = index < 0 || index >= count;
 
