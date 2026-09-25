@@ -49,10 +49,10 @@ export default function Home() {
           </section>
         </div>
 
-        <aside className="hidden 2xl:block absolute top-0 -right-36 w-32 h-full z-40 2xl:w-28 2xl:-right-24">
-          <div className="sticky top-32">
-            <SideQuickMenu />
-          </div>
+        {/* 우측 하단 툴바(ToolComponent, fixed bottom-5 right-5)와 같은 높이(y축)에
+            나란히 오도록 fixed로 위치를 맞춤 */}
+        <aside className="hidden 2xl:block fixed bottom-5 right-24 w-28 z-40">
+          <SideQuickMenu />
         </aside>
       </div>
     </div>
