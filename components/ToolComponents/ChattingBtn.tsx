@@ -157,11 +157,11 @@ function ChattingBtn() {
       <button
         onClick={handleToggleChat}
         type="button"
-        className="p-3 bg-gray-200 rounded-full text-gray-500 hover:bg-gray-300 transition-colors relative"
+        className="p-1.5 bg-white border border-gray-300 rounded-full text-gray-600 hover:bg-gray-50 transition-colors relative flex items-center justify-center"
       >
-        <MessageCircle size={25} />
+        <MessageCircle size={16} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}

@@ -10,7 +10,7 @@ function ToolComponent() {
   const { user } = useAuthStore();
 
   return (
-    <div className="fixed bottom-5 right-5 flex flex-col gap-4 z-50">
+    <div className="flex flex-row items-center justify-center gap-2 mt-2">
       <TopBtn />
       {user && <ChattingBtn />}
       {user && user.level === 3 && <AdminMenuBtn />}

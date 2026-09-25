@@ -5,6 +5,7 @@ import ProductList from "./_components/ProductList";
 import SideQuickMenu from "./_components/SideQuickMenu";
 import QuickCategory from "./_components/QuickCategory";
 import MiddleBanner from "./_components/MiddleBanner";
+import ToolComponent from "@/components/ToolComponents/ToolComponent";
 
 export default function Home() {
   return (
@@ -49,10 +50,11 @@ export default function Home() {
           </section>
         </div>
 
-        {/* 우측 하단 툴바(ToolComponent, fixed bottom-5 right-5)와 같은 높이(y축)에
-            나란히 오도록 fixed로 위치를 맞춤 */}
-        <aside className="hidden 2xl:block fixed bottom-5 right-24 w-28 z-40">
-          <SideQuickMenu />
+        <aside className="hidden 2xl:block absolute top-0 -right-24 w-28 h-full z-40">
+          <div className="sticky top-32">
+            <SideQuickMenu />
+            <ToolComponent />
+          </div>
         </aside>
       </div>
     </div>

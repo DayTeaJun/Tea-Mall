@@ -2,7 +2,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
 import { UserType } from "@/types/user";
-import ToolComponent from "../ToolComponents/ToolComponent";
+import QuickPanel from "../ToolComponents/QuickPanel";
 
 interface Props {
   user: UserType | null;
@@ -17,7 +17,7 @@ function LayoutSection({ children, user }: Props) {
       <Main>{children}</Main>
       <Footer />
 
-      <ToolComponent />
+      <QuickPanel />
     </>
   );
 }
