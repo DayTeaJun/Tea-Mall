@@ -11,9 +11,9 @@ function ToolComponent() {
 
   return (
     <div className="flex flex-row items-center justify-center gap-2 mt-2">
-      <TopBtn />
-      {user && <ChattingBtn />}
-      {user && user.level === 3 && <AdminMenuBtn />}
+      <TopBtn compact />
+      {user && <ChattingBtn compact />}
+      {user && user.level === 3 && <AdminMenuBtn compact />}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-function AdminMenuBtn() {
+function AdminMenuBtn({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
 
   return (
@@ -12,9 +12,11 @@ function AdminMenuBtn() {
         router.push("/manage/dashBoard");
       }}
       type="button"
-      className="p-1.5 bg-white border border-gray-300 rounded-full text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center"
+      className={`bg-white border border-gray-300 rounded-full text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center ${
+        compact ? "p-1.5" : "p-3 shadow-md"
+      }`}
     >
-      <Settings size={16} />
+      <Settings size={compact ? 16 : 22} />
     </button>
   );
 }
