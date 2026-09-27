@@ -40,7 +40,8 @@ export default function AdminChatRoom({
   const supabase = createBrowserSupabaseClient();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    const container = messagesEndRef.current?.parentElement;
+    if (container) container.scrollTop = container.scrollHeight;
   };
 
   const messages = useMemo(() => {

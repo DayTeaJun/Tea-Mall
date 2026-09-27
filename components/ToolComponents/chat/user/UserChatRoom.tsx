@@ -43,7 +43,8 @@ export default function UserChatRoom() {
   }, [data?.messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    const container = messagesEndRef.current?.parentElement;
+    if (container) container.scrollTop = container.scrollHeight;
   };
 
   useEffect(() => {
