@@ -166,7 +166,7 @@ export default function SearchToolbar({
             </button>
 
             {showFilters && (
-              <div className="absolute right-0 top-full mt-4 w-[calc(100vw-2.5rem)] sm:w-64 z-20">
+              <div className="absolute right-0 top-full mt-4 w-[calc(100vw-2rem)] sm:w-64 z-20">
                 <div className="relative bg-white border border-gray-200 rounded-lg shadow-lg p-4 divide-y divide-gray-100">
                   <div className="pb-4">
                     <p className="text-12 font-bold text-gray-600 mb-1.5">
