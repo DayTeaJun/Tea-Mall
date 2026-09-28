@@ -4,7 +4,7 @@ import Main from "./Main";
 import { UserType } from "@/types/user";
 import QuickPanel from "../ToolComponents/QuickPanel";
 import MobileBottomTabBar from "../ToolComponents/MobileBottomTabBar";
-import ChatWidget from "../ToolComponents/ChatWidget";
+import FloatingToolWidget from "../ToolComponents/FloatingToolWidget";
 
 interface Props {
   user: UserType | null;
@@ -21,7 +21,7 @@ function LayoutSection({ children, user }: Props) {
 
       <QuickPanel />
       <MobileBottomTabBar />
-      <ChatWidget />
+      <FloatingToolWidget />
     </>
   );
 }

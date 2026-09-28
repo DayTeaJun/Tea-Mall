@@ -5,7 +5,6 @@ import ProductList from "./_components/ProductList";
 import SideQuickMenu from "./_components/SideQuickMenu";
 import QuickCategory from "./_components/QuickCategory";
 import MiddleBanner from "./_components/MiddleBanner";
-import ToolComponent from "@/components/ToolComponents/ToolComponent";
 
 export default function Home() {
   return (
@@ -53,7 +52,6 @@ export default function Home() {
         <aside className="hidden 2xl:block absolute top-0 -right-24 w-28 h-full z-40">
           <div className="sticky top-32">
             <SideQuickMenu />
-            <ToolComponent />
           </div>
         </aside>
       </div>

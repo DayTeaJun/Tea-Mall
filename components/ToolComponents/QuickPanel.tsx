@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import SideQuickMenu from "@/app/_components/SideQuickMenu";
-import ToolComponent from "./ToolComponent";
 
 function QuickPanel() {
   const pathname = usePathname();
@@ -12,7 +11,6 @@ function QuickPanel() {
   return (
     <aside className="hidden 2xl:block fixed top-50 right-[calc((100vw-80rem)/2-7rem)] w-28 z-40">
       <SideQuickMenu />
-      <ToolComponent />
     </aside>
   );
 }

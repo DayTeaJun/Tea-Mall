@@ -1,4 +1,4 @@
-import { Headset, SquareUserRound, User } from "lucide-react";
+import { Headset, Settings, SquareUserRound, User } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import SignOutBtn from "../common/buttons/SignOutBtn";
@@ -21,6 +21,7 @@ async function Header({ user }: { user: UserType | null }) {
                 T-Mall
               </Link>
             </h1>
+
             {user ? (
               <>
                 <SignOutBtn />
@@ -32,6 +33,16 @@ async function Header({ user }: { user: UserType | null }) {
                   <p className="text-[12px] sm:text-[14px]">마이페이지</p>
                   <User size={16} className="hidden sm:block" />
                 </Link>
+
+                {user.level === 3 && (
+                  <Link
+                    href="/manage/dashBoard"
+                    className="text-black flex gap-1 items-center"
+                  >
+                    <p className="text-[12px] sm:text-[14px]">관리자</p>
+                    <Settings size={16} className="hidden sm:block" />
+                  </Link>
+                )}
               </>
             ) : (
               <>

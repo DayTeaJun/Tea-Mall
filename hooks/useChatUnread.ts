@@ -7,7 +7,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const supabase = createBrowserSupabaseClient();
 
-// ChattingBtn(데스크탑 ChatWidget), MobileBottomTabBar(모바일 탭)가
+// ChattingBtn(데스크탑 FloatingToolWidget), MobileBottomTabBar(모바일 탭)가
 // 공통으로 쓰는 "안 읽은 채팅 개수 실시간 구독 + 채팅창 열 때 읽음 처리"
 // 로직. 원래 ChattingBtn 안에 있던 걸 그대로 뽑아냄 - 동작 변화 없음.
 export function useChatUnread() {

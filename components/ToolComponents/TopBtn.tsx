@@ -1,9 +1,24 @@
 "use client";
 
 import { ChevronUp } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+const SCROLL_SHOW_THRESHOLD = 300; // 이 정도(px) 이상 스크롤해야 버튼이 보임
 
 function TopBtn({ compact = false }: { compact?: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setVisible(window.scrollY > SCROLL_SHOW_THRESHOLD);
+    };
+    handleScroll(); // 마운트 시점 스크롤 위치 반영
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  if (!visible) return null;
+
   return (
     <button
       onClick={() => window.scrollTo(0, 0)}
