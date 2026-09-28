@@ -145,9 +145,9 @@ export default function BestProductList() {
                 return (
                   <div
                     key={`${product.id}-${i}`}
-                    className={`shrink-0 px-3 transition-transform duration-300 ${
-                      isSidePeek ? "scale-y-90" : ""
-                    }`}
+                    className={`shrink-0 px-3 ${
+                      noTransition ? "" : "transition-transform duration-300"
+                    } ${isSidePeek ? "scale-y-90" : ""}`}
                     style={{ width: `${itemWidthPercent}%` }}
                   >
                     <ProductCard
