@@ -1,13 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const images = [
-  { src: "/main_1.jpg", alt: "이벤트 배너 1" },
-  { src: "/main_2.jpg", alt: "이벤트 배너 2" },
-  { src: "/main_3.jpg", alt: "이벤트 배너 3" },
+  { src: "/main_1.jpg", alt: "신상품 소개 1" },
+  { src: "/main_2.jpg", alt: "신상품 소개 2" },
+  { src: "/main_3.jpg", alt: "신상품 소개 3" },
 ];
+
+// 슬라이드마다 개별 상품을 링크하면 상품 교체할 때마다 손봐야 해서,
+// 최신순으로 정렬된 검색 결과(=신상품 목록)로 보내는 것으로 통일
+const NEW_ARRIVALS_HREF = "/search?sort=latest&page=1";
 
 export default function MainCarousel() {
   const [index, setIndex] = useState(0);
@@ -35,7 +40,11 @@ export default function MainCarousel() {
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {images.map((img, i) => (
-          <div key={i} className="relative w-full h-full shrink-0">
+          <Link
+            key={i}
+            href={NEW_ARRIVALS_HREF}
+            className="relative w-full h-full shrink-0"
+          >
             <Image
               src={img.src}
               alt={img.alt}
@@ -43,7 +52,7 @@ export default function MainCarousel() {
               className="object-cover"
               priority={i === 0}
             />
-          </div>
+          </Link>
         ))}
       </div>
 
