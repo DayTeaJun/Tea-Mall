@@ -20,6 +20,10 @@ body {
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 button {
   cursor: pointer;
 }
