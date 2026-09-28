@@ -3,7 +3,8 @@ import Footer from "./Footer";
 import Main from "./Main";
 import { UserType } from "@/types/user";
 import QuickPanel from "../ToolComponents/QuickPanel";
-import MobileToolFab from "../ToolComponents/MobileToolFab";
+import MobileBottomTabBar from "../ToolComponents/MobileBottomTabBar";
+import ChatWidget from "../ToolComponents/ChatWidget";
 
 interface Props {
   user: UserType | null;
@@ -19,7 +20,8 @@ function LayoutSection({ children, user }: Props) {
       <Footer />
 
       <QuickPanel />
-      <MobileToolFab />
+      <MobileBottomTabBar />
+      <ChatWidget />
     </>
   );
 }

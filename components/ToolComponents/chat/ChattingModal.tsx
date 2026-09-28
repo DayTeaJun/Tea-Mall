@@ -8,9 +8,10 @@ import UserChatRoom from "./user/UserChatRoom";
 
 interface Props {
   onClose: () => void;
+  fullScreen?: boolean;
 }
 
-function ChattingModal({ onClose }: Props) {
+function ChattingModal({ onClose, fullScreen = false }: Props) {
   const { user } = useAuthStore();
   const isAdmin = user?.level === 3;
 
@@ -18,8 +19,10 @@ function ChattingModal({ onClose }: Props) {
     <div
       className={
         "fixed inset-0 z-50 flex flex-col bg-white " +
-        "sm:absolute sm:right-14 sm:bottom-0 sm:inset-auto " +
-        "sm:w-[300px] sm:h-[350px] md:w-[360px] md:h-[430px] sm:shadow-xl sm:border sm:border-gray-200 " +
+        (fullScreen
+          ? ""
+          : "sm:absolute sm:right-15 sm:bottom-0 sm:inset-auto " +
+            "sm:w-[300px] sm:h-[350px] md:w-[360px] md:h-[430px] sm:shadow-xl sm:border sm:border-gray-200 ") +
         "overflow-hidden"
       }
     >

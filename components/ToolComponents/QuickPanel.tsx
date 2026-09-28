@@ -7,10 +7,10 @@ import ToolComponent from "./ToolComponent";
 function QuickPanel() {
   const pathname = usePathname();
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "") return null;
 
   return (
-    <aside className="hidden 2xl:block fixed top-[118px] right-[calc((100vw-80rem)/2-8rem)] w-28 z-40">
+    <aside className="hidden 2xl:block fixed top-50 right-[calc((100vw-80rem)/2-7rem)] w-28 z-40">
       <SideQuickMenu />
       <ToolComponent />
     </aside>
