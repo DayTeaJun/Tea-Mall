@@ -11,6 +11,8 @@ export default function SearchPage() {
   const router = useRouter();
 
   const keyword = searchParams.get("query") ?? "";
+  const category = searchParams.get("type") ?? "";
+  const subCategory = searchParams.get("sub") ?? "";
   const page = Number(searchParams.get("page") ?? 1);
   const sort = searchParams.get("sort") ?? "accurate";
   const pageSize = Number(searchParams.get("size") ?? 36);
@@ -47,12 +49,31 @@ export default function SearchPage() {
     updateQuery({ productSize: productSize === s ? "" : s });
   };
 
-  const hasActiveFilters = !!(minPriceParam || maxPriceParam || productSize);
+  const changeCategory = (c: string) => {
+    updateQuery({ type: category === c ? "" : c, sub: "", productSize: "" });
+  };
+
+  const changeSubCategory = (s: string) => {
+    updateQuery({ sub: subCategory === s ? "" : s });
+  };
+
+  const hasActiveFilters = !!(
+    minPriceParam ||
+    maxPriceParam ||
+    productSize ||
+    category
+  );
 
   const clearFilters = () => {
     setMinInput("");
     setMaxInput("");
-    updateQuery({ minPrice: "", maxPrice: "", productSize: "" });
+    updateQuery({
+      minPrice: "",
+      maxPrice: "",
+      productSize: "",
+      type: "",
+      sub: "",
+    });
   };
 
   const sizeGroups = SIZE_FILTER_GROUPS.map(([categoryName, sizes]) => ({
@@ -76,6 +97,10 @@ export default function SearchPage() {
         pageSize={pageSize}
         onSortChange={(v) => updateQuery({ sort: v })}
         onPageSizeChange={(v) => updateQuery({ size: v })}
+        category={category}
+        subCategory={subCategory}
+        onCategoryChange={changeCategory}
+        onSubCategoryChange={changeSubCategory}
         minInput={minInput}
         maxInput={maxInput}
         onMinChange={setMinInput}
@@ -90,6 +115,8 @@ export default function SearchPage() {
 
       <ProductListView
         keyword={keyword}
+        category={category}
+        subCategory={subCategory}
         page={page}
         sort={sort}
         pageSize={pageSize}

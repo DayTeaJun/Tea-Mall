@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
+import { CATEGORY_MAP } from "@/lib/constants/categories";
 
 interface SizeGroup {
   label: string;
@@ -13,6 +14,10 @@ interface Props {
   pageSize: number;
   onSortChange: (sort: string) => void;
   onPageSizeChange: (size: number) => void;
+  category: string;
+  subCategory: string;
+  onCategoryChange: (category: string) => void;
+  onSubCategoryChange: (subCategory: string) => void;
   minInput: string;
   maxInput: string;
   onMinChange: (value: string) => void;
@@ -25,12 +30,16 @@ interface Props {
   onClear: () => void;
 }
 
-// 검색/카테고리 페이지가 공유하는 정렬 + 가격·사이즈 필터 툴바
+// 검색/카테고리 페이지가 공유하는 정렬 + 카테고리·가격·사이즈 필터 툴바
 export default function SearchToolbar({
   sort,
   pageSize,
   onSortChange,
   onPageSizeChange,
+  category,
+  subCategory,
+  onCategoryChange,
+  onSubCategoryChange,
   minInput,
   maxInput,
   onMinChange,
@@ -120,9 +129,6 @@ export default function SearchToolbar({
         </button>
       </div>
 
-      {/* 모바일: 정렬 select + (보기개수/필터)를 한 줄에. sm 이상에서는
-          sm:contents로 이 래퍼가 사라지고 자식들이 위 정렬 버튼과
-          나란히 justify-between(더 위의 부모)으로 배치됨 (기존 데스크톱 레이아웃 유지) */}
       <div className="flex items-center justify-between gap-2 sm:contents">
         <select
           value={sort}
@@ -163,6 +169,55 @@ export default function SearchToolbar({
               <div className="absolute right-0 top-full mt-4 w-[calc(100vw-2.5rem)] sm:w-64 z-20">
                 <div className="relative bg-white border border-gray-200 rounded-lg shadow-lg p-4 divide-y divide-gray-100">
                   <div className="pb-4">
+                    <p className="text-12 font-bold text-gray-600 mb-1.5">
+                      카테고리
+                    </p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                      {Object.keys(CATEGORY_MAP).map((c) => {
+                        const isSelected = category === c;
+                        return (
+                          <button
+                            key={c}
+                            onClick={() =>
+                              onCategoryChange(isSelected ? "" : c)
+                            }
+                            className={`text-sm ${
+                              isSelected
+                                ? "font-medium text-gray-900 underline decoration-green-400 decoration-[3px] underline-offset-2"
+                                : "text-gray-700 hover:text-black"
+                            }`}
+                          >
+                            {c}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {category && CATEGORY_MAP[category]?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {CATEGORY_MAP[category].map((s) => {
+                          const isSelected = subCategory === s;
+                          return (
+                            <button
+                              key={s}
+                              onClick={() =>
+                                onSubCategoryChange(isSelected ? "" : s)
+                              }
+                              className={`text-xs border px-2 py-1 transition-colors ${
+                                isSelected
+                                  ? "border-green-600 border-2 text-green-600 font-medium"
+                                  : "border-gray-300 text-gray-600 hover:border-gray-400 hover:text-black"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="py-4">
                     <p className="text-12 font-bold text-gray-600 mb-2">가격</p>
                     <div className="flex items-center gap-1.5">
                       <input

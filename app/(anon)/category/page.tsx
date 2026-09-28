@@ -51,6 +51,14 @@ export default function CategoryPage() {
     updateQuery({ productSize: productSize === s ? "" : s });
   };
 
+  const changeCategory = (c: string) => {
+    updateQuery({ type: category === c ? "" : c, sub: "", productSize: "" });
+  };
+
+  const changeSubCategory = (s: string) => {
+    updateQuery({ sub: subCategory === s ? "" : s });
+  };
+
   const hasActiveFilters = !!(minPriceParam || maxPriceParam || productSize);
 
   const clearFilters = () => {
@@ -89,6 +97,10 @@ export default function CategoryPage() {
         pageSize={pageSize}
         onSortChange={(v) => updateQuery({ sort: v })}
         onPageSizeChange={(v) => updateQuery({ size: v })}
+        category={category}
+        subCategory={subCategory}
+        onCategoryChange={changeCategory}
+        onSubCategoryChange={changeSubCategory}
         minInput={minInput}
         maxInput={maxInput}
         onMinChange={setMinInput}
