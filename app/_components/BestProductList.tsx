@@ -125,7 +125,7 @@ export default function BestProductList() {
                   className="shrink-0 px-3"
                   style={{ width: `${itemWidthPercent}%` }}
                 >
-                  <ProductCardSkeleton />
+                  <ProductCardSkeleton dark />
                 </div>
               ))}
             </div>
