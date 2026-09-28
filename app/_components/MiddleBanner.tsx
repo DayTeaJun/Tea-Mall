@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function MiddleBanner() {
   return (
-    <div className="w-full my-4">
+    <div className="w-full">
       <Link
         href="/events"
         className="relative block w-full h-[120px] sm:h-[160px] rounded-2xl overflow-hidden group cursor-pointer shadow-sm"

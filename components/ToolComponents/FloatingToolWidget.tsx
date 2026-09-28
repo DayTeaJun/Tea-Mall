@@ -8,7 +8,7 @@ function FloatingToolWidget() {
   const { user } = useAuthStore();
 
   return (
-    <div className="hidden sm:flex fixed bottom-5 right-5 z-50 items-center gap-3">
+    <div className="hidden sm:flex fixed bottom-5 right-5 z-50 items-center gap-4">
       <TopBtn />
       {user && <ChattingBtn />}
     </div>

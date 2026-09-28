@@ -28,7 +28,7 @@ function Footer() {
           </div>
         </div>
 
-        <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-start text-xs sm:text-sm text-gray-500 gap-6 px-4 sm:px-8 py-6">
+        <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-start text-xs sm:text-sm text-gray-500 gap-6 px-4 sm:px-8 py-6 pb-10">
           <div className="space-y-2">
             <p className="font-bold text-base text-gray-800">T-Mall</p>
             <p className="text-gray-400 text-xs">
