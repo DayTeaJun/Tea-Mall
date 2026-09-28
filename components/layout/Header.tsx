@@ -5,6 +5,7 @@ import SignOutBtn from "../common/buttons/SignOutBtn";
 import { UserType } from "@/types/user";
 import CartLinkBtn from "../common/buttons/CartLinkBtn";
 import SearchInput from "../ui/SearchInput";
+import SearchInput_M from "../ui/SearchInput_M";
 import CategoryDropdown_M from "../ui/CategoryDropdown_M";
 import CategoryDropdown from "../ui/CategoryDropdown";
 import SignInBtn from "../common/buttons/SignInBtn";
@@ -28,19 +29,19 @@ async function Header({ user }: { user: UserType | null }) {
 
                 <Link
                   href={`/mypage`}
-                  className="text-black flex gap-1 items-center"
+                  className="text-black sm:flex gap-1 items-center hidden"
                 >
                   <p className="text-[12px] sm:text-[14px]">마이페이지</p>
-                  <User size={16} className="hidden sm:block" />
+                  <User size={16} />
                 </Link>
 
                 {user.level === 3 && (
                   <Link
                     href="/manage/dashBoard"
-                    className="text-black flex gap-1 items-center"
+                    className="text-black sm:flex gap-1 items-center hidden"
                   >
                     <p className="text-[12px] sm:text-[14px]">관리자</p>
-                    <Settings size={16} className="hidden sm:block" />
+                    <Settings size={16} />
                   </Link>
                 )}
               </>
@@ -77,9 +78,14 @@ async function Header({ user }: { user: UserType | null }) {
             <CategoryDropdown />
           </div>
           <nav className="flex gap-4 items-center justify-between w-full sm:w-auto sm:ml-auto">
-            <SearchInput />
+            <div className="sm:hidden w-full">
+              <SearchInput_M />
+            </div>
+            <div className="hidden sm:block">
+              <SearchInput />
+            </div>
 
-            <div className="flex-shrink-0">
+            <div className="hidden sm:block flex-shrink-0">
               <CartLinkBtn />
             </div>
           </nav>

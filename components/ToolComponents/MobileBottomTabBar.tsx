@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Heart,
   Home,
-  LayoutGrid,
-  MessageCircle,
+  MessageCircleQuestion,
+  Settings,
   ShoppingCart,
   User,
 } from "lucide-react";
@@ -29,8 +30,10 @@ export default function MobileBottomTabBar() {
   const isMyPage =
     pathname.startsWith("/mypage") && !pathname.startsWith("/mypage/myCart");
   const isCart = pathname.startsWith("/mypage/myCart");
-  const isCategory = pathname.startsWith("/category");
   const isHome = pathname === "/";
+  const isBookmark = pathname.startsWith("/mypage/bookmark");
+  const isAdminRoute = pathname.startsWith("/manage");
+  const isAdmin = user?.level === 3;
 
   const handleChatClick = async () => {
     if (!user) {
@@ -51,33 +54,24 @@ export default function MobileBottomTabBar() {
   return (
     <>
       <nav
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 flex items-stretch bg-white border-t border-gray-200"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 flex items-stretch bg-white border-t border-gray-200 pt-1"
+        style={{
+          paddingBottom: "calc(0.25rem + env(safe-area-inset-bottom, 0px))",
+        }}
       >
         <Link href="/" className={tabClass(isHome)}>
-          <Home size={20} />홈
+          <Home size={20} />
         </Link>
 
-        <Link href="/category" className={tabClass(isCategory)}>
-          <LayoutGrid size={20} />
-          카테고리
-        </Link>
-
-        <button
-          type="button"
-          onClick={handleChatClick}
-          className={tabClass(isChatting)}
-        >
-          <span className="relative">
-            <MessageCircle size={20} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center animate-pulse">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </span>
-          채팅
-        </button>
+        {isAdmin ? (
+          <Link href="/manage/dashBoard" className={tabClass(isAdminRoute)}>
+            <Settings size={20} />
+          </Link>
+        ) : (
+          <Link href="/mypage/bookmark" className={tabClass(isBookmark)}>
+            <Heart size={20} />
+          </Link>
+        )}
 
         <Link href="/mypage/myCart" className={tabClass(isCart)}>
           <span className="relative">
@@ -88,12 +82,25 @@ export default function MobileBottomTabBar() {
               </span>
             )}
           </span>
-          장바구니
         </Link>
+
+        <button
+          type="button"
+          onClick={handleChatClick}
+          className={tabClass(isChatting)}
+        >
+          <span className="relative">
+            <MessageCircleQuestion size={20} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center animate-pulse">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </span>
+        </button>
 
         <Link href="/mypage" className={tabClass(isMyPage)}>
           <User size={20} />
-          마이페이지
         </Link>
       </nav>
 
