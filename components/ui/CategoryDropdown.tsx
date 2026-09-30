@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type SubCategory = {
   id: string;
@@ -71,6 +72,7 @@ export default function CategoryDropdown({
   categories = DEFAULT_CATEGORIES,
 }: CategoryDropdownProps) {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const goToSearch = (parentLabel: string, subLabel?: string) => {
     const params = new URLSearchParams();
@@ -84,6 +86,7 @@ export default function CategoryDropdown({
 
     params.set("page", "1");
 
+    setIsOpen(false);
     router.push(`/category?${params.toString()}`);
   };
 
@@ -92,20 +95,26 @@ export default function CategoryDropdown({
       <button
         type="button"
         aria-label="카테고리 열기"
+        onClick={() => setIsOpen((v) => !v)}
         className="flex h-full gap-1.5 items-center justify-center font-bold px-4 pr-2 py-2 hover:bg-gray-100 cursor-pointer hover:text-gray-600 transition-all duration-500"
       >
         카테고리
         <ChevronDown size={20} />
       </button>
 
+      {isOpen && (
+        <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+      )}
+
       <div
-        className="
+        onClick={(e) => e.stopPropagation()}
+        className={`
           absolute left-1/2 top-full z-20 w-screen -translate-x-1/2
           border-t border-b border-gray-200 bg-white shadow-lg
-          opacity-0 invisible -translate-y-1
           transition-all duration-200
           group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
-        "
+          ${isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"}
+        `}
       >
         <nav className="mx-auto flex max-w-6xl items-start justify-between gap-6 py-6">
           {categories.map((cat) => (
