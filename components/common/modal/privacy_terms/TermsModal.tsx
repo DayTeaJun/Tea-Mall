@@ -19,7 +19,7 @@ const TermsModal = () => {
           onClick={closeModal}
         >
           <div
-            className="flex flex-col justify-between bg-white rounded-lg shadow-lg w-[90%] md:w-[50%] h-[60%] p-6"
+            className="flex flex-col justify-between bg-white rounded-lg shadow-lg w-[90%] lg:w-[50%] h-[70%] sm:h-[60%] p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="sm:text-xl text-16 font-bold mb-4">이용약관</h2>
