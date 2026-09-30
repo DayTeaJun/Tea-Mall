@@ -4,12 +4,17 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function CommentBtn({ productId }: { productId: string }) {
   const { user } = useAuthStore();
 
   const [hasReview, setHasReview] = useState<boolean | null>(null);
   const [canReview, setCanReview] = useState<boolean | null>(null);
+
+  const handleCommentWrite = () => {
+    toast.warning("배송완료된 주문 고객만 리뷰를 작성할 수 있습니다.");
+  };
 
   useEffect(() => {
     const checkReviewAndEligibility = async () => {
@@ -50,12 +55,14 @@ function CommentBtn({ productId }: { productId: string }) {
 
   if (!canReview && !hasReview) {
     return (
-      <span
+      <button
+        type="button"
         className="text-sm text-gray-400 cursor-default"
         title="배송완료된 주문 고객만 리뷰를 작성할 수 있습니다."
+        onClick={handleCommentWrite}
       >
         리뷰 작성하기
-      </span>
+      </button>
     );
   }
 
