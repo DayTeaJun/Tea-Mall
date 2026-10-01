@@ -7,6 +7,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import Modal from "@/components/common/modal/Modal";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useGetProductDetail } from "@/lib/queries/products";
 import {
@@ -314,11 +315,25 @@ export default function CheckoutPage() {
           </section>
 
           <div className="flex flex-col">
-            <div className="border-t p-3">
+            <div className="border-t p-3 flex items-center justify-between">
               <h2 className="font-bold">할인쿠폰 적용</h2>
+              <Link
+                href="/mypage/coupon"
+                className="text-[12px] sm:text-sm font-medium text-gray-900 underline underline-offset-4 whitespace-nowrap"
+              >
+                쿠폰함 바로가기 &rarr;
+              </Link>
             </div>
 
             <ul className="flex flex-col">
+              {(!coupons || coupons.length === 0) && (
+                <li>
+                  <p className="p-4 border-b border-t border-gray-200 text-sm text-gray-500">
+                    사용 가능한 쿠폰이 없습니다
+                  </p>
+                </li>
+              )}
+
               {coupons?.map((item) => {
                 const coupon = item.coupon;
                 if (!coupon) return null;
