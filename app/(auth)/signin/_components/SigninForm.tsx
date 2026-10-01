@@ -41,6 +41,18 @@ function SigninForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFormValid) {
+      if (!email || !password) {
+        toast.warning("이메일과 비밀번호를 입력해주세요.");
+      } else if (!EMAIL_REGEX.test(email)) {
+        toast.warning("올바른 이메일 형식을 입력해주세요.");
+      } else {
+        toast.warning("비밀번호는 6자 이상이어야 합니다.");
+      }
+      return;
+    }
+
     if (rememberEmail) {
       localStorage.setItem("rememberedEmail", email);
     } else {
@@ -53,6 +65,7 @@ function SigninForm() {
 
   return (
     <form
+      noValidate
       onSubmit={(e) => handleSubmit(e)}
       className="flex flex-col p-5 max-w-[500px] w-full"
     >
@@ -146,12 +159,11 @@ function SigninForm() {
 
       <button
         type="submit"
-        className={`p-3 rounded-md font-bold transition-all duration-200 ease-in-out ${
+        className={`p-3 rounded-md font-bold transition-all duration-200 ease-in-out cursor-pointer ${
           isFormValid
-            ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-            : "bg-gray-300 text-white cursor-default"
+            ? "bg-green-600 text-white hover:bg-green-700"
+            : "bg-gray-300 text-white"
         }`}
-        disabled={!isFormValid}
       >
         로그인
       </button>
