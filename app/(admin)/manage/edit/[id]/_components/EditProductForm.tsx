@@ -10,7 +10,11 @@ import { useRouter } from "next/navigation";
 import { Json } from "@/lib/config/supabase/types_db";
 import ImagePreviews from "../../../regist/_components/ImagePreview";
 import DetailImagePreview from "../../../regist/_components/DetailImagePreview";
-import { CATEGORY_MAP, SIZE_OPTIONS_MAP } from "@/lib/constants/categories";
+import {
+  CATEGORY_MAP,
+  GENDER_OPTIONS,
+  SIZE_OPTIONS_MAP,
+} from "@/lib/constants/categories";
 
 interface ProductWithImages {
   category: string | null;
@@ -129,7 +133,14 @@ export default function EditProductForm({
   };
 
   const handleSubmit = async () => {
-    if (!name || !description || !user || !category || !price) {
+    if (
+      !name ||
+      !description ||
+      !user ||
+      !category ||
+      !subcategory ||
+      !price
+    ) {
       toast.info("필수 항목 및 정가를 모두 입력해 주세요.");
       return;
     }
@@ -345,6 +356,7 @@ export default function EditProductForm({
               <div className="space-y-1 pt-2 border-t">
                 <label className="block text-xs font-semibold text-gray-600 mb-2">
                   하위 카테고리
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {(categoryMap[category] || []).map((sub) => (
@@ -376,8 +388,11 @@ export default function EditProductForm({
                   className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none"
                 >
                   <option value="">선택</option>
-                  <option value="남성">남성</option>
-                  <option value="여성">여성</option>
+                  {GENDER_OPTIONS.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
                 </select>
               </div>
 

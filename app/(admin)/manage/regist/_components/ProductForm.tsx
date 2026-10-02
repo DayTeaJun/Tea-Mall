@@ -8,7 +8,11 @@ import { ImgPreview, useDetailImagePreview } from "@/hooks/useImagePreview";
 import ImagePreviews from "./ImagePreview";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import DetailImagePreview from "./DetailImagePreview";
-import { CATEGORY_MAP, SIZE_OPTIONS_MAP } from "@/lib/constants/categories";
+import {
+  CATEGORY_MAP,
+  GENDER_OPTIONS,
+  SIZE_OPTIONS_MAP,
+} from "@/lib/constants/categories";
 
 function ProductForm() {
   const categoryMap = CATEGORY_MAP;
@@ -51,7 +55,21 @@ function ProductForm() {
   };
 
   const handleSubmit = async () => {
-    if (!name || !description || !imgUrl || !user || !category || !price) {
+    const hasSizes = sizeOptionsMap[category]?.length > 0;
+
+    if (
+      !name ||
+      !description ||
+      !imgUrl ||
+      !user ||
+      !category ||
+      !subcategory ||
+      !gender ||
+      !color ||
+      !price ||
+      detailFiles.length === 0 ||
+      (hasSizes ? selectedSizes.length === 0 : singleStock <= 0)
+    ) {
       toast.info("필수 항목 및 정가를 모두 입력해 주세요.");
       return;
     }
@@ -70,7 +88,6 @@ function ProductForm() {
       originalPriceForDb = rawPrice;
     }
 
-    const hasSizes = sizeOptionsMap[category]?.length > 0;
     const finalStockBySize = hasSizes ? stockBySize : { FREE: singleStock };
     const finalTotalStock = hasSizes
       ? Object.values(stockBySize).reduce((sum, val) => sum + val, 0)
@@ -146,6 +163,7 @@ function ProductForm() {
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600">
                 상품 이름
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <input
                 value={name}
@@ -158,6 +176,7 @@ function ProductForm() {
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600">
                 정가 (원)
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <input
                 type="number"
@@ -208,6 +227,7 @@ function ProductForm() {
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600 mb-2">
                 카테고리
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {Object.keys(categoryMap).map((cat) => (
@@ -231,6 +251,7 @@ function ProductForm() {
               <div className="space-y-1 pt-2 border-t">
                 <label className="block text-xs font-semibold text-gray-600 mb-2">
                   하위 카테고리
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {categoryMap[category].map((sub) => (
@@ -255,6 +276,7 @@ function ProductForm() {
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
                   성별
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <select
                   value={gender}
@@ -262,14 +284,18 @@ function ProductForm() {
                   className="w-full border border-gray-300 p-2.5 text-sm bg-white focus:outline-none"
                 >
                   <option value="">선택</option>
-                  <option value="남성">남성</option>
-                  <option value="여성">여성</option>
+                  {GENDER_OPTIONS.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
                   색상
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <input
                   value={color}
@@ -296,6 +322,7 @@ function ProductForm() {
           <div className="bg-white p-6 border border-gray-200 flex flex-col flex-1 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               상세 설명
+              <span className="text-red-500 pl-1">*</span>
             </h3>
             <textarea
               value={description}
@@ -321,6 +348,7 @@ function ProductForm() {
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-2">
                     사이즈 선택
+                    <span className="text-red-500 pl-1">*</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {currentSizeOptions.map((size) => (
@@ -382,6 +410,7 @@ function ProductForm() {
               <div className="space-y-2">
                 <label className="block text-xs font-semibold text-gray-600">
                   총 재고 수량
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <input
                   type="number"
@@ -404,6 +433,7 @@ function ProductForm() {
               <div>
                 <span className="block text-xs font-semibold text-gray-600 mb-2">
                   대표 이미지
+                  <span className="text-red-500 pl-1">*</span>
                 </span>
                 <ImagePreviews
                   imageSrc={imageSrc || ""}
@@ -415,6 +445,7 @@ function ProductForm() {
               <div className="pt-2 border-t">
                 <span className="block text-xs font-semibold text-gray-600 mb-2">
                   상세 이미지
+                  <span className="text-red-500 pl-1">*</span>
                 </span>
                 <DetailImagePreview
                   previews={detailPreviews}
