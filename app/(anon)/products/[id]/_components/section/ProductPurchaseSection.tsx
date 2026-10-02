@@ -6,20 +6,26 @@ import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { SIZE_OPTIONS_MAP } from "@/lib/constants/categories";
 
 export default function ProductPurchaseSection({
   productId,
   stockBySize = {},
+  category,
 }: {
   productId: string;
   stockBySize: Record<string, number>;
+  category?: string | null;
 }) {
   const { user } = useAuthStore();
   const router = useRouter();
-  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+  // 가방/액세서리처럼 사이즈 구분이 없는 카테고리는 빈 배열 -> 사이즈 선택 UI 자체를 숨김
+  const sizeOptions = SIZE_OPTIONS_MAP[category ?? ""] ?? [];
+  const hasSizeOptions = sizeOptions.length > 0;
 
-  // 가용 사이즈 중 기본 선택값(L 우선, 없으면 첫 가용)
+  // 가용 사이즈 중 기본 선택값(L 우선, 없으면 첫 가용). 사이즈 구분이 없으면 FREE 고정
   const pickFirstAvailable = (stock: Record<string, number>) => {
+    if (!hasSizeOptions) return "FREE";
     if ((stock["L"] ?? 0) > 0) return "L";
     const first = sizeOptions.find((s) => (stock[s] ?? 0) > 0);
     return first ?? "";
@@ -78,35 +84,41 @@ export default function ProductPurchaseSection({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          사이즈 선택
-        </label>
-        <select
-          value={selectedSize}
-          onChange={(e) => {
-            setSelectedSize(e.target.value);
-            setQuantity(1);
-          }}
-          className="w-full border px-3 py-2 rounded"
-        >
-          {!selectedSize && (
-            <option value="" disabled>
-              사이즈 선택
-            </option>
-          )}
-
-          {sizeOptions.map((size) => {
-            const stock = stockBySize[size] ?? 0;
-
-            return (
-              <option key={size} value={size} disabled={stock === 0}>
-                {size} ({stock}개 남음)
+      {hasSizeOptions ? (
+        <div className="flex flex-col gap-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            사이즈 선택
+          </label>
+          <select
+            value={selectedSize}
+            onChange={(e) => {
+              setSelectedSize(e.target.value);
+              setQuantity(1);
+            }}
+            className="w-full border px-3 py-2 rounded"
+          >
+            {!selectedSize && (
+              <option value="" disabled>
+                사이즈 선택
               </option>
-            );
-          })}
-        </select>
-      </div>
+            )}
+
+            {sizeOptions.map((size) => {
+              const stock = stockBySize[size] ?? 0;
+
+              return (
+                <option key={size} value={size} disabled={stock === 0}>
+                  {size} ({stock}개 남음)
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      ) : (
+        <p className="text-sm text-gray-600">
+          재고 {stockBySize["FREE"] ?? 0}개 남음
+        </p>
+      )}
 
       <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row justify-between items-end">
         <div className="w-full sm:w-1/3">

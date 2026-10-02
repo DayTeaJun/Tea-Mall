@@ -288,6 +288,7 @@ export default async function ProductDetailPage({
             <ProductPurchaseSection
               productId={product.id}
               stockBySize={product.stock_by_size as Record<string, number>}
+              category={product.category}
             />
           )}
         </div>
