@@ -14,7 +14,27 @@ interface UserData {
   level: number | null;
   updated_at: string | null;
   last_login_at: string | null;
+  status: string | null;
 }
+
+// 계정 상태 라벨/색상 - 고객 상세 페이지(UserDetailClient)와 동일한 기준
+const STATUS_LABEL: Record<string, string> = {
+  active: "정상",
+  suspended: "계정 정지",
+  withdrawn: "탈퇴 계정",
+};
+
+const STATUS_CLASS: Record<string, string> = {
+  active: "bg-white text-gray-600 border-gray-200",
+  suspended: "bg-red-50 text-red-500 border-red-200",
+  withdrawn: "bg-gray-100 text-gray-500 border-gray-200",
+};
+
+const getStatusLabel = (status: string | null) =>
+  (status && STATUS_LABEL[status]) || "확인 불가";
+
+const getStatusClass = (status: string | null) =>
+  (status && STATUS_CLASS[status]) || "bg-gray-50 text-gray-400 border-gray-200";
 
 interface UserListProps {
   users: UserData[];
@@ -59,9 +79,12 @@ function UserList({
             <table className="w-full text-left table-fixed hidden sm:table">
               <thead>
                 <tr className="bg-gray-50 border-b text-gray-600 text-[13px] font-bold">
-                  <th className="w-[40%] py-3.5 px-6">고객 정보</th>
-                  <th className="w-[25%] py-3.5 px-6 text-center">이메일</th>
-                  <th className="w-[15%] py-3.5 px-6 text-center">등급</th>
+                  <th className="w-[32%] py-3.5 px-6">고객 정보</th>
+                  <th className="w-[20%] py-3.5 px-6 text-center">이메일</th>
+                  <th className="w-[13%] py-3.5 px-6 text-center">등급</th>
+                  <th className="w-[15%] py-3.5 px-6 text-center">
+                    계정 상태
+                  </th>
                   <th className="w-[20%] py-3.5 px-6 text-center">
                     최근 접속일
                   </th>
@@ -115,6 +138,16 @@ function UserList({
                         }`}
                       >
                         {user.level && user.level >= 3 ? "관리자" : "일반 회원"}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-6 text-center">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${getStatusClass(
+                          user.status,
+                        )}`}
+                      >
+                        {getStatusLabel(user.status)}
                       </span>
                     </td>
 
@@ -194,6 +227,16 @@ function UserList({
                           : "접속 기록 없음"}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="flex items-center pt-2">
+                    <span
+                      className={`px-2 py-0.5 rounded-sm text-[10px] font-extrabold border ${getStatusClass(
+                        user.status,
+                      )}`}
+                    >
+                      {getStatusLabel(user.status)}
+                    </span>
                   </div>
                 </div>
               ))}
