@@ -9,6 +9,7 @@ import DaumPostcode, {
 } from "@/components/common/AddressSearch";
 import { DeliveryAddressForm } from "../../../regist/page";
 import { toast } from "sonner";
+import { formatPhoneNumber, isValidPhoneNumber } from "@/lib/utils/phone";
 
 interface EditDeliveryFormProps {
   initialData?: DeliveryAddressForm & { id: string };
@@ -20,11 +21,6 @@ export default function EditDeliveryForm({
   const router = useRouter();
   const { user } = useAuthStore();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-
-  const formatPhone = (value: string) => {
-    if (value.length !== 11) return value;
-    return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
-  };
 
   const { mutate, isPending } = usePatchDeliveryAddressMutation(
     user?.id || "",
@@ -62,11 +58,15 @@ export default function EditDeliveryForm({
       return;
     }
 
+    if (!isValidPhoneNumber(formData.receiver_phone)) {
+      toast.error("올바른 휴대전화 번호를 입력해주세요.");
+      return;
+    }
+
     mutate({
       ...formData,
       detail_address: formData.detail_address?.trim() || null,
       delivery_instruction: formData.delivery_instruction?.trim() || null,
-      receiver_phone: formatPhone(formData.receiver_phone),
     });
   };
 
@@ -177,8 +177,13 @@ export default function EditDeliveryForm({
                   className="w-full md:w-64 border border-gray-300 p-2 rounded-sm focus:outline-slate-500"
                   value={formData.receiver_phone}
                   onChange={(e) =>
-                    setFormData({ ...formData, receiver_phone: e.target.value })
+                    setFormData({
+                      ...formData,
+                      receiver_phone: formatPhoneNumber(e.target.value),
+                    })
                   }
+                  maxLength={13}
+                  placeholder="010-1234-5678"
                   required
                   disabled={isPending}
                 />
