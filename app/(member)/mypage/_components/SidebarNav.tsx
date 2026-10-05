@@ -10,40 +10,75 @@ interface Props {
   user: UserType | null;
 }
 
-const menu = [
-  { name: "내 정보", currentPage: "/mypage/profile", href: "/mypage/profile" },
+const menuGroups = [
   {
-    name: "배송지 관리",
-    currentPage: "/mypage/delivery",
-    href: "/mypage/delivery",
+    label: "내 정보",
+    items: [
+      {
+        name: "내 정보",
+        currentPage: "/mypage/profile",
+        href: "/mypage/profile",
+      },
+      {
+        name: "배송지 관리",
+        currentPage: "/mypage/delivery",
+        href: "/mypage/delivery",
+      },
+    ],
   },
   {
-    name: "쿠폰함",
-    currentPage: "/mypage/coupon",
-    href: "/mypage/coupon",
+    label: "주문·쇼핑",
+    items: [
+      {
+        name: "장바구니",
+        currentPage: "/mypage/myCart",
+        href: "/mypage/myCart",
+      },
+      {
+        name: "주문 내역",
+        currentPage: "/mypage/orderList",
+        href: "/mypage/orderList?page=1",
+      },
+    ],
   },
   {
-    name: "찜 목록",
-    currentPage: "/mypage/bookmark",
-    href: "/mypage/bookmark",
-  },
-  { name: "장바구니", currentPage: "/mypage/myCart", href: "/mypage/myCart" },
-  {
-    name: "주문 내역",
-    currentPage: "/mypage/orderList",
-    href: "/mypage/orderList?page=1",
-  },
-  {
-    name: "리뷰 관리",
-    currentPage: "/mypage/review",
-    href: "/mypage/review",
+    label: "혜택",
+    items: [
+      {
+        name: "쿠폰함",
+        currentPage: "/mypage/coupon",
+        href: "/mypage/coupon",
+      },
+    ],
   },
   {
-    name: "문의 관리",
-    currentPage: "/mypage/inquiry",
-    href: "/mypage/inquiry",
+    label: "활동",
+    items: [
+      {
+        name: "찜 목록",
+        currentPage: "/mypage/bookmark",
+        href: "/mypage/bookmark",
+      },
+      {
+        name: "리뷰 관리",
+        currentPage: "/mypage/review",
+        href: "/mypage/review",
+      },
+    ],
+  },
+  {
+    label: "문의",
+    items: [
+      {
+        name: "문의 관리",
+        currentPage: "/mypage/inquiry",
+        href: "/mypage/inquiry",
+      },
+    ],
   },
 ];
+
+const menu = menuGroups.flatMap((group) => group.items);
 
 export default function SidebarNav({ user }: Props) {
   const pathname = usePathname();
@@ -127,51 +162,34 @@ export default function SidebarNav({ user }: Props) {
         )}
 
         <ul className="flex flex-col gap-1.5 mt-5">
-          <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
-            주문·쇼핑
-          </span>
-          {menu.slice(0, 5).map(({ name, href, currentPage }) => {
-            const isActive = pathname.startsWith(currentPage);
-            return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 ${
-                    isActive
-                      ? "bg-gray-600 text-white font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {name}
-                </Link>
-              </li>
-            );
-          })}
-
-          <div className="my-3 px-2">
-            <div className="w-full border-t border-dashed border-gray-300" />
-          </div>
-
-          <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
-            활동 및 내역
-          </span>
-          {menu.slice(5).map(({ name, href, currentPage }) => {
-            const isActive = pathname.startsWith(currentPage);
-            return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={`block px-4 py-2 transition-colors duration-150 ${
-                    isActive
-                      ? "bg-gray-600 text-white font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {name}
-                </Link>
-              </li>
-            );
-          })}
+          {menuGroups.map((group, groupIndex) => (
+            <div key={group.label} className="contents">
+              <span
+                className={`text-[13px] font-semibold text-gray-500 px-2 mb-1 ${
+                  groupIndex > 0 ? "mt-4" : "mt-1"
+                }`}
+              >
+                {group.label}
+              </span>
+              {group.items.map(({ name, href, currentPage }) => {
+                const isActive = pathname.startsWith(currentPage);
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={`block px-4 py-2 transition-colors duration-150 ${
+                        isActive
+                          ? "bg-gray-600 text-white font-medium"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      {name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </div>
+          ))}
         </ul>
 
         {user?.level === 3 && (
