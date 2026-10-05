@@ -9,27 +9,36 @@ import { useRouter } from "next/navigation";
 
 const supabase = createBrowserSupabaseClient();
 
-// 상품 전체 조회 (메인 페이지용)
-export async function getProductAllToMain() {
-  const { data, error } = await supabase
+// 상품 전체 조회 (메인 페이지 "추천 상품" 섹션용, 더보기 방식 페이지네이션)
+export async function getProductAllToMain(page: number = 1, pageSize: number = 10) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, count, error } = await supabase
     .from("v_products_with_favorites")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("deleted", false)
-    .gt("total_stock", 0);
+    .gt("total_stock", 0)
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) throw error;
 
-  return (data ?? []) as unknown as ProductType[];
+  return {
+    data: (data ?? []) as unknown as ProductType[],
+    count: count ?? 0,
+  };
 }
 
-export function useProductAllToMainQuery() {
+export function useProductAllToMainQuery(page: number = 1, pageSize: number = 10) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["products"],
-    queryFn: getProductAllToMain,
+    queryKey: ["products", page, pageSize],
+    queryFn: () => getProductAllToMain(page, pageSize),
   });
 
   return {
-    data,
+    data: data?.data,
+    totalCount: data?.count ?? 0,
     isLoading,
     isError,
   };
