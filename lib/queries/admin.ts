@@ -113,15 +113,21 @@ export const useUpdateProductMutation = (productId: string) => {
 };
 
 // 내 등록 상품 조회
-export const useMyProductsQuery = (userId: string, searchQuery: string) => {
+export const useMyProductsQuery = (
+  userId: string,
+  searchQuery: string,
+  page: number,
+  pageSize: number,
+) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["manageProducts", searchQuery],
-    queryFn: () => getMyProducts(userId, searchQuery),
+    queryKey: ["manageProducts", searchQuery, page, pageSize],
+    queryFn: () => getMyProducts(userId, searchQuery, page, pageSize),
     enabled: !!userId,
   });
 
   return {
-    data,
+    data: data?.products ?? [],
+    totalCount: data?.totalCount ?? 0,
     isLoading,
   };
 };

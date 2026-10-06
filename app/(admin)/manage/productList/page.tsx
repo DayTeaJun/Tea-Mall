@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import useDebounce from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
+import ReactPaginate from "react-paginate";
 import ProductDelBtn from "./_components/ProductDelBtn";
 import { useMyProductsQuery } from "@/lib/queries/admin";
 import { ImageOff, Loader2, ShoppingBag } from "lucide-react";
@@ -37,16 +38,26 @@ interface ProductType {
   views: number;
 }
 
+const PAGE_SIZE = 10;
+
 export default function ProductListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const debounceQuery = useDebounce<string>(searchQuery);
   const router = useRouter();
   const { user } = useAuthStore();
+  const [page, setPage] = useState(0);
 
-  const { data: products = [], isLoading } = useMyProductsQuery(
-    user?.id || "",
-    debounceQuery,
-  );
+  useEffect(() => {
+    setPage(0);
+  }, [debounceQuery]);
+
+  const {
+    data: products = [],
+    totalCount,
+    isLoading,
+  } = useMyProductsQuery(user?.id || "", debounceQuery, page, PAGE_SIZE);
+
+  const pageCount = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const getAvailableStock = (
     stockBySize: ProductType["stock_by_size"],
@@ -164,7 +175,9 @@ export default function ProductListPage() {
 
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
-                      <td className="border p-2">{products.length - index}</td>
+                      <td className="border p-2">
+                        {totalCount - (page * PAGE_SIZE + index)}
+                      </td>
                       <td
                         onClick={() => router.push(`/products/${product.id}`)}
                         className="border p-2 cursor-pointer align-middle"
@@ -356,7 +369,7 @@ export default function ProductListPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          No. {products.length - index}
+                          No. {totalCount - (page * PAGE_SIZE + index)}
                         </span>
                         {hasDiscount ? (
                           <div className="flex flex-col items-end">
@@ -451,6 +464,28 @@ export default function ProductListPage() {
             })}
           </ul>
         )}
+      </div>
+
+      <div className="flex justify-center text-xs sm:text-sm mt-6">
+        <ReactPaginate
+          onPageChange={(e) => setPage(e.selected)}
+          pageRangeDisplayed={3}
+          pageCount={pageCount}
+          forcePage={page}
+          marginPagesDisplayed={1}
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+        />
       </div>
     </div>
   );

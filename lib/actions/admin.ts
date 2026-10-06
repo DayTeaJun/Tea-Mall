@@ -262,23 +262,32 @@ export async function updateProduct({
 }
 
 // 내 등록 상품 조회
-export async function getMyProducts(userId: string, query: string) {
+export async function getMyProducts(
+  userId: string,
+  query: string,
+  page: number = 0,
+  pageSize: number = 10,
+) {
   const supabase = await createServerSupabaseClient();
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
   let request = supabase
     .from("products")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("user_id", userId)
     .eq("deleted", false)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (query.trim()) {
     request = request.ilike("name", `%${query}%`);
   }
 
-  const { data, error } = await request;
+  const { data, count, error } = await request;
 
   if (error) throw error;
-  return data ?? [];
+  return { products: data ?? [], totalCount: count ?? 0 };
 }
 
 // 주문 배송상태 변경
