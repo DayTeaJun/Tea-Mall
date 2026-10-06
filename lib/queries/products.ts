@@ -83,20 +83,42 @@ export function getDiscountPercent(product: ProductType) {
   );
 }
 
-// 할인 상품 전체 조회, 할인율 높은 순 (메인 페이지 카테고리별 할인 섹션용)
+// 특가 섹션 카테고리 그룹 (DiscountProductList.tsx와 동일한 구성 공유)
+const DISCOUNT_COLUMN_GROUPS: { label: string; categories: string[] }[] = [
+  { label: "의류", categories: ["의류"] },
+  { label: "신발", categories: ["신발"] },
+  { label: "가방·액세서리", categories: ["가방", "액세서리"] },
+];
+// 그룹별로 넉넉히 후보를 가져온 뒤 실제 할인율(getDiscountPercent)로 다시 정렬 -
+// discount_value만으로는 fixed(원 단위)/percentage(%)가 섞여있어 정확한 정렬이 안 됨
+const DISCOUNT_CANDIDATE_POOL = 10;
+const DISCOUNT_ITEMS_PER_COLUMN = 2;
+
+// 할인 상품을 카테고리 그룹별로 최대 2개씩 조회 (메인 페이지 특가 섹션용)
 export async function getDiscountProductList() {
-  const { data, error } = await supabase
-    .from("v_products_with_favorites")
-    .select("*")
-    .eq("deleted", false)
-    .gt("total_stock", 0)
-    .not("discount_value", "is", null);
+  const results = await Promise.all(
+    DISCOUNT_COLUMN_GROUPS.map(async (group) => {
+      const { data, error } = await supabase
+        .from("v_products_with_favorites")
+        .select("*")
+        .eq("deleted", false)
+        .gt("total_stock", 0)
+        .in("category", group.categories)
+        .not("discount_value", "is", null)
+        .order("discount_value", { ascending: false })
+        .limit(DISCOUNT_CANDIDATE_POOL);
 
-  if (error) throw error;
+      if (error) throw error;
 
-  return ((data ?? []) as unknown as ProductType[]).sort(
-    (a, b) => getDiscountPercent(b) - getDiscountPercent(a),
+      const products = ((data ?? []) as unknown as ProductType[])
+        .sort((a, b) => getDiscountPercent(b) - getDiscountPercent(a))
+        .slice(0, DISCOUNT_ITEMS_PER_COLUMN);
+
+      return { label: group.label, products };
+    }),
   );
+
+  return results.filter((col) => col.products.length > 0);
 }
 
 export function useDiscountProductListQuery() {

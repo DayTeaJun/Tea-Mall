@@ -16,14 +16,6 @@ import {
 } from "@/lib/queries/products";
 import { ProductType } from "@/types/product";
 
-const COLUMN_GROUPS: { label: string; categories: string[] }[] = [
-  { label: "의류", categories: ["의류"] },
-  { label: "신발", categories: ["신발"] },
-  { label: "가방·액세서리", categories: ["가방", "액세서리"] },
-];
-
-const MAX_ITEMS_PER_COLUMN = 2;
-
 function DiscountListRow({ product }: { product: ProductType }) {
   const percent = getDiscountPercent(product);
   const router = useRouter();
@@ -259,14 +251,8 @@ function DiscountCarouselMobile({
 }
 
 export default function DiscountProductList() {
-  const { data: products, isLoading } = useDiscountProductListQuery();
-
-  const columns = COLUMN_GROUPS.map((group) => ({
-    label: group.label,
-    products: (products ?? [])
-      .filter((p) => p.category && group.categories.includes(p.category))
-      .slice(0, MAX_ITEMS_PER_COLUMN),
-  })).filter((col) => col.products.length > 0);
+  const { data, isLoading } = useDiscountProductListQuery();
+  const columns = data ?? [];
 
   if (!isLoading && columns.length === 0) return null;
 
@@ -284,7 +270,6 @@ export default function DiscountProductList() {
 
       {isLoading ? (
         <>
-          {/* 데스크톱 스켈레톤 */}
           <div className="hidden sm:grid grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, idx) => (
               <div key={idx} className="flex flex-col gap-3">
@@ -294,7 +279,6 @@ export default function DiscountProductList() {
               </div>
             ))}
           </div>
-          {/* 모바일 스켈레톤 */}
           <div className="sm:hidden flex flex-col gap-3">
             <div className="aspect-[4/3] rounded-sm bg-gray-100 animate-pulse" />
             <div className="h-[92px] rounded-sm bg-gray-100 animate-pulse" />
@@ -303,7 +287,6 @@ export default function DiscountProductList() {
         </>
       ) : (
         <>
-          {/* 데스크톱: 카테고리 3개를 한 줄 그리드로 */}
           <div className="hidden sm:grid grid-cols-3 gap-6">
             {columns.map((col) => (
               <DiscountColumn
@@ -314,7 +297,6 @@ export default function DiscountProductList() {
             ))}
           </div>
 
-          {/* 모바일: 카테고리 하나씩 넘겨보는 캐러셀 */}
           <DiscountCarouselMobile columns={columns} />
         </>
       )}
