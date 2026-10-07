@@ -209,36 +209,42 @@ export function useGetProductDetail(id: string) {
 // 상품 상세 리뷰 조회 (상품 상세 페이지 "상품 리뷰" 섹션용, 페이지네이션)
 export const PRODUCT_REVIEWS_PAGE_SIZE = 5;
 
+const REVIEW_SELECT = `
+  id,
+  user_id,
+  user_name,
+  rating,
+  created_at,
+  images,
+  content,
+  product_id,
+  updated_at,
+  public_profiles ( profile_image_url ),
+  helpful_count,
+  review_helpfuls ( user_id )
+`;
+
 export async function getProductReviews(
   productId: string,
   page: number = 1,
   pageSize: number = PRODUCT_REVIEWS_PAGE_SIZE,
+  excludeUserId?: string,
 ) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, count, error } = await supabase
+  let query = supabase
     .from("reviews")
-    .select(
-      `
-      id,
-      user_id,
-      user_name,
-      rating,
-      created_at,
-      images,
-      content,
-      product_id,
-      updated_at,
-      public_profiles ( profile_image_url ),
-      helpful_count,
-      review_helpfuls ( user_id )
-    `,
-      { count: "exact" },
-    )
+    .select(REVIEW_SELECT, { count: "exact" })
     .eq("product_id", productId)
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  if (excludeUserId) {
+    query = query.neq("user_id", excludeUserId);
+  }
+
+  const { data, count, error } = await query;
 
   if (error) throw error;
 
@@ -255,10 +261,11 @@ export function useProductReviewsQuery(
   page: number,
   pageSize: number,
   initialData?: ProductReviewsResult,
+  excludeUserId?: string,
 ) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["productReviews", productId, page, pageSize],
-    queryFn: () => getProductReviews(productId, page, pageSize),
+    queryKey: ["productReviews", productId, page, pageSize, excludeUserId],
+    queryFn: () => getProductReviews(productId, page, pageSize, excludeUserId),
     enabled: !!productId,
     initialData: page === 1 ? initialData : undefined,
   });
@@ -269,6 +276,34 @@ export function useProductReviewsQuery(
     isLoading,
     isError,
   };
+}
+
+// 내가 이 상품에 남긴 리뷰 1건 조회 ("내가 남긴 리뷰" 상단 고정 섹션용)
+export async function getMyProductReview(productId: string, userId: string) {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(REVIEW_SELECT)
+    .eq("product_id", productId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export function useMyProductReviewQuery(
+  productId: string,
+  userId?: string,
+  initialData?: Awaited<ReturnType<typeof getMyProductReview>>,
+) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["myProductReview", productId, userId],
+    queryFn: () => getMyProductReview(productId, userId as string),
+    enabled: !!productId && !!userId,
+    initialData,
+  });
+
+  return { myReview: data ?? null, isLoading };
 }
 
 // 장바구니 상품 전체 조회

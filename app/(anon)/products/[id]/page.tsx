@@ -115,12 +115,9 @@ export default async function ProductDetailPage({
     .order("sort_order", { ascending: true });
 
   // 리뷰 섹션 1페이지분만 서버에서 미리 받아 CommentsSection에 넘김 —
-  // 클라이언트에서 처음부터 다시 불러오는 깜빡임 없이 바로 보이도록
-  const {
-    data: initialReviews,
-    count: initialReviewCount,
-    error: initialReviewsError,
-  } = await supabase
+  // 클라이언트에서 처음부터 다시 불러오는 깜빡임 없이 바로 보이도록.
+  // 내 리뷰는 CommentsSection의 "내가 남긴 리뷰" 섹션에서 별도로 보여주므로 제외
+  let initialReviewsQuery = supabase
     .from("reviews")
     .select(
       `
@@ -143,8 +140,52 @@ export default async function ProductDetailPage({
     .order("created_at", { ascending: false })
     .range(0, REVIEW_PAGE_SIZE - 1);
 
+  if (userId) {
+    initialReviewsQuery = initialReviewsQuery.neq("user_id", userId);
+  }
+
+  const {
+    data: initialReviews,
+    count: initialReviewCount,
+    error: initialReviewsError,
+  } = await initialReviewsQuery;
+
   if (initialReviewsError) {
     console.error("리뷰 초기 데이터 조회 오류:", initialReviewsError);
+  }
+
+  // "내가 남긴 리뷰" 고정 섹션용 — 로그인 상태에서만, 서버에서 미리 가져와
+  // 클라이언트 auth 스토어가 채워지기 전까지 잠깐 안 보이는 깜빡임을 없앰
+  let initialMyReview = null;
+
+  if (userId) {
+    const { data: myReview, error: myReviewError } = await supabase
+      .from("reviews")
+      .select(
+        `
+        id,
+        user_id,
+        user_name,
+        rating,
+        created_at,
+        images,
+        content,
+        product_id,
+        updated_at,
+        public_profiles ( profile_image_url ),
+        helpful_count,
+        review_helpfuls ( user_id )
+      `,
+      )
+      .eq("product_id", id)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (myReviewError) {
+      console.error("내 리뷰 초기 데이터 조회 오류:", myReviewError);
+    } else {
+      initialMyReview = myReview;
+    }
   }
 
   const hasDiscount =
@@ -353,6 +394,7 @@ export default async function ProductDetailPage({
         productId={id}
         initialReviews={initialReviews ?? []}
         initialTotalCount={initialReviewCount ?? 0}
+        initialMyReview={initialMyReview}
       />
 
       <ProductInquiry productId={id} />
