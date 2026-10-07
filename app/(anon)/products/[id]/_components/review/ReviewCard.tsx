@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { Star, UserRound } from "lucide-react";
-import CommentReportBtn from "./CommentReportBtn";
-import CommentBtn from "./CommentBtn";
-import CommentHelpful from "./CommentHelpful";
+import ReviewReportBtn from "./ReviewReportBtn";
+import ReviewBtn from "./ReviewBtn";
+import ReviewHelpful from "./ReviewHelpful";
 import { ProductReviewRow } from "@/lib/queries/products";
 
 interface ReviewCardProps {
@@ -30,7 +30,7 @@ export default function ReviewCard({
             <span className="w-fit font-bold px-1.5 py-0.5 rounded-xs text-[10px] tracking-tight bg-gray-900 text-white">
               내가 남긴 리뷰
             </span>
-            <CommentBtn productId={productId} />
+            <ReviewBtn productId={productId} />
           </div>
         )}
 
@@ -118,12 +118,12 @@ export default function ReviewCard({
       </p>
 
       <div className="flex justify-between pt-1">
-        <CommentHelpful
+        <ReviewHelpful
           reviewId={comment.id}
           initialCount={comment.helpful_count}
           initialIsLiked={comment.isLiked}
         />
-        <CommentReportBtn />
+        <ReviewReportBtn />
       </div>
     </div>
   );

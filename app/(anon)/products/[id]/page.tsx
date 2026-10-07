@@ -12,9 +12,9 @@ import BookmarkBtn from "@/components/common/buttons/BookmarkBtn";
 import ProductTabs from "./_components/ProductTabs";
 import ProductInquiry from "./_components/inquiry/ProductInquiry";
 import ProductViewLog from "./_components/ProductViewLog";
-import CommentsSection from "./_components/comment/CommentsSection";
+import ReviewsSection from "./_components/review/ReviewsSection";
 
-// CommentsSection.tsx의 PRODUCT_REVIEWS_PAGE_SIZE와 반드시 같은 값으로 유지
+// ReviewsSection.tsx의 PRODUCT_REVIEWS_PAGE_SIZE와 반드시 같은 값으로 유지
 // ("use client" 모듈의 값은 서버 컴포넌트에서 직접 import해 쓰면 런타임에
 // 실제 값이 아닌 참조 placeholder로 치환되어 NaN이 되는 문제가 있어 분리함)
 const REVIEW_PAGE_SIZE = 5;
@@ -114,9 +114,9 @@ export default async function ProductDetailPage({
     .eq("product_id", product.id)
     .order("sort_order", { ascending: true });
 
-  // 리뷰 섹션 1페이지분만 서버에서 미리 받아 CommentsSection에 넘김 —
+  // 리뷰 섹션 1페이지분만 서버에서 미리 받아 ReviewsSection에 넘김 —
   // 클라이언트에서 처음부터 다시 불러오는 깜빡임 없이 바로 보이도록.
-  // 내 리뷰는 CommentsSection의 "내가 남긴 리뷰" 섹션에서 별도로 보여주므로 제외
+  // 내 리뷰는 ReviewsSection의 "내가 남긴 리뷰" 섹션에서 별도로 보여주므로 제외
   let initialReviewsQuery = supabase
     .from("reviews")
     .select(
@@ -390,7 +390,7 @@ export default async function ProductDetailPage({
           ))}
       </div>
 
-      <CommentsSection
+      <ReviewsSection
         productId={id}
         initialReviews={initialReviews ?? []}
         initialTotalCount={initialReviewCount ?? 0}

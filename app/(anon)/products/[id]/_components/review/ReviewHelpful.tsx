@@ -6,17 +6,17 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 
-interface CommentHelpfulProps {
+interface ReviewHelpfulProps {
   reviewId: string;
   initialCount: number;
   initialIsLiked: boolean;
 }
 
-export default function CommentHelpful({
+export default function ReviewHelpful({
   reviewId,
   initialCount,
   initialIsLiked,
-}: CommentHelpfulProps) {
+}: ReviewHelpfulProps) {
   const supabase = createBrowserSupabaseClient();
   const { user } = useAuthStore();
 

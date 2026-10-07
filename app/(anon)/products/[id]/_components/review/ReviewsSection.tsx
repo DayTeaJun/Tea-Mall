@@ -10,7 +10,7 @@ import {
   useMyProductReviewQuery,
   useProductReviewsQuery,
 } from "@/lib/queries/products";
-import CommentBtn from "./CommentBtn";
+import ReviewBtn from "./ReviewBtn";
 import ReviewCard from "./ReviewCard";
 
 interface Props {
@@ -30,7 +30,7 @@ function withIsLiked(comment: ProductReviewRow, userId?: string) {
   return { ...comment, isLiked };
 }
 
-export default function CommentsSection({
+export default function ReviewsSection({
   productId,
   initialReviews,
   initialTotalCount,
@@ -82,7 +82,7 @@ export default function CommentsSection({
         </h2>
 
         {!isMyReviewLoading && !myReviewWithIsLiked && (
-          <CommentBtn productId={productId} />
+          <ReviewBtn productId={productId} />
         )}
       </div>
 
