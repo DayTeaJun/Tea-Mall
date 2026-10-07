@@ -14,6 +14,11 @@ import ProductInquiry from "./_components/inquiry/ProductInquiry";
 import ProductViewLog from "./_components/ProductViewLog";
 import CommentsSection from "./_components/comment/CommentsSection";
 
+// CommentsSection.tsx의 PRODUCT_REVIEWS_PAGE_SIZE와 반드시 같은 값으로 유지
+// ("use client" 모듈의 값은 서버 컴포넌트에서 직접 import해 쓰면 런타임에
+// 실제 값이 아닌 참조 placeholder로 치환되어 NaN이 되는 문제가 있어 분리함)
+const REVIEW_PAGE_SIZE = 5;
+
 export async function generateMetadata({
   params,
 }: {
@@ -108,6 +113,39 @@ export default async function ProductDetailPage({
     .select("image_url, sort_order")
     .eq("product_id", product.id)
     .order("sort_order", { ascending: true });
+
+  // 리뷰 섹션 1페이지분만 서버에서 미리 받아 CommentsSection에 넘김 —
+  // 클라이언트에서 처음부터 다시 불러오는 깜빡임 없이 바로 보이도록
+  const {
+    data: initialReviews,
+    count: initialReviewCount,
+    error: initialReviewsError,
+  } = await supabase
+    .from("reviews")
+    .select(
+      `
+      id,
+      user_id,
+      user_name,
+      rating,
+      created_at,
+      images,
+      content,
+      product_id,
+      updated_at,
+      public_profiles ( profile_image_url ),
+      helpful_count,
+      review_helpfuls ( user_id )
+    `,
+      { count: "exact" },
+    )
+    .eq("product_id", id)
+    .order("created_at", { ascending: false })
+    .range(0, REVIEW_PAGE_SIZE - 1);
+
+  if (initialReviewsError) {
+    console.error("리뷰 초기 데이터 조회 오류:", initialReviewsError);
+  }
 
   const hasDiscount =
     product.original_price && product.original_price > product.price;
@@ -311,7 +349,11 @@ export default async function ProductDetailPage({
           ))}
       </div>
 
-      <CommentsSection productId={id} />
+      <CommentsSection
+        productId={id}
+        initialReviews={initialReviews ?? []}
+        initialTotalCount={initialReviewCount ?? 0}
+      />
 
       <ProductInquiry productId={id} />
 

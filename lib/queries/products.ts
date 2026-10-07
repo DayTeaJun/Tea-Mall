@@ -10,7 +10,10 @@ import { useRouter } from "next/navigation";
 const supabase = createBrowserSupabaseClient();
 
 // 상품 전체 조회 (메인 페이지 "추천 상품" 섹션용, 더보기 방식 페이지네이션)
-export async function getProductAllToMain(page: number = 1, pageSize: number = 10) {
+export async function getProductAllToMain(
+  page: number = 1,
+  pageSize: number = 10,
+) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -30,7 +33,10 @@ export async function getProductAllToMain(page: number = 1, pageSize: number = 1
   };
 }
 
-export function useProductAllToMainQuery(page: number = 1, pageSize: number = 10) {
+export function useProductAllToMainQuery(
+  page: number = 1,
+  pageSize: number = 10,
+) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["products", page, pageSize],
     queryFn: () => getProductAllToMain(page, pageSize),
@@ -195,6 +201,71 @@ export function useGetProductDetail(id: string) {
 
   return {
     data,
+    isLoading,
+    isError,
+  };
+}
+
+// 상품 상세 리뷰 조회 (상품 상세 페이지 "상품 리뷰" 섹션용, 페이지네이션)
+export const PRODUCT_REVIEWS_PAGE_SIZE = 5;
+
+export async function getProductReviews(
+  productId: string,
+  page: number = 1,
+  pageSize: number = PRODUCT_REVIEWS_PAGE_SIZE,
+) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, count, error } = await supabase
+    .from("reviews")
+    .select(
+      `
+      id,
+      user_id,
+      user_name,
+      rating,
+      created_at,
+      images,
+      content,
+      product_id,
+      updated_at,
+      public_profiles ( profile_image_url ),
+      helpful_count,
+      review_helpfuls ( user_id )
+    `,
+      { count: "exact" },
+    )
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+
+  return { reviews: data ?? [], totalCount: count ?? 0 };
+}
+
+export type ProductReviewsResult = Awaited<
+  ReturnType<typeof getProductReviews>
+>;
+export type ProductReviewRow = ProductReviewsResult["reviews"][number];
+
+export function useProductReviewsQuery(
+  productId: string,
+  page: number,
+  pageSize: number,
+  initialData?: ProductReviewsResult,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["productReviews", productId, page, pageSize],
+    queryFn: () => getProductReviews(productId, page, pageSize),
+    enabled: !!productId,
+    initialData: page === 1 ? initialData : undefined,
+  });
+
+  return {
+    reviews: data?.reviews ?? [],
+    totalCount: data?.totalCount ?? 0,
     isLoading,
     isError,
   };
@@ -642,9 +713,8 @@ export const usePostFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => postFavorite(userId, productId),
     onSuccess: async (_data, productId) => {
-      queryClient.setQueryData<Set<string>>(
-        ["favoriteIds", userId],
-        (prev) => new Set(prev).add(productId),
+      queryClient.setQueryData<Set<string>>(["favoriteIds", userId], (prev) =>
+        new Set(prev).add(productId),
       );
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
@@ -673,14 +743,11 @@ export const useDeleteFavoriteMutation = (userId: string) => {
   const { data, isError, mutate, isSuccess, isPending } = useMutation({
     mutationFn: (productId: string) => deleteFavorite(userId, productId),
     onSuccess: async (_data, productId) => {
-      queryClient.setQueryData<Set<string>>(
-        ["favoriteIds", userId],
-        (prev) => {
-          const next = new Set(prev);
-          next.delete(productId);
-          return next;
-        },
-      );
+      queryClient.setQueryData<Set<string>>(["favoriteIds", userId], (prev) => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
       await queryClient.invalidateQueries({
         queryKey: ["favorites", userId],
       });
