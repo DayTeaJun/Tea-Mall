@@ -491,16 +491,22 @@ export function useGetMyCoupon(userId: string, userCouponId: string) {
 }
 
 // 내 사용가능(다운로드 된) 쿠폰 조회
-export async function getMyAvailableCoupons(userId: string) {
+export async function getMyAvailableCoupons(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 10,
+) {
   const supabase = createBrowserSupabaseClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("user_coupons")
     .select(
       `
         id,
         is_used,
-        coupon:coupons (
+        coupon:coupons!inner (
           id,
           name,
           discount_type,
@@ -511,36 +517,52 @@ export async function getMyAvailableCoupons(userId: string) {
           expires_at
         )
       `,
+      { count: "exact" },
     )
     .eq("user_id", userId)
-    .eq("is_used", false);
+    .eq("is_used", false)
+    .order("expires_at", { referencedTable: "coupon", ascending: true })
+    .order("id", { referencedTable: "coupon", ascending: true })
+    .range(from, to);
 
   if (error) {
     console.error("쿠폰 조회 실패:", error.message);
     throw new Error("쿠폰 조회에 실패했습니다.");
   }
 
-  return data as UserCoupon[];
+  return { data: data as UserCoupon[], count: count ?? 0 };
 }
 
-export function useGetMyAvailableCoupons(userId: string) {
+export function useGetMyAvailableCoupons(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 10,
+) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["myAvailableCoupons", userId],
-    queryFn: () => getMyAvailableCoupons(userId),
+    queryKey: ["myAvailableCoupons", userId, page, pageSize],
+    queryFn: () => getMyAvailableCoupons(userId, page, pageSize),
     enabled: !!userId,
   });
 
   return {
-    data,
+    data: data?.data,
+    totalCount: data?.count ?? 0,
     isLoading,
     isError,
   };
 }
 
-export async function getMyUsedCoupons(userId: string) {
+// 내 사용한 쿠폰 조회
+export async function getMyUsedCoupons(
+  userId: string,
+  page: number,
+  pageSize: number,
+) {
   const supabase = createBrowserSupabaseClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("user_coupons")
     .select(
       `
@@ -558,27 +580,35 @@ export async function getMyUsedCoupons(userId: string) {
           expires_at
         )
       `,
+      { count: "exact" },
     )
     .eq("user_id", userId)
-    .eq("is_used", true);
+    .eq("is_used", true)
+    .range(from, to)
+    .order("used_at", { ascending: false });
 
   if (error) {
     console.error("쿠폰 조회 실패:", error.message);
     throw new Error("쿠폰 조회에 실패했습니다.");
   }
 
-  return data as UserCoupon[];
+  return { data: data as UserCoupon[], count: count ?? 0 };
 }
 
-export function useGetMyUsedCoupons(userId: string) {
+export function useGetMyUsedCoupons(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 10,
+) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["myUsedCoupons", userId],
-    queryFn: () => getMyUsedCoupons(userId),
+    queryKey: ["myUsedCoupons", userId, page, pageSize],
+    queryFn: () => getMyUsedCoupons(userId, page, pageSize),
     enabled: !!userId,
   });
 
   return {
-    data,
+    data: data?.data,
+    totalCount: data?.count ?? 0,
     isLoading,
     isError,
   };
