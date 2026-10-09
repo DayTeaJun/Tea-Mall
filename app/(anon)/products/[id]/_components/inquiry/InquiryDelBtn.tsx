@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 import InquiryModal from "./InquiryModal";
 
 interface Props {
@@ -14,7 +14,6 @@ interface Props {
 
 function InquiryDelBtn({ productId, myInquiryId }: Props) {
   const { user } = useAuthStore();
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleInquiryClick = async () => {
@@ -36,7 +35,12 @@ function InquiryDelBtn({ productId, myInquiryId }: Props) {
       toast.error("문의 삭제에 실패했습니다.");
     } else {
       toast.success("문의가 삭제되었습니다.");
-      router.refresh();
+      queryClient.invalidateQueries({
+        queryKey: ["productInquiryList", productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myProductInquiry", productId],
+      });
     }
   };
 

@@ -5,9 +5,10 @@ import React, { useState } from "react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
-import { useRouter } from "next/navigation";
+import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 interface Props {
+  productId: string;
   inquiry_id: number;
   answer_content: string | null;
   answered_at: string | null;
@@ -15,7 +16,6 @@ interface Props {
 
 function ProductInquiryAnswer(inquiry: Props) {
   const { user } = useAuthStore();
-  const router = useRouter();
   const isAdmin = user?.level === 3;
 
   const [content, setContent] = useState("");
@@ -50,7 +50,12 @@ function ProductInquiryAnswer(inquiry: Props) {
 
       toast.success("답변이 정상적으로 등록되었습니다.");
       setContent("");
-      router.refresh();
+      queryClient.invalidateQueries({
+        queryKey: ["productInquiryList", inquiry.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myProductInquiry", inquiry.productId],
+      });
     } catch (err) {
       console.error(err);
       toast.error("답변 등록에 실패했습니다.");

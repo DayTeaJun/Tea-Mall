@@ -1,54 +1,60 @@
-import { CornerDownRight, MailQuestion } from "lucide-react";
-import React from "react";
-import { createServerSupabaseClient } from "@/lib/config/supabase/server/server";
-import { getCachedUserId } from "@/lib/config/supabase/server/getCachedUserId";
-import ProductInquiryAnswer from "./ProductInquiryAnswer";
-import InquiryDelBtn from "./InquiryDelBtn";
+"use client";
+
+import { useState } from "react";
+import { Loader2, MailQuestion } from "lucide-react";
+import ReactPaginate from "react-paginate";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import {
+  PRODUCT_INQUIRY_PAGE_SIZE,
+  ProductInquiryRow,
+  useMyProductInquiryQuery,
+  useProductInquiryListQuery,
+} from "@/lib/queries/products";
+import InquiryCard from "./InquiryCard";
 import InquiryPostBtn from "./InquiryPostBtn";
 
-export const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-};
+interface Props {
+  productId: string;
+  initialInquiries?: ProductInquiryRow[];
+  initialTotalCount?: number;
+  initialMyInquiry?: ProductInquiryRow | null;
+}
 
-async function ProductInquiry({ productId }: { productId: string }) {
-  const supabase = await createServerSupabaseClient();
+function ProductInquiry({
+  productId,
+  initialInquiries,
+  initialTotalCount,
+  initialMyInquiry,
+}: Props) {
+  const { user } = useAuthStore();
+  const userId = user?.id;
+  const [page, setPage] = useState(1);
 
-  const userId = await getCachedUserId();
+  // 서버에서 로그인 쿠키 기준으로 이미 확인해서 내려준 값이 있으면 그대로 써서
+  // 클라이언트 auth 스토어가 채워지기 전에도 "내 문의" 섹션이 바로 보이게 함
+  const { myInquiry, isLoading: isMyInquiryLoading } = useMyProductInquiryQuery(
+    productId,
+    userId,
+    initialMyInquiry !== undefined ? initialMyInquiry : undefined,
+  );
 
-  const { data: rawInquiries } = await supabase
-    .from("product_inquiry")
-    .select(
-      `
-      id,
-      user_id,
-      user_name,
-      created_at,
-      content,
-      answer_content,
-      answered_at,
-      admin_id
-    `,
-    )
-    .eq("product_id", productId)
-    .order("created_at", { ascending: false });
+  const hasInitialData = initialTotalCount !== undefined;
 
-  const inquiries = rawInquiries
-    ? [...rawInquiries].sort((a, b) => {
-        if (a.user_id === userId && b.user_id !== userId) return -1;
-        if (a.user_id !== userId && b.user_id === userId) return 1;
-        return 0;
-      })
-    : [];
+  // 내 문의는 위의 "내 문의" 섹션에서 따로 보여주므로 목록에서는 제외
+  const { inquiries, totalCount, isLoading } = useProductInquiryListQuery(
+    productId,
+    page,
+    PRODUCT_INQUIRY_PAGE_SIZE,
+    hasInitialData
+      ? { inquiries: initialInquiries ?? [], totalCount: initialTotalCount }
+      : undefined,
+    userId,
+  );
 
-  const myInquiry = inquiries?.find((inquiry) => inquiry.user_id === userId);
-  const hasInquiry = !!myInquiry;
+  const pageCount = Math.max(
+    1,
+    Math.ceil(totalCount / PRODUCT_INQUIRY_PAGE_SIZE),
+  );
 
   return (
     <div
@@ -60,7 +66,9 @@ async function ProductInquiry({ productId }: { productId: string }) {
           <h2 className="text-[18px] sm:text-[20px] font-semibold text-gray-800">
             상품 문의
           </h2>
-          {!hasInquiry && <InquiryPostBtn productId={productId} />}
+          {!isMyInquiryLoading && !myInquiry && (
+            <InquiryPostBtn productId={productId} />
+          )}
         </div>
 
         <ul className="space-y-1.5 list-none pl-0 border-b border-gray-100 pb-4 text-gray-500 text-[12px] sm:text-[13px]">
@@ -93,107 +101,60 @@ async function ProductInquiry({ productId }: { productId: string }) {
         </ul>
 
         <div className="w-full flex flex-col">
-          {inquiries && inquiries.length > 0 ? (
-            <ul className="divide-y divide-gray-100/60">
-              {inquiries.map((inquiry) => {
-                const isMyItem = inquiry.user_id === userId;
+          {myInquiry && (
+            <div className="border-b border-gray-100/60">
+              <InquiryCard inquiry={myInquiry} productId={productId} isMyItem />
+            </div>
+          )}
 
-                return (
-                  <li
-                    key={inquiry.id}
-                    className={`py-4 sm:py-5 flex flex-col gap-3 transition-colors ${
-                      isMyItem
-                        ? "bg-gray-50/70 -mx-4 px-4 sm:-mx-5 sm:px-5 my-1 first:mt-0 relative"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 text-[11px] sm:text-xs text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`font-bold px-1.5 py-0.5 rounded-xs text-[10px] sm:text-[11px] tracking-tight text-white ${
-                              isMyItem ? "bg-gray-900" : "bg-gray-500"
-                            }`}
-                          >
-                            {isMyItem ? "내 문의" : "질문"}
-                          </span>
-                          <span
-                            className={`font-medium ${isMyItem ? "text-gray-900 font-semibold" : "text-gray-600"}`}
-                          >
-                            {inquiry.user_name}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-2 text-gray-400">
-                          <span>{formatDate(inquiry.created_at)}</span>
-                          {isMyItem && (
-                            <InquiryDelBtn
-                              productId={productId}
-                              myInquiryId={inquiry.id}
-                            />
-                          )}
-                        </div>
-                      </div>
-
-                      <p
-                        className={`whitespace-pre-line pl-0.5 text-[13px] sm:text-sm leading-relaxed ${
-                          isMyItem
-                            ? "text-gray-950 font-medium"
-                            : "text-gray-800"
-                        }`}
-                      >
-                        {inquiry.content}
-                      </p>
-                    </div>
-
-                    {inquiry.answer_content ? (
-                      <div className="p-3.5 sm:p-4 rounded-sm border-t flex gap-2 items-start mt-1 bg-gray-50/50 border-gray-100">
-                        <CornerDownRight
-                          size={14}
-                          className="text-gray-400 shrink-0 mt-1 sm:w-4 sm:h-4"
-                        />
-
-                        <div className="flex flex-col gap-2 w-full">
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-[11px] sm:text-xs text-gray-400">
-                            <div className="flex items-center gap-2">
-                              <span className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded-xs text-[10px] sm:text-[11px]">
-                                답변
-                              </span>
-                              <span className="font-bold text-gray-700">
-                                판매자
-                              </span>
-                            </div>
-                            {inquiry.answered_at && (
-                              <span>{formatDate(inquiry.answered_at)}</span>
-                            )}
-                          </div>
-
-                          <p className="text-gray-700 whitespace-pre-line text-[13px] sm:text-sm leading-relaxed pl-0.5">
-                            {inquiry.answer_content}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <ProductInquiryAnswer
-                        inquiry_id={inquiry.id}
-                        answer_content={inquiry.answer_content}
-                        answered_at={inquiry.answered_at}
-                      />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          {isLoading ? (
+            <div className="py-10 flex flex-col items-center gap-2 text-gray-400">
+              <Loader2 size={28} className="animate-spin" />
+            </div>
+          ) : inquiries.length === 0 ? (
+            !myInquiry && (
+              <ul className="space-y-4 pl-0">
+                <li className="py-10 flex flex-col items-center gap-2 text-gray-500 text-[15px] sm:text-[18px] border-dashed border-2 border-gray-200 rounded-sm">
+                  <MailQuestion
+                    size={36}
+                    className="text-gray-400 sm:w-10 sm:h-10"
+                  />
+                  아직 작성된 상품문의가 없습니다.
+                </li>
+              </ul>
+            )
           ) : (
-            <ul className="space-y-4 pl-0">
-              <li className="py-10 flex flex-col items-center gap-2 text-gray-500 text-[15px] sm:text-[18px] border-dashed border-2 border-gray-200 rounded-sm">
-                <MailQuestion
-                  size={36}
-                  className="text-gray-400 sm:w-10 sm:h-10"
-                />
-                아직 작성된 상품문의가 없습니다.
-              </li>
+            <ul className="divide-y divide-gray-100/60">
+              {inquiries.map((inquiry) => (
+                <li key={inquiry.id}>
+                  <InquiryCard inquiry={inquiry} productId={productId} />
+                </li>
+              ))}
             </ul>
+          )}
+
+          {!isLoading && pageCount > 1 && (
+            <div className="flex justify-center mt-6 text-xs sm:text-sm">
+              <ReactPaginate
+                onPageChange={(e) => setPage(e.selected + 1)}
+                pageRangeDisplayed={3}
+                pageCount={pageCount}
+                forcePage={page - 1}
+                marginPagesDisplayed={1}
+                previousLabel={"<"}
+                nextLabel={">"}
+                breakLabel={"..."}
+                breakClassName={"break-me"}
+                containerClassName={"pagination"}
+                activeClassName={"active"}
+                pageClassName={"page-item"}
+                pageLinkClassName={"page-link"}
+                previousClassName={"page-item"}
+                previousLinkClassName={"page-link"}
+                nextClassName={"page-item"}
+                nextLinkClassName={"page-link"}
+              />
+            </div>
           )}
         </div>
       </div>

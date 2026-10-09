@@ -14,10 +14,12 @@ import ProductInquiry from "./_components/inquiry/ProductInquiry";
 import ProductViewLog from "./_components/ProductViewLog";
 import ReviewsSection from "./_components/review/ReviewsSection";
 
-// ReviewsSection.tsx의 PRODUCT_REVIEWS_PAGE_SIZE와 반드시 같은 값으로 유지
+// ReviewsSection.tsx / ProductInquiry.tsx의 PRODUCT_REVIEWS_PAGE_SIZE,
+// PRODUCT_INQUIRY_PAGE_SIZE와 반드시 같은 값으로 유지
 // ("use client" 모듈의 값은 서버 컴포넌트에서 직접 import해 쓰면 런타임에
 // 실제 값이 아닌 참조 placeholder로 치환되어 NaN이 되는 문제가 있어 분리함)
 const REVIEW_PAGE_SIZE = 5;
+const INQUIRY_PAGE_SIZE = 5;
 
 export async function generateMetadata({
   params,
@@ -185,6 +187,72 @@ export default async function ProductDetailPage({
       console.error("내 리뷰 초기 데이터 조회 오류:", myReviewError);
     } else {
       initialMyReview = myReview;
+    }
+  }
+
+  // 상품 문의 섹션 1페이지분만 서버에서 미리 받아 ProductInquiry에 넘김 —
+  // 내 문의는 ProductInquiry의 "내 문의" 섹션에서 별도로 보여주므로 제외
+  let initialInquiriesQuery = supabase
+    .from("product_inquiry")
+    .select(
+      `
+      id,
+      user_id,
+      user_name,
+      created_at,
+      content,
+      answer_content,
+      answered_at,
+      admin_id
+    `,
+      { count: "exact" },
+    )
+    .eq("product_id", id)
+    .order("created_at", { ascending: false })
+    .range(0, INQUIRY_PAGE_SIZE - 1);
+
+  if (userId) {
+    initialInquiriesQuery = initialInquiriesQuery.neq("user_id", userId);
+  }
+
+  const {
+    data: initialInquiries,
+    count: initialInquiryCount,
+    error: initialInquiriesError,
+  } = await initialInquiriesQuery;
+
+  if (initialInquiriesError) {
+    console.error("문의 초기 데이터 조회 오류:", initialInquiriesError);
+  }
+
+  // "내 문의" 고정 섹션용 — 로그인 상태에서만, 서버에서 미리 가져와
+  // 클라이언트 auth 스토어가 채워지기 전까지 잠깐 안 보이는 깜빡임을 없앰
+  let initialMyInquiry = null;
+
+  if (userId) {
+    const { data: myInquiry, error: myInquiryError } = await supabase
+      .from("product_inquiry")
+      .select(
+        `
+        id,
+        user_id,
+        user_name,
+        created_at,
+        content,
+        answer_content,
+        answered_at,
+        admin_id
+      `,
+      )
+      .eq("product_id", id)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (myInquiryError) {
+      console.error("내 문의 초기 데이터 조회 오류:", myInquiryError);
+    } else {
+      initialMyInquiry = myInquiry?.[0] ?? null;
     }
   }
 
@@ -397,7 +465,12 @@ export default async function ProductDetailPage({
         initialMyReview={initialMyReview}
       />
 
-      <ProductInquiry productId={id} />
+      <ProductInquiry
+        productId={id}
+        initialInquiries={initialInquiries ?? []}
+        initialTotalCount={initialInquiryCount ?? 0}
+        initialMyInquiry={initialMyInquiry}
+      />
 
       <RecommendProductsCarousel
         currentProductId={id}

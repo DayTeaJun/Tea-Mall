@@ -224,12 +224,32 @@ const REVIEW_SELECT = `
   review_helpfuls ( user_id )
 `;
 
+export interface ProductReviewRow {
+  id: string;
+  user_id: string;
+  user_name: string;
+  rating: number;
+  created_at: string | null;
+  images: string[] | null;
+  content: string;
+  product_id: string;
+  updated_at: string | null;
+  public_profiles: { profile_image_url: string | null } | null;
+  helpful_count: number;
+  review_helpfuls: { user_id: string }[];
+}
+
+export interface ProductReviewsResult {
+  reviews: ProductReviewRow[];
+  totalCount: number;
+}
+
 export async function getProductReviews(
   productId: string,
   page: number = 1,
   pageSize: number = PRODUCT_REVIEWS_PAGE_SIZE,
   excludeUserId?: string,
-) {
+): Promise<ProductReviewsResult> {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -248,13 +268,11 @@ export async function getProductReviews(
 
   if (error) throw error;
 
-  return { reviews: data ?? [], totalCount: count ?? 0 };
+  return {
+    reviews: (data ?? []) as ProductReviewRow[],
+    totalCount: count ?? 0,
+  };
 }
-
-export type ProductReviewsResult = Awaited<
-  ReturnType<typeof getProductReviews>
->;
-export type ProductReviewRow = ProductReviewsResult["reviews"][number];
 
 export function useProductReviewsQuery(
   productId: string,
@@ -279,7 +297,10 @@ export function useProductReviewsQuery(
 }
 
 // 내가 이 상품에 남긴 리뷰 1건 조회 ("내가 남긴 리뷰" 상단 고정 섹션용)
-export async function getMyProductReview(productId: string, userId: string) {
+export async function getMyProductReview(
+  productId: string,
+  userId: string,
+): Promise<ProductReviewRow | null> {
   const { data, error } = await supabase
     .from("reviews")
     .select(REVIEW_SELECT)
@@ -288,13 +309,13 @@ export async function getMyProductReview(productId: string, userId: string) {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data as ProductReviewRow | null;
 }
 
 export function useMyProductReviewQuery(
   productId: string,
   userId?: string,
-  initialData?: Awaited<ReturnType<typeof getMyProductReview>>,
+  initialData?: ProductReviewRow | null,
 ) {
   const { data, isLoading } = useQuery({
     queryKey: ["myProductReview", productId, userId],
@@ -304,6 +325,122 @@ export function useMyProductReviewQuery(
   });
 
   return { myReview: data ?? null, isLoading };
+}
+
+// 상품 상세 문의 조회 (상품 상세 페이지 "상품 문의" 섹션용, 페이지네이션)
+export const PRODUCT_INQUIRY_PAGE_SIZE = 5;
+
+const INQUIRY_SELECT = `
+  id,
+  user_id,
+  user_name,
+  created_at,
+  content,
+  answer_content,
+  answered_at,
+  admin_id
+`;
+
+export interface ProductInquiryRow {
+  id: number;
+  user_id: string;
+  user_name: string;
+  created_at: string;
+  content: string;
+  answer_content: string | null;
+  answered_at: string | null;
+  admin_id: string | null;
+}
+
+export interface ProductInquiryListResult {
+  inquiries: ProductInquiryRow[];
+  totalCount: number;
+}
+
+export async function getProductInquiryList(
+  productId: string,
+  page: number = 1,
+  pageSize: number = PRODUCT_INQUIRY_PAGE_SIZE,
+  excludeUserId?: string,
+): Promise<ProductInquiryListResult> {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("product_inquiry")
+    .select(INQUIRY_SELECT, { count: "exact" })
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (excludeUserId) {
+    query = query.neq("user_id", excludeUserId);
+  }
+
+  const { data, count, error } = await query;
+
+  if (error) throw error;
+
+  return {
+    inquiries: (data ?? []) as ProductInquiryRow[],
+    totalCount: count ?? 0,
+  };
+}
+
+export function useProductInquiryListQuery(
+  productId: string,
+  page: number,
+  pageSize: number,
+  initialData?: ProductInquiryListResult,
+  excludeUserId?: string,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["productInquiryList", productId, page, pageSize, excludeUserId],
+    queryFn: () =>
+      getProductInquiryList(productId, page, pageSize, excludeUserId),
+    enabled: !!productId,
+    initialData: page === 1 ? initialData : undefined,
+  });
+
+  return {
+    inquiries: data?.inquiries ?? [],
+    totalCount: data?.totalCount ?? 0,
+    isLoading,
+    isError,
+  };
+}
+
+// 내가 이 상품에 남긴 문의 1건 조회 ("내 문의" 상단 고정 섹션용) —
+// 중복 작성이 막혀있긴 하지만 혹시 여러 건이어도 에러 없이 최신 1건만 가져오도록 limit(1) 사용
+export async function getMyProductInquiry(
+  productId: string,
+  userId: string,
+): Promise<ProductInquiryRow | null> {
+  const { data, error } = await supabase
+    .from("product_inquiry")
+    .select(INQUIRY_SELECT)
+    .eq("product_id", productId)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+  return (data?.[0] as ProductInquiryRow) ?? null;
+}
+
+export function useMyProductInquiryQuery(
+  productId: string,
+  userId?: string,
+  initialData?: ProductInquiryRow | null,
+) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["myProductInquiry", productId, userId],
+    queryFn: () => getMyProductInquiry(productId, userId as string),
+    enabled: !!productId && !!userId,
+    initialData,
+  });
+
+  return { myInquiry: data ?? null, isLoading };
 }
 
 // 장바구니 상품 전체 조회
