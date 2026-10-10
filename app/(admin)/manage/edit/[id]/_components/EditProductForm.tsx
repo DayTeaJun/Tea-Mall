@@ -133,13 +133,23 @@ export default function EditProductForm({
   };
 
   const handleSubmit = async () => {
+    const currentHasSizes = sizeOptionsMap[category]?.length > 0;
+    const hasMainImage = !!(imgUrl || mainImage);
+    const hasDetailImages =
+      existingDetailImages.length > 0 || detailFiles.length > 0;
+
     if (
       !name ||
       !description ||
       !user ||
       !category ||
       !subcategory ||
-      !price
+      !gender ||
+      !color ||
+      !price ||
+      !hasMainImage ||
+      !hasDetailImages ||
+      (currentHasSizes ? selectedSizes.length === 0 : singleStock <= 0)
     ) {
       toast.info("필수 항목 및 정가를 모두 입력해 주세요.");
       return;
@@ -167,7 +177,6 @@ export default function EditProductForm({
       finalDiscountValue = null;
     }
 
-    const currentHasSizes = sizeOptionsMap[category]?.length > 0;
     const finalStockBySize = currentHasSizes
       ? stockBySize
       : { FREE: singleStock };
@@ -270,6 +279,7 @@ export default function EditProductForm({
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600">
                 상품 이름
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <input
                 value={name}
@@ -282,6 +292,7 @@ export default function EditProductForm({
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600">
                 정가 (원)
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <input
                 type="number"
@@ -333,6 +344,7 @@ export default function EditProductForm({
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-gray-600 mb-2">
                 카테고리
+                <span className="text-red-500 pl-1">*</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {Object.keys(categoryMap).map((cat) => (
@@ -381,6 +393,7 @@ export default function EditProductForm({
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
                   성별
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <select
                   value={gender}
@@ -399,6 +412,7 @@ export default function EditProductForm({
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
                   색상
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <input
                   value={color}
@@ -425,6 +439,7 @@ export default function EditProductForm({
           <div className="bg-white p-6 border border-gray-200 flex flex-col flex-1 space-y-4">
             <h3 className="font-semibold text-gray-800 border-b pb-2">
               상세 설명
+              <span className="text-red-500 pl-1">*</span>
             </h3>
             <textarea
               value={description}
@@ -451,6 +466,7 @@ export default function EditProductForm({
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-2">
                     사이즈 선택
+                    <span className="text-red-500 pl-1">*</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {currentSizeOptions.map((size) => (
@@ -512,6 +528,7 @@ export default function EditProductForm({
               <div className="space-y-2">
                 <label className="block text-xs font-semibold text-gray-600">
                   총 재고 수량
+                  <span className="text-red-500 pl-1">*</span>
                 </label>
                 <input
                   type="number"
@@ -534,6 +551,7 @@ export default function EditProductForm({
               <div>
                 <span className="block text-xs font-semibold text-gray-600 mb-2">
                   대표 이미지
+                  <span className="text-red-500 pl-1">*</span>
                 </span>
                 <ImagePreviews
                   editImage={mainImage}
@@ -546,6 +564,7 @@ export default function EditProductForm({
               <div className="pt-2 border-t">
                 <span className="block text-xs font-semibold text-gray-600 mb-2">
                   상세 이미지
+                  <span className="text-red-500 pl-1">*</span>
                 </span>
                 <DetailImagePreview
                   previews={[
