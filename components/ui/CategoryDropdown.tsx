@@ -75,6 +75,13 @@ export default function CategoryDropdown({
   const [isOpen, setIsOpen] = useState(false);
 
   const goToSearch = (parentLabel: string, subLabel?: string) => {
+    setIsOpen(false);
+
+    if (subLabel === "신상품 (NEW)") {
+      router.push("/search?sort=latest&page=1");
+      return;
+    }
+
     const params = new URLSearchParams();
 
     const typeValue = parentLabel === "전체상품" ? "전체" : parentLabel;
@@ -86,7 +93,6 @@ export default function CategoryDropdown({
 
     params.set("page", "1");
 
-    setIsOpen(false);
     router.push(`/category?${params.toString()}`);
   };
 

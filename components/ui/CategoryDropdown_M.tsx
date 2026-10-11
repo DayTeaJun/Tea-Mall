@@ -68,6 +68,11 @@ interface CategoryDropdownProps {
   categories?: CategoryGroup[];
 }
 
+const getSubHref = (catLabel: string, subLabel: string) =>
+  subLabel === "신상품 (NEW)"
+    ? "/search?sort=latest&page=1"
+    : `/category?type=${encodeURIComponent(catLabel)}&sub=${encodeURIComponent(subLabel)}&page=1`;
+
 export default function CategoryDropdown_M({
   categories = DEFAULT_CATEGORIES,
 }: CategoryDropdownProps) {
@@ -145,7 +150,7 @@ export default function CategoryDropdown_M({
                     {cat.children!.map((sub) => (
                       <Link
                         key={sub.id}
-                        href={`/category?type=${encodeURIComponent(cat.label)}&sub=${encodeURIComponent(sub.label)}&page=1`}
+                        href={getSubHref(cat.label, sub.label)}
                         onClick={close}
                         className="px-6 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
