@@ -114,7 +114,7 @@ function DiscountColumn({
             src={bannerImage.image_url}
             alt={label}
             fill
-            sizes="(max-width: 640px) 100vw, 33vw"
+            sizes="(max-width: 1024px) 100vw, 33vw"
             className="object-cover"
           />
         )}
@@ -198,7 +198,7 @@ function DiscountCarouselMobile({
     "flex h-8 w-8 items-center justify-center text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-700";
 
   return (
-    <div className="sm:hidden">
+    <div className="lg:hidden">
       <div className="overflow-hidden">
         <div
           className={`flex ${noTransition ? "" : "transition-transform duration-300 ease-out"}`}
@@ -270,7 +270,7 @@ export default function DiscountProductList() {
 
       {isLoading ? (
         <>
-          <div className="hidden sm:grid grid-cols-3 gap-6">
+          <div className="hidden lg:grid grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, idx) => (
               <div key={idx} className="flex flex-col gap-3">
                 <div className="aspect-[4/3] rounded-sm bg-gray-100 animate-pulse" />
@@ -279,7 +279,7 @@ export default function DiscountProductList() {
               </div>
             ))}
           </div>
-          <div className="sm:hidden flex flex-col gap-3">
+          <div className="lg:hidden flex flex-col gap-3">
             <div className="aspect-[4/3] rounded-sm bg-gray-100 animate-pulse" />
             <div className="h-[92px] rounded-sm bg-gray-100 animate-pulse" />
             <div className="h-[92px] rounded-sm bg-gray-100 animate-pulse" />
@@ -287,7 +287,7 @@ export default function DiscountProductList() {
         </>
       ) : (
         <>
-          <div className="hidden sm:grid grid-cols-3 gap-6">
+          <div className="hidden lg:grid grid-cols-3 gap-6">
             {columns.map((col) => (
               <DiscountColumn
                 key={col.label}
