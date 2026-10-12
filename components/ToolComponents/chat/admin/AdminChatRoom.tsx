@@ -35,6 +35,13 @@ export default function AdminChatRoom({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // realtime 구독 콜백(roomId가 바뀔 때만 재생성됨) 안에서 최신 user.id를
+  // 참조하기 위한 ref - user 객체를 의존성에 넣으면 구독이 불필요하게 재생성됨
+  const userIdRef = useRef<string | undefined>(user?.id);
+  useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
+
   const { data } = useAdminChatMsg(roomId);
 
   const supabase = createBrowserSupabaseClient();
@@ -80,6 +87,24 @@ export default function AdminChatRoom({
               };
             },
           );
+
+          // 지금 이 방을 보고 있는 중에 유저가 보낸 새 메시지가 오면
+          // 목록에서 방을 다시 클릭하지 않아도 바로 읽음 처리
+          if (!newMsg.is_admin) {
+            supabase
+              .rpc("mark_room_messages_as_read", { target_room_id: roomId })
+              .then(({ error }) => {
+                if (error) {
+                  console.error("메시지 읽음 처리 오류:", error);
+                  return;
+                }
+                if (userIdRef.current) {
+                  queryClient.invalidateQueries({
+                    queryKey: ["adminChatList", userIdRef.current],
+                  });
+                }
+              });
+          }
         },
       )
       .subscribe();

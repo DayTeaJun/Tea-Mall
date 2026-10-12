@@ -149,21 +149,20 @@ export default function AdminChatList() {
   const handleSelectRoom = async (room: AdminChatListProps) => {
     setSelectedRoom(room);
 
-    // 낙관적 업데이트: 클릭 즉시 해당 방의 뱃지를 0으로 변경
-    // setRooms((prevRooms) =>
-    //   prevRooms.map((r) => (r.id === room.id ? { ...r, unread_count: 0 } : r)),
-    // );
-
     const { error } = await supabase.rpc("mark_room_messages_as_read", {
       target_room_id: room.id,
     });
 
     if (error) {
       console.error("메시지 읽음 처리 오류:", error);
-      if (user?.id)
-        await queryClient.invalidateQueries({
-          queryKey: ["adminChatList", userId],
-        });
+      return;
+    }
+
+    // 읽음 처리 성공 시 목록의 뱃지를 바로 갱신 (realtime 이벤트를 기다리지 않음)
+    if (user?.id) {
+      await queryClient.invalidateQueries({
+        queryKey: ["adminChatList", userId],
+      });
     }
   };
 
