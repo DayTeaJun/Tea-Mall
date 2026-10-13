@@ -78,6 +78,47 @@ export function useBestProductListQuery() {
   };
 }
 
+// 베스트셀러 상품 전체 조회 (/best-sellers 페이지용, 더보기 방식 페이지네이션)
+export async function getBestSellersList(
+  page: number = 1,
+  pageSize: number = 10,
+) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, count, error } = await supabase
+    .from("v_products_with_favorites")
+    .select("*", { count: "exact" })
+    .eq("deleted", false)
+    .gt("total_stock", 0)
+    .order("sales_count", { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+
+  return {
+    data: (data ?? []) as unknown as ProductType[],
+    count: count ?? 0,
+  };
+}
+
+export function useBestSellersListQuery(
+  page: number = 1,
+  pageSize: number = 10,
+) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["best_sellers", page, pageSize],
+    queryFn: () => getBestSellersList(page, pageSize),
+  });
+
+  return {
+    data: data?.data,
+    totalCount: data?.count ?? 0,
+    isLoading,
+    isError,
+  };
+}
+
 // 실제 할인율(%) 계산 - discount_type이 fixed(정액)인 경우 discount_value가
 // 원 단위라서 percentage 상품과 그대로 비교/정렬할 수 없어 정가 대비 비율로 환산
 export function getDiscountPercent(product: ProductType) {

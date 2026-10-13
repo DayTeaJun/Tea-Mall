@@ -10,7 +10,7 @@ const slides = [
     align: "left" as const,
     title: "2026 S/S NEW ARRIVAL",
     subtitle: "이번 시즌 새로 만나는 신상품을 지금 확인해보세요",
-    href: "/search?sort=latest&page=1",
+    href: "/new-arrivals",
   },
   {
     src: "/main_3.jpg",

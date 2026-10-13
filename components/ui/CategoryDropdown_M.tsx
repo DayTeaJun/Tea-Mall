@@ -68,10 +68,16 @@ interface CategoryDropdownProps {
   categories?: CategoryGroup[];
 }
 
+// "신상품 (NEW)"/"베스트셀러"는 실제 subcategory가 아니라 가상 메뉴라
+// /category로 보내면 매칭되는 상품이 없음 - 전용 페이지로 연결
+const DEDICATED_PAGE_LINKS: Record<string, string> = {
+  "신상품 (NEW)": "/new-arrivals",
+  베스트셀러: "/best-sellers",
+};
+
 const getSubHref = (catLabel: string, subLabel: string) =>
-  subLabel === "신상품 (NEW)"
-    ? "/search?sort=latest&page=1"
-    : `/category?type=${encodeURIComponent(catLabel)}&sub=${encodeURIComponent(subLabel)}&page=1`;
+  DEDICATED_PAGE_LINKS[subLabel] ??
+  `/category?type=${encodeURIComponent(catLabel)}&sub=${encodeURIComponent(subLabel)}&page=1`;
 
 export default function CategoryDropdown_M({
   categories = DEFAULT_CATEGORIES,

@@ -74,11 +74,18 @@ export default function CategoryDropdown({
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
+  // "신상품 (NEW)"/"베스트셀러"는 실제 subcategory가 아니라 가상 메뉴라
+  // /category로 보내면 매칭되는 상품이 없음 - 전용 페이지로 연결
+  const DEDICATED_PAGE_LINKS: Record<string, string> = {
+    "신상품 (NEW)": "/new-arrivals",
+    베스트셀러: "/best-sellers",
+  };
+
   const goToSearch = (parentLabel: string, subLabel?: string) => {
     setIsOpen(false);
 
-    if (subLabel === "신상품 (NEW)") {
-      router.push("/search?sort=latest&page=1");
+    if (subLabel && DEDICATED_PAGE_LINKS[subLabel]) {
+      router.push(DEDICATED_PAGE_LINKS[subLabel]);
       return;
     }
 
