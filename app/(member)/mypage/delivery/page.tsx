@@ -80,7 +80,7 @@ export default function DeliveryPage() {
         </ul>
       </div>
 
-      <div className="hidden sm:block overflow-x-auto border-t-2 border-slate-700">
+      <div className="hidden lg:block overflow-x-auto border-t-2 border-slate-700">
         <div className="flex items-end justify-between mt-6 mb-2">
           <p className="text-sm text-gray-500">
             등록된 배송지:{" "}
@@ -190,7 +190,7 @@ export default function DeliveryPage() {
         </table>
       </div>
 
-      <div className="sm:hidden flex flex-col gap-3 border-t-2 border-slate-700 pt-3">
+      <div className="lg:hidden flex flex-col gap-3 border-t-2 border-slate-700 pt-3">
         <div className="flex justify-between items-center mb-1">
           <p className="text-xs text-gray-500 font-medium">
             총 {addresses?.length || 0}개
