@@ -9,13 +9,11 @@ import { getDiscountPercent } from "@/lib/queries/products";
 interface FeaturedProductCardProps {
   product: ProductType;
   eyebrow?: string;
-  badge?: string | number;
 }
 
 export default function FeaturedProductCard({
   product,
   eyebrow,
-  badge,
 }: FeaturedProductCardProps) {
   const percent = getDiscountPercent(product);
 
@@ -39,12 +37,6 @@ export default function FeaturedProductCard({
       )}
 
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-
-      {badge && (
-        <span className="absolute left-3 top-3 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white text-xs sm:text-sm font-extrabold text-gray-900 shadow-md">
-          {badge}
-        </span>
-      )}
 
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white">
         {eyebrow && (
