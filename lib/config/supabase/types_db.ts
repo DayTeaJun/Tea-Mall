@@ -966,8 +966,14 @@ export type Database = {
       }
     }
     Functions: {
+      cancel_order_item: { Args: { p_order_item_id: string }; Returns: string }
       delete_old_closed_chats: { Args: never; Returns: undefined }
+      delete_order: { Args: { p_order_id: string }; Returns: undefined }
       download_coupon: { Args: { p_coupon_code: string }; Returns: Json }
+      hide_order_item_review: {
+        Args: { p_order_item_id: string }
+        Returns: undefined
+      }
       increment_product_views: { Args: { p_id: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       mark_messages_as_read: {

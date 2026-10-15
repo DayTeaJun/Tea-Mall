@@ -804,16 +804,12 @@ export function useGetOrderDetails(orderId: string) {
   };
 }
 
-// 주문 내역 삭제
+// 주문 내역 삭제 (소유자 검증은 delete_order RPC 안에서 처리)
 export async function deleteOrder(orderId: string) {
   const supabase = createBrowserSupabaseClient();
-  const { error } = await supabase
-    .from("orders")
-    .update({
-      deleted: true,
-      deleted_at: new Date().toISOString(),
-    })
-    .eq("id", orderId);
+  const { error } = await supabase.rpc("delete_order", {
+    p_order_id: orderId,
+  });
 
   if (error) throw new Error(error.message);
   return true;
@@ -1011,14 +1007,13 @@ export const useDelReview = (userId: string) => {
   return { mutate, isPending };
 };
 
-// 작성가능한 리뷰 숨기기
+// 작성가능한 리뷰 숨기기 (소유자 검증은 hide_order_item_review RPC 안에서 처리)
 export async function postHiddenReview(orderItemId: string) {
   const supabase = createBrowserSupabaseClient();
 
-  const { data, error } = await supabase
-    .from("order_items")
-    .update({ is_hidden: true })
-    .eq("id", orderItemId);
+  const { data, error } = await supabase.rpc("hide_order_item_review", {
+    p_order_item_id: orderItemId,
+  });
 
   if (error) throw new Error(error.message);
   return data;

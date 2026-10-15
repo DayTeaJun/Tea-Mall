@@ -286,8 +286,7 @@ export async function confirmOrder(
 }
 
 // 주문 상품(order_item) 취소 + 재고/판매수량 롤백.
-// 본인 주문이 맞는지 서버에서 직접 검증한 뒤, 차감했던 재고를 그대로 복원하고
-// sales_count도 구매 수량만큼 다시 빼준다.
+// 소유자 검증, 상태 변경, 재고 복원을 전부 DB의 cancel_order_item RPC 안에서 한 트랜잭션으로 처리한다 (RLS가 user_coupons처럼 테이블 직접 수정을 막고 있어서, 검증된 경로인 RPC로만 가능하게 함).
 export async function cancelOrderItem(
   orderItemId: string,
 ): Promise<{ orderId: string }> {
@@ -302,71 +301,13 @@ export async function cancelOrderItem(
     throw new Error("사용자 인증에 실패하였습니다.");
   }
 
-  const { data: orderItem, error: fetchError } = await supabase
-    .from("order_items")
-    .select(
-      "id, product_id, quantity, size, delivery_status, order_id, orders!inner(user_id)",
-    )
-    .eq("id", orderItemId)
-    .single();
+  const { data: orderId, error } = await supabase.rpc("cancel_order_item", {
+    p_order_item_id: orderItemId,
+  });
 
-  if (fetchError || !orderItem) {
-    throw new Error("주문 상품 정보를 찾을 수 없습니다.");
+  if (error || !orderId) {
+    throw new Error(error?.message || "주문 취소 처리에 실패했습니다.");
   }
 
-  const orderOwner = Array.isArray(orderItem.orders)
-    ? orderItem.orders[0]
-    : orderItem.orders;
-
-  if (!orderOwner || orderOwner.user_id !== user.id) {
-    throw new Error("본인의 주문만 취소할 수 있습니다.");
-  }
-
-  if (orderItem.delivery_status === "취소됨") {
-    throw new Error("이미 취소된 주문입니다.");
-  }
-
-  // 1. 주문 상품 상태를 취소로 변경
-  const { error: statusError } = await supabase
-    .from("order_items")
-    .update({ delivery_status: "취소됨" })
-    .eq("id", orderItemId);
-
-  if (statusError) {
-    throw new Error("주문 취소 처리에 실패했습니다.");
-  }
-
-  // 2. 차감했던 재고 복원 + 판매수량 롤백
-  const { data: product, error: productError } = await supabase
-    .from("products")
-    .select("stock_by_size, sales_count")
-    .eq("id", orderItem.product_id)
-    .single();
-
-  if (productError || !product) {
-    throw new Error("상품 정보를 확인할 수 없습니다.");
-  }
-
-  const stockMap = {
-    ...((product.stock_by_size as Record<string, number> | null) ?? {}),
-  };
-
-  if (orderItem.size && typeof stockMap[orderItem.size] === "number") {
-    stockMap[orderItem.size] += orderItem.quantity;
-  }
-
-  const { error: restoreError } = await supabase
-    .from("products")
-    .update({
-      stock_by_size: stockMap,
-      total_stock: Object.values(stockMap).reduce((sum, qty) => sum + qty, 0),
-      sales_count: Math.max(0, (product.sales_count ?? 0) - orderItem.quantity),
-    })
-    .eq("id", orderItem.product_id);
-
-  if (restoreError) {
-    throw new Error("재고 복원 중 오류가 발생했습니다.");
-  }
-
-  return { orderId: orderItem.order_id };
+  return { orderId };
 }
