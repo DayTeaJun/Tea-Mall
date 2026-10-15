@@ -142,7 +142,10 @@ export async function confirmOrder(
         ? (totalProductPrice * coupon.discount_value) / 100
         : coupon.discount_value;
 
-    if (coupon.max_discount_price && discountAmount > coupon.max_discount_price) {
+    if (
+      coupon.max_discount_price &&
+      discountAmount > coupon.max_discount_price
+    ) {
       discountAmount = coupon.max_discount_price;
     }
     discountAmount = Math.min(discountAmount, totalProductPrice);
@@ -150,25 +153,31 @@ export async function confirmOrder(
     masterCouponId = userCoupon.coupon_id;
   }
 
-  const expectedAmount = Math.max(0, Math.round(totalProductPrice - discountAmount));
+  const expectedAmount = Math.max(
+    0,
+    Math.round(totalProductPrice - discountAmount),
+  );
 
   // 5. Toss 결제 승인 - 클라이언트가 보낸 금액이 아니라 서버가 계산한 금액으로 요청.
   //    실제 결제된 금액과 다르면 Toss가 이 요청 자체를 실패시킨다.
   const secretKey = process.env.NEXT_PRIVATE_TOSS_SECRET_KEY!;
   const encoded = Buffer.from(`${secretKey}:`).toString("base64");
 
-  const tossRes = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${encoded}`,
-      "Content-Type": "application/json",
+  const tossRes = await fetch(
+    "https://api.tosspayments.com/v1/payments/confirm",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${encoded}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId: input.orderId,
+        paymentKey: input.paymentKey,
+        amount: expectedAmount,
+      }),
     },
-    body: JSON.stringify({
-      orderId: input.orderId,
-      paymentKey: input.paymentKey,
-      amount: expectedAmount,
-    }),
-  });
+  );
 
   if (!tossRes.ok) {
     const errBody = await tossRes.json().catch(() => null);
@@ -199,14 +208,14 @@ export async function confirmOrder(
 
   // 7. 쿠폰 사용 처리
   if (input.userCouponId) {
-    const { error: couponUpdateError } = await supabase
-      .from("user_coupons")
-      .update({ is_used: true, used_at: new Date().toISOString() })
-      .eq("id", input.userCouponId)
-      .eq("user_id", user.id);
+    const { error: couponUpdateError } = await supabase.rpc("use_coupon", {
+      p_user_coupon_id: input.userCouponId,
+    });
 
     if (couponUpdateError) {
-      throw new Error("쿠폰 사용 처리에 실패했습니다.");
+      throw new Error(
+        couponUpdateError.message || "쿠폰 사용 처리에 실패했습니다.",
+      );
     }
   }
 
@@ -295,7 +304,9 @@ export async function cancelOrderItem(
 
   const { data: orderItem, error: fetchError } = await supabase
     .from("order_items")
-    .select("id, product_id, quantity, size, delivery_status, order_id, orders!inner(user_id)")
+    .select(
+      "id, product_id, quantity, size, delivery_status, order_id, orders!inner(user_id)",
+    )
     .eq("id", orderItemId)
     .single();
 
