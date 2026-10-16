@@ -93,6 +93,11 @@ export async function signInUser(formData: {
     throw new Error("INVALID_CREDENTIALS");
   }
 
+  await supabase
+    .from("user_table")
+    .update({ last_login_at: new Date().toISOString() })
+    .eq("id", data.user.id);
+
   return data.user;
 }
 
