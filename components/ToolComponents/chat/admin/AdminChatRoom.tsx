@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/config/supabase/client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
-import { useAdminChatMsg } from "@/lib/queries/auth";
+import { CHAT_MESSAGES_PAGE_SIZE, useAdminChatMsg } from "@/lib/queries/auth";
 import { queryClient } from "@/components/providers/ReactQueryProvider";
 
 interface Message {
@@ -19,6 +19,7 @@ interface Message {
 
 interface ChatData {
   messages: Message[];
+  hasMore: boolean;
 }
 
 interface AdminChatRoomProps {
@@ -33,7 +34,11 @@ export default function AdminChatRoom({
   const { user } = useAuthStore();
   const [inputText, setInputText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [limit, setLimit] = useState(CHAT_MESSAGES_PAGE_SIZE);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // "더보기"로 과거 메시지를 불러오는 중엔, 불러오기 직전 scrollHeight를
+  // 여기 저장해뒀다가 메시지가 추가된 뒤 스크롤 위치를 보정하는 데 씀
+  const prevScrollHeightRef = useRef<number | null>(null);
 
   // realtime 구독 콜백(roomId가 바뀔 때만 재생성됨) 안에서 최신 user.id를
   // 참조하기 위한 ref - user 객체를 의존성에 넣으면 구독이 불필요하게 재생성됨
@@ -42,22 +47,40 @@ export default function AdminChatRoom({
     userIdRef.current = user?.id;
   }, [user?.id]);
 
-  const { data } = useAdminChatMsg(roomId);
+  // 다른 방으로 옮기면 더보기로 늘려둔 limit을 다시 최초 크기로
+  useEffect(() => {
+    setLimit(CHAT_MESSAGES_PAGE_SIZE);
+  }, [roomId]);
+
+  const { data, isFetching } = useAdminChatMsg(roomId, limit);
+  const hasMore = data?.hasMore ?? false;
 
   const supabase = createBrowserSupabaseClient();
-
-  const scrollToBottom = () => {
-    const container = messagesEndRef.current?.parentElement;
-    if (container) container.scrollTop = container.scrollHeight;
-  };
 
   const messages = useMemo(() => {
     return data?.messages ?? [];
   }, [data?.messages]);
 
   useEffect(() => {
-    scrollToBottom();
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    if (prevScrollHeightRef.current !== null) {
+      // 더보기로 과거 메시지가 위에 추가된 경우: 보던 위치가 유지되도록 보정
+      container.scrollTop = container.scrollHeight - prevScrollHeightRef.current;
+      prevScrollHeightRef.current = null;
+    } else {
+      // 최초 로드 / 새 메시지 수신: 맨 아래로
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages]);
+
+  const handleLoadMore = () => {
+    if (scrollContainerRef.current) {
+      prevScrollHeightRef.current = scrollContainerRef.current.scrollHeight;
+    }
+    setLimit((prev) => prev + CHAT_MESSAGES_PAGE_SIZE);
+  };
 
   useEffect(() => {
     if (!roomId) return;
@@ -75,8 +98,10 @@ export default function AdminChatRoom({
         (payload) => {
           const newMsg = payload.new as Message;
           // React Query 캐시를 직접 업데이트하여 실시간 반영
-          queryClient.setQueryData(
-            ["adminChat", roomId],
+          // (limit이 쿼리키에 포함돼 있어, 현재 활성화된 limit 값과 무관하게
+          // "adminChat"로 시작하는 캐시 전부에 반영되도록 setQueriesData 사용)
+          queryClient.setQueriesData(
+            { queryKey: ["adminChat", roomId] },
             (oldData: ChatData) => {
               if (!oldData) return oldData;
               if (oldData.messages.some((m: Message) => m.id === newMsg.id))
@@ -170,7 +195,21 @@ export default function AdminChatRoom({
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto p-3 flex flex-col gap-3"
+      >
+        {hasMore && (
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isFetching}
+            className="mx-auto px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-full hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isFetching ? "불러오는 중..." : "이전 메시지 더보기"}
+          </button>
+        )}
+
         {messages.map((msg, index) => {
           const isMyMsg = msg.is_admin || msg.sender_id === user?.id;
           const showDateHeader =
@@ -212,7 +251,6 @@ export default function AdminChatRoom({
             </React.Fragment>
           );
         })}
-        <div ref={messagesEndRef} />
       </div>
 
       <form

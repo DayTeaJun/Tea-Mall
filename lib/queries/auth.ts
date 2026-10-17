@@ -1410,7 +1410,10 @@ interface Message {
   is_admin?: boolean;
 }
 
-const getUserChatMsg = async (userId: string) => {
+// 채팅 메시지 "더보기" 1회당 불러올 개수
+export const CHAT_MESSAGES_PAGE_SIZE = 30;
+
+const getUserChatMsg = async (userId: string, limit: number) => {
   const supabase = createBrowserSupabaseClient();
 
   // 유저의 가장 최근(또는 활성) 채팅방 조회
@@ -1426,30 +1429,41 @@ const getUserChatMsg = async (userId: string) => {
 
   // 방이 아예 없으면 roomId는 null, 메시지도 빈 배열 반환
   if (!existingRoom) {
-    return { roomId: null, messages: [], isClosed: false };
+    return { roomId: null, messages: [], isClosed: false, hasMore: false };
   }
 
-  // 해당 방의 메시지 내역 조회
+  // 해당 방의 최신 메시지부터 limit개 조회 후, 화면 표시 순서(오래된 것 먼저)로 뒤집음
   const { data: messages, error: msgError } = await supabase
     .from("chat_messages")
     .select("*")
     .eq("room_id", existingRoom.id)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
   if (msgError) throw new Error(msgError.message);
 
+  const sortedMessages = ((messages as Message[]) || []).reverse();
+
   return {
     roomId: existingRoom.id,
-    messages: (messages as Message[]) || [],
+    messages: sortedMessages,
     isClosed: existingRoom.status === "CLOSED",
+    hasMore: sortedMessages.length === limit,
   };
 };
 
-export function useUserChat(userId: string) {
+export function useUserChat(
+  userId: string,
+  limit: number = CHAT_MESSAGES_PAGE_SIZE,
+) {
   return useQuery({
-    queryKey: ["userChat", userId],
-    queryFn: () => getUserChatMsg(userId),
+    queryKey: ["userChat", userId, limit],
+    queryFn: () => getUserChatMsg(userId, limit),
     enabled: !!userId,
+    // limit이 늘어날 때(더보기) 새 데이터가 올 때까지 이전 목록을 그대로 보여줌
+    // - 없으면 messages가 잠깐 빈 배열로 떨어졌다가 다시 채워지면서
+    //   스크롤 위치 보정 로직이 엉뚱한 타이밍에 소모돼버림
+    placeholderData: (prev) => prev,
   });
 }
 
@@ -1522,24 +1536,37 @@ export function useInfiniteAdminChatList(userId: string) {
 }
 
 // 채팅상담 메시지 목록 (관리자)
-const getAdminChatMsg = async (roomId: number) => {
+const getAdminChatMsg = async (roomId: number, limit: number) => {
   const supabase = createBrowserSupabaseClient();
 
   const { data, error } = await supabase
     .from("chat_messages")
     .select("*")
     .eq("room_id", roomId)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
   if (error) throw error;
 
-  return { messages: (data as Message[]) || [] };
+  const sortedMessages = ((data as Message[]) || []).reverse();
+
+  return {
+    messages: sortedMessages,
+    hasMore: sortedMessages.length === limit,
+  };
 };
 
-export function useAdminChatMsg(roomId: number) {
+export function useAdminChatMsg(
+  roomId: number,
+  limit: number = CHAT_MESSAGES_PAGE_SIZE,
+) {
   return useQuery({
-    queryKey: ["adminChat", roomId],
-    queryFn: () => getAdminChatMsg(roomId),
+    queryKey: ["adminChat", roomId, limit],
+    queryFn: () => getAdminChatMsg(roomId, limit),
     enabled: !!roomId,
+    // 같은 방 안에서 limit만 늘어난 경우(더보기)에만 이전 데이터를 유지하고,
+    // 방 자체가 바뀐 경우엔 이전 방 메시지가 잠깐 보이지 않도록 placeholder를 쓰지 않음
+    placeholderData: (prev, prevQuery) =>
+      prevQuery?.queryKey[1] === roomId ? prev : undefined,
   });
 }
