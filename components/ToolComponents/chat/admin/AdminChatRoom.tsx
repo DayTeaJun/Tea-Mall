@@ -36,9 +36,9 @@ export default function AdminChatRoom({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [limit, setLimit] = useState(CHAT_MESSAGES_PAGE_SIZE);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  // "더보기"로 과거 메시지를 불러오는 중엔, 불러오기 직전 scrollHeight를
-  // 여기 저장해뒀다가 메시지가 추가된 뒤 스크롤 위치를 보정하는 데 씀
-  const prevScrollHeightRef = useRef<number | null>(null);
+  // "더보기"로 과거 메시지를 불러오는 중엔, 불러오기 직전 scrollHeight와
+  // 그때의 scrollTop을 여기 저장해뒀다가 메시지가 추가된 뒤 스크롤 위치를 보정하는 데 씀
+  const prevScrollRef = useRef<{ height: number; top: number } | null>(null);
 
   // realtime 구독 콜백(roomId가 바뀔 때만 재생성됨) 안에서 최신 user.id를
   // 참조하기 위한 ref - user 객체를 의존성에 넣으면 구독이 불필요하게 재생성됨
@@ -65,10 +65,12 @@ export default function AdminChatRoom({
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    if (prevScrollHeightRef.current !== null) {
-      // 더보기로 과거 메시지가 위에 추가된 경우: 보던 위치가 유지되도록 보정
-      container.scrollTop = container.scrollHeight - prevScrollHeightRef.current;
-      prevScrollHeightRef.current = null;
+    if (prevScrollRef.current !== null) {
+      // 더보기로 과거 메시지가 위에 추가된 경우: 눌렀던 시점의 scrollTop에
+      // 새로 추가된 높이만큼 더해서, 보던 위치가 화면상 그대로 유지되도록 보정
+      const { height: prevHeight, top: prevTop } = prevScrollRef.current;
+      container.scrollTop = prevTop + (container.scrollHeight - prevHeight);
+      prevScrollRef.current = null;
     } else {
       // 최초 로드 / 새 메시지 수신: 맨 아래로
       container.scrollTop = container.scrollHeight;
@@ -76,8 +78,12 @@ export default function AdminChatRoom({
   }, [messages]);
 
   const handleLoadMore = () => {
-    if (scrollContainerRef.current) {
-      prevScrollHeightRef.current = scrollContainerRef.current.scrollHeight;
+    const container = scrollContainerRef.current;
+    if (container) {
+      prevScrollRef.current = {
+        height: container.scrollHeight,
+        top: container.scrollTop,
+      };
     }
     setLimit((prev) => prev + CHAT_MESSAGES_PAGE_SIZE);
   };
