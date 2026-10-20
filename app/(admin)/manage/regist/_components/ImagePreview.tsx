@@ -59,10 +59,7 @@ function ImagePreviews({ editImage, imageSrc, onUpload, onRemove }: Props) {
           isDragging ? "border-blue-500 border-2 bg-blue-50" : "border-gray-300"
         }`}
       >
-        <p className="mb-auto font-bold text-[14px]">
-          대표 이미지
-          <span className="text-red-500 pl-2">*</span>
-        </p>
+        <p className="mb-auto font-bold text-[14px]">대표 이미지</p>
 
         {imageSrc || (!isEdited && editImage) ? (
           <div className="relative flex flex-col items-center justify-center gap-2 object-cover m-auto">
