@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRelatedProductsQuery } from "@/lib/queries/products"; // 💡 새로 만든 훅 임포트
+import { useRelatedProductsQuery } from "@/lib/queries/products";
 import ProductCard from "@/components/common/productCard/ProductCard";
 
 interface RecommendProductsCarouselProps {
@@ -15,22 +16,33 @@ export default function RecommendProductsCarousel({
   currentProductId,
   category,
 }: RecommendProductsCarouselProps) {
-  const carouselRef = React.useRef<HTMLDivElement>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start" });
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
   const { data: products, isLoading } = useRelatedProductsQuery(
     currentProductId,
     category,
   );
 
-  const scroll = (direction: "left" | "right") => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const delta = el.clientWidth;
-    el.scrollBy({
-      left: direction === "left" ? -delta : delta,
-      behavior: "smooth",
-    });
-  };
+  const updateButtons = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    updateButtons();
+    emblaApi.on("select", updateButtons);
+    emblaApi.on("reInit", updateButtons);
+
+    return () => {
+      emblaApi.off("select", updateButtons);
+      emblaApi.off("reInit", updateButtons);
+    };
+  }, [emblaApi, updateButtons]);
 
   if (!isLoading && (!products || products.length === 0)) return null;
 
@@ -39,46 +51,48 @@ export default function RecommendProductsCarousel({
       <div className="flex justify-between items-center">
         <h2 className="text-[20px] font-semibold">연관 추천 상품</h2>
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon" onClick={() => scroll("left")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => emblaApi?.scrollPrev()}
+            disabled={!canScrollPrev}
+          >
             <ChevronLeft />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => scroll("right")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => emblaApi?.scrollNext()}
+            disabled={!canScrollNext}
+          >
             <ChevronRight />
           </Button>
         </div>
       </div>
 
-      <div
-        ref={carouselRef}
-        className={`
-          flex gap-4
-          overflow-hidden
-          scroll-smooth
-          snap-x snap-mandatory
-          px-1
-        `}
-      >
-        {!isLoading &&
-          products &&
-          products.map((product) => (
-            <div
-              key={product.id}
-              data-card
-              className={`
-                flex-none snap-start py-2
-                basis-[calc((100%-0rem)/1)]
-                sm:basis-[calc((100%-1rem)/2)]
-                md:basis-[calc((100%-2rem)/3)]
-                lg:basis-[calc((100%-3rem)/4)]
-              `}
-            >
-              <ProductCard
-                recommend
-                products={product}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-            </div>
-          ))}
+      <div className="overflow-hidden px-1" ref={emblaRef}>
+        <div className="flex gap-4">
+          {!isLoading &&
+            products &&
+            products.map((product) => (
+              <div
+                key={product.id}
+                className={`
+                  flex-none min-w-0 py-2
+                  basis-[calc((100%-0rem)/1)]
+                  sm:basis-[calc((100%-1rem)/2)]
+                  md:basis-[calc((100%-2rem)/3)]
+                  lg:basis-[calc((100%-3rem)/4)]
+                `}
+              >
+                <ProductCard
+                  recommend
+                  products={product}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );
