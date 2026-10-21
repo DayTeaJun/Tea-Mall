@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 import Modal from "@/components/common/modal/Modal";
 import Image from "next/image";
+import { getUserLevelLabel } from "@/lib/utils";
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const { data: user, isLoading, isError } = useGetProfileQuery(userId);
@@ -99,7 +100,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                   : "bg-gray-100 text-gray-600"
               }`}
             >
-              {(user.level ?? 0) >= 3 ? "관리자" : "일반 고객"}
+              {getUserLevelLabel(user?.level)}
             </span>
           </div>
 

@@ -5,6 +5,7 @@ import ReactPaginate from "react-paginate";
 import { User, Loader2, User2Icon, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getUserLevelLabel } from "@/lib/utils";
 
 interface UserData {
   id: string;
@@ -34,7 +35,8 @@ const getStatusLabel = (status: string | null) =>
   (status && STATUS_LABEL[status]) || "확인 불가";
 
 const getStatusClass = (status: string | null) =>
-  (status && STATUS_CLASS[status]) || "bg-gray-50 text-gray-400 border-gray-200";
+  (status && STATUS_CLASS[status]) ||
+  "bg-gray-50 text-gray-400 border-gray-200";
 
 interface UserListProps {
   users: UserData[];
@@ -82,9 +84,7 @@ function UserList({
                   <th className="w-[32%] py-3.5 px-6">고객 정보</th>
                   <th className="w-[20%] py-3.5 px-6 text-center">이메일</th>
                   <th className="w-[13%] py-3.5 px-6 text-center">등급</th>
-                  <th className="w-[15%] py-3.5 px-6 text-center">
-                    계정 상태
-                  </th>
+                  <th className="w-[15%] py-3.5 px-6 text-center">계정 상태</th>
                   <th className="w-[20%] py-3.5 px-6 text-center">
                     최근 접속일
                   </th>
@@ -133,11 +133,13 @@ function UserList({
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${
                           user.level && user.level >= 3
-                            ? "bg-black text-white border-black"
-                            : "bg-white text-gray-600 border-gray-200"
+                            ? "bg-black text-white"
+                            : user.level === 2
+                              ? "bg-gray-500 text-white"
+                              : "bg-white text-gray-600 border-gray-200"
                         }`}
                       >
-                        {user.level && user.level >= 3 ? "관리자" : "일반 회원"}
+                        {getUserLevelLabel(user.level)}
                       </span>
                     </td>
 
@@ -202,7 +204,7 @@ function UserList({
                           : "bg-gray-50 text-gray-500 border-gray-200"
                       }`}
                     >
-                      {user.level && user.level >= 3 ? "관리자" : "일반"}
+                      {getUserLevelLabel(user.level)}
                     </span>
                   </div>
 

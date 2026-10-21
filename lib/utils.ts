@@ -31,3 +31,11 @@ export const formatWithoutYear = (dateString: string) => {
     .replace(/\s/g, "");
   return parts;
 };
+
+// 사용자 레벨 계산 함수
+export function getUserLevelLabel(level: number | null | undefined): string {
+  const lv = level ?? 0;
+  if (lv >= 3) return "관리자";
+  if (lv === 2) return "판매자";
+  return "일반 고객";
+}

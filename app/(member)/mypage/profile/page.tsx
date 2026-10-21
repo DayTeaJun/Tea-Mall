@@ -17,6 +17,7 @@ import { withdrawalUser } from "@/lib/actions/auth";
 import Modal from "@/components/common/modal/Modal";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import Image from "next/image";
+import { getUserLevelLabel } from "@/lib/utils";
 
 // --- Types ---
 interface UserProfileData {
@@ -118,7 +119,7 @@ export default function ProfilePage() {
             </h3>
             <p className="text-sm text-gray-500 mb-4">{data.email}</p>
             <span className="px-4 py-1 rounded-full text-xs font-bold bg-black text-white">
-              {(data.level ?? 0) >= 3 ? "관리자" : "일반 고객"}
+              {getUserLevelLabel(data?.level)}
             </span>
           </div>
 
