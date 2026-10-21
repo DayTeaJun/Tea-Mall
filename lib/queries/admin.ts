@@ -135,12 +135,13 @@ export const useMyProductsQuery = (
 // 유저 전체 조회
 export const useAllUsersQuery = (
   searchQuery: string,
+  level: number | undefined,
   page: number,
   pageSize: number,
 ) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["allUsers", searchQuery, page, pageSize],
-    queryFn: () => getAllUsers({ query: searchQuery, page, pageSize }),
+    queryKey: ["allUsers", searchQuery, level, page, pageSize],
+    queryFn: () => getAllUsers({ query: searchQuery, level, page, pageSize }),
     enabled: true,
   });
 

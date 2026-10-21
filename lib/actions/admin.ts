@@ -309,10 +309,12 @@ export async function updateDeliveryStatus(
 // 유저 전체 조회
 export async function getAllUsers({
   query = "",
+  level = 1,
   page = 0,
   pageSize = 5,
 }: {
   query?: string;
+  level?: number;
   page?: number;
   pageSize?: number;
 }) {
@@ -349,6 +351,10 @@ export async function getAllUsers({
 
   if (query.trim()) {
     request = request.or(`user_name.ilike.%${query}%,email.ilike.%${query}%`);
+  }
+
+  if (level) {
+    request = request.eq("level", level);
   }
 
   const { data, error, count } = await request;
