@@ -77,6 +77,7 @@ export const useSignUpMutation = () => {
     onSuccess: () => {
       toast.success("회원가입에 성공하였습니다.");
       router.push("/");
+      router.refresh();
     },
     onError: (error) => {
       if (error && typeof error === "object" && "status" in error) {
@@ -109,6 +110,7 @@ export const useSignUpOAuthMutation = () => {
     onSuccess: () => {
       toast.success("회원가입에 성공하였습니다.");
       router.push("/");
+      router.refresh();
     },
     onError: (error) => {
       if (error && typeof error === "object" && "status" in error) {
