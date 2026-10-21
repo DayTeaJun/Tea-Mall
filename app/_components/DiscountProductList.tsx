@@ -65,13 +65,13 @@ function DiscountListRow({ product }: { product: ProductType }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm text-gray-800 line-clamp-1">{product.name}</p>
-        <div className="flex items-center gap-1.5 mt-1">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 mt-1">
           {percent > 0 && (
-            <span className="text-[15px] font-bold text-red-500">
+            <span className="order-2 sm:order-1 text-[15px] font-bold text-red-500">
               {percent}%
             </span>
           )}
-          <span className="text-[15px] font-bold text-gray-900">
+          <span className="order-1 sm:order-2 text-[15px] font-bold text-gray-900">
             {product.price.toLocaleString()}원
           </span>
         </div>
@@ -108,7 +108,7 @@ function DiscountColumn({
   const maxPercent = Math.max(...products.map(getDiscountPercent));
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 sm:px-0 px-2">
       <div className="relative block aspect-[4/3] overflow-hidden rounded-sm bg-gray-100">
         {bannerImage.image_url && (
           <Image
