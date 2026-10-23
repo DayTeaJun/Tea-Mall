@@ -17,7 +17,9 @@ const protectedRoutes = [
 const publicRoutes = ["/signin", "/signup"];
 
 // 권한 라우트
-const adminRoutes = ["/admin"];
+// adminRoutes: "/manage" 하위 중에서도 레벨3(관리자)만 들어갈 수 있어야 하는 경로.
+// 나머지 "/manage" 하위 경로는 레벨2(판매자)도 접근 가능(sellerRoutes)
+const adminRoutes = ["/manage/user"];
 const sellerRoutes = ["/manage"];
 
 // 온보딩/인증/정적 등 예외(리다이렉트 루프 방지)
