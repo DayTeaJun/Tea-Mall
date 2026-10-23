@@ -33,11 +33,14 @@ const menu = [
   },
 ];
 
-export default function SidebarNav() {
+export default function SidebarNav({ level }: { level?: number }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const toggle = () => setOpen((v) => !v);
+
+  const visibleMenu =
+    level === 3 ? menu : menu.filter((m) => m.href !== "/manage/user");
 
   return (
     <nav className="flex flex-col h-full bg-white text-sm">
@@ -67,7 +70,7 @@ export default function SidebarNav() {
             open ? "border-b border-t" : "max-h-0"
           }`}
         >
-          {menu.map(({ name, href, currentPage }) => {
+          {visibleMenu.map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
             return (
@@ -108,7 +111,7 @@ export default function SidebarNav() {
           <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
             상품 관리
           </span>
-          {menu.slice(0, 3).map(({ name, href, currentPage }) => {
+          {visibleMenu.slice(0, 3).map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
             return (
@@ -134,7 +137,7 @@ export default function SidebarNav() {
           <span className="text-[13px] font-semibold text-gray-500 px-2 mt-1 mb-1">
             고객 및 주문
           </span>
-          {menu.slice(3).map(({ name, href, currentPage }) => {
+          {visibleMenu.slice(3).map(({ name, href, currentPage }) => {
             const isActive = pathname.startsWith(currentPage);
 
             return (

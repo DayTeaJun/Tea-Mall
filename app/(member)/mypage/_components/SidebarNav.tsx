@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { User, UserCog, Menu } from "lucide-react";
+import { User, UserCog, Menu, MonitorCog } from "lucide-react";
 import { UserType } from "@/types/user";
 
 interface Props {
@@ -192,7 +192,7 @@ export default function SidebarNav({ user }: Props) {
           ))}
         </ul>
 
-        {user?.level === 3 && (
+        {user?.level === 3 ? (
           <div className="mt-6 pt-4 border-t">
             <Link
               href="/manage/dashBoard"
@@ -202,7 +202,17 @@ export default function SidebarNav({ user }: Props) {
               관리자 메뉴 이동
             </Link>
           </div>
-        )}
+        ) : user?.level === 2 ? (
+          <div className="mt-6 pt-4 border-t">
+            <Link
+              href="/manage/dashBoard"
+              className="text-xs text-gray-500 uppercase flex items-center gap-2 hover:text-red-400 px-2"
+            >
+              <MonitorCog size={14} />
+              판매자 메뉴 이동
+            </Link>
+          </div>
+        ) : null}
       </div>
     </nav>
   );
