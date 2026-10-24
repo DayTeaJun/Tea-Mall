@@ -136,13 +136,22 @@ export async function updateProduct({
   if (!user?.id) throw new Error("로그인 후 사용해주세요.");
   if (!id) throw new Error("잘못된 접근입니다.");
 
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", user.id)
+    .single();
+
   const { data: foundProduct, error: findError } = await supabase
     .from("products")
     .select("user_id")
     .eq("id", id)
     .single();
 
-  if (findError || foundProduct?.user_id !== user.id) {
+  const isOwner = foundProduct?.user_id === user.id;
+  const isAdmin = profile?.level === 3;
+
+  if (findError || (!isOwner && !isAdmin)) {
     throw new Error("수정 권한이 없습니다.");
   }
 
