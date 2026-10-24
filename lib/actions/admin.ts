@@ -1,10 +1,6 @@
 "use server";
 
-import {
-  CreateProductType,
-  OrderItem,
-  ProductUpdateType,
-} from "@/types/product";
+import { CreateProductType, ProductUpdateType } from "@/types/product";
 import { createServerSupabaseClient } from "../config/supabase/server/server";
 import { extractFilePathFromUrl } from "../utils/supabaseStorageUtils";
 import { createClient } from "@supabase/supabase-js";
@@ -466,6 +462,17 @@ export async function patchUserActive(
 }
 
 // 대시보드 통계 조회 (최근 24시간 주문, 재고 부족 상품, 신규 고객 수)
+interface DashboardOrderItemJoin {
+  price: number;
+  quantity: number;
+  products: { user_id: string | null } | null;
+}
+
+interface DashboardOrderRow {
+  created_at: string | null;
+  order_items: DashboardOrderItemJoin[];
+}
+
 export async function getDashboardStatus() {
   const supabase = await createServerSupabaseClient();
   const {
@@ -480,9 +487,11 @@ export async function getDashboardStatus() {
     .eq("id", sessionUser.id)
     .single();
 
-  if (!profile || profile.level !== 3) {
-    throw new Error("관리자 권한이 없습니다.");
+  if (!profile?.level || profile.level < 2) {
+    throw new Error("권한이 없습니다.");
   }
+
+  const isAdmin = profile.level === 3;
 
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -492,16 +501,24 @@ export async function getDashboardStatus() {
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
 
-  const { data: orders } = await supabaseAdmin
+  const { data: ordersRaw } = await supabaseAdmin
     .from("orders_with_user_info")
-    .select("created_at, order_items(price, quantity)")
+    .select("created_at, order_items(price, quantity, products(user_id))")
     .eq("deleted", false);
 
-  const { count: lowStockCount } = await supabaseAdmin
+  const orders = ordersRaw as unknown as DashboardOrderRow[] | null;
+
+  let lowStockQuery = supabaseAdmin
     .from("products")
     .select("*", { count: "exact", head: true })
     .eq("deleted", false)
     .lt("total_stock", 5);
+
+  if (!isAdmin) {
+    lowStockQuery = lowStockQuery.eq("user_id", sessionUser.id);
+  }
+
+  const { count: lowStockCount } = await lowStockQuery;
 
   const { count: newUserCount, error: userError } = await supabaseAdmin
     .from("user_table")
@@ -513,17 +530,28 @@ export async function getDashboardStatus() {
   if (!orders)
     return { totalSales: 0, orderCount: 0, lowStockCount: 0, newUserCount: 0 };
 
-  const totalSales = orders.reduce((acc, order) => {
-    const orderSum = order.order_items.reduce(
+  let totalSales = 0;
+  let orderCount = 0;
+
+  orders.forEach((order) => {
+    const myItems = isAdmin
+      ? order.order_items
+      : order.order_items.filter(
+          (item) => item.products?.user_id === sessionUser.id,
+        );
+
+    if (myItems.length === 0) return;
+
+    orderCount += 1;
+    totalSales += myItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    return acc + orderSum;
-  }, 0);
+  });
 
   return {
     totalSales,
-    orderCount: orders.length,
+    orderCount,
     lowStockCount: lowStockCount || 0,
     newUserCount: newUserCount || 0,
   };
@@ -544,14 +572,22 @@ export async function getWeeklySalesAction() {
     .eq("id", sessionUser.id)
     .single();
 
-  if (!profile || profile.level !== 3) throw new Error("권한이 없습니다.");
+  if (!profile?.level || profile.level < 2) throw new Error("권한이 없습니다.");
 
-  const { data: orders, error } = await supabase
+  const isAdmin = profile.level === 3;
+
+  // 관리자는 최근 주문 50건 안에서 "데이터 있는 최근 7개 날짜"를 뽑고,
+  // 판매자도 같은 방식이되 본인 상품이 섞인 주문이 적을 수 있어서 풀을
+  // 더 넉넉하게(300건) 가져온 뒤 같은 방식으로 7개 날짜를 뽑음. 실제
+  // 캘린더 기준 "최근 7일"로 자르면 주문이 뜨문뜨문 있는 판매자는
+  // 그래프가 거의 비어 보일 수 있어서 날짜로 자르지 않음.
+  const { data: ordersRaw, error } = await supabase
     .from("orders_with_user_info")
-    .select("created_at, order_items(price, quantity)")
+    .select("created_at, order_items(price, quantity, products(user_id))")
     .eq("deleted", false)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(isAdmin ? 50 : 300);
+  const orders = ordersRaw as unknown as DashboardOrderRow[] | null;
 
   if (error) throw new Error(error.message);
 
@@ -560,10 +596,17 @@ export async function getWeeklySalesAction() {
   orders?.forEach((order) => {
     if (!order.created_at) return;
 
+    const items = isAdmin
+      ? order.order_items
+      : order.order_items.filter(
+          (item) => item.products?.user_id === sessionUser.id,
+        );
+
+    if (items.length === 0) return;
+
     const dateKey = order.created_at.split("T")[0];
-    const orderTotal = order.order_items.reduce(
-      (acc: number, item: OrderItem) =>
-        acc + (item.price || 0) * (item.quantity || 0),
+    const orderTotal = items.reduce(
+      (acc, item) => acc + (item.price || 0) * (item.quantity || 0),
       0,
     );
 
@@ -593,6 +636,7 @@ interface OrderItemJoin {
   quantity: number | null;
   products: {
     category: string | null;
+    user_id: string | null;
   } | null;
 }
 
@@ -619,7 +663,9 @@ export async function getCategorySalesAction(): Promise<CategoryStat[]> {
     .eq("id", sessionUser.id)
     .single();
 
-  if (!profile || profile.level !== 3) throw new Error("권한이 없습니다.");
+  if (!profile?.level || profile.level < 2) throw new Error("권한이 없습니다.");
+
+  const isAdmin = profile.level === 3;
 
   const { data: orders, error } = await supabase
     .from("orders")
@@ -629,7 +675,8 @@ export async function getCategorySalesAction(): Promise<CategoryStat[]> {
         price,
         quantity,
         products (
-          category
+          category,
+          user_id
         )
       )
     `,
@@ -645,6 +692,8 @@ export async function getCategorySalesAction(): Promise<CategoryStat[]> {
 
   typedOrders?.forEach((order) => {
     order.order_items.forEach((item) => {
+      if (!isAdmin && item.products?.user_id !== sessionUser.id) return;
+
       const category = item.products?.category || "미지정";
       const itemTotal = (item.price || 0) * (item.quantity || 0);
 
