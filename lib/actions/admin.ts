@@ -88,13 +88,10 @@ export async function deleteProduct({
     throw new Error("이미지 삭제 실패: " + imageDeleteError.message);
   }
 
-  const { error: productDeleteError } = await supabase
-    .from("products")
-    .update({
-      deleted: true,
-      deleted_at: new Date().toISOString(), // 삭제 시간 기록
-    })
-    .eq("id", productId);
+  const { error: productDeleteError } = await supabase.rpc(
+    "delete_product",
+    { target_product_id: productId },
+  );
 
   if (productDeleteError) {
     throw new Error("상품 삭제 실패: " + productDeleteError.message);

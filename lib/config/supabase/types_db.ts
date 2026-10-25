@@ -969,6 +969,10 @@ export type Database = {
       cancel_order_item: { Args: { p_order_item_id: string }; Returns: string }
       delete_old_closed_chats: { Args: never; Returns: undefined }
       delete_order: { Args: { p_order_id: string }; Returns: undefined }
+      delete_product: {
+        Args: { target_product_id: string }
+        Returns: undefined
+      }
       download_coupon: { Args: { p_coupon_code: string }; Returns: Json }
       hide_order_item_review: {
         Args: { p_order_item_id: string }
