@@ -284,7 +284,10 @@ export async function getMyProducts(
 
   let request = supabase
     .from("products")
-    .select("*", { count: "exact" })
+    .select(
+      "*, public_profiles!products_user_id_user_table_fkey(user_name)",
+      { count: "exact" },
+    )
     .eq("deleted", false)
     .order("created_at", { ascending: false })
     .range(from, to);

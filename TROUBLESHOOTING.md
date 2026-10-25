@@ -51,3 +51,7 @@
 ### 소프트 삭제가 자기 자신의 RLS 정책에 막히던 문제
 
 상품 소프트 삭제(`deleted: true`로 UPDATE)가 판매자 계정에서 "new row violates row-level security policy" 에러로 실패했습니다. 처음엔 삭제된 상품을 가리는 RESTRICTIVE 정책("Only show non-deleted products")이 `UPDATE`에도 걸려있어서라고 추측했는데, `pg_policies`로 직접 확인해보니 그 정책은 `cmd: SELECT`로만 걸려있었고 `UPDATE` 쪽 정책(소유자 또는 관리자 허용)은 문제가 없었습니다. 실제 원인은 PostgREST가 `.update()` 호출 시 기본적으로 수정된 행을 `RETURNING`으로 돌려주려 하는데, 그 반환값은 UPDATE 정책이 아니라 SELECT 정책으로 다시 검사된다는 점이었습니다 — 방금 `deleted = true`로 바뀐 행은 "삭제 안 된 것만 보여주는" SELECT 정책을 통과하지 못해서, UPDATE 자체는 성공했어도 반환 단계에서 에러가 났습니다. 정책을 건드리는 대신, 이 프로젝트가 쓰던 기존 패턴(소유자 검증을 자체적으로 하는 `SECURITY DEFINER` RPC로 쓰기 작업을 옮기는 것)을 그대로 따라 해결했습니다 — RPC 내부에서는 RLS 자체가 우회되니 반환값 검사도 일어나지 않습니다.
+
+### 관리자도 상품 목록에서 전체가 아닌 본인 등록분만 보이던 문제
+
+판매자 기능을 추가하면서 상품 목록(`getMyProducts`)에 레벨 체크를 넣다가, 화면에 찍히는 등록자 닉네임이 실제로는 상품을 등록한 사람이 아니라 **지금 로그인해서 보고 있는 사람**(`user?.email`)으로 표시되고 있던 걸 발견했습니다. 원래는 누구나 자기 상품만 봤으니 우연히 둘이 항상 같아서 티가 안 났던 겁니다. 등록자 정보를 제대로 보여주려면 `products.user_id`로 `user_table`(의 공개용 뷰 `public_profiles`)을 조인해야 했는데, `products`엔 `user_table`로 가는 외래키(FK)가 아예 없었습니다 — `auth.users`로 가는 FK만 있었고, 이건 Supabase가 타입 생성 시 `public` 스키마만 보기 때문에 기존 타입 파일에도 안 잡혀서 처음엔 "FK가 전혀 없다"고 착각했습니다. `user_table`로 가는 FK를 추가로 걸어 해결했는데, 그 직후엔 `favorites` 테이블을 거치는 간접 경로와 겹쳐서 "관계가 모호하다"는 PostgREST 에러가 또 났고, select 구문에 FK 이름을 명시(`public_profiles!products_user_id_user_table_fkey(...)`)해서 해결했습니다.

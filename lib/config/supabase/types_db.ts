@@ -660,7 +660,22 @@ export type Database = {
           user_id?: string | null
           views?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_user_id_user_table_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_user_id_user_table_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       review_helpfuls: {
         Row: {
@@ -962,7 +977,22 @@ export type Database = {
           user_id: string | null
           views: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_user_id_user_table_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_user_id_user_table_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_table"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

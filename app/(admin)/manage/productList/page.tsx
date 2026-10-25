@@ -36,6 +36,8 @@ interface ProductType {
   updated_at: string | null;
   user_id: string | null;
   views: number;
+  // 등록자 닉네임 (products.user_id -> public_profiles FK 조인 결과)
+  public_profiles: { user_name: string | null } | null;
 }
 
 const PAGE_SIZE = 10;
@@ -207,7 +209,7 @@ export default function ProductListPage() {
                         className="border p-2 text-left cursor-pointer"
                       >
                         <span className="text-gray-500 text-xs block">
-                          {user?.email?.split("@")[0]} | {product.id}
+                          {product.public_profiles?.user_name ?? "알 수 없음"} | {product.id}
                         </span>
                         <span className="block my-2 border p-1">
                           {product.name}
@@ -397,7 +399,7 @@ export default function ProductListPage() {
                         className="mt-1 w-full flex flex-col gap-1.5 text-left"
                       >
                         <p className="text-xs text-gray-500 truncate">
-                          {user?.email?.split("@")[0]}
+                          {product.public_profiles?.user_name ?? "알 수 없음"}
                         </p>
                         <p className="text-[10px] text-gray-400 font-medium">
                           ID: {product.id}
