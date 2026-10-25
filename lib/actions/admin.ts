@@ -263,7 +263,7 @@ export async function updateProduct({
   return data;
 }
 
-// 내 등록 상품 조회
+// 등록 상품 조회 (관리자는 전체, 판매자는 본인 등록 상품만)
 export async function getMyProducts(
   userId: string,
   query: string,
@@ -274,13 +274,24 @@ export async function getMyProducts(
   const from = page * pageSize;
   const to = from + pageSize - 1;
 
+  const { data: profile } = await supabase
+    .from("user_table")
+    .select("level")
+    .eq("id", userId)
+    .single();
+
+  const isAdmin = profile?.level === 3;
+
   let request = supabase
     .from("products")
     .select("*", { count: "exact" })
-    .eq("user_id", userId)
     .eq("deleted", false)
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  if (!isAdmin) {
+    request = request.eq("user_id", userId);
+  }
 
   if (query.trim()) {
     request = request.ilike("name", `%${query}%`);
