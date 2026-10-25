@@ -39,6 +39,9 @@ export default function SidebarNav({ level }: { level?: number }) {
 
   const toggle = () => setOpen((v) => !v);
 
+  const isAdmin = level === 3;
+  const isSeller = level === 2;
+
   const visibleMenu =
     level === 3 ? menu : menu.filter((m) => m.href !== "/manage/user");
 
@@ -59,7 +62,8 @@ export default function SidebarNav({ level }: { level?: number }) {
 
             <p className="text-xs uppercase flex items-center gap-2 w-fit font-bold text-gray-500">
               <UserCog size={16} />
-              관리자 전용
+              {isAdmin && "관리자 전용"}
+              {isSeller && "판매자 전용"}
             </p>
           </div>
         </div>
@@ -104,7 +108,8 @@ export default function SidebarNav({ level }: { level?: number }) {
       <div className="hidden md:block">
         <p className="text-xs text-gray-500 uppercase mb-2 flex items-center gap-2 border-b-2 border-gray-400 pb-2 pr-2 w-fit font-bold">
           <UserCog size={16} />
-          관리자 전용
+          {isAdmin && "관리자 전용"}
+          {isSeller && "판매자 전용"}
         </p>
 
         <ul className="flex flex-col gap-1.5 mt-5">
