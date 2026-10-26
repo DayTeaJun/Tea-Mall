@@ -679,6 +679,12 @@ export async function getOrders(
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
+  // 판매자(레벨2)는 "본인이 등록한 상품이 포함된 주문"만 봐야 해서,
+  // order_items -> products를 inner join으로 걸어 해당 상품이 없는 주문은 아예 제외하고
+  // 주문 안의 order_items도 본인 상품인 것만 남도록 필터링한다.
+  const isSeller = userLevel === 2;
+  const joinHint = isSeller ? "!inner" : "";
+
   let query = supabase
     .from("orders_with_user_info")
     .select(
@@ -688,16 +694,17 @@ export async function getOrders(
       user_id,
       user_name,
       email,
-      order_items (
+      order_items${joinHint} (
         id,
         product_id,
         quantity,
         price,
         size,
         delivery_status,
-        products (
+        products${joinHint} (
           name,
-          image_url
+          image_url,
+          user_id
         )
       )
     `,
@@ -707,8 +714,11 @@ export async function getOrders(
     .eq("deleted", false)
     .order("created_at", { ascending: false });
 
-  // 관리자 아닐 경우 본인 주문만
-  if (userLevel !== 3) {
+  if (isSeller) {
+    // 판매자: 주문을 한 사람이 아니라, 주문에 포함된 상품의 등록자로 필터링
+    query = query.eq("order_items.products.user_id", userId);
+  } else if (userLevel !== 3) {
+    // 일반 사용자(관리자 아님): 본인이 주문한 내역만
     query = query.eq("user_id", userId);
   }
 

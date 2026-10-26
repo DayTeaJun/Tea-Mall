@@ -81,10 +81,10 @@ export default function AdminOrderList() {
     }
   };
 
-  if (user?.level !== 3) {
+  if (!user?.level || user.level < 2) {
     return (
       <div className="text-center py-20 text-gray-600">
-        관리자만 접근 가능한 페이지입니다.
+        관리자 또는 판매자만 접근 가능한 페이지입니다.
       </div>
     );
   }
