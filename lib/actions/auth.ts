@@ -433,41 +433,11 @@ export async function deleteInquiry(
 ) {
   const supabase = await createServerSupabaseClient();
 
-  const { data: original, error: fetchError } = await supabase
-    .from("inquiries")
-    .select("user_id, password, image_urls")
-    .eq("id", inquiryId)
-    .single();
+  const removeImages = async (imageUrls: string[] | null) => {
+    if (!imageUrls || imageUrls.length === 0) return;
 
-  if (fetchError || !original) throw new Error("존재하지 않는 게시글입니다.");
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isSystemAdmin = isAdmin;
-  const isMemberPost = !!original.user_id;
-
-  if (isMemberPost) {
-    if (!user) throw new Error("로그인이 필요합니다.");
-    const isOwner = original.user_id === user.id;
-    if (!isOwner && !isSystemAdmin) {
-      throw new Error("본인이 작성한 글만 삭제할 수 있습니다.");
-    }
-  } else {
-    if (!isSystemAdmin) {
-      if (!guestPassword?.trim()) {
-        throw new Error("비회원 글 삭제를 위해 비밀번호가 필요합니다.");
-      }
-      if (original.password !== guestPassword.trim()) {
-        throw new Error("비밀번호가 일치하지 않습니다.");
-      }
-    }
-  }
-
-  if (original.image_urls && original.image_urls.length > 0) {
     try {
-      const pathsToDelete = original.image_urls
+      const pathsToDelete = imageUrls
         .map((url: string) => {
           const parts = url.split("/inquiry-images/");
           return parts.length > 1 ? decodeURIComponent(parts[1]) : null;
@@ -486,7 +456,47 @@ export async function deleteInquiry(
     } catch (storageErr) {
       console.error("스토리지 파싱 및 삭제 중 오류:", storageErr);
     }
+  };
+
+  if (!isAdmin && guestPassword?.trim()) {
+    const { data, error } = await supabase
+      .rpc("delete_inquiry_with_password", {
+        p_inquiry_id: inquiryId,
+        p_password: guestPassword.trim(),
+      })
+      .single();
+
+    if (error) throw error;
+    if (!data?.success) throw new Error("비밀번호가 일치하지 않습니다.");
+
+    await removeImages(data.image_urls);
+
+    return { success: true };
   }
+
+  const { data: original, error: fetchError } = await supabase
+    .from("inquiries")
+    .select("user_id, image_urls")
+    .eq("id", inquiryId)
+    .single();
+
+  if (fetchError || !original) throw new Error("존재하지 않는 게시글입니다.");
+
+  if (!isAdmin) {
+    if (!original.user_id) {
+      throw new Error("비회원 글 삭제를 위해 비밀번호가 필요합니다.");
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user || original.user_id !== user.id) {
+      throw new Error("본인이 작성한 글만 삭제할 수 있습니다.");
+    }
+  }
+
+  await removeImages(original.image_urls);
 
   const { error: deleteError } = await supabase
     .from("inquiries")
