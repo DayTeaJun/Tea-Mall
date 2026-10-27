@@ -3,10 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { useInquiryStore } from "@/lib/store/useInquiryStore";
 import { toast } from "sonner";
 import CommentSection from "./CommentSection";
-import { useDeleteInquiry, useGetInquiryDetail } from "@/lib/queries/auth";
+import {
+  unlockInquirySecret,
+  useDeleteInquiry,
+  useGetInquiryDetail,
+} from "@/lib/queries/auth";
 import Image from "next/image";
 import { LockKeyhole } from "lucide-react";
 
@@ -27,17 +30,16 @@ export default function InquiryDetailComponent({
   inquiryId,
 }: InquiryDetailClientProps) {
   const { user } = useAuthStore();
-  const { verifiedInquiryIds } = useInquiryStore();
 
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
 
   const [inputPassword, setInputPassword] = useState("");
+  const [verifiedPassword, setVerifiedPassword] = useState<
+    string | undefined
+  >(undefined);
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
-
-  const [isVerified, setIsVerified] = useState(() =>
-    verifiedInquiryIds.includes(inquiryId),
-  );
 
   const isAdmin = user?.level === 3;
 
@@ -45,7 +47,7 @@ export default function InquiryDetailComponent({
     data: inquiry,
     isLoading,
     isError: error,
-  } = useGetInquiryDetail(inquiryId);
+  } = useGetInquiryDetail(inquiryId, verifiedPassword);
 
   const { mutate: handleDeleteInquiry, isPending: isDeleting } =
     useDeleteInquiry(isAdmin);
@@ -71,7 +73,6 @@ export default function InquiryDetailComponent({
     );
 
   const isOwner = !!(user?.id && inquiry.user_id === user.id);
-  const isSecret = !inquiry.is_public;
 
   const handleConfirmDelete = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,10 +101,8 @@ export default function InquiryDetailComponent({
     setDeletePassword("");
   };
 
-  if (isSecret && !isAdmin && !isOwner && !isVerified) {
-    const hasPassword = inquiry.password && inquiry.password.trim() !== "";
-
-    if (!hasPassword) {
+  if (inquiry.is_locked) {
+    if (!inquiry.is_guest_post) {
       return (
         <div className="max-w-md mx-auto my-20 p-8 border border-gray-100 rounded-sm bg-white shadow-sm flex flex-col items-center text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-50 rounded-full mb-5">
@@ -129,7 +128,7 @@ export default function InquiryDetailComponent({
       );
     }
 
-    const handlePasswordSubmit = (e: React.FormEvent) => {
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
 
       if (!inputPassword.trim()) {
@@ -137,11 +136,24 @@ export default function InquiryDetailComponent({
         return;
       }
 
-      if (inputPassword === inquiry.password) {
-        setIsVerified(true);
+      setIsUnlocking(true);
+      try {
+        const unlocked = await unlockInquirySecret(
+          inquiryId,
+          inputPassword.trim(),
+        );
+
+        if (!unlocked) {
+          toast.error("비밀번호가 일치하지 않습니다.");
+          return;
+        }
+
+        setVerifiedPassword(inputPassword.trim());
         toast.success("인증되었습니다.");
-      } else {
-        toast.error("비밀번호가 일치하지 않습니다.");
+      } catch {
+        toast.error("비밀번호 확인 중 오류가 발생했습니다.");
+      } finally {
+        setIsUnlocking(false);
       }
     };
 
@@ -171,9 +183,10 @@ export default function InquiryDetailComponent({
           />
           <button
             type="submit"
-            className="w-full py-2.5 bg-black text-white text-sm font-medium rounded-sm hover:bg-gray-800 transition-colors shadow-sm"
+            disabled={isUnlocking}
+            className="w-full py-2.5 bg-black text-white text-sm font-medium rounded-sm hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50"
           >
-            확인
+            {isUnlocking ? "확인 중..." : "확인"}
           </button>
         </form>
       </div>

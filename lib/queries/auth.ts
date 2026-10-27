@@ -1339,23 +1339,31 @@ export const useDeleteInquiryCommentMutation = () => {
 };
 
 // 고객센터 문의 상세 조회
-export const getInquiryDetail = async (inquiryId: number) => {
+export const getInquiryDetail = async (
+  inquiryId: number,
+  password?: string,
+) => {
   const supabase = createBrowserSupabaseClient();
 
   const { data, error } = await supabase
-    .from("inquiries")
-    .select("*")
-    .eq("id", inquiryId)
-    .single();
+    .rpc("get_inquiry_detail", { p_inquiry_id: inquiryId })
+    .maybeSingle();
 
   if (error) throw new Error(error.message);
+  if (!data) throw new Error("존재하지 않는 게시글입니다.");
+
+  if (data.is_locked && password) {
+    const unlocked = await unlockInquirySecret(inquiryId, password);
+    if (unlocked) return { ...data, ...unlocked, is_locked: false };
+  }
+
   return data;
 };
 
-export function useGetInquiryDetail(inquiryId: number) {
+export function useGetInquiryDetail(inquiryId: number, password?: string) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["inquiries", inquiryId],
-    queryFn: () => getInquiryDetail(inquiryId),
+    queryKey: ["inquiries", inquiryId, password ?? null],
+    queryFn: () => getInquiryDetail(inquiryId, password),
     enabled: !!inquiryId,
   });
 
@@ -1365,6 +1373,23 @@ export function useGetInquiryDetail(inquiryId: number) {
     isError,
   };
 }
+
+export const unlockInquirySecret = async (
+  inquiryId: number,
+  password: string,
+) => {
+  const supabase = createBrowserSupabaseClient();
+
+  const { data, error } = await supabase
+    .rpc("get_inquiry_secret", {
+      p_inquiry_id: inquiryId,
+      p_password: password,
+    })
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+};
 
 // 문의 삭제
 interface DeleteVariables {

@@ -16,7 +16,6 @@ interface CommentSectionProps {
     status: string | null;
     answer_content: string | null;
     answered_at: string | null;
-    admin_id: string | null;
   };
 }
 
