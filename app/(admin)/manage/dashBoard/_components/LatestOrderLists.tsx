@@ -48,14 +48,6 @@ function LatestOrderLists() {
     }
   };
 
-  if (!user?.id || isLoading) {
-    return (
-      <div className="w-full min-h-[60vh] bg-white border border-gray-100 flex flex-col items-center justify-center py-20 text-gray-600">
-        <Loader2 className="animate-spin text-gray-300" size={32} />
-      </div>
-    );
-  }
-
   return (
     <div className="w-full bg-white p-2 sm:p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -74,7 +66,11 @@ function LatestOrderLists() {
         </button>
       </div>
 
-      {orders?.data?.length === 0 ? (
+      {!user?.id || isLoading ? (
+        <div className="h-full flex items-center justify-center py-20">
+          <Loader2 className="animate-spin text-gray-300" size={32} />
+        </div>
+      ) : orders?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-600">
           <PackageX size={48} className="mb-4" />
           <p>주문 내역이 없습니다.</p>

@@ -75,29 +75,26 @@ export default function SimpleLineChart() {
     },
   };
 
-  if (isLoading)
-    return (
-      <div className="w-full sm:w-[calc(70%-16px)] h-[344px] flex justify-center items-center bg-white">
-        <Loader2 className="animate-spin text-gray-300" size={32} />
-      </div>
-    );
-
-  if (!salesData || salesData.length === 0) {
-    return (
-      <div className="w-full sm:w-[calc(70%-16px)] h-[344px] flex items-center justify-center text-slate-400">
-        최근 주문 데이터가 없습니다.
-      </div>
-    );
-  }
-
   return (
     <div className="w-full sm:w-[calc(70%-16px)] bg-white p-4 flex flex-col gap-8">
       <div className="flex justify-between items-center">
         <p className="text-16 font-bold">최근 매출 추이</p>
         <span className="text-xs text-slate-400">최근 7건 기준</span>
       </div>
-      <div className="h-64">
-        <Line key={labels.length} data={chartData} options={options} />
+      <div className="min-h-64">
+        {isLoading ? (
+          <div className="h-full flex items-center justify-center">
+            <Loader2 className="animate-spin text-gray-300" size={32} />
+          </div>
+        ) : !isLoading && (!salesData || salesData.length === 0) ? (
+          <div className="h-full flex items-center justify-center text-slate-400">
+            <p>최근 주문 데이터가 없습니다.</p>
+          </div>
+        ) : (
+          <div className="h-64">
+            <Line key={labels.length} data={chartData} options={options} />
+          </div>
+        )}
       </div>
     </div>
   );

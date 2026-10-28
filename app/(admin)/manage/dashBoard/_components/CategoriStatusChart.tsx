@@ -91,20 +91,17 @@ export default function CategoryPieChart() {
     cutout: "70%",
   };
 
-  if (isLoading)
-    return (
-      <div className="w-full sm:w-[30%] h-[344px] flex justify-center items-center bg-white">
-        <Loader2 className="animate-spin text-gray-300" size={32} />
-      </div>
-    );
-
   return (
     <div className="w-full sm:w-[30%] h-max-[344px] bg-white p-4 flex flex-col gap-4">
       <p className="text-[16px] font-bold text-slate-800">
         카테고리별 판매 비율
       </p>
       <div className="h-[250px]">
-        {salesData && salesData.length > 0 ? (
+        {isLoading ? (
+          <div className="h-full flex items-center justify-center">
+            <Loader2 className="animate-spin text-gray-300" size={32} />
+          </div>
+        ) : salesData && salesData.length > 0 ? (
           <Doughnut data={data} options={options} />
         ) : (
           <div className="h-full flex items-center justify-center text-slate-400">
