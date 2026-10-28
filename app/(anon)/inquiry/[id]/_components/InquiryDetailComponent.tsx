@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useInquiryStore } from "@/lib/store/useInquiryStore";
 import { toast } from "sonner";
 import CommentSection from "./CommentSection";
 import {
@@ -36,7 +37,7 @@ export default function InquiryDetailComponent({
   const [inputPassword, setInputPassword] = useState("");
   const [verifiedPassword, setVerifiedPassword] = useState<
     string | undefined
-  >(undefined);
+  >(() => useInquiryStore.getState().consumePendingPassword(inquiryId));
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");

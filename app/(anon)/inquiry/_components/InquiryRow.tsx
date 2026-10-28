@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useInquiryStore } from "@/lib/store/useInquiryStore";
+import { unlockInquirySecret } from "@/lib/queries/auth";
 
 interface InquiryType {
   id: number;
@@ -13,7 +14,8 @@ interface InquiryType {
   guest_name: string | null;
   status: string | null;
   is_public: boolean | null;
-  password: string | null;
+  is_locked: boolean;
+  is_guest_post: boolean;
   user_id: string | null;
 }
 
@@ -21,8 +23,6 @@ interface InquiryRowProps {
   inquiry: InquiryType;
   displayIndex: number;
   inquiryTypeLabel: string;
-  userLevel: string | number;
-  currentUserId: string | null;
   isMobileContainer?: boolean;
 }
 
@@ -30,18 +30,15 @@ export default function InquiryRow({
   inquiry,
   displayIndex,
   inquiryTypeLabel,
-  userLevel,
-  currentUserId,
   isMobileContainer = false,
 }: InquiryRowProps) {
-  const { addVerifiedId } = useInquiryStore();
+  const { setPendingPassword } = useInquiryStore();
   const router = useRouter();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [isUnlocking, setIsUnlocking] = useState(false);
 
-  const isMaster = Number(userLevel) === 3;
-  const isOwnPost = !!(currentUserId && currentUserId === inquiry.user_id);
   const isSecret = inquiry.is_public === false;
 
   const maskName = (name: string | null) => {
@@ -53,37 +50,45 @@ export default function InquiryRow({
   };
 
   const handleRowClick = () => {
-    if (isMaster || isOwnPost) {
+    if (!inquiry.is_locked) {
       router.push(`/inquiry/${inquiry.id}`);
       return;
     }
 
-    if (isSecret) {
-      if (inquiry.password && inquiry.password.trim() !== "") {
-        setIsModalOpen(true);
-      } else {
-        toast.warning("회원 비밀글은 작성자와 관리자만 확인 가능합니다.");
-      }
-      return;
+    if (inquiry.is_guest_post) {
+      setIsModalOpen(true);
+    } else {
+      toast.warning("회원 비밀글은 작성자와 관리자만 확인 가능합니다.");
     }
-
-    router.push(`/inquiry/${inquiry.id}`);
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordInput.trim()) {
       toast.warning("비밀번호를 입력해주세요.");
       return;
     }
 
-    if (inquiry.password === passwordInput.trim()) {
-      addVerifiedId(inquiry.id);
+    setIsUnlocking(true);
+    try {
+      const unlocked = await unlockInquirySecret(
+        inquiry.id,
+        passwordInput.trim(),
+      );
+
+      if (!unlocked) {
+        toast.warning("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      setPendingPassword(inquiry.id, passwordInput.trim());
       setIsModalOpen(false);
       setPasswordInput("");
       router.push(`/inquiry/${inquiry.id}`);
-    } else {
-      toast.warning("비밀번호가 일치하지 않습니다.");
+    } catch {
+      toast.error("비밀번호 확인 중 오류가 발생했습니다.");
+    } finally {
+      setIsUnlocking(false);
     }
   };
 
@@ -140,9 +145,10 @@ export default function InquiryRow({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors shadow-sm"
+                disabled={isUnlocking}
+                className="px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50"
               >
-                확인
+                {isUnlocking ? "확인 중..." : "확인"}
               </button>
             </div>
           </form>

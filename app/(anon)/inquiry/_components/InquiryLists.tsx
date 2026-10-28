@@ -6,22 +6,15 @@ import InquiryRow from "./InquiryRow";
 import Createbtn from "./Createbtn";
 
 interface InquiryType {
-  admin_id: string | null;
-  answer_content: string | null;
-  answered_at: string | null;
-  content: string;
   created_at: string | null;
-  email: string | null;
   guest_name: string | null;
   id: number;
   inquiry_type: string;
-  is_privacy_agreed: boolean | null;
+  is_guest_post: boolean;
+  is_locked: boolean;
   is_public: boolean | null;
-  password: string | null;
-  phone_number: string | null;
   status: string | null;
   title: string;
-  updated_at: string | null;
   user_id: string | null;
 }
 
@@ -45,49 +38,17 @@ async function InquiryLists({
 }) {
   const supabase = await createServerSupabaseClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
-
-  let userLevel = 1;
-
-  if (currentUserId) {
-    const { data: userData } = await supabase
-      .from("user_table")
-      .select("level")
-      .eq("id", currentUserId)
-      .single();
-
-    if (userData?.level) {
-      userLevel = userData.level;
-    }
-  }
-
   const LIMIT = 10;
-  let inquiryQuery = supabase.from("inquiries").select("*", { count: "exact" });
-
-  if (query && query.trim() !== "") {
-    const searchTarget = `%${query.trim()}%`;
-
-    if (type === "title") {
-      inquiryQuery = inquiryQuery.ilike("title", searchTarget);
-    } else if (type === "author") {
-      inquiryQuery = inquiryQuery.ilike("guest_name", searchTarget);
-    } else {
-      inquiryQuery = inquiryQuery.or(
-        `title.ilike.${searchTarget},guest_name.ilike.${searchTarget}`,
-      );
-    }
-  }
-
   const from = (page - 1) * LIMIT;
-  const to = from + LIMIT - 1;
 
-  const { data: inqueries, count } = await inquiryQuery
-    .range(from, to)
-    .order("created_at", { ascending: false });
+  const { data: inqueries } = await supabase.rpc("list_inquiries", {
+    p_query: query?.trim() || "",
+    p_type: type || "",
+    p_limit: LIMIT,
+    p_offset: from,
+  });
 
+  const count = inqueries?.[0]?.total_count ?? 0;
   const currentLength = inqueries?.length || 0;
   const emptyRowsCount = LIMIT - currentLength;
 
@@ -130,8 +91,6 @@ async function InquiryLists({
                   inquiry={inquiry}
                   displayIndex={displayIndex}
                   inquiryTypeLabel={inquiryTypeLabel}
-                  userLevel={userLevel}
-                  currentUserId={currentUserId}
                 />
               );
             })}
@@ -161,8 +120,6 @@ async function InquiryLists({
                   inquiry={inquiry}
                   displayIndex={displayIndex}
                   inquiryTypeLabel={inquiryTypeLabel}
-                  userLevel={userLevel}
-                  currentUserId={currentUserId}
                   isMobileContainer={true}
                 />
               );

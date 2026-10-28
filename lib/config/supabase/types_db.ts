@@ -1058,6 +1058,27 @@ export type Database = {
       }
       increment_product_views: { Args: { p_id: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
+      list_inquiries: {
+        Args: {
+          p_limit: number
+          p_offset: number
+          p_query: string
+          p_type: string
+        }
+        Returns: {
+          created_at: string
+          guest_name: string
+          id: number
+          inquiry_type: string
+          is_guest_post: boolean
+          is_locked: boolean
+          is_public: boolean
+          status: string
+          title: string
+          total_count: number
+          user_id: string
+        }[]
+      }
       mark_messages_as_read: {
         Args: { target_user_id: string }
         Returns: undefined
